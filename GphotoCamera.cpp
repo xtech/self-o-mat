@@ -43,6 +43,12 @@ CameraStartResult GphotoCamera::start() {
     gp_camera_get_config(camera, &rootWidget, gp);
 
 
+    // We have the root widget, find a controller which works with the connected camera
+    if(!findCameraController()) {
+        LOG_E(TAG, "Could not find a controller for the connected camera.");
+        return START_RESULT_ERROR;
+    }
+
     vector<string> isoChoices;
     vector<string> shutterChoices;
     vector<string> apertureChoices;
@@ -85,12 +91,6 @@ CameraStartResult GphotoCamera::start() {
 
     setState(STATE_WORKING);
 
-
-    if (!CHECK(gp_widget_get_child_by_name(rootWidget, "eosremoterelease", &triggerWidget))) {
-        cerr << "error getting trigger widget" << endl;
-        return START_RESULT_ERROR;
-    }
-
     if (!CHECK(gp_widget_get_child_by_name(rootWidget, "exposurecompensation", &exposureCorrectionWidget))) {
         cerr << "error getting exposure correction widget" << endl;
         return START_RESULT_ERROR;
@@ -117,10 +117,6 @@ CameraStartResult GphotoCamera::start() {
 
 
     return START_RESULT_SUCCESS;
-}
-
-CameraWidget *GphotoCamera::findWidget(string name) {
-
 }
 
 bool GphotoCamera::setCameraProperty(string property_name, string value) {
@@ -294,9 +290,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     cout << "We got the JPG" << endl;
 
                     // release the trigger if still pressed
-                    if (trigger_pressed) {
-                        internalReleaseTrigger();
-                    }
+                    cameraController->releaseTrigger();
 
                     const char *imageData = nullptr;
                     unsigned long int imageDataSize;
@@ -402,15 +396,14 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     }
 
     if (trigger_focus) {
-        internalTriggerFocus();
+        cameraController->focus();
         trigger_focus = false;
     }
     if (focus_active) {
         auto now = boost::posix_time::microsec_clock::local_time();
         auto focusActiveTime = (now - focusStartedTime).total_milliseconds();
         if (focusActiveTime > 5000) {
-            cout << "resetting focus" << endl;
-            internalResetFocus();
+            cameraController->stopFocus();
         }
     }
 
@@ -449,9 +442,7 @@ bool GphotoCamera::triggerCaptureBlocking() {
     cameraIoMutex.lock();
 
 
-    bool success = internalTriggerInstant();
-
-    //int retval = gp_camera_trigger_capture(camera, gp);
+    bool success = cameraController->trigger();
 
     cameraIoMutex.unlock();
 
@@ -527,7 +518,7 @@ bool GphotoCamera::loadChoices(string property_name, std::vector<string> &choice
             std::string choice_string;
             // Use assign to copy the string not just the ptr
             choice_string = choice;
-            cout << "Found choice: " << choice_string << endl;
+            //cout << "Found choice: " << choice_string << endl;
             choices.push_back(choice_string);
         } else {
             return false;
@@ -700,112 +691,6 @@ bool GphotoCamera::setImageFormatSd(int image_format_sd_choice) {
 }
 
 
-bool GphotoCamera::internalTriggerFocus() {
-    cout << "starting focus" << endl;
-    CameraWidget *widget;
-    if (!CHECK(gp_widget_get_child_by_name(rootWidget, "autofocusdrive", &widget))) {
-        cerr << "error getting autofocus widget" << endl;
-        return false;
-    }
-    int value = 1;
-    if (!CHECK(gp_widget_set_value(widget, &value))) {
-        cerr << "Error setting value1" << endl;
-        return false;
-    }
-    if (!CHECK(gp_camera_set_config(camera, rootWidget, gp))) {
-        cerr << "Error setting config" << endl;
-        return false;
-    }
-    focus_active = true;
-    focusStartedTime = boost::posix_time::microsec_clock::local_time();
-
-    return true;
-}
-
-bool GphotoCamera::internalResetFocus() {
-    cout << "stopping focus" << endl;
-    CameraWidget *widget;
-    if (!CHECK(gp_widget_get_child_by_name(rootWidget, "autofocusdrive", &widget))) {
-        cerr << "error getting autofocus widget" << endl;
-        return false;
-    }
-    int value = 0;
-    if (!CHECK(gp_widget_set_value(widget, &value))) {
-        cerr << "Error setting value1" << endl;
-        return false;
-    }
-    if (!CHECK(gp_camera_set_config(camera, rootWidget, gp))) {
-        cerr << "Error setting config" << endl;
-        return false;
-    }
-    focus_active = false;
-
-    return true;
-}
-
-bool GphotoCamera::internalTriggerInstant() {
-    cout << "current exposure choice is: " << current_exposure_correction_choice << endl;
-    string current_exposure_choice_str = choices["exposurecompensation"][current_exposure_correction_choice];
-    cout << "Setting exposure to " << current_exposure_choice_str << endl;
-    int retval = gp_widget_set_value(exposureCorrectionWidget, current_exposure_choice_str.c_str());
-    if (retval != GP_OK) {
-        cerr << "Error triggering capture2" << endl;
-        return false;
-    }
-    retval = gp_camera_set_config(camera, rootWidget, gp);
-    if (retval != GP_OK) {
-        cerr << "Error transmitting new value to cam with error " << gp_result_as_string(retval) << endl;
-        return false;
-    }
-
-    retval = gp_widget_set_value(triggerWidget, "Immediate");
-    if (retval != GP_OK) {
-        cerr << "Error triggering capture" << endl;
-        return false;
-    }
-
-    retval = gp_camera_set_config(camera, rootWidget, gp);
-    if (retval != GP_OK) {
-        cerr << "Error transmitting new value to cam with error " << gp_result_as_string(retval) << endl;
-        return false;
-    }
-    trigger_pressed = true;
-    return false;
-}
-
-bool GphotoCamera::internalReleaseTrigger() {
-    cout << "releasing trigger" << endl;
-    int retval = gp_widget_set_value(triggerWidget, "Release Full");
-    if (retval != GP_OK) {
-        cerr << "Error releasing capture" << endl;
-        return false;
-    }
-    retval = gp_widget_set_value(exposureCorrectionWidget, "0");
-    if (retval != GP_OK) {
-        cerr << "Error releasing  capture2" << endl;
-        return false;
-    }
-    retval = gp_camera_set_config(camera, rootWidget, gp);
-    if (retval != GP_OK) {
-        cerr << "Error transmitting new value to cam with error " << gp_result_as_string(retval) << endl;
-        return false;
-    }
-    cout << "releasing trigger2" << endl;
-    retval = gp_widget_set_value(triggerWidget, "None");
-    if (retval != GP_OK) {
-        cerr << "Error releasing capture" << endl;
-        return false;
-    }
-    retval = gp_camera_set_config(camera, rootWidget, gp);
-    if (retval != GP_OK) {
-        cerr << "Error transmitting new value to cam with error " << gp_result_as_string(retval) << endl;
-        return false;
-    }
-
-    return false;
-}
-
-
 bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, void **previewBuffer,
                                      size_t *previewBufferSize, ImageInfo *previewImageInfo) {
     if (getState() != STATE_WORKING)
@@ -837,5 +722,24 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
 
     cameraIoMutex.unlock();
     return success;
+}
+
+bool GphotoCamera::findCameraController() {
+    // Try the advanced controller first then revert to the basic one
+    cameraController = new CanonShutterButtonCameraController(gp, camera, rootWidget);
+    if(cameraController->supportsCamera())
+        return true;
+
+    // Delete it, try next
+    delete(cameraController);
+
+    cameraController = new BasicCameraController(gp, camera, rootWidget);
+
+    if(cameraController->supportsCamera())
+        return true;
+
+    delete(cameraController);
+    cameraController = nullptr;
+    return false;
 }
 

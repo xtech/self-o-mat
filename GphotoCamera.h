@@ -12,6 +12,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include "buffers.h"
 #include "JpegDecoder.h"
+#include "IGphotoController.h"
+#include "CanonShutterButtonCameraController.h"
 
 extern "C" {
     #include <gphoto2/gphoto2.h>
@@ -23,6 +25,9 @@ using namespace std;
 class GphotoCamera : public ICamera {
 private:
     static const std::string TAG;
+
+    IGphotoController *cameraController = nullptr;
+
     JpegDecoder jpegDecoder;
 
     CameraFile *lastCameraFile = NULL;
@@ -48,7 +53,6 @@ private:
     boost::mutex cameraIoMutex;
 
     CameraWidget *rootWidget;
-    CameraWidget *triggerWidget;
     CameraWidget *exposureCorrectionWidget;
 
 
@@ -79,7 +83,6 @@ private:
     void drainEventQueueWhenNeeded();
 
     void listWidgets(int currentDepth, CameraWidget *parent);
-    CameraWidget *findWidget(string name);
 
     bool setCameraProperty(string property_name, string value);
     int getCameraPropertyChoice(string property_name);
@@ -91,10 +94,7 @@ private:
 
     bool loadChoices(string property_name, std::vector<string> &choices);
 
-    bool internalTriggerFocus();
-    bool internalResetFocus();
-    bool internalTriggerInstant();
-    bool internalReleaseTrigger();
+    bool findCameraController();
 
 
 public:

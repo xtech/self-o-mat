@@ -5,6 +5,8 @@
 #ifndef SELF_O_MAT_VERBOSE_H
 #define SELF_O_MAT_VERBOSE_H
 
+#include <iostream>
+
 #ifdef VERBOSE
 #define LOG_D(TAG, MSG) std::cout << "[" << TAG  << "] " << MSG << std::endl
 #else

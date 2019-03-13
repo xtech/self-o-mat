@@ -42,7 +42,7 @@ else()
     message("We don't have wiring pi!")
 endif()
 
-add_executable(self_o_mat main.cpp BoothLogic.cpp BoothLogic.h BoothGui.cpp BoothGui.h ICamera.h OpenCVCamera.cpp OpenCVCamera.h GphotoCamera.cpp GphotoCamera.h FPSCounter.h NopCamera.h ImageProcessor.cpp ImageProcessor.h IGui.h ILogger.h ConsoleLogger.cpp ConsoleLogger.h buffers.h headers.cpp imageinfo.h PrinterManager.cpp PrinterManager.h BoothApi.h BoothApi.cpp protobuf/api.pb.cc protobuf/api.pb.h ICamera.cpp NopGui.cpp NopGui.h JpegDecoder.cpp JpegDecoder.h verbose.h)
+add_executable(self_o_mat main.cpp BoothLogic.cpp BoothLogic.h BoothGui.cpp BoothGui.h ICamera.h OpenCVCamera.cpp OpenCVCamera.h GphotoCamera.cpp GphotoCamera.h FPSCounter.h NopCamera.h ImageProcessor.cpp ImageProcessor.h IGui.h ILogger.h ConsoleLogger.cpp ConsoleLogger.h buffers.h headers.cpp imageinfo.h PrinterManager.cpp PrinterManager.h BoothApi.h BoothApi.cpp protobuf/api.pb.cc protobuf/api.pb.h ICamera.cpp NopGui.cpp NopGui.h JpegDecoder.cpp JpegDecoder.h verbose.h IGphotoController.h CanonShutterButtonCameraController.cpp CanonShutterButtonCameraController.h BasicCameraController.cpp BasicCameraController.h)
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})
 target_link_libraries(self_o_mat gphoto2)
