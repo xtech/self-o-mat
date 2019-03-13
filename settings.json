@@ -1,0 +1,8 @@
+{
+  "camera_type": "nop",
+  "has_flash": false,
+  "has_button": false,
+  "button_port_name": "/dev/null",
+  "printer_name": "PDF",
+  "image_dir": "/home/clemens/Pictures"
+}

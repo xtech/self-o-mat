@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+package selfomat;
+
+message Status {
+
+    enum State {
+        INITIALIZING = 0;
+        RUNNING = 1;
+        ERROR = 2;
+    }
+
+    required State current_state = 1;
+}
+
+message CameraSettings {
+    required int32 iso = 1;
+    required int32 shutter_speed = 2;
+    required int32 aperture = 3;
+    required int32 exposure_compensation = 4;
+    required int32 image_format = 5;
+    required int32 image_format_sd = 6;
+
+    required string camera_name = 7;
+    required string lens_name = 8;
+}
+
+message CameraChoices {
+    repeated string iso_choices = 1;
+    repeated string shutter_speed_choices = 2;
+    repeated string aperture_choices = 3;
+    repeated string exposure_compensation_choices = 4;
+    repeated string image_format_choices = 5;
+    repeated string image_format_sd_choices = 6;
+}
+
+message BoothSettings {
+    required bool printer_enabled = 1;
+}
