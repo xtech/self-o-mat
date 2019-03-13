@@ -328,7 +328,6 @@ void BoothLogic::printerThread() {
 
         cout << "[Printer Thread] " << "Processing image" << endl;
 
-        boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
         // We need the final jpeg image. So lock the mutex
         {
             unique_lock<boost::mutex> lk(jpegImageMutex);

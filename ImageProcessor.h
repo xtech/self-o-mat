@@ -7,6 +7,7 @@
 
 
 #include <Magick++.h>
+#include <magick/profile.h>
 #include <iostream>
 #include "ILogger.h"
 #include "imageinfo.h"
@@ -20,6 +21,9 @@ using namespace Magick;
 class ImageProcessor {
 private:
     static const std::string TAG;
+
+    Blob adobeRgbIcc;
+    Blob sRgbIcc;
 
     JpegDecoder jpegDecoder;
 

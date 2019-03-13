@@ -71,9 +71,10 @@ CameraStartResult GphotoCamera::start() {
     if (!loadChoices("imageformatsd", imageformatsdChoices)) {
         return START_RESULT_ERROR;
     }
-    if (!loadChoices("exposurecompensation", exposurecompensationChoices)) {
-        return START_RESULT_ERROR;
-    }
+    /*if (!loadChoices("exposurecompensation", exposurecompensationChoices)) {
+        LOG_E(TAG, "No exposure compensation");
+        //return START_RESULT_ERROR;
+    }*/
 
 
     choices["iso"] = isoChoices;
@@ -81,20 +82,20 @@ CameraStartResult GphotoCamera::start() {
     choices["aperture"] = apertureChoices;
     choices["imageformat"] = imageformatChoices;
     choices["imageformatsd"] = imageformatsdChoices;
-    choices["exposurecompensation"] = exposurecompensationChoices;
+//    choices["exposurecompensation"] = exposurecompensationChoices;
 
 
     pullCameraSettings();
 
     // HACK set it to center
-    current_exposure_correction_choice = exposurecompensationChoices.size() / 2;
+    //current_exposure_correction_choice = exposurecompensationChoices.size() / 2;
 
     setState(STATE_WORKING);
 
-    if (!CHECK(gp_widget_get_child_by_name(rootWidget, "exposurecompensation", &exposureCorrectionWidget))) {
+    /*if (!CHECK(gp_widget_get_child_by_name(rootWidget, "exposurecompensation", &exposureCorrectionWidget))) {
         cerr << "error getting exposure correction widget" << endl;
         return START_RESULT_ERROR;
-    }
+    }*/
 
     drainEventQueue(false);
 

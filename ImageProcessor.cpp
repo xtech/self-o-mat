@@ -18,6 +18,27 @@ bool ImageProcessor::start() {
         return false;
     }
 
+    LOG_D(TAG, "Loading Adobe RGB Profile");
+    try {
+        Image magick;
+        magick.read("./assets/AdobeRGB1998.icc");
+        magick.write(&adobeRgbIcc);
+        LOG_D(TAG, "Profile loaded. Blob size: " << adobeRgbIcc.length());
+    } catch (Exception &error) {
+        logger->logError(std::string("error loading icc profile: ") + error.what());
+        return false;
+    }
+    LOG_D(TAG, "Loading sRGB Profile");
+    try {
+        Image magick;
+        magick.read("./assets/sRGB2014.icc");
+        magick.write(&sRgbIcc);
+        LOG_D(TAG, "Profile loaded. Blob size: " << sRgbIcc.length());
+    } catch (Exception &error) {
+        logger->logError(std::string("error loading icc profile: ") + error.what());
+        return false;
+    }
+
     // Read properties for the template
     boost::property_tree::ptree ptree;
     try {
@@ -58,17 +79,37 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
     clock_gettime(CLOCK_MONOTONIC, &tstart);
 
-    ImageInfo latestResult{};
-    auto success = jpegDecoder.decodeJpeg((unsigned char *) inputImageJpeg, jpegBufferSize,
-                                          &latestBuffer, &latestBufferSize, &latestResult, RGB,
-                                          static_cast<unsigned int>(targetWidth),
-                                          static_cast<unsigned int>(targetHeight), LARGER_THAN_REQUIRED);
-
     // Create imagemagick image from blob
-    Image inputImageMagic(latestResult.width, latestResult.height, "RGB", StorageType::CharPixel, latestBuffer);
+    Blob blob(inputImageJpeg, jpegBufferSize);
+    Image inputImageMagic(blob);
 
-    int imageWidth = latestResult.width;
-    int imageHeight = latestResult.height;
+    std::string exif_interop = inputImageMagic.attribute("exif:thumbnail:InteroperabilityIndex");
+    std::string exif_color_space = inputImageMagic.attribute("exif:ColorSpace");
+
+    bool srgb = true;
+    if(exif_color_space == "2") {
+        srgb = false;
+    } else if(exif_color_space == "65535" && exif_interop == "R03" ){
+        srgb = false;
+    } else if(exif_color_space == "1") {
+        srgb = true;
+    } else if(exif_interop == "R98") {
+        srgb = true;
+    } else {
+        LOG_E(TAG, "Could not determine sRGB or Adobe RGB. I'll assume sRGB.");
+    }
+
+    if(srgb) {
+        LOG_D(TAG, "Decoding image as sRGB");
+        inputImageMagic.iccColorProfile(sRgbIcc);
+    } else {
+        LOG_D(TAG, "Decoding image as Adobe RGB");
+        inputImageMagic.iccColorProfile(adobeRgbIcc);
+    }
+
+
+    int imageWidth = inputImageMagic.columns();
+    int imageHeight = inputImageMagic.rows();
 
     LOG_D(TAG, "We decoded an image with size " << imageWidth << "x" << imageHeight);
 
@@ -89,6 +130,7 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
     // Create the resulting image it has to be as large as the print template
     Image result(templateImage);
+
     inputImageMagic.scale(Geometry(ceil(imageWidth * scaleToUse), ceil(imageHeight * scaleToUse)));
     clock_gettime(CLOCK_MONOTONIC, &tend);
     printf("scale took %.5f s\n",
@@ -102,6 +144,8 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
     printf("composition took %.5f s\n",
            ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
            ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+
+    result.profile("ICC", sRgbIcc);
 
     return result;
 }
