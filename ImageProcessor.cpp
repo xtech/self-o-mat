@@ -87,6 +87,13 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
     std::string exif_interop = inputImageMagic.attribute("exif:thumbnail:InteroperabilityIndex");
     std::string exif_color_space = inputImageMagic.attribute("exif:ColorSpace");
 
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("reading exif took %.5f s\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+
+
     bool srgb = true;
     if(exif_color_space == "2") {
         srgb = false;
