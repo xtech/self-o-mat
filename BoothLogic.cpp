@@ -228,7 +228,7 @@ void BoothLogic::cameraThread() {
             jpegImageMutex.unlock();
 
             {
-                unique_lock<boost::mutex> lk(jpegImageMutex);
+                unique_lock<boost::mutex> lk(printerStateMutex);
                 printerState = 1;
                 printerStateCV.notify_all();
             }
@@ -242,7 +242,7 @@ void BoothLogic::cameraThread() {
 
                 // Notify the printer thread
                 {
-                    unique_lock<boost::mutex> lk(jpegImageMutex);
+                    unique_lock<boost::mutex> lk(printerStateMutex);
                     printerState = 2;
                     printerStateCV.notify_all();
                 }

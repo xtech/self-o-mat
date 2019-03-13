@@ -81,6 +81,7 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
     // Create imagemagick image from blob
     Blob blob(inputImageJpeg, jpegBufferSize);
+
     Image inputImageMagic(blob);
 
     std::string exif_interop = inputImageMagic.attribute("exif:thumbnail:InteroperabilityIndex");
