@@ -308,9 +308,6 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     buffers::requireBufferWithSize(&latestBuffer, &latestBufferSize, imageDataSize);
                     memcpy(latestBuffer, imageData, imageDataSize);
 
-                    // Save the image
-                    cerr << "saving image not supported" << endl;
-
                 } else {
                     cout << "Some other file" << endl;
                 }

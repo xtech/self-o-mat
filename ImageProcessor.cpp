@@ -50,6 +50,9 @@ ImageProcessor::~ImageProcessor() {
 
 Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize) {
     struct timespec tstart, tend;
+
+
+
     int targetHeight = offsetBottom - offsetTop;
     int targetWidth = offsetRight - offsetLeft;
 

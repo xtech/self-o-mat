@@ -332,6 +332,10 @@ void BoothLogic::printerThread() {
         // We need the final jpeg image. So lock the mutex
         {
             unique_lock<boost::mutex> lk(jpegImageMutex);
+
+            // first we save the image
+            saveImage(latestJpegBuffer, latestJpegBufferSize);
+
             Magick::Image framed = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
             cout << "[Printer Thread] " << "Framed" << endl;
             printerManager.prepareImageForPrint(framed);
@@ -367,4 +371,36 @@ void BoothLogic::printerThread() {
             printerStateCV.notify_all();
         }
     }
+}
+
+void BoothLogic::saveImage(void *data, size_t size) {
+    if(imageDir.empty()) {
+        cerr << "No image dir specified" << endl;
+        return;
+    }
+
+    std::time_t time = std::time(nullptr);
+
+    std::string filename = imageDir;
+
+    filename+="/";
+    filename+="img_";
+    filename+=to_string((long)time);
+    filename+=".jpg";
+
+    cout << "Writing image to:" << filename << endl;
+
+    FILE *fp;
+
+    fp = fopen(filename.c_str(), "wb");
+    if(fp == nullptr) {
+        cerr << "Error opening output file" << endl;
+        return;
+    }
+
+    fwrite(data, size, 1, fp);
+
+    fclose(fp);
+
+    cout << "File written to: " << filename << endl;
 }

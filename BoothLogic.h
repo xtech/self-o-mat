@@ -41,8 +41,8 @@ struct flash_struct {
 
 class BoothLogic {
 public:
-    explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash, string printer_name) : camera(camera), gui(gui), io_service(), tmp_serial_port(io_service), button_serial_port(io_service),
-        imageProcessor(gui), printerManager(gui, printer_name),has_button(has_button), button_port(button_port), has_flash(has_flash) {
+    explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash, string printer_name, string imageDir) : camera(camera), gui(gui), io_service(), tmp_serial_port(io_service), button_serial_port(io_service),
+        imageProcessor(gui), printerManager(gui, printer_name),has_button(has_button), button_port(button_port), has_flash(has_flash), imageDir(imageDir) {
         triggered = false;
 
         // TODO: Load from json file
@@ -51,6 +51,8 @@ public:
 
 
 private:
+    string imageDir;
+
     bool has_button, has_flash;
     string button_port;
 
@@ -111,7 +113,7 @@ private:
 
     vector<boost::filesystem::path> findArduinos();
 
-
+    void saveImage(void *data, size_t size);
 
 public:
     void trigger();

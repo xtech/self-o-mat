@@ -110,10 +110,8 @@ int main(int argc, char* argv[]) {
     } else {
         cam = new NopCamera();
     }
-    cam->setImageDir(image_dir);
 
-
-    logic = new BoothLogic(cam, gui, has_button, button_port_name, has_flash, printer_name);
+    logic = new BoothLogic(cam, gui, has_button, button_port_name, has_flash, printer_name, image_dir);
 
     api = new BoothApi(logic, cam);
     api->start();

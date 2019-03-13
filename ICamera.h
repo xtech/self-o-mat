@@ -35,13 +35,9 @@ class ICamera {
 private:
     boost::mutex stateMutex;
     CameraState currentState{};
-    string image_dir;
 
-protected:
-    void saveImage(void *data, size_t size);
 
 public:
-    void setImageDir(string image_dir);
 
     /**
      * Starts the camera.
