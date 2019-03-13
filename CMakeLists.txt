@@ -3,6 +3,14 @@ project(self_o_mat)
 
 set(CMAKE_CXX_STANDARD 14)
 
+# Generate protobuf files on file change
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/api.pb.cc ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/api.pb.h
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/api.proto
+        COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/compile_protobuf.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+
+
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 find_package(Cups REQUIRED)
@@ -47,10 +55,5 @@ if(USE_SPI)
 endif()
 
 
-
-add_custom_target( compile_protobuf
-        COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/compile_protobuf.sh
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
 
 #add_dependencies(self_o_mat compile_protobuf)
