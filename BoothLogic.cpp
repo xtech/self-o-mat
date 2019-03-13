@@ -176,6 +176,11 @@ void BoothLogic::stop() {
     gui->stop();
     isRunning = false;
     imageProcessor.stop();
+
+    logicThreadHandle.join();
+    ioThreadHandle.join();
+    cameraThreadHandle.join();
+    printThreadHandle.join();
 }
 
 void BoothLogic::cameraThread() {

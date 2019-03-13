@@ -58,13 +58,15 @@ bool BoothGui::start() {
     rect_overlay = sf::RectangleShape(sf::Vector2f(videoMode.width, videoMode.height));
     count_down_circle = sf::CircleShape(19.0f);
 
+    isRunning = true;
     renderThreadHandle = boost::thread(boost::bind(&BoothGui::renderThread, this));
     return true;
 }
 
 void BoothGui::stop() {
-    window.close();
-    renderThreadHandle.interrupt();
+    isRunning = false;
+    std::cout << "Waiting for gui to stop" << std::endl;
+    renderThreadHandle.join();
 }
 
 void BoothGui::updatePreviewImage(void *data, uint32_t width, uint32_t height) {
@@ -105,7 +107,7 @@ void BoothGui::renderThread() {
     window.setActive(true);
     sf::Event event{};
     stateTimer.restart();
-    while (window.isOpen()) {
+    while (isRunning) {
 
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -347,6 +349,7 @@ void BoothGui::renderThread() {
         // Draw the window
         window.display();
     }
+    window.close();
 }
 
 void BoothGui::setState(BoothGui::GUI_STATE newState) {

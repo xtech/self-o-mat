@@ -26,6 +26,7 @@
 
 class BoothGui : public IGui {
 private:
+    bool isRunning;
 
     enum GUI_STATE {
         STATE_INIT,
