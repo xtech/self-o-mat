@@ -5,6 +5,7 @@
 #ifndef SELF_O_MAT_IMAGEPROCESSOR_H
 #define SELF_O_MAT_IMAGEPROCESSOR_H
 
+
 #include <Magick++.h>
 #include <iostream>
 #include "ILogger.h"
@@ -12,16 +13,15 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-extern "C" {
-    #include <turbojpeg.h>
-}
+#include "verbose.h"
+#include "JpegDecoder.h"
 
 using namespace Magick;
 class ImageProcessor {
 private:
-    tjhandle tj;
-    int scalingFactorCount = 0;
-    tjscalingfactor *scalingFactors = nullptr;
+    static const std::string TAG;
+
+    JpegDecoder jpegDecoder;
 
     Image templateImage;
     int offsetTop;
@@ -38,8 +38,6 @@ public:
     explicit ImageProcessor(ILogger *logger);
 
     Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize);
-    Image frameImageForPrint(void *inputImage, ImageInfo imageInfo);
-    bool convertImageToPreview(Image &image, void **outBuffer, size_t *outBufferSize, ImageInfo *outImageInfo);
 
     bool start();
     bool stop();

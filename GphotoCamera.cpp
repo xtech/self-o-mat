@@ -4,6 +4,8 @@
 
 #include "GphotoCamera.h"
 
+const std::string GphotoCamera::TAG = "GPHOTO CAMERA";
+
 #define CHECK(it) (it == GP_OK)
 
 CameraStartResult GphotoCamera::start() {
@@ -13,7 +15,7 @@ CameraStartResult GphotoCamera::start() {
 
 
     const char **gphotoVersion = gp_library_version(GP_VERSION_VERBOSE);
-    cout << "GPhoto Version: " << (*gphotoVersion) << endl;
+    LOG_D(TAG, "GPhoto Version: " << (*gphotoVersion));
 
     gp = gp_context_new();
 
@@ -376,8 +378,8 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
         return false;
     }
 
-
-    auto success = convertJpegToMemory((unsigned char *) data, size, &tmpBuffer, &tmpBufferSize, resultInfo);
+    // It is already a preview image, do not scale.
+    auto success = jpegDecoder.decodeJpeg((unsigned char *) data, size, &tmpBuffer, &tmpBufferSize, resultInfo, RGBA);
 
     // swap the buffers
     void *tmp = *buffer;
@@ -456,107 +458,6 @@ bool GphotoCamera::triggerCaptureBlocking() {
     return success;
 }
 
-
-
-bool
-GphotoCamera::convertJpegToMemory(unsigned char *jpeg_data, size_t jpeg_size, void **outBuffer, size_t *outBufferSize,
-                                  ImageInfo *resultInfo) {
-    int width, height;
-    tjDecompressHeader(tj, jpeg_data, jpeg_size, &width, &height);
-
-
-    if (height > 1080) {
-        cout << "We got an image with dimensions: " << width << "x" << height << endl;
-
-
-        int targetHeight = 1000;
-        int bestDist = 99999999;
-        int scalingFactorIdx = -1;
-
-        for (int i = 0; i < scalingFactorCount; i++) {
-            int scaledHeight = TJSCALED(height, scalingFactors[i]);
-            if (scaledHeight <= targetHeight) {
-                int dist = targetHeight - scaledHeight;
-                if (dist < bestDist) {
-                    scalingFactorIdx = i;
-                    bestDist = dist;
-                }
-            }
-        }
-
-        tjscalingfactor factor = scalingFactors[scalingFactorIdx];
-        cout << "We will use scaling of: " << factor.num << "/" << factor.denom << endl;
-        cout << "Scaled size: " << TJSCALED(width, factor) << "x" << TJSCALED(height, factor) << endl;
-
-
-
-        // Allocate the buffer
-        auto sizeNeeded = static_cast<size_t>(4 * TJSCALED(width, factor) * TJSCALED(height, factor));
-
-        // Temp buffer for huge image
-        //void *tmpBuf = NULL;
-        //size_t tmpSize = 0;
-        buffers::requireBufferWithSize(outBuffer, outBufferSize, sizeNeeded);
-
-
-        auto retVal = tjDecompress2(tj, jpeg_data, jpeg_size, (unsigned char *) *outBuffer, 0, 0, targetHeight,
-                                    TJPF_RGBA, TJFLAG_NOREALLOC);
-        if (retVal < 0) {
-            cerr << "Error converting image, error was: " << tjGetErrorStr() << endl;
-            return false;
-        }
-
-        resultInfo->width = TJSCALED(width, factor);
-        resultInfo->height = TJSCALED(height, factor);
-
-        return true;
-        // We now need to scale the tmp image to the target buffer
-        /*cv::Mat tmpImage(height, width, CV_8UC4, tmpBuf);
-
-        // Scale it down
-        float scale = 1080.0f / (float) height;
-
-        int targetWidth = width * scale;
-        int targetHeight = height * scale;
-
-
-        buffers::requireBufferWithSize(outBuffer, outBufferSize, targetWidth * targetHeight * 4);
-
-        cv::Mat target(targetHeight, targetWidth, CV_8UC4, *outBuffer);
-
-        cv::Mat scaled;
-        cv::resize(tmpImage, scaled, cv::Size(targetWidth, targetHeight));
-
-        scaled.copyTo(target);
-
-
-        free(tmpBuf);
-         */
-
-        //resultInfo->width = targetWidth;
-        //resultInfo->height = targetHeight;
-//        return false;
-    } else {
-        // Allocate the buffer
-        auto sizeNeeded = static_cast<size_t>(4 * width * height);
-
-        // Temp buffer for huge image
-        buffers::requireBufferWithSize(outBuffer, outBufferSize, sizeNeeded);
-
-        auto retVal = tjDecompress2(tj, jpeg_data, jpeg_size, (unsigned char *) *outBuffer, 0, 0, 0, TJPF_RGBA,
-                                    TJFLAG_NOREALLOC);
-        if (retVal < 0) {
-            cerr << "Error converting image, error was: " << tjGetErrorStr() << endl;
-            return false;
-        }
-
-        // We now need to scale the tmp image to the target buffer
-
-        resultInfo->width = width;
-        resultInfo->height = height;
-        return true;
-    }
-}
 
 int GphotoCamera::getIso() {
     return current_iso_choice;
@@ -916,8 +817,11 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
     drainEventQueue(true);
 
     // Jpeg is now in latestBuffer convert to bmp
-    auto success = convertJpegToMemory((unsigned char *) latestBuffer, latestBufferSize, previewBuffer, previewBufferSize,
-                                       previewImageInfo);
+    auto success = jpegDecoder.decodeJpeg((unsigned char *) latestBuffer, latestBufferSize, previewBuffer,
+                           previewBufferSize,
+                           previewImageInfo, JPEG_DECODE_COLORS::RGBA, 0, 800, LARGER_THAN_REQUIRED);
+
+    LOG_D(TAG, "Preview image of the final shot has size: " << previewImageInfo->width << "x" << previewImageInfo->height);
 
 
     // Swap the buffers for jpeg

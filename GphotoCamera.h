@@ -22,6 +22,7 @@ using namespace std;
 
 class GphotoCamera : public ICamera {
 private:
+    static const std::string TAG;
     JpegDecoder jpegDecoder;
 
     CameraFile *lastCameraFile = NULL;
@@ -73,8 +74,6 @@ private:
         CameraFilePath path;
         int offset;
     } *queue = NULL;
-
-    bool convertJpegToMemory(unsigned char *jpeg_data, size_t jpeg_size, void **outBuffer, size_t *outBufferSize, ImageInfo *resultInfo);
 
     void drainEventQueue(bool waitForPhoto);
     void drainEventQueueWhenNeeded();

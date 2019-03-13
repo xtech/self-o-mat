@@ -132,6 +132,8 @@ public:
     virtual bool setImageFormatSd(int image_format_sd_choice) = 0;
 
     virtual bool autofocusBlocking() = 0;
+
+    virtual ~ICamera();
 };
 
 

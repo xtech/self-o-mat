@@ -40,3 +40,7 @@ void ICamera::saveImage(void *data, size_t size) {
 
     cout << "File written to: " << filename << endl;
 }
+
+ICamera::~ICamera() {
+
+}

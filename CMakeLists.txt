@@ -3,6 +3,11 @@ project(self_o_mat)
 
 set(CMAKE_CXX_STANDARD 14)
 
+if(VERBOSE)
+    message("Verbos is set, adding definition")
+    add_definitions(-DVERBOSE)
+endif()
+
 # Generate protobuf files on file change
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/api.pb.cc ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/api.pb.h
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/api.proto
@@ -28,6 +33,7 @@ include_directories(${Protobuf_INCLUDE_DIR})
 include_directories(/usr/local/include/pistache )
 
 
+
 if(USE_SPI)
     message("We have wiring pi!")
 
@@ -36,7 +42,7 @@ else()
     message("We don't have wiring pi!")
 endif()
 
-add_executable(self_o_mat main.cpp BoothLogic.cpp BoothLogic.h BoothGui.cpp BoothGui.h ICamera.h OpenCVCamera.cpp OpenCVCamera.h GphotoCamera.cpp GphotoCamera.h FPSCounter.h NopCamera.h ImageProcessor.cpp ImageProcessor.h IGui.h ILogger.h ConsoleLogger.cpp ConsoleLogger.h buffers.h headers.cpp imageinfo.h PrinterManager.cpp PrinterManager.h BoothApi.h BoothApi.cpp protobuf/api.pb.cc protobuf/api.pb.h ICamera.cpp NopGui.cpp NopGui.h JpegDecoder.cpp JpegDecoder.h)
+add_executable(self_o_mat main.cpp BoothLogic.cpp BoothLogic.h BoothGui.cpp BoothGui.h ICamera.h OpenCVCamera.cpp OpenCVCamera.h GphotoCamera.cpp GphotoCamera.h FPSCounter.h NopCamera.h ImageProcessor.cpp ImageProcessor.h IGui.h ILogger.h ConsoleLogger.cpp ConsoleLogger.h buffers.h headers.cpp imageinfo.h PrinterManager.cpp PrinterManager.h BoothApi.h BoothApi.cpp protobuf/api.pb.cc protobuf/api.pb.h ICamera.cpp NopGui.cpp NopGui.h JpegDecoder.cpp JpegDecoder.h verbose.h)
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})
 target_link_libraries(self_o_mat gphoto2)

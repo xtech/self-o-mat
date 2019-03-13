@@ -1,5 +1,5 @@
 {
-  "camera_type": "nop",
+  "camera_type": "gphoto",
   "has_flash": false,
   "has_button": false,
   "button_port_name": "/dev/null",

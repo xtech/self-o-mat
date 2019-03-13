@@ -18,6 +18,7 @@ BoothApi *api = nullptr;
 BoothLogic *logic = nullptr;
 
 void exitfunc(int code) {
+    boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
     std::cout << "starting clean up" << std::endl;
     // First, we stop the logic as it will stop camera and gui for us
     if(logic != nullptr) {
@@ -115,13 +116,15 @@ int main(int argc, char* argv[]) {
 
     logic = new BoothLogic(cam, gui, has_button, button_port_name, has_flash, printer_name);
 
+    api = new BoothApi(logic, cam);
+    api->start();
+
+
     if(!logic->start()) {
         cerr << "Error starting Logic - Exiting." << endl;
         return 2;
     }
 
-    api = new BoothApi(logic, cam);
-    api->start();
 
     cout << "Api started" << endl;
 
