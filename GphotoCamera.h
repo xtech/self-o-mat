@@ -56,13 +56,6 @@ private:
     CameraWidget *exposureCorrectionWidget;
 
 
-    int current_iso_choice = -1;
-    int current_shutter_choice = -1;
-    int current_aperture_choice = -1;
-    int current_exposure_correction_choice = -1;
-    int current_image_format_choice = -1;
-    int current_image_format_sd_choice = -1;
-
     bool settings_dirty = false;
     bool trigger_focus = false;
     bool focus_active = false;
@@ -72,7 +65,7 @@ private:
     string lens_name;
 
 
-    std::map<std::string, std::vector<string>> choices;
+    //std::map<std::string, std::vector<string>> choices;
 
     struct queue_entry {
         CameraFilePath path;

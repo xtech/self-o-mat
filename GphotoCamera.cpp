@@ -49,43 +49,7 @@ CameraStartResult GphotoCamera::start() {
         return START_RESULT_ERROR;
     }
 
-    vector<string> isoChoices;
-    vector<string> shutterChoices;
-    vector<string> apertureChoices;
-    vector<string> imageformatChoices;
-    vector<string> imageformatsdChoices;
-    vector<string> exposurecompensationChoices;
 
-    if (!loadChoices("iso", isoChoices)) {
-        return START_RESULT_ERROR;
-    }
-    if (!loadChoices("shutterspeed", shutterChoices)) {
-        return START_RESULT_ERROR;
-    }
-    if (!loadChoices("aperture", apertureChoices)) {
-        return START_RESULT_ERROR;
-    }
-    if (!loadChoices("imageformat", imageformatChoices)) {
-        return START_RESULT_ERROR;
-    }
-    if (!loadChoices("imageformatsd", imageformatsdChoices)) {
-        return START_RESULT_ERROR;
-    }
-    /*if (!loadChoices("exposurecompensation", exposurecompensationChoices)) {
-        LOG_E(TAG, "No exposure compensation");
-        //return START_RESULT_ERROR;
-    }*/
-
-
-    choices["iso"] = isoChoices;
-    choices["shutterspeed"] = shutterChoices;
-    choices["aperture"] = apertureChoices;
-    choices["imageformat"] = imageformatChoices;
-    choices["imageformatsd"] = imageformatsdChoices;
-//    choices["exposurecompensation"] = exposurecompensationChoices;
-
-
-    pullCameraSettings();
 
     // HACK set it to center
     //current_exposure_correction_choice = exposurecompensationChoices.size() / 2;
@@ -396,12 +360,15 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     if (trigger_focus) {
         cameraController->focus();
         trigger_focus = false;
+        focusStartedTime = boost::posix_time::microsec_clock::local_time();
+        focus_active = true;
     }
     if (focus_active) {
         auto now = boost::posix_time::microsec_clock::local_time();
         auto focusActiveTime = (now - focusStartedTime).total_milliseconds();
         if (focusActiveTime > 5000) {
             cameraController->stopFocus();
+            focus_active = false;
         }
     }
 
@@ -411,26 +378,6 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
 }
 
 bool GphotoCamera::pushCameraSettings() {
-    if (!setCameraPropertyChoice("iso", current_iso_choice)) {
-        return false;
-    }
-    if (!setCameraPropertyChoice("aperture", current_aperture_choice)) {
-        return false;
-    }
-    if (!setCameraPropertyChoice("shutterspeed", current_shutter_choice)) {
-        return false;
-    }
-    /*if (!setCameraPropertyChoice("exposurecompensation", current_exposure_correction_choice)) {
-        return false;
-    }*/
-    if (!setCameraPropertyChoice("imageformat", current_image_format_choice)) {
-        return false;
-    }
-    if (!setCameraPropertyChoice("imageformatsd", current_image_format_sd_choice)) {
-        return false;
-    }
-
-    settings_dirty = false;
     return true;
 }
 
@@ -449,15 +396,15 @@ bool GphotoCamera::triggerCaptureBlocking() {
 
 
 int GphotoCamera::getIso() {
-    return current_iso_choice;
+    return 0;
 }
 
 int GphotoCamera::getShutterSpeed() {
-    return current_shutter_choice;
+    return 0;
 }
 
 int GphotoCamera::getAperture() {
-    return current_aperture_choice;
+    return 0;
 }
 
 int GphotoCamera::getShootingMode() {
@@ -465,37 +412,18 @@ int GphotoCamera::getShootingMode() {
 }
 
 bool GphotoCamera::setIso(int iso_choice) {
-    this->current_iso_choice = iso_choice;
-    this->settings_dirty = true;
     return true;
 }
 
 bool GphotoCamera::setShutterSpeed(int shutter_speed_choice) {
-    this->current_shutter_choice = shutter_speed_choice;
-    this->settings_dirty = true;
     return false;
 }
 
 bool GphotoCamera::setAperture(int aperture_choice) {
-    this->current_aperture_choice = aperture_choice;
-    this->settings_dirty = true;
     return false;
 }
 
 void GphotoCamera::pullCameraSettings() {
-    current_iso_choice = getCameraPropertyChoice("iso");
-    current_shutter_choice = getCameraPropertyChoice("shutterspeed");
-    current_aperture_choice = getCameraPropertyChoice("aperture");
-    //current_exposure_correction_choice = getCameraPropertyChoice("exposurecompensation");
-    current_image_format_choice = getCameraPropertyChoice("imageformat");
-    current_image_format_sd_choice = getCameraPropertyChoice("imageformatsd");
-
-    cout << "Pulled the following from camera: iso=" << choices["iso"][current_iso_choice] << endl
-         << ", aperture=" << choices["aperture"][current_aperture_choice] << endl
-         //<< ", exposure_correction=" << choices["exposurecompensation"][current_exposure_correction_choice] << endl
-         << ", imageformat=" << choices["imageformat"][current_image_format_choice] << endl
-         << ", imageformatsd=" << choices["imageformatsd"][current_image_format_sd_choice] << endl
-         << ", shutter=" << choices["shutterspeed"][current_shutter_choice] << endl;
 
     settings_dirty = false;
 }
@@ -528,74 +456,14 @@ bool GphotoCamera::loadChoices(string property_name, std::vector<string> &choice
 
 bool GphotoCamera::setCameraPropertyChoice(string property_name, int choice) {
 
-    vector<string> &choice_vector = choices[property_name];
-    if (choice < 0 || choice >= choice_vector.size()) {
-        cerr << "Invalid choice for property " << property_name << endl;
-        return false;
-    }
-
-    string string_to_send = choice_vector[choice];
-
-
-    CameraWidget *widget;
-    int retval = gp_widget_get_child_by_name(rootWidget, property_name.c_str(), &widget);
-    if (retval != GP_OK) {
-        cerr << "Error getting widget for property " << property_name << endl;
-        return false;
-    }
-    retval = gp_widget_set_value(widget, string_to_send.c_str());
-    if (retval != GP_OK) {
-        cerr << "Error setting property " << property_name << " to value " << string_to_send << ". error was: "
-             << gp_result_as_string(retval) << endl;
-        return false;
-    }
-    retval = gp_camera_set_config(camera, rootWidget, gp);
-    if (retval != GP_OK) {
-        cerr << "Error transmitting new value to cam with error " << gp_result_as_string(retval) << endl;
-        return false;
-    }
-
-    cout << "Successfully updated property " << property_name << " to value " << string_to_send << endl;
 
     return true;
 }
 
 int GphotoCamera::getCameraPropertyChoice(string property_name) {
-    // Check if we have choices for the parameter
-    vector<string> &choice_vector = choices[property_name];
-    if (choice_vector.empty()) {
-        cout << "we have no known choices for " << property_name << endl;
-        return -1;
-    }
-
-    CameraWidget *widget;
-    // Get the current choice
-    const char *value;
-
-    if (!CHECK(gp_widget_get_child_by_name(rootWidget, property_name.c_str(), &widget))) {
-        cerr << "Error getting widget for property " << property_name << endl;
-        return -1;
-    }
-
-    if (!CHECK(gp_widget_get_value(widget, &value))) {
-        cerr << "Error getting current widget value" << endl;
-        return -1;
-    }
-
-    string value_string;
-    // Copy the value
-    value_string = value;
-    int found_index = -1;
-    for (int i = 0; i < choice_vector.size(); i++) {
-        if (choice_vector[i].compare(value_string) == 0) {
-            // We have found it
-            found_index = i;
-            break;
-        }
-    }
 
 
-    return found_index;
+    return 0;
 }
 
 string GphotoCamera::getCameraPropertyString(string property_name) {
@@ -619,15 +487,15 @@ string GphotoCamera::getCameraPropertyString(string property_name) {
 }
 
 vector<string> *GphotoCamera::getIsoChoices() {
-    return &choices["iso"];
+    return nullptr;
 }
 
 vector<string> *GphotoCamera::getShutterSpeedChoices() {
-    return &choices["shutterspeed"];
+    return nullptr;
 }
 
 vector<string> *GphotoCamera::getApertureChoices() {
-    return &choices["aperture"];
+    return nullptr;
 }
 
 vector<string> *GphotoCamera::getShootingModeChoices() {
@@ -639,15 +507,15 @@ bool GphotoCamera::autofocusBlocking() {
 }
 
 vector<string> *GphotoCamera::getExposureCorrectionModeChoices() {
-    return &choices["exposurecompensation"];
+    return nullptr;
 }
 
 vector<string> *GphotoCamera::getImageFormatChoices() {
-    return &choices["imageformat"];
+    return nullptr;
 }
 
 vector<string> *GphotoCamera::getImageFormatSdChoices() {
-    return &choices["imageformatsd"];
+    return nullptr;
 }
 
 string GphotoCamera::getCameraName() {
@@ -659,32 +527,26 @@ string GphotoCamera::getLensName() {
 }
 
 int GphotoCamera::getExposureCorrection() {
-    return current_exposure_correction_choice;
+    return 0;
 }
 
 int GphotoCamera::getImageFormat() {
-    return current_image_format_choice;
+    return 0;
 }
 
 int GphotoCamera::getImageFormatSd() {
-    return current_image_format_sd_choice;
+    return 0;
 }
 
 bool GphotoCamera::setExposureCorrection(int exposure_correction_choice) {
-    this->current_exposure_correction_choice = exposure_correction_choice;
-    this->settings_dirty = true;
     return false;
 }
 
 bool GphotoCamera::setImageFormat(int image_format_choice) {
-    this->current_image_format_choice = image_format_choice;
-    this->settings_dirty = true;
     return false;
 }
 
 bool GphotoCamera::setImageFormatSd(int image_format_sd_choice) {
-    this->current_image_format_sd_choice = image_format_sd_choice;
-    this->settings_dirty = true;
     return false;
 }
 
