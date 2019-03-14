@@ -36,7 +36,7 @@ build/**
 cmake-build-*/**
 
 # protobuf build dir
-protobuf/**
+src/protobuf/**
 
 # CLion Files
 .idea/**

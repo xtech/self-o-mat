@@ -4,13 +4,13 @@ project(self_o_mat)
 set(CMAKE_CXX_STANDARD 14)
 
 if(VERBOSE)
-    message("Verbos is set, adding definition")
+    message("Verbose is set, adding definition")
     add_definitions(-DVERBOSE)
 endif()
 
 # Generate protobuf files on file change
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/api.pb.cc ${CMAKE_CURRENT_SOURCE_DIR}/protobuf/api.pb.h
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/api.proto
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}src/protobuf/api.pb.cc ${CMAKE_CURRENT_SOURCE_DIR}src/protobuf/api.pb.h
+        DEPENDS api.proto
         COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/compile_protobuf.sh
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -42,7 +42,14 @@ else()
     message("We don't have wiring pi!")
 endif()
 
-add_executable(self_o_mat main.cpp BoothLogic.cpp BoothLogic.h BoothGui.cpp BoothGui.h ICamera.h OpenCVCamera.cpp OpenCVCamera.h GphotoCamera.cpp GphotoCamera.h FPSCounter.h NopCamera.h ImageProcessor.cpp ImageProcessor.h IGui.h ILogger.h ConsoleLogger.cpp ConsoleLogger.h buffers.h headers.cpp imageinfo.h PrinterManager.cpp PrinterManager.h BoothApi.h BoothApi.cpp protobuf/api.pb.cc protobuf/api.pb.h ICamera.cpp NopGui.cpp NopGui.h JpegDecoder.cpp JpegDecoder.h verbose.h IGphotoController.h CanonShutterButtonCameraController.cpp CanonShutterButtonCameraController.h BasicCameraController.cpp BasicCameraController.h
+add_executable(self_o_mat src/main.cpp src/BoothLogic.cpp src/BoothLogic.h src/BoothGui.cpp src/BoothGui.h
+        src/ICamera.h src/OpenCVCamera.cpp src/OpenCVCamera.h src/GphotoCamera.cpp src/GphotoCamera.h
+        src/FPSCounter.h src/NopCamera.h src/ImageProcessor.cpp src/ImageProcessor.h src/IGui.h src/ILogger.h
+        src/ConsoleLogger.cpp src/ConsoleLogger.h src/buffers.h src/headers.cpp src/imageinfo.h src/PrinterManager.cpp
+        src/PrinterManager.h src/BoothApi.h src/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/ICamera.cpp src/NopGui.cpp
+        src/NopGui.h src/JpegDecoder.cpp src/JpegDecoder.h src/verbose.h
+        src/IGphotoController.h src/CanonShutterButtonCameraController.cpp src/CanonShutterButtonCameraController.h
+        src/BasicCameraController.cpp src/BasicCameraController.h
         dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp)
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})

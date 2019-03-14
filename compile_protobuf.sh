@@ -1,4 +1,4 @@
 #!/bin/bash
 
-mkdir -p protobuf
-protoc -I . --cpp_out=protobuf ./api.proto
+mkdir -p src/protobuf
+protoc -I . --cpp_out=./src/protobuf ./api.proto

@@ -19,7 +19,7 @@
 #include "verbose.h"
 #include "JpegDecoder.h"
 
-#include "dependencies/easyexif/exif.h"
+#include "../dependencies/easyexif/exif.h"
 
 using namespace Magick;
 class ImageProcessor {
