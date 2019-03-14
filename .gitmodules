@@ -1,0 +1,3 @@
+[submodule "dependencies/easyexif"]
+	path = dependencies/easyexif
+	url = git@github.com:xtech/easyexif.git

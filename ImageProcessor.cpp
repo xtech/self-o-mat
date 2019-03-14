@@ -84,6 +84,8 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
     Image inputImageMagic(blob);
 
+#error "we need to fix this - use turbojpeg to decode again."
+    "https://github.com/mayanklahiri/easyexif/blob/master/exif.h"
     std::string exif_interop = inputImageMagic.attribute("exif:thumbnail:InteroperabilityIndex");
     std::string exif_color_space = inputImageMagic.attribute("exif:ColorSpace");
 
