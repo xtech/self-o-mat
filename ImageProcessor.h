@@ -13,9 +13,13 @@
 #include "imageinfo.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include "ConsoleLogger.h"
+#include "buffers.h"
 
 #include "verbose.h"
 #include "JpegDecoder.h"
+
+#include "dependencies/easyexif/exif.h"
 
 using namespace Magick;
 class ImageProcessor {

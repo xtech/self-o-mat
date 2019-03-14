@@ -4,8 +4,6 @@
 
 
 #include "ImageProcessor.h"
-#include "ConsoleLogger.h"
-#include "buffers.h"
 
 const std::string ImageProcessor::TAG = "IMAGE PROCESSOR";
 
@@ -79,15 +77,27 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
     clock_gettime(CLOCK_MONOTONIC, &tstart);
 
-    // Create imagemagick image from blob
-    Blob blob(inputImageJpeg, jpegBufferSize);
+    bool srgb = true;
 
-    Image inputImageMagic(blob);
+    // Parse exif information for the color profile used
+    easyexif::EXIFInfo exifResult;
+    int exifParseResultCode = exifResult.parseFrom((const unsigned char*)inputImageJpeg, static_cast<unsigned int>(jpegBufferSize));
+    if(exifParseResultCode) {
+        LOG_E(TAG, "Could not parse exif data. Assuming sRGB");
+    } else {
+        if(exifResult.ColorSpace == 2) {
+            srgb = false;
+        } else if(exifResult.ColorSpace == 65535 && exifResult.InteropIndex == "R03" ){
+            srgb = false;
+        } else if(exifResult.ColorSpace == 1) {
+            srgb = true;
+        } else if(exifResult.InteropIndex == "R98") {
+            srgb = true;
+        } else {
+            LOG_E(TAG, "Could not determine sRGB or Adobe RGB. I'll assume sRGB.");
+        }
+    }
 
-#error "we need to fix this - use turbojpeg to decode again."
-    "https://github.com/mayanklahiri/easyexif/blob/master/exif.h"
-    std::string exif_interop = inputImageMagic.attribute("exif:thumbnail:InteroperabilityIndex");
-    std::string exif_color_space = inputImageMagic.attribute("exif:ColorSpace");
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
     printf("reading exif took %.5f s\n",
@@ -96,18 +106,15 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
     clock_gettime(CLOCK_MONOTONIC, &tstart);
 
 
-    bool srgb = true;
-    if(exif_color_space == "2") {
-        srgb = false;
-    } else if(exif_color_space == "65535" && exif_interop == "R03" ){
-        srgb = false;
-    } else if(exif_color_space == "1") {
-        srgb = true;
-    } else if(exif_interop == "R98") {
-        srgb = true;
-    } else {
-        LOG_E(TAG, "Could not determine sRGB or Adobe RGB. I'll assume sRGB.");
-    }
+    // Decode using Turbojpeg
+    ImageInfo latestImageInfo{};
+    jpegDecoder.decodeJpeg((unsigned char*)inputImageJpeg, jpegBufferSize, &latestBuffer, &latestBufferSize,
+            &latestImageInfo, RGB, targetWidth, targetHeight, LARGER_THAN_REQUIRED);
+
+
+    Image inputImageMagic(latestImageInfo.width, latestImageInfo.height, "RGB", StorageType::CharPixel, latestBuffer);
+
+
 
     if(srgb) {
         LOG_D(TAG, "Decoding image as sRGB");
