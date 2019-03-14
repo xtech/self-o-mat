@@ -7,9 +7,9 @@
 
 #include <cups/cups.h>
 #include <iostream>
-#include "ILogger.h"
+#include "../ui/ILogger.h"
 #include <Magick++.h>
-#include "buffers.h"
+#include "../tools/buffers.h"
 
 class PrinterManager {
 private:

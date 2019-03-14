@@ -6,12 +6,12 @@
 #define SELF_O_MAT_GPHOTOCAMERA_H
 
 #include <iostream>
-#include "ICamera.h"
+#include <camera/ICamera.h>
 #include <opencv2/opencv.hpp>
 #include <sys/stat.h>
 #include <boost/algorithm/string/predicate.hpp>
-#include "buffers.h"
-#include "JpegDecoder.h"
+#include <tools/buffers.h>
+#include <tools/JpegDecoder.h>
 #include "IGphotoController.h"
 #include "CanonShutterButtonCameraController.h"
 

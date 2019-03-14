@@ -6,8 +6,8 @@
 #define SELF_O_MAT_ICAMERA_H
 
 
-#include "BoothGui.h"
-#include "imageinfo.h"
+#include <ui/BoothGui.h>
+#include <tools/imageinfo.h>
 #include <iostream>
 
 using namespace std;
@@ -129,7 +129,7 @@ public:
 
     virtual bool autofocusBlocking() = 0;
 
-    virtual ~ICamera();
+    virtual ~ICamera() = default;
 };
 
 

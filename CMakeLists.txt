@@ -3,6 +3,9 @@ project(self_o_mat)
 
 set(CMAKE_CXX_STANDARD 14)
 
+add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=8)
+add_definitions(-DMAGICKCORE_HDRI_ENABLE=0)
+
 if(VERBOSE)
     message("Verbose is set, adding definition")
     add_definitions(-DVERBOSE)
@@ -16,6 +19,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}src/protobuf/api.pb.cc ${CM
 
 
 
+
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 find_package(Cups REQUIRED)
@@ -23,6 +27,8 @@ find_package(Pistache REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
+include_directories(src)
+include_directories(dependencies)
 include_directories(/usr/local/include/gphoto2)
 include_directories(/opt/libjpeg-turbo/include)
 include_directories(${Boost_INCLUDE_DIR})
@@ -42,14 +48,14 @@ else()
     message("We don't have wiring pi!")
 endif()
 
-add_executable(self_o_mat src/main.cpp src/BoothLogic.cpp src/BoothLogic.h src/BoothGui.cpp src/BoothGui.h
-        src/ICamera.h src/OpenCVCamera.cpp src/OpenCVCamera.h src/GphotoCamera.cpp src/GphotoCamera.h
-        src/FPSCounter.h src/NopCamera.h src/ImageProcessor.cpp src/ImageProcessor.h src/IGui.h src/ILogger.h
-        src/ConsoleLogger.cpp src/ConsoleLogger.h src/buffers.h src/headers.cpp src/imageinfo.h src/PrinterManager.cpp
-        src/PrinterManager.h src/BoothApi.h src/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/ICamera.cpp src/NopGui.cpp
-        src/NopGui.h src/JpegDecoder.cpp src/JpegDecoder.h src/verbose.h
-        src/IGphotoController.h src/CanonShutterButtonCameraController.cpp src/CanonShutterButtonCameraController.h
-        src/BasicCameraController.cpp src/BasicCameraController.h
+add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothLogic.h src/ui/BoothGui.cpp src/ui/BoothGui.h
+        src/camera/ICamera.h src/camera/OpenCVCamera.cpp src/camera/OpenCVCamera.h src/camera/GphotoCamera.cpp src/camera/GphotoCamera.h
+        src/ui/FPSCounter.h src/camera/NopCamera.h src/logic/ImageProcessor.cpp src/logic/ImageProcessor.h src/ui/IGui.h src/ui/ILogger.h
+        src/ui/ConsoleLogger.cpp src/ui/ConsoleLogger.h src/tools/buffers.h src/tools/buffers.cpp src/tools/imageinfo.h src/logic/PrinterManager.cpp
+        src/logic/PrinterManager.h src/api/BoothApi.h src/api/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/camera/NopGui.cpp
+        src/ui/NopGui.h src/tools/JpegDecoder.cpp src/tools/JpegDecoder.h src/tools/verbose.h
+        src/camera/IGphotoController.h src/camera/CanonShutterButtonCameraController.cpp src/camera/CanonShutterButtonCameraController.h
+        src/camera/BasicCameraController.cpp src/camera/BasicCameraController.h
         dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp)
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})

@@ -5,8 +5,8 @@
 #ifndef SELF_O_MAT_BOOTHAPI_H
 #define SELF_O_MAT_BOOTHAPI_H
 
-#include "protobuf/api.pb.h"
-#include "BoothLogic.h"
+#include "../protobuf/api.pb.h"
+#include "../logic/BoothLogic.h"
 
 #include <pistache/endpoint.h>
 #include <pistache/router.h>

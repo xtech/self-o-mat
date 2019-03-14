@@ -1,12 +1,12 @@
 #include <iostream>
 #include <boost/thread.hpp>
-#include "BoothGui.h"
-#include "BoothLogic.h"
-#include "OpenCVCamera.h"
-#include "GphotoCamera.h"
-#include "NopCamera.h"
-#include "BoothApi.h"
-#include "NopGui.h"
+#include "ui/BoothGui.h"
+#include "logic/BoothLogic.h"
+#include "camera/OpenCVCamera.h"
+#include "camera/GphotoCamera.h"
+#include "camera/NopCamera.h"
+#include "api/BoothApi.h"
+#include "ui/NopGui.h"
 
 using namespace std;
 using namespace boost;

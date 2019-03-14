@@ -6,7 +6,7 @@
 #define SELF_O_MAT_BOOTHLOGIC_H
 
 
-#include "ICamera.h"
+#include "../camera/ICamera.h"
 #include "ImageProcessor.h"
 #include "PrinterManager.h"
 #include <iostream>

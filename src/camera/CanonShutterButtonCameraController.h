@@ -8,7 +8,7 @@
 
 #include <string>
 #include "BasicCameraController.h"
-#include "verbose.h"
+#include "../tools/verbose.h"
 
 class CanonShutterButtonCameraController : public BasicCameraController {
 

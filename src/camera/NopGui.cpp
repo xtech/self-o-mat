@@ -2,7 +2,7 @@
 // Created by clemens on 12.03.19.
 //
 
-#include "NopGui.h"
+#include "../ui/NopGui.h"
 
 void NopGui::initialized() {
     std::cout << "GUI Initialized" << std::endl;

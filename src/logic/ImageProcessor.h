@@ -9,17 +9,15 @@
 #include <Magick++.h>
 #include <magick/profile.h>
 #include <iostream>
-#include "ILogger.h"
-#include "imageinfo.h"
+#include <ui/ILogger.h>
+#include <tools/imageinfo.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include "ConsoleLogger.h"
-#include "buffers.h"
-
-#include "verbose.h"
-#include "JpegDecoder.h"
-
-#include "../dependencies/easyexif/exif.h"
+#include <ui/ConsoleLogger.h>
+#include <tools/buffers.h>
+#include <tools/verbose.h>
+#include <tools/JpegDecoder.h>
+#include <easyexif/exif.h>
 
 using namespace Magick;
 class ImageProcessor {

@@ -8,7 +8,7 @@
 
 #include <string>
 #include "IGphotoController.h"
-#include "verbose.h"
+#include "../tools/verbose.h"
 
 class BasicCameraController : public IGphotoController {
 private:

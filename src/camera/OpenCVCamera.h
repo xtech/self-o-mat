@@ -9,7 +9,7 @@
 #include <cv.hpp>
 #include "ICamera.h"
 #include <opencv2/opencv.hpp>
-#include "buffers.h"
+#include "../tools/buffers.h"
 
 
 using namespace cv;
