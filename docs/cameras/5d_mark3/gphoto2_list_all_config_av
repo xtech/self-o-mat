@@ -1,0 +1,738 @@
+/main/actions/syncdatetimeutc
+Label: Synchronize camera date and time with PC
+Readonly: 0
+Type: TOGGLE
+Current: 0
+END
+/main/actions/syncdatetime
+Label: Synchronize camera date and time with PC
+Readonly: 0
+Type: TOGGLE
+Current: 0
+END
+/main/actions/uilock
+Label: UI Lock
+Readonly: 0
+Type: TOGGLE
+Current: 2
+END
+/main/actions/autofocusdrive
+Label: Drive Canon DSLR Autofocus
+Readonly: 0
+Type: TOGGLE
+Current: 0
+END
+/main/actions/manualfocusdrive
+Label: Drive Canon DSLR Manual focus
+Readonly: 0
+Type: RADIO
+Current: None
+Choice: 0 Near 1
+Choice: 1 Near 2
+Choice: 2 Near 3
+Choice: 3 None
+Choice: 4 Far 1
+Choice: 5 Far 2
+Choice: 6 Far 3
+END
+/main/actions/cancelautofocus
+Label: Cancel Canon DSLR Autofocus
+Readonly: 0
+Type: TOGGLE
+Current: 0
+END
+/main/actions/eoszoom
+Label: Canon EOS Zoom
+Readonly: 0
+Type: TEXT
+Current: 0
+END
+/main/actions/eoszoomposition
+Label: Canon EOS Zoom Position
+Readonly: 0
+Type: TEXT
+Current: 0,0
+END
+/main/actions/viewfinder
+Label: Canon EOS Viewfinder
+Readonly: 0
+Type: TOGGLE
+Current: 2
+END
+/main/actions/eosremoterelease
+Label: Canon EOS Remote Release
+Readonly: 0
+Type: RADIO
+Current: None
+Choice: 0 None
+Choice: 1 Press Half
+Choice: 2 Press Full
+Choice: 3 Release Half
+Choice: 4 Release Full
+Choice: 5 Immediate
+Choice: 6 Press 1
+Choice: 7 Press 2
+Choice: 8 Press 3
+Choice: 9 Release 1
+Choice: 10 Release 2
+Choice: 11 Release 3
+END
+/main/actions/opcode
+Label: PTP Opcode
+Readonly: 0
+Type: TEXT
+Current: 0x1001,0xparam1,0xparam2
+END
+/main/settings/datetimeutc
+Label: Camera Date and Time
+Readonly: 0
+Type: DATE
+Current: 1552572529
+Printable: Do 14 Mär 2019 15:08:49 CET
+Help: Use 'now' as the current time when setting.
+
+END
+/main/settings/datetime
+Label: Camera Date and Time
+Readonly: 0
+Type: DATE
+Current: 1552572529
+Printable: Do 14 Mär 2019 15:08:49 CET
+Help: Use 'now' as the current time when setting.
+
+END
+/main/settings/reviewtime
+Label: Quick Review Time
+Readonly: 0
+Type: RADIO
+Current: 2 seconds
+Choice: 0 None
+Choice: 1 2 seconds
+Choice: 2 4 seconds
+Choice: 3 8 seconds
+Choice: 4 Hold
+END
+/main/settings/output
+Label: Camera Output
+Readonly: 0
+Type: RADIO
+Current: Off
+Choice: 0 Off
+Choice: 1 TFT
+Choice: 2 PC
+Choice: 3 TFT + PC
+Choice: 4 Setting 4
+Choice: 5 Setting 5
+Choice: 6 Setting 6
+Choice: 7 Setting 7
+END
+/main/settings/movierecordtarget
+Label: Recording Destination
+Readonly: 0
+Type: RADIO
+Current: None
+Choice: 0 None
+END
+/main/settings/evfmode
+Label: EVF Mode
+Readonly: 0
+Type: RADIO
+Current: 1
+Choice: 0 0
+Choice: 1 1
+END
+/main/settings/ownername
+Label: Owner Name
+Readonly: 0
+Type: TEXT
+Current: Tina Stepputat
+END
+/main/settings/artist
+Label: Artist
+Readonly: 0
+Type: TEXT
+Current: Tina Stepputat
+END
+/main/settings/copyright
+Label: Copyright
+Readonly: 0
+Type: TEXT
+Current: www.tinastepputat.de
+END
+/main/settings/customfuncex
+Label: Custom Functions Ex
+Readonly: 0
+Type: TEXT
+Current: d0,1,4,c4,5,70c,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,3,706,1,0,70f,2,0,2,80e,1,0,813,1,0,
+END
+/main/settings/focusinfo
+Label: Focus Info
+Readonly: 0
+Type: TEXT
+Current: eosversion=7,size=5760x3840,size2=5760x3840,points={{288,-648,188,190},{0,-648,188,190},{-288,-648,188,190},{1520,-433,188,190},{1232,-433,188,190},{944,-433,188,190},{639,-433,188,190},{288,-433,188,190},{0,-433,188,190},{-1520,-433,188,190},{-1232,-433,188,190},{-944,-433,188,190},{-639,-433,188,190},{-288,-433,188,190},{1520,-215,188,190},{1232,-215,188,190},{944,-215,188,190},{639,-215,188,190},{288,-215,188,190},{0,-215,188,190},{-1520,-215,188,190},{-1232,-215,188,190},{-944,-215,188,190},{-639,-215,188,190},{-288,-215,188,190},{1520,0,188,190},{1232,0,188,190},{944,0,188,190},{639,0,188,190},{288,0,188,190},{0,0,188,190},{-1520,0,188,190},{-1232,0,188,190},{-944,0,188,190},{-639,0,188,190},{-288,0,188,190},{1520,215,188,190},{1232,215,188,190},{944,215,188,190},{639,215,188,190},{288,215,188,190},{0,215,188,190},{-1520,215,188,190},{-1232,215,188,190},{-944,215,188,190},{-639,215,188,190},{-288,215,188,190},{1520,433,188,190},{1232,433,188,190},{944,433,188,190},{639,433,188,190},{288,433,188,190},{0,433,188,190},{-1520,433,188,190},{-1232,433,188,190},{-944,433,188,190},{-639,433,188,190},{-288,433,188,190},{288,648,188,190},{0,648,188,190},{-288,648,188,190}},select={},unknown={00000c61084300000000000000000000ffff}
+END
+/main/settings/focusarea
+Label: Focus Area
+Readonly: 0
+Type: TEXT
+Current: 63
+END
+/main/settings/autopoweroff
+Label: Auto Power Off
+Readonly: 0
+Type: TEXT
+Current: 0
+END
+/main/settings/depthoffield
+Label: Depth of Field
+Readonly: 0
+Type: TEXT
+Current: 0
+END
+/main/settings/capturetarget
+Label: Capture Target
+Readonly: 0
+Type: RADIO
+Current: Internal RAM
+Choice: 0 Internal RAM
+Choice: 1 Memory card
+END
+/main/settings/capture
+Label: Capture
+Readonly: 0
+Type: TOGGLE
+Current: 0
+END
+/main/status/serialnumber
+Label: Serial Number
+Readonly: 0
+Type: TEXT
+Current: 5cf155a7a01b47fb8ebc19c58134eef5
+END
+/main/status/manufacturer
+Label: Camera Manufacturer
+Readonly: 0
+Type: TEXT
+Current: Canon Inc.
+END
+/main/status/cameramodel
+Label: Camera Model
+Readonly: 0
+Type: TEXT
+Current: Canon EOS 5D Mark III
+END
+/main/status/deviceversion
+Label: Device Version
+Readonly: 0
+Type: TEXT
+Current: 3-1.3.3
+END
+/main/status/vendorextension
+Label: Vendor Extension
+Readonly: 0
+Type: TEXT
+Current: None
+END
+/main/status/model
+Label: Camera Model
+Readonly: 0
+Type: TEXT
+Current: 2147484293
+END
+/main/status/ptpversion
+Label: PTP Version
+Readonly: 0
+Type: TEXT
+Current: 256
+END
+/main/status/Battery Level
+Label: Battery Level
+Readonly: 1
+Type: TEXT
+Current: 100%
+END
+/main/status/batterylevel
+Label: Battery Level
+Readonly: 0
+Type: TEXT
+Current: 100%
+END
+/main/status/lensname
+Label: Lens Name
+Readonly: 0
+Type: TEXT
+Current: EF24-70mm f/4L IS USM
+END
+/main/status/eosserialnumber
+Label: Serial Number
+Readonly: 0
+Type: TEXT
+Current: 053024023715
+END
+/main/status/shuttercounter
+Label: Shutter Counter
+Readonly: 0
+Type: TEXT
+Current: 42889
+END
+/main/status/availableshots
+Label: Available Shots
+Readonly: 0
+Type: TEXT
+Current: 138366
+END
+/main/imgsettings/imageformat
+Label: Image Format
+Readonly: 0
+Type: RADIO
+Current: Large Fine JPEG
+Choice: 0 Large Fine JPEG
+Choice: 1 Large Normal JPEG
+Choice: 2 Medium Fine JPEG
+Choice: 3 Medium Normal JPEG
+Choice: 4 Small Fine JPEG
+Choice: 5 Small Normal JPEG
+Choice: 6 Smaller JPEG
+Choice: 7 Tiny JPEG
+Choice: 8 RAW + Large Fine JPEG
+Choice: 9 RAW + Large Normal JPEG
+Choice: 10 RAW + Medium Fine JPEG
+Choice: 11 RAW + Medium Normal JPEG
+Choice: 12 RAW + Small Fine JPEG
+Choice: 13 RAW + Small Normal JPEG
+Choice: 14 RAW + Smaller JPEG
+Choice: 15 RAW + Tiny JPEG
+Choice: 16 mRAW + Large Fine JPEG
+Choice: 17 mRAW + Large Normal JPEG
+Choice: 18 mRAW + Medium Fine JPEG
+Choice: 19 mRAW + Medium Normal JPEG
+Choice: 20 mRAW + Small Fine JPEG
+Choice: 21 mRAW + Small Normal JPEG
+Choice: 22 mRAW + Smaller JPEG
+Choice: 23 mRAW + Tiny JPEG
+Choice: 24 sRAW + Large Fine JPEG
+Choice: 25 sRAW + Large Normal JPEG
+Choice: 26 sRAW + Medium Fine JPEG
+Choice: 27 sRAW + Medium Normal JPEG
+Choice: 28 sRAW + Small Fine JPEG
+Choice: 29 sRAW + Small Normal JPEG
+Choice: 30 sRAW + Smaller JPEG
+Choice: 31 sRAW + Tiny JPEG
+Choice: 32 RAW
+Choice: 33 mRAW
+Choice: 34 sRAW
+END
+/main/imgsettings/imageformatsd
+Label: Image Format SD
+Readonly: 0
+Type: RADIO
+Current: Large Fine JPEG
+Choice: 0 Large Fine JPEG
+Choice: 1 Large Normal JPEG
+Choice: 2 Medium Fine JPEG
+Choice: 3 Medium Normal JPEG
+Choice: 4 Small Fine JPEG
+Choice: 5 Small Normal JPEG
+Choice: 6 Smaller JPEG
+Choice: 7 Tiny JPEG
+Choice: 8 RAW + Large Fine JPEG
+Choice: 9 RAW + Large Normal JPEG
+Choice: 10 RAW + Medium Fine JPEG
+Choice: 11 RAW + Medium Normal JPEG
+Choice: 12 RAW + Small Fine JPEG
+Choice: 13 RAW + Small Normal JPEG
+Choice: 14 RAW + Smaller JPEG
+Choice: 15 RAW + Tiny JPEG
+Choice: 16 mRAW + Large Fine JPEG
+Choice: 17 mRAW + Large Normal JPEG
+Choice: 18 mRAW + Medium Fine JPEG
+Choice: 19 mRAW + Medium Normal JPEG
+Choice: 20 mRAW + Small Fine JPEG
+Choice: 21 mRAW + Small Normal JPEG
+Choice: 22 mRAW + Smaller JPEG
+Choice: 23 mRAW + Tiny JPEG
+Choice: 24 sRAW + Large Fine JPEG
+Choice: 25 sRAW + Large Normal JPEG
+Choice: 26 sRAW + Medium Fine JPEG
+Choice: 27 sRAW + Medium Normal JPEG
+Choice: 28 sRAW + Small Fine JPEG
+Choice: 29 sRAW + Small Normal JPEG
+Choice: 30 sRAW + Smaller JPEG
+Choice: 31 sRAW + Tiny JPEG
+Choice: 32 RAW
+Choice: 33 mRAW
+Choice: 34 sRAW
+END
+/main/imgsettings/imageformatcf
+Label: Image Format CF
+Readonly: 0
+Type: RADIO
+Current: Large Fine JPEG
+Choice: 0 Large Fine JPEG
+Choice: 1 Large Normal JPEG
+Choice: 2 Medium Fine JPEG
+Choice: 3 Medium Normal JPEG
+Choice: 4 Small Fine JPEG
+Choice: 5 Small Normal JPEG
+Choice: 6 Smaller JPEG
+Choice: 7 Tiny JPEG
+Choice: 8 RAW + Large Fine JPEG
+Choice: 9 RAW + Large Normal JPEG
+Choice: 10 RAW + Medium Fine JPEG
+Choice: 11 RAW + Medium Normal JPEG
+Choice: 12 RAW + Small Fine JPEG
+Choice: 13 RAW + Small Normal JPEG
+Choice: 14 RAW + Smaller JPEG
+Choice: 15 RAW + Tiny JPEG
+Choice: 16 mRAW + Large Fine JPEG
+Choice: 17 mRAW + Large Normal JPEG
+Choice: 18 mRAW + Medium Fine JPEG
+Choice: 19 mRAW + Medium Normal JPEG
+Choice: 20 mRAW + Small Fine JPEG
+Choice: 21 mRAW + Small Normal JPEG
+Choice: 22 mRAW + Smaller JPEG
+Choice: 23 mRAW + Tiny JPEG
+Choice: 24 sRAW + Large Fine JPEG
+Choice: 25 sRAW + Large Normal JPEG
+Choice: 26 sRAW + Medium Fine JPEG
+Choice: 27 sRAW + Medium Normal JPEG
+Choice: 28 sRAW + Small Fine JPEG
+Choice: 29 sRAW + Small Normal JPEG
+Choice: 30 sRAW + Smaller JPEG
+Choice: 31 sRAW + Tiny JPEG
+Choice: 32 RAW
+Choice: 33 mRAW
+Choice: 34 sRAW
+END
+/main/imgsettings/iso
+Label: ISO Speed
+Readonly: 0
+Type: RADIO
+Current: 250
+Choice: 0 Auto
+Choice: 1 100
+Choice: 2 125
+Choice: 3 160
+Choice: 4 200
+Choice: 5 250
+Choice: 6 320
+Choice: 7 400
+Choice: 8 500
+Choice: 9 640
+Choice: 10 800
+Choice: 11 1000
+Choice: 12 1250
+Choice: 13 1600
+Choice: 14 2000
+Choice: 15 2500
+Choice: 16 3200
+Choice: 17 4000
+Choice: 18 5000
+Choice: 19 6400
+Choice: 20 8000
+Choice: 21 10000
+Choice: 22 12800
+Choice: 23 16000
+Choice: 24 20000
+Choice: 25 25600
+END
+/main/imgsettings/whitebalance
+Label: WhiteBalance
+Readonly: 0
+Type: RADIO
+Current: Color Temperature
+Choice: 0 Auto
+Choice: 1 Daylight
+Choice: 2 Shadow
+Choice: 3 Cloudy
+Choice: 4 Tungsten
+Choice: 5 Fluorescent
+Choice: 6 Flash
+Choice: 7 Manual
+Choice: 8 Color Temperature
+END
+/main/imgsettings/colortemperature
+Label: Color Temperature
+Readonly: 0
+Type: TEXT
+Current: 5000
+END
+/main/imgsettings/whitebalanceadjusta
+Label: WhiteBalance Adjust A
+Readonly: 0
+Type: RADIO
+Current: 0
+Choice: 0 -9
+Choice: 1 -8
+Choice: 2 -7
+Choice: 3 -6
+Choice: 4 -5
+Choice: 5 -4
+Choice: 6 -3
+Choice: 7 -2
+Choice: 8 -1
+Choice: 9 0
+Choice: 10 1
+Choice: 11 2
+Choice: 12 3
+Choice: 13 4
+Choice: 14 5
+Choice: 15 6
+Choice: 16 7
+Choice: 17 8
+Choice: 18 9
+END
+/main/imgsettings/whitebalanceadjustb
+Label: WhiteBalance Adjust B
+Readonly: 0
+Type: RADIO
+Current: 0
+Choice: 0 -9
+Choice: 1 -8
+Choice: 2 -7
+Choice: 3 -6
+Choice: 4 -5
+Choice: 5 -4
+Choice: 6 -3
+Choice: 7 -2
+Choice: 8 -1
+Choice: 9 0
+Choice: 10 1
+Choice: 11 2
+Choice: 12 3
+Choice: 13 4
+Choice: 14 5
+Choice: 15 6
+Choice: 16 7
+Choice: 17 8
+Choice: 18 9
+END
+/main/imgsettings/whitebalancexa
+Label: WhiteBalance X A
+Readonly: 0
+Type: TEXT
+Current: 0
+END
+/main/imgsettings/whitebalancexb
+Label: WhiteBalance X B
+Readonly: 0
+Type: TEXT
+Current: 0
+END
+/main/imgsettings/colorspace
+Label: Color Space
+Readonly: 0
+Type: RADIO
+Current: AdobeRGB
+Choice: 0 sRGB
+Choice: 1 AdobeRGB
+END
+/main/capturesettings/exposurecompensation
+Label: Exposure Compensation
+Readonly: 0
+Type: RADIO
+Current: 0
+Choice: 0 -5
+Choice: 1 -4.6
+Choice: 2 -4.3
+Choice: 3 -4
+Choice: 4 -3.6
+Choice: 5 -3.3
+Choice: 6 -3
+Choice: 7 -2.6
+Choice: 8 -2.3
+Choice: 9 -2
+Choice: 10 -1.6
+Choice: 11 -1.3
+Choice: 12 -1
+Choice: 13 -0.6
+Choice: 14 -0.3
+Choice: 15 0
+Choice: 16 0.3
+Choice: 17 0.6
+Choice: 18 1
+Choice: 19 1.3
+Choice: 20 1.6
+Choice: 21 2
+Choice: 22 2.3
+Choice: 23 2.6
+Choice: 24 3
+Choice: 25 3.3
+Choice: 26 3.6
+Choice: 27 4
+Choice: 28 4.3
+Choice: 29 4.6
+Choice: 30 5
+END
+/main/capturesettings/focusmode
+Label: Focus Mode
+Readonly: 0
+Type: RADIO
+Current: AI Focus
+Choice: 0 One Shot
+Choice: 1 AI Focus
+Choice: 2 AI Servo
+END
+/main/capturesettings/aspectratio
+Label: Aspect Ratio
+Readonly: 0
+Type: RADIO
+Current: 3:2
+Choice: 0 3:2
+Choice: 1 4:3
+Choice: 2 16:9
+Choice: 3 1:1
+END
+/main/capturesettings/storageid
+Label: Storage Device
+Readonly: 0
+Type: TEXT
+Current: 00010000
+END
+/main/capturesettings/autoexposuremode
+Label: Canon Auto Exposure Mode
+Readonly: 0
+Type: RADIO
+Current: AV
+Choice: 0 P
+Choice: 1 TV
+Choice: 2 AV
+Choice: 3 Manual
+Choice: 4 Bulb
+Choice: 5 A_DEP
+Choice: 6 DEP
+Choice: 7 Custom
+Choice: 8 Lock
+Choice: 9 Green
+Choice: 10 Night Portrait
+Choice: 11 Sports
+Choice: 12 Portrait
+Choice: 13 Landscape
+Choice: 14 Closeup
+Choice: 15 Flash Off
+END
+/main/capturesettings/drivemode
+Label: Drive Mode
+Readonly: 0
+Type: RADIO
+Current: Single
+Choice: 0 Single
+Choice: 1 Continuous high speed
+Choice: 2 Continuous low speed
+Choice: 3 Single silent
+Choice: 4 Continuous silent
+Choice: 5 Timer 10 sec
+Choice: 6 Timer 2 sec
+END
+/main/capturesettings/picturestyle
+Label: Picture Style
+Readonly: 0
+Type: RADIO
+Current: Neutral
+Choice: 0 Auto
+Choice: 1 Standard
+Choice: 2 Portrait
+Choice: 3 Landscape
+Choice: 4 Neutral
+Choice: 5 Faithful
+Choice: 6 Monochrome
+Choice: 7 User defined 1
+Choice: 8 User defined 2
+Choice: 9 User defined 3
+END
+/main/capturesettings/aperture
+Label: Aperture
+Readonly: 0
+Type: RADIO
+Current: 4
+Choice: 0 4
+Choice: 1 4.5
+Choice: 2 5
+Choice: 3 5.6
+Choice: 4 6.3
+Choice: 5 7.1
+Choice: 6 8
+Choice: 7 9
+Choice: 8 10
+Choice: 9 11
+Choice: 10 13
+Choice: 11 14
+Choice: 12 16
+Choice: 13 18
+Choice: 14 20
+Choice: 15 22
+END
+/main/capturesettings/shutterspeed
+Label: Shutter Speed
+Readonly: 0
+Type: RADIO
+Current: auto
+Choice: 0 auto
+END
+/main/capturesettings/meteringmode
+Label: Metering Mode
+Readonly: 0
+Type: RADIO
+Current: Evaluative
+Choice: 0 Evaluative
+Choice: 1 Partial
+Choice: 2 Spot
+Choice: 3 Center-weighted average
+END
+/main/capturesettings/bracketmode
+Label: Bracket Mode
+Readonly: 0
+Type: TEXT
+Current: 0
+END
+/main/capturesettings/aeb
+Label: Auto Exposure Bracketing
+Readonly: 0
+Type: RADIO
+Current: off
+Choice: 0 off
+Choice: 1 +/- 1/3
+Choice: 2 +/- 2/3
+Choice: 3 +/- 1
+Choice: 4 +/- 1 1/3
+Choice: 5 +/- 1 2/3
+Choice: 6 +/- 2
+Choice: 7 +/- 2 1/3
+Choice: 8 +/- 2 2/3
+Choice: 9 +/- 3
+END
+/main/other/d402
+Label: PTP Property 0xd402
+Readonly: 1
+Type: TEXT
+Current: Canon EOS 5D Mark III
+END
+/main/other/d407
+Label: PTP Property 0xd407
+Readonly: 1
+Type: TEXT
+Current: 1
+END
+/main/other/d406
+Label: PTP Property 0xd406
+Readonly: 0
+Type: TEXT
+Current: Unknown Initiator
+END
+/main/other/d303
+Label: PTP Property 0xd303
+Readonly: 1
+Type: TEXT
+Current: 1
+END
+/main/other/5001
+Label: Battery Level
+Readonly: 1
+Type: MENU
+Current: 100
+Choice: 0 100
+Choice: 1 0
+Choice: 2 75
+Choice: 3 0
+Choice: 4 50
+END
