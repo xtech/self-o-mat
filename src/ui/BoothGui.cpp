@@ -127,57 +127,58 @@ void BoothGui::renderThread() {
                 auto textureSize = imageTexture.getSize();
                 if (textureSize.x != imageWidth || textureSize.y != imageHeight) {
                     // Recreate the texture if needed
-                    if(imageWidth > textureSize.x || imageHeight > textureSize.y) {
+                    if (imageWidth > textureSize.x || imageHeight > textureSize.y) {
                         cout << "Recreating texture to fit the new image" << endl;
                         imageTexture.create(imageWidth, imageHeight);
                     }
-
-
-                    // TODO: needed?
-                    //imageSprite.setTexture(imageTexture, true);
-                    //imageSprite.setTextureRect(sf::IntRect(0, 0, imageHeight, imageWidth));
-
-                    // Calculate the sprite's new shape so that the image fits
-                    float scaleX = (float) window.getSize().x / (float) imageWidth;
-                    float scaleY = (float) window.getSize().y / (float) imageHeight;
-                    float scale = max(scaleX, scaleY);
-
-                    imageSprite.setScale(-scale, scale);
-
-                    float windowCenterY = window.getSize().y / 2.0f;
-                    float windowCenterX = window.getSize().x / 2.0f;
-
-                    float imageCenterX = (float) imageWidth * scale * 0.5f;
-                    float imageCenterY = (float) imageHeight * scale * 0.5f;
-
-
-                    imageSprite.setPosition(videoMode.width - (windowCenterX - imageCenterX),
-                                            windowCenterY - imageCenterY);
-
-
-                    float finalOverlayCenterX =
-                            ((float) finalOverlayOffsetLeft + (float) finalOverlayOffsetRight) / 2.0f;
-                    float finalOverlayCenterY =
-                            ((float) finalOverlayOffsetTop + (float) finalOverlayOffsetBottom) / 2.0f;
-
-
-                    finalImageSprite.setTexture(imageTexture, true);
-                    finalImageSprite.setTextureRect(sf::IntRect(0, 0, imageWidth, imageHeight));
-
-                    // Same for the final sprite
-                    float finalScaleX = (float) (finalOverlayOffsetRight - finalOverlayOffsetLeft) / (float) imageWidth;
-                    float finalScaleY =
-                            (float) (finalOverlayOffsetBottom - finalOverlayOffsetTop) / (float) imageHeight;
-                    float finalScale = max(finalScaleX, finalScaleY);
-                    finalImageSprite.setScale(finalScale, finalScale);
-
-                    float finalImageCenterX = (float) imageWidth * finalScale * 0.5f;
-                    float finalImageCenterY = (float) imageHeight * finalScale * 0.5f;
-
-                    finalImageSprite.setPosition(finalOverlayCenterX - finalImageCenterX,
-                                                 finalOverlayCenterY - finalImageCenterY);
-
                 }
+
+
+                // TODO: needed?
+                //imageSprite.setTexture(imageTexture, true);
+                //imageSprite.setTextureRect(sf::IntRect(0, 0, imageHeight, imageWidth));
+
+                // Calculate the sprite's new shape so that the image fits
+                float scaleX = (float) window.getSize().x / (float) imageWidth;
+                float scaleY = (float) window.getSize().y / (float) imageHeight;
+                float scale = max(scaleX, scaleY);
+
+                imageSprite.setScale(-scale, scale);
+
+                float windowCenterY = window.getSize().y / 2.0f;
+                float windowCenterX = window.getSize().x / 2.0f;
+
+                float imageCenterX = (float) imageWidth * scale * 0.5f;
+                float imageCenterY = (float) imageHeight * scale * 0.5f;
+
+
+                imageSprite.setPosition(videoMode.width - (windowCenterX - imageCenterX),
+                                        windowCenterY - imageCenterY);
+
+
+                float finalOverlayCenterX =
+                        ((float) finalOverlayOffsetLeft + (float) finalOverlayOffsetRight) / 2.0f;
+                float finalOverlayCenterY =
+                        ((float) finalOverlayOffsetTop + (float) finalOverlayOffsetBottom) / 2.0f;
+
+
+                finalImageSprite.setTexture(imageTexture, true);
+                finalImageSprite.setTextureRect(sf::IntRect(0, 0, imageWidth, imageHeight));
+
+                // Same for the final sprite
+                float finalScaleX = (float) (finalOverlayOffsetRight - finalOverlayOffsetLeft) / (float) imageWidth;
+                float finalScaleY =
+                        (float) (finalOverlayOffsetBottom - finalOverlayOffsetTop) / (float) imageHeight;
+                float finalScale = max(finalScaleX, finalScaleY);
+                finalImageSprite.setScale(finalScale, finalScale);
+
+                float finalImageCenterX = (float) imageWidth * finalScale * 0.5f;
+                float finalImageCenterY = (float) imageHeight * finalScale * 0.5f;
+
+                finalImageSprite.setPosition(finalOverlayCenterX - finalImageCenterX,
+                                             finalOverlayCenterY - finalImageCenterY);
+
+
 
 
 
