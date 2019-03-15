@@ -48,7 +48,7 @@ public:
         return true;
     }
 
-    virtual bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, void **previewBuffer, size_t *previewBufferSize, ImageInfo *previewImageInfo) {
+    virtual bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename, void **previewBuffer, size_t *previewBufferSize, ImageInfo *previewImageInfo) {
         cv::Mat image(2048, 4096, CV_8UC4, cv::Scalar(0,255,0,255));
 
         cv::putText(image, "# CAP #", cv::Point(200,200), CV_FONT_HERSHEY_COMPLEX, 3, cv::Scalar(255,0,0,255));
@@ -71,6 +71,7 @@ public:
         previewImageInfo->width = previewSize.width;
         previewImageInfo->height = previewSize.height;
 
+        *fullJpegFilename = "nop.jpg";
         usleep(50000);
         return true;
     }

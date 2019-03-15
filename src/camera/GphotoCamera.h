@@ -102,7 +102,7 @@ public:
     bool triggerCaptureBlocking() override;
     bool autofocusBlocking() override;
 
-    bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, void **previewBuffer,
+    bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename, void **previewBuffer,
                            size_t *previewBufferSize, ImageInfo *previewImageInfo) override;
 
     int getIso() override;

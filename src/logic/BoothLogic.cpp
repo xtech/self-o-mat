@@ -209,6 +209,14 @@ void BoothLogic::cameraThread() {
                 }
             }
 
+
+            // Update printer thread state to one
+            {
+                unique_lock<boost::mutex> lk(printerStateMutex);
+                printerState = 1;
+                printerStateCV.notify_all();
+            }
+
             cancelPrintMutex.lock();
             printCanceled = false;
             cancelPrintMutex.unlock();
@@ -223,13 +231,13 @@ void BoothLogic::cameraThread() {
 
             gui->logDebug("Successfully triggered");
             boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-            auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize,
+            auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize, &latestJpegFileName,
                     &imageBuffer, &imageBufferSize, &imageInfo);
             jpegImageMutex.unlock();
 
             {
                 unique_lock<boost::mutex> lk(printerStateMutex);
-                printerState = 1;
+                printerState = 2;
                 printerStateCV.notify_all();
             }
 
@@ -243,7 +251,7 @@ void BoothLogic::cameraThread() {
                 // Notify the printer thread
                 {
                     unique_lock<boost::mutex> lk(printerStateMutex);
-                    printerState = 2;
+                    printerState = 3;
                     printerStateCV.notify_all();
                 }
             } else {
@@ -276,6 +284,22 @@ void BoothLogic::logicThread() {
         //flash_serial_port.write_some(asio::buffer("i", 1));
         boost::this_thread::sleep(boost::posix_time::seconds(1));
 
+
+        // check for an image and save it. but only if printer thread is idle
+        bool allowSave = false;
+        {
+            unique_lock<boost::mutex> lk(printerStateMutex);
+            allowSave = (0 == printerState);
+        } 
+        if(allowSave) {
+            void *rawBuffer = nullptr;
+            size_t rawSize = 0;
+            std::string rawFilename;
+            if (camera->getLastRawImage(&rawBuffer, &rawSize, &rawFilename)) {
+                saveImage(rawBuffer, rawSize, rawFilename);
+                free(rawBuffer);
+            }
+        }
     }
 
 
@@ -323,9 +347,8 @@ void BoothLogic::printerThread() {
         {
             cout << "[Printer Thread] Waiting for an image to process" << endl;
             unique_lock<boost::mutex> lk(printerStateMutex);
-            while (printerState != 1) {
-                printerStateCV.timed_wait(lk, boost::posix_time::milliseconds(1000));
-                cout << "[Printer Thread] timeout, checking images" << endl;
+            while (printerState < 2) {
+                printerStateCV.wait(lk);
             }
         }
 
@@ -336,7 +359,7 @@ void BoothLogic::printerThread() {
             unique_lock<boost::mutex> lk(jpegImageMutex);
 
             // first we save the image
-            saveImage(latestJpegBuffer, latestJpegBufferSize, std::string());
+            saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
 
             Magick::Image framed = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
             cout << "[Printer Thread] " << "Framed" << endl;
@@ -347,7 +370,7 @@ void BoothLogic::printerThread() {
         {
             cout << "[Printer Thread] Waiting for the user to decide if he wants to print" << endl;
             unique_lock<boost::mutex> lk(printerStateMutex);
-            while (printerState != 2) {
+            while (printerState != 3) {
                 printerStateCV.wait(lk);
             }
         }
@@ -381,19 +404,13 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
         return;
     }
 
-    if(filename.empty()) {
-        std::time_t time = std::time(nullptr);
-        // Generate some filename, assume jpeg
-        filename="img_";
-        filename+=to_string((long)time);
-        filename+=".jpg";
-    }
-
-
+    std::time_t time = std::time(nullptr);
 
     std::string fullImagePath = imageDir;
 
     fullImagePath+="/";
+    fullImagePath+=to_string((long)time);
+    fullImagePath+="_";
     fullImagePath+=filename;
 
 

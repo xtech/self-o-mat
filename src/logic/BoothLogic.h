@@ -91,6 +91,7 @@ private:
 
     void *latestJpegBuffer = nullptr;
     size_t latestJpegBufferSize = 0;
+    std::string latestJpegFileName = "";
 
     boost::condition_variable printerStateCV;
     boost::mutex printerStateMutex;

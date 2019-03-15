@@ -53,7 +53,7 @@ bool OpenCVCamera::triggerCaptureBlocking() {
     return true;
 }
 
-bool OpenCVCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, void **previewBuffer,
+bool OpenCVCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename, void **previewBuffer,
                                      size_t *previewBufferSize, ImageInfo *previewImageInfo) {
 
     Mat image;
@@ -80,6 +80,8 @@ bool OpenCVCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
 
     previewImageInfo->width = previewSize.width;
     previewImageInfo->height = previewSize.height;
+
+    *fullJpegFilename = "webcam.jpg";
     return true;
 }
 

@@ -80,7 +80,7 @@ public:
 
     bool setImageFormatSd(int image_format_sd_choice) override;
 
-    bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, void **previewBuffer,
+    bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename, void **previewBuffer,
                            size_t *previewBufferSize, ImageInfo *previewImageInfo) override;
 
     bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;

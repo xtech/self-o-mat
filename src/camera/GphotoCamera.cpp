@@ -276,8 +276,11 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     buffers::requireBufferWithSize(&latestBuffer, &latestBufferSize, imageDataSize);
                     memcpy(latestBuffer, imageData, imageDataSize);
                     latestFileName = path->name;
+
+                    if (waitForPhoto)
+                        return;
                 } else {
-                    cout << "Some other file" << endl;
+                    cout << "Some other file. name was: " << path->name << endl;
 
                     const char *imageData = nullptr;
                     unsigned long int imageDataSize;
@@ -296,7 +299,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                         unique_lock<boost::mutex> lk(rawBufferMutex);
                         buffers::requireBufferWithSize(&latestRawBuffer, &latestRawBufferSize, imageDataSize);
                         memcpy(latestRawBuffer, imageData, imageDataSize);
-                        latestRawFileName = path->name;
+                        latestRawFileName = std::string(path->name);
                     }
                 }
 
@@ -307,8 +310,6 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
 
                 free(data);
 
-                if (waitForPhoto)
-                    return;
             }
                 break;
             default:
@@ -574,7 +575,7 @@ bool GphotoCamera::setImageFormatSd(int image_format_sd_choice) {
 }
 
 
-bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, void **previewBuffer,
+bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFileName, void **previewBuffer,
                                      size_t *previewBufferSize, ImageInfo *previewImageInfo) {
     if (getState() != STATE_WORKING)
         return false;
@@ -598,6 +599,7 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
 
     *fullJpegBuffer = latestBuffer;
     *fullJpegBufferSize = latestBufferSize;
+    *fullJpegFileName = latestFileName;
 
 
     latestBuffer = tmpBuffer;
@@ -632,7 +634,7 @@ bool GphotoCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std:
         return false;
     }
 
-    *filename = latestFileName;
+    *filename = latestRawFileName;
     *targetBuffer = latestRawBuffer;
     *targetSize = latestRawBufferSize;
 

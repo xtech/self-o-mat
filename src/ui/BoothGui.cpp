@@ -180,8 +180,6 @@ void BoothGui::renderThread() {
 
 
 
-
-
                 imageTexture.update((sf::Uint8 *) imageBuffer, imageWidth, imageHeight, 0, 0);
                 imageDirty = false;
             }

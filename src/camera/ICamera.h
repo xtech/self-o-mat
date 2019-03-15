@@ -94,7 +94,7 @@ public:
      * @param resultInfo: A pointer to the resulting image info
      * @return true if success else false
      */
-    virtual bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, void **previewBuffer, size_t *previewBufferSize, ImageInfo *previewImageInfo) = 0;
+    virtual bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename, void **previewBuffer, size_t *previewBufferSize, ImageInfo *previewImageInfo) = 0;
 
     void setState(CameraState state) {
         stateMutex.lock();
