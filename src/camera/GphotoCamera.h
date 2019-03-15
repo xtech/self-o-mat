@@ -14,6 +14,7 @@
 #include <tools/JpegDecoder.h>
 #include "IGphotoController.h"
 #include "CanonShutterButtonCameraController.h"
+#include <mutex>
 
 extern "C" {
     #include <gphoto2/gphoto2.h>
@@ -44,11 +45,16 @@ private:
     void *latestBuffer = nullptr;
     size_t latestBufferSize = 0;
     ImageInfo latestResultInfo{};
-    
+    std::string latestFileName;
+
     void *tmpBuffer = nullptr;
     size_t tmpBufferSize = 0;
-    
 
+    // Buffer for the last raw image received.
+    boost::mutex rawBufferMutex;
+    void *latestRawBuffer = nullptr;
+    size_t latestRawBufferSize = 0;
+    std::string latestRawFileName;
 
     boost::mutex cameraIoMutex;
 
@@ -67,11 +73,6 @@ private:
 
     //std::map<std::string, std::vector<string>> choices;
 
-    struct queue_entry {
-        CameraFilePath path;
-        int offset;
-    } *queue = NULL;
-
     void drainEventQueue(bool waitForPhoto);
     void drainEventQueueWhenNeeded();
 
@@ -89,6 +90,7 @@ private:
 
     bool findCameraController();
 
+    bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename);
 
 public:
     CameraStartResult start() override;

@@ -2,6 +2,7 @@
 // Created by clemens on 21.01.19.
 //
 
+
 #include "GphotoCamera.h"
 
 const std::string GphotoCamera::TAG = "GPHOTO CAMERA";
@@ -254,6 +255,8 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                 if (boost::ends_with(path->name, ".jpg")) {
                     cout << "We got the JPG" << endl;
 
+
+
                     // release the trigger if still pressed
                     cameraController->releaseTrigger();
 
@@ -272,9 +275,29 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     // Copy the data into our latest buffer
                     buffers::requireBufferWithSize(&latestBuffer, &latestBufferSize, imageDataSize);
                     memcpy(latestBuffer, imageData, imageDataSize);
-
+                    latestFileName = path->name;
                 } else {
                     cout << "Some other file" << endl;
+
+                    const char *imageData = nullptr;
+                    unsigned long int imageDataSize;
+                    // Get the data. This is some other file
+                    retval = gp_file_get_data_and_size(cameraFile, &imageData, &imageDataSize);
+
+                    if (retval != GP_OK) {
+                        free(data);
+                        gp_file_free(cameraFile);
+                        cerr << "Error fetching image data: " << gp_result_as_string(retval) << endl;
+                        return;
+                    }
+
+                    // Copy the data into our latest buffer
+                    {
+                        unique_lock<boost::mutex> lk(rawBufferMutex);
+                        buffers::requireBufferWithSize(&latestRawBuffer, &latestRawBufferSize, imageDataSize);
+                        memcpy(latestRawBuffer, imageData, imageDataSize);
+                        latestRawFileName = path->name;
+                    }
                 }
 
                 gp_file_free(cameraFile);
@@ -601,5 +624,22 @@ bool GphotoCamera::findCameraController() {
     delete(cameraController);
     cameraController = nullptr;
     return false;
+}
+
+bool GphotoCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) {
+    unique_lock<boost::mutex> lk(rawBufferMutex);
+    if(latestRawBuffer == nullptr) {
+        return false;
+    }
+
+    *filename = latestFileName;
+    *targetBuffer = latestRawBuffer;
+    *targetSize = latestRawBufferSize;
+
+    // null our buffer, caller has to free
+    latestRawBuffer = nullptr;
+    latestRawBufferSize = 0;
+
+    return true;
 }
 

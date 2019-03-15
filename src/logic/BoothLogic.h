@@ -113,7 +113,7 @@ private:
 
     vector<boost::filesystem::path> findArduinos();
 
-    void saveImage(void *data, size_t size);
+    void saveImage(void *data, size_t size, std::string filename);
 
 public:
     void trigger();

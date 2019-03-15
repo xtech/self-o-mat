@@ -166,6 +166,10 @@ public:
     bool setImageFormatSd(int image_format_sd_choice) override {
         return false;
     }
+
+    bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override {
+        return false;
+    }
 };
 
 

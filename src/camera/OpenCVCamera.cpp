@@ -176,4 +176,8 @@ bool OpenCVCamera::setImageFormatSd(int image_format_sd_choice) {
     return false;
 }
 
+bool OpenCVCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) {
+    return false;
+}
+
 

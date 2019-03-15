@@ -82,6 +82,8 @@ public:
 
     bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, void **previewBuffer,
                            size_t *previewBufferSize, ImageInfo *previewImageInfo) override;
+
+    bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;
 };
 
 

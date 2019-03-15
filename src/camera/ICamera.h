@@ -129,6 +129,8 @@ public:
 
     virtual bool autofocusBlocking() = 0;
 
+    virtual bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) = 0;
+
     virtual ~ICamera() = default;
 };
 

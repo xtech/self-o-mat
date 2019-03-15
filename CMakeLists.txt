@@ -52,7 +52,7 @@ add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothL
         src/camera/ICamera.h src/camera/OpenCVCamera.cpp src/camera/OpenCVCamera.h src/camera/GphotoCamera.cpp src/camera/GphotoCamera.h
         src/ui/FPSCounter.h src/camera/NopCamera.h src/logic/ImageProcessor.cpp src/logic/ImageProcessor.h src/ui/IGui.h src/ui/ILogger.h
         src/ui/ConsoleLogger.cpp src/ui/ConsoleLogger.h src/tools/buffers.h src/tools/buffers.cpp src/tools/imageinfo.h src/logic/PrinterManager.cpp
-        src/logic/PrinterManager.h src/api/BoothApi.h src/api/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/camera/NopGui.cpp
+        src/logic/PrinterManager.h src/api/BoothApi.h src/api/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/ui/NopGui.cpp
         src/ui/NopGui.h src/tools/JpegDecoder.cpp src/tools/JpegDecoder.h src/tools/verbose.h
         src/camera/IGphotoController.h src/camera/CanonShutterButtonCameraController.cpp src/camera/CanonShutterButtonCameraController.h
         src/camera/BasicCameraController.cpp src/camera/BasicCameraController.h

@@ -277,6 +277,8 @@ void BoothLogic::logicThread() {
         boost::this_thread::sleep(boost::posix_time::seconds(1));
 
     }
+
+
 }
 
 void BoothLogic::ioThread() {
@@ -322,7 +324,8 @@ void BoothLogic::printerThread() {
             cout << "[Printer Thread] Waiting for an image to process" << endl;
             unique_lock<boost::mutex> lk(printerStateMutex);
             while (printerState != 1) {
-                printerStateCV.wait(lk);
+                printerStateCV.timed_wait(lk, boost::posix_time::milliseconds(1000));
+                cout << "[Printer Thread] timeout, checking images" << endl;
             }
         }
 
@@ -333,7 +336,7 @@ void BoothLogic::printerThread() {
             unique_lock<boost::mutex> lk(jpegImageMutex);
 
             // first we save the image
-            saveImage(latestJpegBuffer, latestJpegBufferSize);
+            saveImage(latestJpegBuffer, latestJpegBufferSize, std::string());
 
             Magick::Image framed = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
             cout << "[Printer Thread] " << "Framed" << endl;
@@ -372,26 +375,33 @@ void BoothLogic::printerThread() {
     }
 }
 
-void BoothLogic::saveImage(void *data, size_t size) {
+void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     if(imageDir.empty()) {
         cerr << "No image dir specified" << endl;
         return;
     }
 
-    std::time_t time = std::time(nullptr);
+    if(filename.empty()) {
+        std::time_t time = std::time(nullptr);
+        // Generate some filename, assume jpeg
+        filename="img_";
+        filename+=to_string((long)time);
+        filename+=".jpg";
+    }
 
-    std::string filename = imageDir;
 
-    filename+="/";
-    filename+="img_";
-    filename+=to_string((long)time);
-    filename+=".jpg";
 
-    cout << "Writing image to:" << filename << endl;
+    std::string fullImagePath = imageDir;
+
+    fullImagePath+="/";
+    fullImagePath+=filename;
+
+
+    cout << "Writing image to:" << fullImagePath << endl;
 
     FILE *fp;
 
-    fp = fopen(filename.c_str(), "wb");
+    fp = fopen(fullImagePath.c_str(), "wb");
     if(fp == nullptr) {
         cerr << "Error opening output file" << endl;
         return;
@@ -401,5 +411,5 @@ void BoothLogic::saveImage(void *data, size_t size) {
 
     fclose(fp);
 
-    cout << "File written to: " << filename << endl;
+    cout << "File written to: " << fullImagePath << endl;
 }
