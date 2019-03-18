@@ -1,0 +1,176 @@
+/main/actions/bulb
+Label: Bulb Mode
+Readonly: 0
+Type: TOGGLE
+Current: 2
+END
+/main/actions/uilock
+Label: UI Lock
+Readonly: 0
+Type: TOGGLE
+Current: 2
+END
+/main/actions/autofocusdrive
+Label: Drive Canon DSLR Autofocus
+Readonly: 0
+Type: TOGGLE
+Current: 0
+END
+/main/actions/manualfocusdrive
+Label: Drive Canon DSLR Manual focus
+Readonly: 0
+Type: RADIO
+Current: None
+Choice: 0 Near 1
+Choice: 1 Near 2
+Choice: 2 Near 3
+Choice: 3 None
+Choice: 4 Far 1
+Choice: 5 Far 2
+Choice: 6 Far 3
+END
+/main/actions/eoszoom
+Label: Canon EOS Zoom
+Readonly: 0
+Type: TEXT
+Current: 0
+END
+/main/actions/eoszoomposition
+Label: Canon EOS Zoom Position
+Readonly: 0
+Type: TEXT
+Current: 0,0
+END
+/main/actions/viewfinder
+Label: Canon EOS Viewfinder
+Readonly: 0
+Type: TOGGLE
+Current: 2
+END
+/main/actions/opcode
+Label: PTP Opcode
+Readonly: 0
+Type: TEXT
+Current: 0x1001,0xparam1,0xparam2
+END
+/main/settings/customfuncex
+Label: Custom Functions Ex
+Readonly: 0
+Type: TEXT
+Current: d4,4,1,20,2,101,1,0,10f,1,0,2,38,4,201,1,1,202,1,1,203,1,0,204,1,0,3,2c,3,50e,1,0,511,1,2,60f,1,0,4,38,4,701,1,0,704,1,0,811,1,0,80f,1,0,
+END
+/main/settings/capturetarget
+Label: Capture Target
+Readonly: 0
+Type: RADIO
+Current: Internal RAM
+Choice: 0 Internal RAM
+Choice: 1 Memory card
+END
+/main/settings/capture
+Label: Capture
+Readonly: 0
+Type: TOGGLE
+Current: 0
+END
+/main/status/serialnumber
+Label: Serial Number
+Readonly: 0
+Type: TEXT
+Current: 813c01c4d33144dca0fb02d8f795a6f9
+END
+/main/status/manufacturer
+Label: Camera Manufacturer
+Readonly: 0
+Type: TEXT
+Current: Canon Inc.
+END
+/main/status/cameramodel
+Label: Camera Model
+Readonly: 0
+Type: TEXT
+Current: Canon EOS 450D
+END
+/main/status/deviceversion
+Label: Device Version
+Readonly: 0
+Type: TEXT
+Current: 3-1.1.0
+END
+/main/status/vendorextension
+Label: Vendor Extension
+Readonly: 0
+Type: TEXT
+Current: None
+END
+/main/status/batterylevel
+Label: Battery Level
+Readonly: 0
+Type: TEXT
+Current: 100%
+END
+/main/status/shuttercounter
+Label: Shutter Counter
+Readonly: 0
+Type: TEXT
+Current: 8892
+END
+/main/imgsettings/imageformat
+Label: Image Format
+Readonly: 0
+Type: RADIO
+Current: RAW + Large Fine JPEG
+Choice: 0 Large Fine JPEG
+Choice: 1 Large Normal JPEG
+Choice: 2 Medium Fine JPEG
+Choice: 3 Medium Normal JPEG
+Choice: 4 Small Fine JPEG
+Choice: 5 Small Normal JPEG
+Choice: 6 RAW + Large Fine JPEG
+Choice: 7 RAW
+END
+/main/imgsettings/imageformatsd
+Label: Image Format SD
+Readonly: 0
+Type: RADIO
+Current: RAW + Large Fine JPEG
+Choice: 0 Large Fine JPEG
+Choice: 1 Large Normal JPEG
+Choice: 2 Medium Fine JPEG
+Choice: 3 Medium Normal JPEG
+Choice: 4 Small Fine JPEG
+Choice: 5 Small Normal JPEG
+Choice: 6 RAW + Large Fine JPEG
+Choice: 7 RAW
+END
+/main/imgsettings/imageformatcf
+Label: Image Format CF
+Readonly: 0
+Type: RADIO
+Current: RAW
+Choice: 0 RAW
+END
+/main/capturesettings/storageid
+Label: Storage Device
+Readonly: 0
+Type: TEXT
+Current: 00020000
+END
+/main/other/d402
+Label: PTP Property 0xd402
+Readonly: 1
+Type: TEXT
+Current: Canon EOS 450D
+END
+/main/other/d407
+Label: PTP Property 0xd407
+Readonly: 1
+Type: TEXT
+Current: 1
+END
+/main/other/d406
+Label: PTP Property 0xd406
+Readonly: 0
+Type: TEXT
+Current: Unknown Initiator
+END
