@@ -5,7 +5,9 @@
 #ifndef SELF_O_MAT_PRINTERMANAGER_H
 #define SELF_O_MAT_PRINTERMANAGER_H
 
+
 #include <cups/cups.h>
+#include <cups/ipp.h>
 #include <iostream>
 #include "../ui/ILogger.h"
 #include <Magick++.h>
@@ -22,10 +24,14 @@ private:
     bool hasImagePrepared = false;
     size_t sizeOfPreparedImage = 0;
 
-public:
-    PrinterManager(ILogger *logger, std::string printer_name);
+    cups_dest_t *cupsDestinations = nullptr;
+    int cupsDestinationCount = 0;
 
-    //std::vector<std::string> PrinterManager::listPrinters();
+
+public:
+    bool refreshCupsDestinations();
+
+    PrinterManager(ILogger *logger, std::string printer_name);
 
     bool prepareImageForPrint(Magick::Image image);
 

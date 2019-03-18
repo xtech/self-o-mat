@@ -6,17 +6,30 @@
 
 #include "PrinterManager.h"
 
-
-//#define PRINTER "PDF"
-
 bool PrinterManager::start() {
+    refreshCupsDestinations();
     return true;
 }
 
-//std::vector<std::string> PrinterManager::listPrinters() {
-//    //cupsEnumDests()
-//    return std::vector<std::string>();
-//}
+
+
+bool PrinterManager::refreshCupsDestinations() {
+    cupsFreeDests(cupsDestinationCount, cupsDestinations);
+    cupsDestinationCount = 0;
+
+    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 1000, nullptr, 0,0,
+            (cups_dest_cb_t) [] (void *user_data, unsigned flags, cups_dest_t *dest) {
+                auto *printerManager = (PrinterManager*)user_data;
+                printerManager->cupsDestinationCount = cupsCopyDest(dest, printerManager->cupsDestinationCount, &printerManager->cupsDestinations);
+                return 1;
+        }, this);
+
+
+    for(int i = 0; i < cupsDestinationCount; i++)
+        std::cout << "Found Cups destination: " << cupsDestinations[i].name << std::endl;
+
+    return true;
+}
 
 bool PrinterManager::printImage() {
     if(!hasImagePrepared)

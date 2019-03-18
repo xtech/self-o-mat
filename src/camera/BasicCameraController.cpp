@@ -15,7 +15,7 @@ BasicCameraController::BasicCameraController(GPContext *gp, Camera *camera, Came
 
     if(!focusFound)
         focusFound |= (GP_OK == gp_widget_get_child_by_name(rootWidget, "autofocus", &focusWidget));
-    
+
     if(!focusFound) {
         LOG_D(TAG, "no focus widget available");
         focusWidget = nullptr;
