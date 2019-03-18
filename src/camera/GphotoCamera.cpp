@@ -277,8 +277,16 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     memcpy(latestBuffer, imageData, imageDataSize);
                     latestFileName = path->name;
 
-                    if (waitForPhoto)
+                    if (waitForPhoto) {
+                        gp_file_free(cameraFile);
+
+                        // delete the file from the camera
+                        retval = gp_camera_file_delete(camera, path->folder, path->name, gp);
+
+                        free(data);
+
                         return;
+                    }
                 } else {
                     cout << "Some other file. name was: " << path->name << endl;
 
