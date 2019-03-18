@@ -1,3 +1,4 @@
 *.CR2 filter=lfs diff=lfs merge=lfs -text
 *.NEF filter=lfs diff=lfs merge=lfs -text
 *.ARW filter=lfs diff=lfs merge=lfs -text
+*.arw filter=lfs diff=lfs merge=lfs -text
