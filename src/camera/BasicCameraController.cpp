@@ -10,12 +10,18 @@ BasicCameraController::BasicCameraController(GPContext *gp, Camera *camera, Came
     // Find the widgets we need in order to focus and trigger the camera
 
     LOG_D(TAG, "Looking for the focus widget");
-    if (GP_OK == gp_widget_get_child_by_name(rootWidget, "autofocusdrive", &focusWidget)) {
-        LOG_D(TAG, "We have found the focus widget");
-    } else {
+
+    bool focusFound = (GP_OK == gp_widget_get_child_by_name(rootWidget, "autofocusdrive", &focusWidget));
+
+    if(!focusFound)
+        focusFound |= (GP_OK == gp_widget_get_child_by_name(rootWidget, "autofocus", &focusWidget));
+    
+    if(!focusFound) {
         LOG_D(TAG, "no focus widget available");
         focusWidget = nullptr;
         return;
+    } else {
+        LOG_D(TAG, "We have found the focus widget");
     }
 }
 
