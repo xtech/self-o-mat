@@ -39,6 +39,19 @@ struct flash_struct {
     uint8_t fade;
 }  __attribute__((packed));
 
+enum PrinterState {
+    // In the idle state, the printer thread is waiting for data
+    // Since nothing else is going on, raw saving is allowed in the background
+    PRINTER_STATE_IDLE = 0,
+    // Waiting for data is the same as idle but with raw processing disabled
+    // (so that we prioritize the JPEG for preview and printing)
+    PRINTER_STATE_WAITING_FOR_DATA = 1,
+    // Waiting for the user to cancel the print or not
+    PRINTER_STATE_WAITING_FOR_USER_INPUT = 2,
+    // We have all we need
+    PRINTER_STATE_WORKING = 3
+};
+
 class BoothLogic {
 public:
     explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash, string printer_name, string imageDir) : camera(camera), gui(gui), io_service(), tmp_serial_port(io_service), button_serial_port(io_service),
@@ -95,7 +108,7 @@ private:
 
     boost::condition_variable printerStateCV;
     boost::mutex printerStateMutex;
-    int printerState = 0;
+    PrinterState printerState = PRINTER_STATE_IDLE;
 
     boost::thread logicThreadHandle;
     boost::thread ioThreadHandle;

@@ -204,7 +204,7 @@ void BoothLogic::cameraThread() {
             {
                 cout << "[Camera Thread] Waiting for printer thread to finish" << endl;
                 unique_lock<boost::mutex> lk(printerStateMutex);
-                while (printerState != 0) {
+                while (printerState != PRINTER_STATE_IDLE) {
                     printerStateCV.wait(lk);
                 }
             }
@@ -213,7 +213,7 @@ void BoothLogic::cameraThread() {
             // Update printer thread state to one
             {
                 unique_lock<boost::mutex> lk(printerStateMutex);
-                printerState = 1;
+                printerState = PRINTER_STATE_WAITING_FOR_DATA;
                 printerStateCV.notify_all();
             }
 
@@ -237,7 +237,7 @@ void BoothLogic::cameraThread() {
 
             {
                 unique_lock<boost::mutex> lk(printerStateMutex);
-                printerState = 2;
+                printerState = PRINTER_STATE_WAITING_FOR_USER_INPUT;
                 printerStateCV.notify_all();
             }
 
@@ -251,7 +251,7 @@ void BoothLogic::cameraThread() {
                 // Notify the printer thread
                 {
                     unique_lock<boost::mutex> lk(printerStateMutex);
-                    printerState = 3;
+                    printerState = PRINTER_STATE_WORKING;
                     printerStateCV.notify_all();
                 }
             } else {
@@ -347,7 +347,7 @@ void BoothLogic::printerThread() {
         {
             cout << "[Printer Thread] Waiting for an image to process" << endl;
             unique_lock<boost::mutex> lk(printerStateMutex);
-            while (printerState < 2) {
+            while (printerState == PRINTER_STATE_IDLE || printerState == PRINTER_STATE_WAITING_FOR_DATA) {
                 printerStateCV.wait(lk);
             }
         }
@@ -370,7 +370,7 @@ void BoothLogic::printerThread() {
         {
             cout << "[Printer Thread] Waiting for the user to decide if he wants to print" << endl;
             unique_lock<boost::mutex> lk(printerStateMutex);
-            while (printerState != 3) {
+            while (printerState == PRINTER_STATE_WAITING_FOR_USER_INPUT) {
                 printerStateCV.wait(lk);
             }
         }
@@ -389,10 +389,10 @@ void BoothLogic::printerThread() {
         }
 
 
-        cout << "[Printer Thread] I'm done with my work, so i'll just update the printer state to 0" << endl;
+        cout << "[Printer Thread] I'm done with my work, so i'll just update the printer state to IDLE" << endl;
         {
             unique_lock<boost::mutex> lk(printerStateMutex);
-            printerState = 0;
+            printerState = PRINTER_STATE_IDLE;
             printerStateCV.notify_all();
         }
     }
