@@ -45,7 +45,7 @@ CameraStartResult GphotoCamera::start() {
 
 
     // We have the root widget, find a controller which works with the connected camera
-    if(!findCameraController()) {
+    if(!createCameraControllers()) {
         LOG_E(TAG, "Could not find a controller for the connected camera.");
         return START_RESULT_ERROR;
     }
@@ -67,12 +67,7 @@ CameraStartResult GphotoCamera::start() {
 
     // Get shutter speed, iso and apterture
 
-
-    //listWidgets(0, rootWidget);
-
-    camera_name = getCameraPropertyString("cameramodel");
-    lens_name = getCameraPropertyString("lensname");
-    cout << "We're running with a " << camera_name << " with " << lens_name << " attached. yeah!" << endl;
+    cout << "We're running with a " << getCameraName() << " with " << getLensName() << " attached. yeah!" << endl;
 
 //    setCameraProperty("shutterspeed", "1/4000");
 
@@ -83,105 +78,6 @@ CameraStartResult GphotoCamera::start() {
 
 
     return START_RESULT_SUCCESS;
-}
-
-bool GphotoCamera::setCameraProperty(string property_name, string value) {
-    cout << "Settign widget " << endl;
-    CameraWidget *widget;
-    int retval = gp_widget_get_child_by_name(rootWidget, property_name.c_str(), &widget);
-    if (retval != GP_OK) {
-        cout << "error setting property1" << endl;
-        return false;
-    }
-    retval = gp_widget_set_value(widget, value.c_str());
-    if (retval != GP_OK) {
-        cout << "error setting property2" << endl;
-        return false;
-    }
-    retval = gp_camera_set_config(camera, rootWidget, gp);
-    if (retval != GP_OK) {
-        cout << "error setting property3" << endl;
-        return false;
-    }
-    return false;
-}
-
-void GphotoCamera::listWidgets(int currentDepth, CameraWidget *parent) {
-    const char *name;
-    gp_widget_get_name(parent, &name);
-
-    CameraWidgetType type;
-    gp_widget_get_type(parent, &type);
-    string typestr("unknown");
-
-    int choice_count;
-    const char *tmp;
-
-    bool get_value = false;
-    switch (type) {
-        case CameraWidgetType::GP_WIDGET_BUTTON:
-            typestr = "Button";
-            break;
-        case CameraWidgetType::GP_WIDGET_DATE:
-            typestr = "Date";
-            break;
-        case CameraWidgetType::GP_WIDGET_MENU:
-            get_value = true;
-            typestr = "Menu";
-            break;
-        case CameraWidgetType::GP_WIDGET_RADIO:
-            get_value = true;
-            typestr = "Radio";
-
-
-            choice_count = gp_widget_count_choices(parent);
-            for (int choice = 0; choice < choice_count; choice++) {
-                gp_widget_get_choice(parent, choice, &tmp);
-                cout << "Choice: " << tmp << endl;
-            }
-
-            break;
-        case CameraWidgetType::GP_WIDGET_RANGE:
-            typestr = "Range";
-            break;
-        case CameraWidgetType::GP_WIDGET_TEXT:
-            get_value = true;
-            typestr = "Text";
-            break;
-        case CameraWidgetType::GP_WIDGET_WINDOW:
-            typestr = "Window";
-            break;
-        case CameraWidgetType::GP_WIDGET_SECTION:
-            typestr = "Section";
-            break;
-        case CameraWidgetType::GP_WIDGET_TOGGLE:
-            typestr = "Toggle";
-            break;
-    }
-
-    const char *value = nullptr;
-    if (get_value) {
-        gp_widget_get_value(parent, &value);
-    }
-
-    string value_string;
-    if (value != nullptr)
-        value_string = value;
-
-    for (int i = 0; i < currentDepth; i++)
-        cout << "-";
-
-    cout << " ";
-
-    cout << "Found Widget: " << name << " with type: " << typestr << " and value: " << value_string << endl;
-
-
-    int child_count = gp_widget_count_children(parent);
-    CameraWidget *child = nullptr;
-    for (int i = 0; i < child_count; i++) {
-        gp_widget_get_child(parent, i, &child);
-        listWidgets(currentDepth + 1, child);
-    }
 }
 
 
@@ -258,7 +154,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
 
 
                     // release the trigger if still pressed
-                    cameraController->releaseTrigger();
+                    triggerController->releaseTrigger();
 
                     const char *imageData = nullptr;
                     unsigned long int imageDataSize;
@@ -390,7 +286,7 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     }
 
     if (trigger_focus) {
-        cameraController->focus();
+        focusController->focus();
         trigger_focus = false;
         focusStartedTime = boost::posix_time::microsec_clock::local_time();
         focus_active = true;
@@ -399,7 +295,7 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
         auto now = boost::posix_time::microsec_clock::local_time();
         auto focusActiveTime = (now - focusStartedTime).total_milliseconds();
         if (focusActiveTime > 5000) {
-            cameraController->stopFocus();
+            focusController->stopFocus();
             focus_active = false;
         }
     }
@@ -419,7 +315,7 @@ bool GphotoCamera::triggerCaptureBlocking() {
     cameraIoMutex.lock();
 
 
-    bool success = cameraController->trigger();
+    bool success = triggerController->trigger();
 
     cameraIoMutex.unlock();
 
@@ -460,64 +356,6 @@ void GphotoCamera::pullCameraSettings() {
     settings_dirty = false;
 }
 
-bool GphotoCamera::loadChoices(string property_name, std::vector<string> &choices) {
-    cout << "Querying choices for property: " << property_name << endl;
-    CameraWidget *widget;
-    if (!CHECK(gp_widget_get_child_by_name(rootWidget, property_name.c_str(), &widget))) {
-        cerr << "Error getting choices for property " << property_name << endl;
-        return false;
-    }
-
-    int choice_count = gp_widget_count_choices(widget);
-
-    for (int i = 0; i < choice_count; i++) {
-        const char *choice;
-        if (CHECK(gp_widget_get_choice(widget, i, &choice))) {
-            std::string choice_string;
-            // Use assign to copy the string not just the ptr
-            choice_string = choice;
-            //cout << "Found choice: " << choice_string << endl;
-            choices.push_back(choice_string);
-        } else {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool GphotoCamera::setCameraPropertyChoice(string property_name, int choice) {
-
-
-    return true;
-}
-
-int GphotoCamera::getCameraPropertyChoice(string property_name) {
-
-
-    return 0;
-}
-
-string GphotoCamera::getCameraPropertyString(string property_name) {
-    CameraWidget *widget;
-    // Get the current choice
-    const char *value;
-
-    if (!CHECK(gp_widget_get_child_by_name(rootWidget, property_name.c_str(), &widget))) {
-        cerr << "Error getting widget for property " << property_name << endl;
-        return "N/A";
-    }
-
-    if (!CHECK(gp_widget_get_value(widget, &value))) {
-        cerr << "Error getting current widget value" << endl;
-        return "N/A";
-    }
-
-    string value_string = value;
-
-    return value_string;
-}
-
 vector<string> *GphotoCamera::getIsoChoices() {
     return nullptr;
 }
@@ -551,11 +389,11 @@ vector<string> *GphotoCamera::getImageFormatSdChoices() {
 }
 
 string GphotoCamera::getCameraName() {
-    return camera_name;
+    return cameraInfoController->getCameraName();
 }
 
 string GphotoCamera::getLensName() {
-    return lens_name;
+    return cameraInfoController->getLensName();
 }
 
 int GphotoCamera::getExposureCorrection() {
@@ -617,23 +455,13 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
     return success;
 }
 
-bool GphotoCamera::findCameraController() {
-    // Try the advanced controller first then revert to the basic one
-    cameraController = new CanonShutterButtonCameraController(gp, camera, rootWidget);
-    if(cameraController->supportsCamera())
-        return true;
+bool GphotoCamera::createCameraControllers() {
 
-    // Delete it, try next
-    delete(cameraController);
+    triggerController = new GphotoTriggerController(gp, camera, rootWidget);
+    focusController = new GphotoFocusController(gp, camera, rootWidget);
+    cameraInfoController = new GphotoCameraInfoController(gp, camera, rootWidget);
 
-    cameraController = new BasicCameraController(gp, camera, rootWidget);
-
-    if(cameraController->supportsCamera())
-        return true;
-
-    delete(cameraController);
-    cameraController = nullptr;
-    return false;
+    return true;
 }
 
 bool GphotoCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) {
@@ -651,5 +479,14 @@ bool GphotoCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std:
     latestRawBufferSize = 0;
 
     return true;
+}
+
+GphotoCamera::~GphotoCamera() {
+    if(focusController != nullptr)
+        delete(focusController);
+    if(triggerController != nullptr)
+        delete(triggerController);
+    if(cameraInfoController != nullptr)
+        delete(cameraInfoController);
 }
 
