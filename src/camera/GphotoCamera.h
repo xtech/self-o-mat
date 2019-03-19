@@ -13,6 +13,7 @@
 #include <tools/buffers.h>
 #include <tools/JpegDecoder.h>
 #include <camera/controllers/GphotoFocusController.h>
+#include <camera/controllers/GphotoCameraInfoController.h>
 #include <camera/controllers/GphotoTriggerController.h>
 #include <mutex>
 
@@ -29,6 +30,7 @@ private:
 
     GphotoTriggerController *triggerController = nullptr;
     GphotoFocusController *focusController = nullptr;
+    GphotoCameraInfoController *cameraInfoController = nullptr;
 
     JpegDecoder jpegDecoder;
 
@@ -61,28 +63,14 @@ private:
     bool settings_dirty = false;
     bool trigger_focus = false;
     bool focus_active = false;
-    bool trigger_pressed = false;
-
-    string camera_name;
-    string lens_name;
-
-
-    //std::map<std::string, std::vector<string>> choices;
-
+    
     void drainEventQueue(bool waitForPhoto);
+
     void drainEventQueueWhenNeeded();
 
-    void listWidgets(int currentDepth, CameraWidget *parent);
-
-    bool setCameraProperty(string property_name, string value);
-    int getCameraPropertyChoice(string property_name);
-    string getCameraPropertyString(string property_name);
-    bool setCameraPropertyChoice(string property_name, int choice);
     void pullCameraSettings();
 
     bool pushCameraSettings();
-
-    bool loadChoices(string property_name, std::vector<string> &choices);
 
     bool createCameraControllers();
 
