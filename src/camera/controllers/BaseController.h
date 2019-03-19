@@ -56,7 +56,7 @@ namespace selfomat {
                  * Gets the current choice for a text widget
                  * @param widget the widget
                  * @param choices the possible choices
-                 * @return -1 on error else the index
+                 * @return the property. N/A on error.
                  */
                 std::string getPropertyText(CameraWidget *widget);
 
