@@ -4,6 +4,8 @@
 
 #include "ConsoleLogger.h"
 
+using namespace selfomat::tools;
+
 void ConsoleLogger::logDebug(std::string s) {
     std::cout << "[Debug] " << s << std::endl;
 }

@@ -5,9 +5,11 @@
 
 #include "GphotoCamera.h"
 
+using namespace selfomat::camera;
+using namespace selfomat::camera::gphoto;
+
 const std::string GphotoCamera::TAG = "GPHOTO CAMERA";
 
-#define CHECK(it) (it == GP_OK)
 
 CameraStartResult GphotoCamera::start() {
 
@@ -169,7 +171,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     }
 
                     // Copy the data into our latest buffer
-                    buffers::requireBufferWithSize(&latestBuffer, &latestBufferSize, imageDataSize);
+                    selfomat::tools::requireBufferWithSize(&latestBuffer, &latestBufferSize, imageDataSize);
                     memcpy(latestBuffer, imageData, imageDataSize);
                     latestFileName = path->name;
 
@@ -201,7 +203,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     // Copy the data into our latest buffer
                     {
                         unique_lock<boost::mutex> lk(rawBufferMutex);
-                        buffers::requireBufferWithSize(&latestRawBuffer, &latestRawBufferSize, imageDataSize);
+                        selfomat::tools::requireBufferWithSize(&latestRawBuffer, &latestRawBufferSize, imageDataSize);
                         memcpy(latestRawBuffer, imageData, imageDataSize);
                         latestRawFileName = std::string(path->name);
                     }
@@ -457,9 +459,9 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
 
 bool GphotoCamera::createCameraControllers() {
 
-    triggerController = new GphotoTriggerController(gp, camera, rootWidget);
-    focusController = new GphotoFocusController(gp, camera, rootWidget);
-    cameraInfoController = new GphotoCameraInfoController(gp, camera, rootWidget);
+    triggerController = new TriggerController(gp, camera, rootWidget);
+    focusController = new FocusController(gp, camera, rootWidget);
+    cameraInfoController = new InfoController(gp, camera, rootWidget);
 
     return true;
 }

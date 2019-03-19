@@ -14,28 +14,35 @@
 
 using namespace selfomat;
 using namespace Pistache;
+namespace selfomat {
+    namespace api {
 
-class BoothApi {
-private:
-    BoothLogic *logic;
-    ICamera *camera;
-    Http::Endpoint httpEndpoint;
+        class BoothApi {
+        private:
+            selfomat::logic::BoothLogic *logic;
+            ICamera *camera;
+            Http::Endpoint httpEndpoint;
 
-    void getCameraChoices(const Rest::Request &request, Http::ResponseWriter response);
-    void getCurrentCameraSettings(const Rest::Request &request, Http::ResponseWriter response);
+            void getCameraChoices(const Rest::Request &request, Http::ResponseWriter response);
 
-    void setCameraSettings(const Rest::Request &request, Http::ResponseWriter response);
+            void getCurrentCameraSettings(const Rest::Request &request, Http::ResponseWriter response);
 
-    void triggerCapture(const Rest::Request &request, Http::ResponseWriter response);
-    void autofocus(const Rest::Request &request, Http::ResponseWriter response);
+            void setCameraSettings(const Rest::Request &request, Http::ResponseWriter response);
+
+            void triggerCapture(const Rest::Request &request, Http::ResponseWriter response);
+
+            void autofocus(const Rest::Request &request, Http::ResponseWriter response);
 
 
-public:
-    BoothApi(BoothLogic *logic, ICamera *camera);
+        public:
+            BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera);
 
-    bool start();
-    bool stop();
-};
+            bool start();
+
+            bool stop();
+        };
+    }
+}
 
 
 #endif //SELF_O_MAT_BOOTHAPI_H

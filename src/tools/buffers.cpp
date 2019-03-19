@@ -4,7 +4,7 @@
 
 #include "buffers.h"
 
-bool buffers::requireBufferWithSize(void **buffer, size_t *bufferSize, size_t requestedSize) {
+bool selfomat::tools::requireBufferWithSize(void **buffer, size_t *bufferSize, size_t requestedSize) {
     if(requestedSize <= *bufferSize && *buffer != NULL) {
         // Buffer exists and is large enough -> we're done
         return  true;

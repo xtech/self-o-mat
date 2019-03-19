@@ -7,9 +7,13 @@
 
 #include <stdint.h>
 
-struct ImageInfo {
-    uint32_t width;
-    uint32_t height;
-};
+namespace selfomat {
+    namespace tools {
+        struct ImageInfo {
+            uint32_t width;
+            uint32_t height;
+        };
+    }
+}
 
 #endif //SELF_O_MAT_IMAGEINFO_H

@@ -4,6 +4,8 @@
 
 #include "NopGui.h"
 
+using namespace selfomat::ui;
+
 void NopGui::initialized() {
     std::cout << "GUI Initialized" << std::endl;
 }

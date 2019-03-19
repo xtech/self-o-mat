@@ -12,132 +12,138 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <tools/buffers.h>
 #include <tools/JpegDecoder.h>
-#include <camera/controllers/GphotoFocusController.h>
-#include <camera/controllers/GphotoCameraInfoController.h>
-#include <camera/controllers/GphotoTriggerController.h>
+#include <camera/controllers/FocusController.h>
+#include <camera/controllers/InfoController.h>
+#include <camera/controllers/TriggerController.h>
 #include <mutex>
 
 extern "C" {
-    #include <gphoto2/gphoto2.h>
-    #include <gphoto2-version.h>
+#include <gphoto2/gphoto2.h>
+#include <gphoto2-version.h>
 }
 
 using namespace std;
 
-class GphotoCamera : public ICamera {
-private:
-    static const std::string TAG;
+namespace selfomat {
+    namespace camera {
+        namespace gphoto {
+            class GphotoCamera : public ICamera {
+            private:
+                static const std::string TAG;
 
-    GphotoTriggerController *triggerController = nullptr;
-    GphotoFocusController *focusController = nullptr;
-    GphotoCameraInfoController *cameraInfoController = nullptr;
+                TriggerController *triggerController = nullptr;
+                FocusController *focusController = nullptr;
+                InfoController *cameraInfoController = nullptr;
 
-    JpegDecoder jpegDecoder;
+                JpegDecoder jpegDecoder;
 
-    GPContext *gp = NULL;
-    Camera *camera = NULL;
+                GPContext *gp = NULL;
+                Camera *camera = NULL;
 
-    boost::thread cameraEventThreadHandle;
-    boost::posix_time::ptime lastDrainTime;
-    boost::posix_time::ptime focusStartedTime;
+                boost::thread cameraEventThreadHandle;
+                boost::posix_time::ptime lastDrainTime;
+                boost::posix_time::ptime focusStartedTime;
 
-    void *latestBuffer = nullptr;
-    size_t latestBufferSize = 0;
-    ImageInfo latestResultInfo{};
-    std::string latestFileName;
+                void *latestBuffer = nullptr;
+                size_t latestBufferSize = 0;
+                ImageInfo latestResultInfo{};
+                std::string latestFileName;
 
-    void *tmpBuffer = nullptr;
-    size_t tmpBufferSize = 0;
+                void *tmpBuffer = nullptr;
+                size_t tmpBufferSize = 0;
 
-    // Buffer for the last raw image received.
-    boost::mutex rawBufferMutex;
-    void *latestRawBuffer = nullptr;
-    size_t latestRawBufferSize = 0;
-    std::string latestRawFileName;
+                // Buffer for the last raw image received.
+                boost::mutex rawBufferMutex;
+                void *latestRawBuffer = nullptr;
+                size_t latestRawBufferSize = 0;
+                std::string latestRawFileName;
 
-    boost::mutex cameraIoMutex;
+                boost::mutex cameraIoMutex;
 
-    CameraWidget *rootWidget;
-
-
-    bool settings_dirty = false;
-    bool trigger_focus = false;
-    bool focus_active = false;
-    
-    void drainEventQueue(bool waitForPhoto);
-
-    void drainEventQueueWhenNeeded();
-
-    void pullCameraSettings();
-
-    bool pushCameraSettings();
-
-    bool createCameraControllers();
-
-    bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename);
-
-public:
-    CameraStartResult start() override;
-
-    bool capturePreviewBlocking(void **buffer, size_t *bufferSize, ImageInfo *resultInfo) override;
-
-    void stop() override;
-
-    bool triggerCaptureBlocking() override;
-    bool autofocusBlocking() override;
-
-    bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename, void **previewBuffer,
-                           size_t *previewBufferSize, ImageInfo *previewImageInfo) override;
-
-    int getIso() override;
-
-    int getShutterSpeed() override;
-
-    int getAperture() override;
-
-    int getShootingMode() override;
-
-    bool setIso(int iso_choice) override;
-
-    bool setShutterSpeed(int shutter_speed_choice) override;
-
-    bool setAperture(int aperture_choice) override;
+                CameraWidget *rootWidget;
 
 
+                bool settings_dirty = false;
+                bool trigger_focus = false;
+                bool focus_active = false;
 
-    vector<string> *getIsoChoices() override;
+                void drainEventQueue(bool waitForPhoto);
 
-    vector<string> *getShutterSpeedChoices() override;
+                void drainEventQueueWhenNeeded();
 
-    vector<string> *getApertureChoices() override;
+                void pullCameraSettings();
 
-    vector<string> *getShootingModeChoices() override;
+                bool pushCameraSettings();
+
+                bool createCameraControllers();
+
+                bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;
+
+            public:
+                CameraStartResult start() override;
+
+                bool capturePreviewBlocking(void **buffer, size_t *bufferSize, ImageInfo *resultInfo) override;
+
+                void stop() override;
+
+                bool triggerCaptureBlocking() override;
+
+                bool autofocusBlocking() override;
+
+                bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename,
+                                       void **previewBuffer,
+                                       size_t *previewBufferSize, ImageInfo *previewImageInfo) override;
+
+                int getIso() override;
+
+                int getShutterSpeed() override;
+
+                int getAperture() override;
+
+                int getShootingMode() override;
+
+                bool setIso(int iso_choice) override;
+
+                bool setShutterSpeed(int shutter_speed_choice) override;
+
+                bool setAperture(int aperture_choice) override;
 
 
-    vector<string> *getExposureCorrectionModeChoices() override;
+                vector<string> *getIsoChoices() override;
 
-    vector<string> *getImageFormatChoices() override;
+                vector<string> *getShutterSpeedChoices() override;
 
-    vector<string> *getImageFormatSdChoices() override;
+                vector<string> *getApertureChoices() override;
 
-    string getCameraName() override;
+                vector<string> *getShootingModeChoices() override;
 
-    string getLensName() override;
 
-    int getExposureCorrection() override;
+                vector<string> *getExposureCorrectionModeChoices() override;
 
-    int getImageFormat() override;
+                vector<string> *getImageFormatChoices() override;
 
-    int getImageFormatSd() override;
+                vector<string> *getImageFormatSdChoices() override;
 
-    bool setExposureCorrection(int exposure_correction_choice) override;
+                string getCameraName() override;
 
-    bool setImageFormat(int image_format_choice) override;
+                string getLensName() override;
 
-    bool setImageFormatSd(int image_format_sd_choice) override;
+                int getExposureCorrection() override;
 
-    virtual ~GphotoCamera();
-};
+                int getImageFormat() override;
 
+                int getImageFormatSd() override;
+
+                bool setExposureCorrection(int exposure_correction_choice) override;
+
+                bool setImageFormat(int image_format_choice) override;
+
+                bool setImageFormatSd(int image_format_sd_choice) override;
+
+                ~GphotoCamera() override;
+            };
+        }
+    }
+}
 
 #endif //SELF_O_MAT_GPHOTOCAMERA_H

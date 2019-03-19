@@ -6,6 +6,8 @@
 
 using namespace std;
 using namespace boost;
+using namespace selfomat::logic;
+using namespace selfomat::camera;
 
 /**
  * Looks for arduinos in /dev and returns all found ones

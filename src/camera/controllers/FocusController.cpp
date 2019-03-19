@@ -2,12 +2,14 @@
 // Created by clemens on 19.03.19.
 //
 
-#include "GphotoFocusController.h"
+#include "FocusController.h"
 
-const std::string GphotoFocusController::TAG = "FocusController";
+using namespace selfomat::camera::gphoto;
 
-GphotoFocusController::GphotoFocusController(GPContext *gp, Camera *camera, CameraWidget *rootWidget)
-        : GphotoBaseController(gp, camera, rootWidget) {
+const std::string FocusController::TAG = "FocusController";
+
+FocusController::FocusController(GPContext *gp, Camera *camera, CameraWidget *rootWidget)
+        : BaseController(gp, camera, rootWidget) {
     // Find the widgets we need in order to focus and trigger the camera
     LOG_D(TAG, "Looking for focus widget");
 
@@ -18,7 +20,7 @@ GphotoFocusController::GphotoFocusController(GPContext *gp, Camera *camera, Came
     LOG_D(TAG, "No focus widget found.");
 }
 
-bool GphotoFocusController::focus() {
+bool FocusController::focus() {
     if (!supportsCamera())
         return false;
     LOG_D(TAG, "Starting Focus");
@@ -38,7 +40,7 @@ bool GphotoFocusController::focus() {
     return true;
 }
 
-bool GphotoFocusController::stopFocus() {
+bool FocusController::stopFocus() {
     if (!supportsCamera())
         return false;
     LOG_D(TAG, "Stopping Focus");
@@ -58,6 +60,6 @@ bool GphotoFocusController::stopFocus() {
     return true;
 }
 
-bool GphotoFocusController::supportsCamera() {
+bool FocusController::supportsCamera() {
     return focusWidget != nullptr;
 }

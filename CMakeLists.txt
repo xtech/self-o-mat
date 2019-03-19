@@ -50,12 +50,12 @@ endif()
 
 add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothLogic.h src/ui/BoothGui.cpp src/ui/BoothGui.h
         src/camera/ICamera.h src/camera/OpenCVCamera.cpp src/camera/OpenCVCamera.h src/camera/GphotoCamera.cpp src/camera/GphotoCamera.h
-        src/ui/FPSCounter.h src/camera/NopCamera.h src/logic/ImageProcessor.cpp src/logic/ImageProcessor.h src/ui/IGui.h src/ui/ILogger.h
-        src/ui/ConsoleLogger.cpp src/ui/ConsoleLogger.h src/tools/buffers.h src/tools/buffers.cpp src/tools/imageinfo.h src/logic/PrinterManager.cpp
+        src/ui/FPSCounter.h src/camera/NopCamera.h src/logic/ImageProcessor.cpp src/logic/ImageProcessor.h src/ui/IGui.h src/tools/ILogger.h
+        src/tools/ConsoleLogger.cpp src/tools/ConsoleLogger.h src/tools/buffers.h src/tools/buffers.cpp src/tools/imageinfo.h src/logic/PrinterManager.cpp
         src/logic/PrinterManager.h src/api/BoothApi.h src/api/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/ui/NopGui.cpp
         src/ui/NopGui.h src/tools/JpegDecoder.cpp src/tools/JpegDecoder.h src/tools/verbose.h
-        src/camera/controllers/GphotoBaseController.h
-        dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp src/camera/controllers/GphotoTriggerController.cpp src/camera/controllers/GphotoTriggerController.h src/camera/controllers/GphotoBaseController.cpp src/camera/controllers/GphotoFocusController.cpp src/camera/controllers/GphotoFocusController.h src/camera/controllers/GphotoCameraInfoController.cpp src/camera/controllers/GphotoCameraInfoController.h)
+        src/camera/controllers/BaseController.h
+        dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp src/camera/controllers/TriggerController.cpp src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h)
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})
 target_link_libraries(self_o_mat gphoto2)

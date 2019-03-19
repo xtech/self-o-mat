@@ -2,12 +2,14 @@
 // Created by clemens on 19.03.19.
 //
 
-#include "GphotoTriggerController.h"
+#include "TriggerController.h"
 
-const std::string GphotoTriggerController::TAG = "TriggerController";
+using namespace selfomat::camera::gphoto;
 
-GphotoTriggerController::GphotoTriggerController(GPContext *gp, Camera *camera, CameraWidget *rootWidget)
-        : GphotoBaseController(gp, camera, rootWidget) {
+const std::string TriggerController::TAG = "TriggerController";
+
+TriggerController::TriggerController(GPContext *gp, Camera *camera, CameraWidget *rootWidget)
+        : BaseController(gp, camera, rootWidget) {
     // Find the widgets we need in order to focus and trigger the camera
     LOG_D(TAG, "Looking for trigger widget");
 
@@ -19,7 +21,7 @@ GphotoTriggerController::GphotoTriggerController(GPContext *gp, Camera *camera, 
     mode = TRIGGER_MODE_DEFAULT;
 }
 
-bool GphotoTriggerController::trigger() {
+bool TriggerController::trigger() {
     LOG_D(TAG, "Triggering");
 
     switch (mode) {
@@ -47,7 +49,7 @@ bool GphotoTriggerController::trigger() {
     }
 }
 
-bool GphotoTriggerController::releaseTrigger() {
+bool TriggerController::releaseTrigger() {
 
 
     switch (mode) {
@@ -74,7 +76,7 @@ bool GphotoTriggerController::releaseTrigger() {
     }
 }
 
-bool GphotoTriggerController::supportsCamera() {
+bool TriggerController::supportsCamera() {
     // We hope so
     return true;
 }

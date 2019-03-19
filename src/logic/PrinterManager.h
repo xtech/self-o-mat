@@ -9,49 +9,54 @@
 #include <cups/cups.h>
 #include <cups/ipp.h>
 #include <iostream>
-#include "../ui/ILogger.h"
+#include "tools/ILogger.h"
 #include <Magick++.h>
 #include "../tools/buffers.h"
 
-class PrinterManager {
-private:
-    enum PRINTER_STATE {
-        STATE_UNKNOWN,
-        STATE_IDLE,
-        STATE_PRINTING,
-        STATE_STOPPED
-    };
+using namespace selfomat::tools;
 
-    PRINTER_STATE currentPrinterState;
-    char *currentStateReason = NULL;
+namespace selfomat {
+    namespace logic {
+        class PrinterManager {
+        private:
+            enum PRINTER_STATE {
+                STATE_UNKNOWN,
+                STATE_IDLE,
+                STATE_PRINTING,
+                STATE_STOPPED
+            };
 
-    ILogger *logger;
-    std::string printer_name;
+            PRINTER_STATE currentPrinterState;
+            char *currentStateReason = NULL;
 
-    void *imageTmpBuffer = nullptr;
-    size_t imageTmpBufferSize = 0;
+            ILogger *logger;
+            std::string printer_name;
 
-    bool hasImagePrepared = false;
-    size_t sizeOfPreparedImage = 0;
+            void *imageTmpBuffer = nullptr;
+            size_t imageTmpBufferSize = 0;
 
-    cups_dest_t *cupsDestinations = nullptr;
-    int cupsDestinationCount = 0;
+            bool hasImagePrepared = false;
+            size_t sizeOfPreparedImage = 0;
 
-public:
-    bool refreshCupsDestinations();
+            cups_dest_t *cupsDestinations = nullptr;
+            int cupsDestinationCount = 0;
 
-    bool refreshPrinterState();
+        public:
+            bool refreshCupsDestinations();
 
-    PrinterManager(ILogger *logger, std::string printer_name);
+            bool refreshPrinterState();
 
-    bool prepareImageForPrint(Magick::Image image);
+            PrinterManager(ILogger *logger, std::string printer_name);
 
-    bool start();
+            bool prepareImageForPrint(Magick::Image image);
 
-    bool printImage();
+            bool start();
 
-    bool cancelPrint();
-};
+            bool printImage();
 
+            bool cancelPrint();
+        };
+    }
+}
 
 #endif //SELF_O_MAT_PRINTERMANAGER_H
