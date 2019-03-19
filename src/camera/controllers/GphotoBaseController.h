@@ -12,7 +12,7 @@ extern "C" {
 #include <gphoto2/gphoto2.h>
 }
 
-class IGphotoController {
+class GphotoBaseController {
 private:
     static const std::string TAG;
 
@@ -24,10 +24,10 @@ protected:
     bool findWidget(std::string widgetName, CameraWidget **target);
 
 public:
-    IGphotoController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
+    GphotoBaseController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
                                                                                  rootWidget(rootWidget) {}
 
-    virtual ~IGphotoController() {
+    virtual ~GphotoBaseController() {
         // We do not free the camera here as we only use it.
     }
 

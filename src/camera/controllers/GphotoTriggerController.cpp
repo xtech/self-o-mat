@@ -7,7 +7,7 @@
 const std::string GphotoTriggerController::TAG = "TriggerController";
 
 GphotoTriggerController::GphotoTriggerController(GPContext *gp, Camera *camera, CameraWidget *rootWidget)
-        : IGphotoController(gp, camera, rootWidget) {
+        : GphotoBaseController(gp, camera, rootWidget) {
     // Find the widgets we need in order to focus and trigger the camera
     LOG_D(TAG, "Looking for trigger widget");
 

@@ -32,12 +32,8 @@ private:
 
     JpegDecoder jpegDecoder;
 
-    CameraFile *lastCameraFile = NULL;
-    CameraFilePath cameraFilePath;
-
     GPContext *gp = NULL;
     Camera *camera = NULL;
-    CameraFile *cameraFile = NULL;
 
     boost::thread cameraEventThreadHandle;
     boost::posix_time::ptime lastDrainTime;
@@ -60,7 +56,6 @@ private:
     boost::mutex cameraIoMutex;
 
     CameraWidget *rootWidget;
-    CameraWidget *exposureCorrectionWidget;
 
 
     bool settings_dirty = false;

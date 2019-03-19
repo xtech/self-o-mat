@@ -6,7 +6,7 @@
 #define SELF_O_MAT_GPHOTOTRIGGERCONTROLLER_H
 
 
-#include "IGphotoController.h"
+#include "GphotoBaseController.h"
 #include <string>
 #include <tools/verbose.h>
 
@@ -17,7 +17,7 @@ enum TRIGGER_CONTROLLER_MODE {
     TRIGGER_MODE_EOSREMOTERELEASE = 1
 };
 
-class GphotoTriggerController : public IGphotoController {
+class GphotoTriggerController : public GphotoBaseController {
     static const std::string TAG;
 
 private:

@@ -6,9 +6,9 @@
 #define SELF_O_MAT_GPHOTOFOCUSCONTROLLER_H
 
 
-#include <camera/controllers/IGphotoController.h>
+#include <camera/controllers/GphotoBaseController.h>
 
-class GphotoFocusController : public IGphotoController {
+class GphotoFocusController : public GphotoBaseController {
     static const std::string TAG;
 
 private:
