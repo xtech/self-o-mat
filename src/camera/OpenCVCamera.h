@@ -46,7 +46,7 @@ namespace selfomat {
 
             vector<string> *getShutterSpeedChoices() override;
 
-            vector<string> *getApertureChoices() override;
+
 
             vector<string> *getShootingModeChoices() override;
 
@@ -86,6 +86,8 @@ namespace selfomat {
                                    size_t *previewBufferSize, ImageInfo *previewImageInfo) override;
 
             bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;
+
+            const vector<string> *const getApertureChoices() override;
         };
 
     }

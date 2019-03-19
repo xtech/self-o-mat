@@ -111,7 +111,7 @@ vector<string> *OpenCVCamera::getShutterSpeedChoices() {
     return nullptr;
 }
 
-vector<string> *OpenCVCamera::getApertureChoices() {
+const vector<string> *const OpenCVCamera::getApertureChoices() {
     return nullptr;
 }
 

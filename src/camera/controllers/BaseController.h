@@ -26,6 +26,8 @@ namespace selfomat {
                 Camera *camera;
                 CameraWidget *rootWidget;
 
+                bool dirty = false;
+
                 /**
                  * Finds a camera widget
                  * @param widgetName: The name
@@ -70,6 +72,12 @@ namespace selfomat {
                  * @return true, if camera is supported by this controller
                  */
                 virtual bool supportsCamera() = 0;
+
+                virtual bool pullSettings() = 0;
+
+                bool isDirty();
+
+                void resetDirty();
             };
         }
     }

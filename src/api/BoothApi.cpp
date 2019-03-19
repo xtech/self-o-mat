@@ -90,38 +90,50 @@ void BoothApi::getCameraChoices(const Rest::Request &request, Http::ResponseWrit
     CameraChoices choices;
     {
         vector<string> *isoChoices = camera->getIsoChoices();
-        for (int i = 0; i < isoChoices->size(); i++) {
-            choices.add_iso_choices(isoChoices->at(i));
+        if(isoChoices != nullptr) {
+            for (int i = 0; i < isoChoices->size(); i++) {
+                choices.add_iso_choices(isoChoices->at(i));
+            }
         }
     }
     {
         vector<string> *shutterChoices = camera->getShutterSpeedChoices();
-        for (int i = 0; i < shutterChoices->size(); i++) {
-            choices.add_shutter_speed_choices(shutterChoices->at(i));
+        if(shutterChoices != nullptr) {
+            for (int i = 0; i < shutterChoices->size(); i++) {
+                choices.add_shutter_speed_choices(shutterChoices->at(i));
+            }
         }
     }
     {
-        vector<string> *apertureChoices = camera->getApertureChoices();
-        for (int i = 0; i < apertureChoices->size(); i++) {
-            choices.add_aperture_choices(apertureChoices->at(i));
+        auto *apertureChoices = camera->getApertureChoices();
+        if(apertureChoices != nullptr) {
+            for (int i = 0; i < apertureChoices->size(); i++) {
+                choices.add_aperture_choices(apertureChoices->at(i));
+            }
         }
     }
     {
         vector<string> *cs = camera->getExposureCorrectionModeChoices();
-        for (int i = 0; i < cs->size(); i++) {
-            choices.add_exposure_compensation_choices(cs->at(i));
+        if(cs != nullptr) {
+            for (int i = 0; i < cs->size(); i++) {
+                choices.add_exposure_compensation_choices(cs->at(i));
+            }
         }
     }
     {
         vector<string> *cs = camera->getImageFormatChoices();
-        for (int i = 0; i < cs->size(); i++) {
-            choices.add_image_format_choices(cs->at(i));
+        if(cs != nullptr) {
+            for (int i = 0; i < cs->size(); i++) {
+                choices.add_image_format_choices(cs->at(i));
+            }
         }
     }
     {
         vector<string> *cs = camera->getImageFormatSdChoices();
-        for (int i = 0; i < cs->size(); i++) {
-            choices.add_image_format_sd_choices(cs->at(i));
+        if(cs != nullptr) {
+            for (int i = 0; i < cs->size(); i++) {
+                choices.add_image_format_sd_choices(cs->at(i));
+            }
         }
     }
     response.send(Http::Code::Ok, choices.SerializeAsString());

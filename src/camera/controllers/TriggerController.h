@@ -36,6 +36,8 @@ namespace selfomat {
                 bool trigger();
 
                 bool releaseTrigger();
+
+                bool pullSettings() override;
             };
         }
     }

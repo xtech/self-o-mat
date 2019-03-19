@@ -279,12 +279,13 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
 
     drainEventQueueWhenNeeded();
 
-    if (settings_dirty) {
+    if (settingsDirty()) {
         if (!pushCameraSettings()) {
-
+            LOG_E(TAG, "Error pushing camera settings");
             pullCameraSettings();
+        } else {
+            LOG_D(TAG, "successfully pushed camera settings");
         }
-        pullCameraSettings();
     }
 
     if (trigger_focus) {
@@ -308,7 +309,12 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
 }
 
 bool GphotoCamera::pushCameraSettings() {
-    return true;
+    bool success = (GP_OK == gp_camera_set_config(camera, rootWidget, gp));
+    if(success) {
+        for(auto *p_controller : registeredControllers)
+            p_controller->resetDirty();
+    }
+    return success;
 }
 
 bool GphotoCamera::triggerCaptureBlocking() {
@@ -350,12 +356,12 @@ bool GphotoCamera::setShutterSpeed(int shutter_speed_choice) {
 }
 
 bool GphotoCamera::setAperture(int aperture_choice) {
-    return false;
+    return apertureController->setAperture(aperture_choice);
 }
 
 void GphotoCamera::pullCameraSettings() {
-
-    settings_dirty = false;
+    for(auto *p_controller : registeredControllers)
+        p_controller->pullSettings();
 }
 
 vector<string> *GphotoCamera::getIsoChoices() {
@@ -366,8 +372,8 @@ vector<string> *GphotoCamera::getShutterSpeedChoices() {
     return nullptr;
 }
 
-vector<string> *GphotoCamera::getApertureChoices() {
-    return nullptr;
+const vector<string> * const GphotoCamera::getApertureChoices() {
+    return apertureController->getChoices();
 }
 
 vector<string> *GphotoCamera::getShootingModeChoices() {
@@ -460,8 +466,13 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
 bool GphotoCamera::createCameraControllers() {
 
     triggerController = new TriggerController(gp, camera, rootWidget);
+    registeredControllers.push_back(triggerController);
     focusController = new FocusController(gp, camera, rootWidget);
+    registeredControllers.push_back(focusController);
     cameraInfoController = new InfoController(gp, camera, rootWidget);
+    registeredControllers.push_back(cameraInfoController);
+    apertureController = new ApertureController(gp, camera, rootWidget);
+    registeredControllers.push_back(apertureController);
 
     return true;
 }
@@ -484,11 +495,15 @@ bool GphotoCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std:
 }
 
 GphotoCamera::~GphotoCamera() {
-    if(focusController != nullptr)
-        delete(focusController);
-    if(triggerController != nullptr)
-        delete(triggerController);
-    if(cameraInfoController != nullptr)
-        delete(cameraInfoController);
+    for(auto controller : registeredControllers)
+        delete(controller);
+    registeredControllers.clear();
+}
+
+bool GphotoCamera::settingsDirty() {
+    for(auto *p_controller: registeredControllers)
+        if(p_controller->isDirty())
+            return true;
+    return false;
 }
 

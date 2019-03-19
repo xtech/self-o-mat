@@ -29,3 +29,7 @@ bool InfoController::supportsCamera() {
     return true;
 }
 
+bool InfoController::pullSettings() {
+    return true;
+}
+

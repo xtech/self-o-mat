@@ -127,7 +127,7 @@ namespace selfomat {
 
             virtual vector<string> *getShutterSpeedChoices() = 0;
 
-            virtual vector<string> *getApertureChoices() = 0;
+            virtual const vector<string> * const getApertureChoices() = 0;
 
             virtual vector<string> *getShootingModeChoices() = 0;
 

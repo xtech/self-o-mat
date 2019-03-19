@@ -55,6 +55,14 @@ std::string BaseController::getProperty(CameraWidget *widget) {
 bool BaseController::setProperty(CameraWidget *widget, std::string value) {
     if(GP_OK != gp_widget_set_value(widget, value.c_str()))
         return false;
+    dirty = true;
+    return true;
+}
 
-    return GP_OK == gp_camera_set_config(camera, rootWidget, gp);
+bool BaseController::isDirty() {
+    return dirty;
+}
+
+void BaseController::resetDirty() {
+    dirty = false;
 }

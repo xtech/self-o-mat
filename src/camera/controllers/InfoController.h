@@ -25,6 +25,7 @@ namespace selfomat {
 
                 bool supportsCamera() override;
 
+                bool pullSettings() override;
             };
         }
     }

@@ -28,6 +28,7 @@ namespace selfomat {
 
                 bool stopFocus();
 
+                bool pullSettings() override;
             };
         }
     }

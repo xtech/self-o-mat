@@ -15,6 +15,7 @@
 #include <camera/controllers/FocusController.h>
 #include <camera/controllers/InfoController.h>
 #include <camera/controllers/TriggerController.h>
+#include <camera/controllers/ApertureController.h>
 #include <mutex>
 
 extern "C" {
@@ -31,7 +32,10 @@ namespace selfomat {
             private:
                 static const std::string TAG;
 
+
+                vector<BaseController*> registeredControllers;
                 TriggerController *triggerController = nullptr;
+                ApertureController *apertureController = nullptr;
                 FocusController *focusController = nullptr;
                 InfoController *cameraInfoController = nullptr;
 
@@ -63,7 +67,6 @@ namespace selfomat {
                 CameraWidget *rootWidget;
 
 
-                bool settings_dirty = false;
                 bool trigger_focus = false;
                 bool focus_active = false;
 
@@ -78,6 +81,8 @@ namespace selfomat {
                 bool createCameraControllers();
 
                 bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;
+
+                bool settingsDirty();
 
             public:
                 CameraStartResult start() override;
@@ -113,7 +118,7 @@ namespace selfomat {
 
                 vector<string> *getShutterSpeedChoices() override;
 
-                vector<string> *getApertureChoices() override;
+                const vector<string> * const getApertureChoices() override;
 
                 vector<string> *getShootingModeChoices() override;
 

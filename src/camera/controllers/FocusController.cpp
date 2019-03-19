@@ -63,3 +63,7 @@ bool FocusController::stopFocus() {
 bool FocusController::supportsCamera() {
     return focusWidget != nullptr;
 }
+
+bool FocusController::pullSettings() {
+    return false;
+}

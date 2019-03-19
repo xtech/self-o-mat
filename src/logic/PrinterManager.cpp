@@ -70,8 +70,11 @@ bool PrinterManager::refreshPrinterState() {
     }
 
     std::cout << "Current printer state: " << currentPrinterState << std::endl;
-    std::cout << "Reasons: " << printer_state_reasons << std::endl;
+    if(printer_state_reasons != nullptr) {
+        std::cout << "Reasons: " << printer_state_reasons << std::endl;
+    }
 
+    return false;
 }
 
 bool PrinterManager::printImage() {

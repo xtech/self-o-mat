@@ -80,3 +80,7 @@ bool TriggerController::supportsCamera() {
     // We hope so
     return true;
 }
+
+bool TriggerController::pullSettings() {
+    return true;
+}

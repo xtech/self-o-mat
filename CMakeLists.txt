@@ -55,7 +55,7 @@ add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothL
         src/logic/PrinterManager.h src/api/BoothApi.h src/api/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/ui/NopGui.cpp
         src/ui/NopGui.h src/tools/JpegDecoder.cpp src/tools/JpegDecoder.h src/tools/verbose.h
         src/camera/controllers/BaseController.h
-        dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp src/camera/controllers/TriggerController.cpp src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h)
+        dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp src/camera/controllers/TriggerController.cpp src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h src/camera/controllers/ApertureController.cpp src/camera/controllers/ApertureController.h)
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})
 target_link_libraries(self_o_mat gphoto2)

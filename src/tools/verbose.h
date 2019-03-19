@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+
 #ifdef VERBOSE
 #define LOG_D(TAG, MSG) std::cout << "[" << TAG  << "] " << MSG << std::endl
 #else

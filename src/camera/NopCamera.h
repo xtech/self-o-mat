@@ -108,7 +108,7 @@ namespace selfomat {
                 return nullptr;
             }
 
-            vector<string> *getApertureChoices() override {
+            const vector<string> *const getApertureChoices() override {
                 return nullptr;
             }
 
