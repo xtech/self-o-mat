@@ -41,7 +41,7 @@ bool PrinterManager::refreshPrinterState() {
     int printer_state = -1;
     const char *printer_state_reasons = NULL;
 
-    dest = cupsGetDest("Brother_HL-L2370DN_series",
+    dest = cupsGetDest(printer_name.c_str(),
                        NULL,
                        cupsDestinationCount,
                        cupsDestinations);
