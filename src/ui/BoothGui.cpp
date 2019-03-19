@@ -79,6 +79,11 @@ void BoothGui::updatePreviewImage(void *data, uint32_t width, uint32_t height) {
     imageDirty = true;
     imageShown = true;
     imageMutex.unlock();
+
+    if(currentState == STATE_TRANS_PREV1_PREV2) {
+        // We now have a preview image, let it continue
+        setState(STATE_TRANS_PREV2_PREV3);
+    }
 }
 
 
@@ -309,13 +314,17 @@ void BoothGui::renderThread() {
                 rect_overlay.setFillColor(sf::Color(0, 0, 0, alpha));
                 window.draw(rect_overlay);
 
-                if (timeInState >= duration) {
+                if (timeInState >= duration && imageShown) {
                     imageShown = false;
-                    setState(STATE_TRANS_FINAL_PREV2);
+                    setState(STATE_TRANS_PREV1_PREV2);
                 }
             }
+            break;
+
+            case STATE_TRANS_PREV1_PREV2:
+                // Nop, we want black
                 break;
-            case STATE_TRANS_FINAL_PREV2: {
+            case STATE_TRANS_PREV2_PREV3: {
                 // Fade in
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 float alpha_float = min(1.0f, timeInState / 300.0f);
