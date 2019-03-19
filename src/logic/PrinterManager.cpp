@@ -41,18 +41,18 @@ bool PrinterManager::refreshPrinterState() {
     int printer_state = -1;
     const char *printer_state_reasons = NULL;
 
-    dest = cupsGetDest("Brother_HL-L2370DN_series",
+    dest = cupsGetDest(printer_name.c_str(),
                        NULL,
                        cupsDestinationCount,
                        cupsDestinations);
     if (dest) {
         printer_state = atoi(cupsGetOption("printer-state",
-                                                  dest->num_options,
-                                                  dest->options));
+                                           dest->num_options,
+                                           dest->options));
 
         printer_state_reasons = cupsGetOption("printer-state-reasons",
-                                           dest->num_options,
-                                           dest->options);
+                                              dest->num_options,
+                                              dest->options);
     }
 
     switch(printer_state) {
@@ -69,10 +69,13 @@ bool PrinterManager::refreshPrinterState() {
             currentPrinterState = STATE_UNKNOWN;
     }
 
+    currentStateReasons.clear();
+    boost::split(currentStateReasons, printer_state_reasons, boost::is_any_of(", "), boost::token_compress_on);
+
+
     std::cout << "Current printer state: " << currentPrinterState << std::endl;
-    if(printer_state_reasons != nullptr) {
-        std::cout << "Reasons: " << printer_state_reasons << std::endl;
-    }
+    for (auto i: currentStateReasons)
+        std::cout << i << std::endl;
 
     return false;
 }
