@@ -70,6 +70,10 @@ bool PrinterManager::refreshPrinterState() {
     }
 
     currentStateReasons.clear();
+
+    if(printer_state_reasons == nullptr)
+        return false;
+
     boost::split(currentStateReasons, printer_state_reasons, boost::is_any_of(", "), boost::token_compress_on);
 
 
