@@ -12,35 +12,38 @@ using namespace std;
 using namespace boost;
 
 
-IGui *gui = nullptr;
-ICamera *cam = nullptr;
-BoothApi *api = nullptr;
-BoothLogic *logic = nullptr;
+using namespace selfomat;
+
+selfomat::ui::IGui *p_gui = nullptr;
+selfomat::camera::ICamera *p_cam = nullptr;
+selfomat::api::BoothApi *p_api = nullptr;
+selfomat::logic::BoothLogic *p_logic = nullptr;
+
 
 void exitfunc(int code) {
     std::cout << "starting clean up" << std::endl;
     // First, we stop the logic as it will stop camera and gui for us
-    if(logic != nullptr) {
+    if (p_logic != nullptr) {
         std::cout << "stopping logic" << std::endl;
-        logic->stop();
-        delete(cam);
-        delete(gui);
+        p_logic->stop();
+        delete (p_cam);
+        delete (p_gui);
     } else {
         // We have to stop camera and gui ourselves
-        if(cam != nullptr) {
-            cam->stop();
-            delete(cam);
+        if (p_cam != nullptr) {
+            p_cam->stop();
+            delete (p_cam);
         }
-        if(gui != nullptr) {
-            gui->stop();
-            delete(gui);
+        if (p_gui != nullptr) {
+            p_gui->stop();
+            delete (p_gui);
         }
     }
 
     // Finally, stop the api
-    if(api != nullptr) {
-        api->stop();
-        delete(api);
+    if (p_api != nullptr) {
+        p_api->stop();
+        delete (p_api);
     }
 
     std::cout << "Cleaned up" << endl;
@@ -50,7 +53,7 @@ void exitfunc() {
     exitfunc(-1);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
 
     // Listen to some common signals so that we're able to stop the camera gui etc gracefully
@@ -96,28 +99,27 @@ int main(int argc, char* argv[]) {
     cout << "Has Flash: " << has_flash << endl;
 
 
-
-    gui = new BoothGui();
-    if(!gui->start()) {
+    p_gui = new BoothGui();
+    if (!p_gui->start()) {
         cerr << "Error starting gui - Exiting." << endl;
         return 1;
     }
 
-    if(camera_type == "gphoto") {
-        cam = new GphotoCamera();
-    } else if(camera_type == "opencv") {
-        cam = new OpenCVCamera();
+    if (camera_type == "gphoto") {
+        p_cam = new gphoto::GphotoCamera();
+    } else if (camera_type == "opencv") {
+        p_cam = new OpenCVCamera();
     } else {
-        cam = new NopCamera();
+        p_cam = new NopCamera();
     }
 
-    logic = new BoothLogic(cam, gui, has_button, button_port_name, has_flash, printer_name, image_dir);
+    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, printer_name, image_dir);
 
-    api = new BoothApi(logic, cam);
-    api->start();
+    p_api = new api::BoothApi(p_logic, p_cam);
+    p_api->start();
 
 
-    if(!logic->start()) {
+    if (!p_logic->start()) {
         cerr << "Error starting Logic - Exiting." << endl;
         return 2;
     }
@@ -125,5 +127,5 @@ int main(int argc, char* argv[]) {
 
     cout << "Api started" << endl;
 
-    logic->join();
+    p_logic->join();
 }

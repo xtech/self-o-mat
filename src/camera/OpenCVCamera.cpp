@@ -4,6 +4,7 @@
 
 #include "OpenCVCamera.h"
 
+using namespace selfomat::camera;
 
 CameraStartResult OpenCVCamera::start() {
 
@@ -27,7 +28,7 @@ bool OpenCVCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     auto bytesUsed = static_cast<size_t>(4 * image.cols * image.rows);
 
 
-    if (!buffers::requireBufferWithSize(buffer, bufferSize, bytesUsed)) {
+    if (!selfomat::tools::requireBufferWithSize(buffer, bufferSize, bytesUsed)) {
         cerr << "Error allocating buffer" << endl;
         return false;
     }
@@ -62,13 +63,13 @@ bool OpenCVCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
     vector<uchar> vect;
     cv::imencode(".jpg", image, vect);
 
-    buffers::requireBufferWithSize(fullJpegBuffer, fullJpegBufferSize, vect.size());
+    selfomat::tools::requireBufferWithSize(fullJpegBuffer, fullJpegBufferSize, vect.size());
     memcpy(*fullJpegBuffer, vect.data(), vect.size());
 
 
     cv::Size previewSize(1920/2, 1080/2);
     auto size = previewSize.height * previewSize.width*4;
-    buffers::requireBufferWithSize(previewBuffer, previewBufferSize, size);
+    selfomat::tools::requireBufferWithSize(previewBuffer, previewBufferSize, size);
 
 
     cv::Mat resized;

@@ -4,6 +4,8 @@
 
 #include "GphotoTriggerController.h"
 
+using namespace selfomat::camera::gphoto;
+
 const std::string GphotoTriggerController::TAG = "TriggerController";
 
 GphotoTriggerController::GphotoTriggerController(GPContext *gp, Camera *camera, CameraWidget *rootWidget)

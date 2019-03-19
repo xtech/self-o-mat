@@ -7,10 +7,10 @@
 
 #include <iostream>
 
-namespace buffers {
-
-    bool requireBufferWithSize(void **buffer, size_t *bufferSize, size_t requestedSize);
-
+namespace selfomat {
+    namespace tools {
+        bool requireBufferWithSize(void **buffer, size_t *bufferSize, size_t requestedSize);
+    }
 }
 
 #endif //SELF_O_MAT_BUFFERS_H

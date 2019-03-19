@@ -8,24 +8,30 @@
 
 #include <camera/controllers/GphotoBaseController.h>
 
-class GphotoFocusController : public GphotoBaseController {
-    static const std::string TAG;
+namespace selfomat {
+    namespace camera {
+        namespace gphoto {
+            class GphotoFocusController : public GphotoBaseController {
+                static const std::string TAG;
 
-private:
-    bool focused = false;
-    CameraWidget *focusWidget = nullptr;
+            private:
+                bool focused = false;
+                CameraWidget *focusWidget = nullptr;
 
 
-public:
-    GphotoFocusController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
+            public:
+                GphotoFocusController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
 
-    bool supportsCamera() override;
+                bool supportsCamera() override;
 
-    bool focus();
+                bool focus();
 
-    bool stopFocus();
+                bool stopFocus();
 
-};
+            };
+        }
+    }
+}
 
 
 #endif //SELF_O_MAT_GPHOTOFOCUSCONTROLLER_H

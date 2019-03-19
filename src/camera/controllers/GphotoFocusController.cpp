@@ -4,6 +4,8 @@
 
 #include "GphotoFocusController.h"
 
+using namespace selfomat::camera::gphoto;
+
 const std::string GphotoFocusController::TAG = "FocusController";
 
 GphotoFocusController::GphotoFocusController(GPContext *gp, Camera *camera, CameraWidget *rootWidget)

@@ -4,6 +4,8 @@
 
 #include "GphotoCameraInfoController.h"
 
+using namespace selfomat::camera::gphoto;
+
 GphotoCameraInfoController::GphotoCameraInfoController(GPContext *gp, Camera *camera, CameraWidget *rootWidget)
         : GphotoBaseController(gp, camera, rootWidget) {
     findWidget("cameramodel", &cameraNameWidget);

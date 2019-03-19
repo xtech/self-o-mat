@@ -8,20 +8,26 @@
 
 #include "GphotoBaseController.h"
 
-class GphotoCameraInfoController : public GphotoBaseController {
+namespace selfomat {
+    namespace camera {
+        namespace gphoto {
+            class GphotoCameraInfoController : public GphotoBaseController {
 
-private:
-    CameraWidget *cameraNameWidget = nullptr;
-    CameraWidget *lensNameWidget = nullptr;
-public:
-    GphotoCameraInfoController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
+            private:
+                CameraWidget *cameraNameWidget = nullptr;
+                CameraWidget *lensNameWidget = nullptr;
+            public:
+                GphotoCameraInfoController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
 
-    std::string getCameraName();
-    std::string getLensName();
+                std::string getCameraName();
 
-    bool supportsCamera() override;
+                std::string getLensName();
 
-};
+                bool supportsCamera() override;
 
+            };
+        }
+    }
+}
 
 #endif //SELF_O_MAT_GPHOTOCAMERAINFOCONTROLLER_H

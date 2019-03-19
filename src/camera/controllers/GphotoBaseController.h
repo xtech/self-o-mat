@@ -13,58 +13,66 @@ extern "C" {
 #include <gphoto2/gphoto2.h>
 }
 
-class GphotoBaseController {
-private:
-    static const std::string TAG;
+namespace selfomat {
+    namespace camera {
+        namespace gphoto {
 
-protected:
-    GPContext *gp;
-    Camera *camera;
-    CameraWidget *rootWidget;
+            class GphotoBaseController {
+            private:
+                static const std::string TAG;
 
-    /**
-     * Finds a camera widget
-     * @param widgetName: The name
-     * @param target: The target where to store the widget
-     * @return true, if found. false otherwise.
-     */
-    bool findWidget(std::string widgetName, CameraWidget **target);
+            protected:
+                GPContext *gp;
+                Camera *camera;
+                CameraWidget *rootWidget;
 
-    /**
-     * Loads the choices a user has for a given widget
-     * @param widget the widget
-     * @param choices the vector where choices will be stored
-     * @return true, if successful
-     */
-    bool loadChoices(CameraWidget *widget, std::vector<std::string> &choices);
+                /**
+                 * Finds a camera widget
+                 * @param widgetName: The name
+                 * @param target: The target where to store the widget
+                 * @return true, if found. false otherwise.
+                 */
+                bool findWidget(std::string widgetName, CameraWidget **target);
 
-    /**
-     * Gets the current value of a given widget
-     * @param widget the widget
-     * @return the value.
-     */
-    std::string getProperty(CameraWidget *widget);
+                /**
+                 * Loads the choices a user has for a given widget
+                 * @param widget the widget
+                 * @param choices the vector where choices will be stored
+                 * @return true, if successful
+                 */
+                bool loadChoices(CameraWidget *widget, std::vector<std::string> &choices);
 
-    /**
-     * Updates the widget to a specific value
-     * @param widget the widget
-     * @param value the value
-     * @return true on success
-     */
-    bool setProperty(CameraWidget *widget, std::string value);
+                /**
+                 * Gets the current value of a given widget
+                 * @param widget the widget
+                 * @return the value.
+                 */
+                std::string getProperty(CameraWidget *widget);
 
-public:
-    GphotoBaseController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
-                                                                                 rootWidget(rootWidget) {}
+                /**
+                 * Updates the widget to a specific value
+                 * @param widget the widget
+                 * @param value the value
+                 * @return true on success
+                 */
+                bool setProperty(CameraWidget *widget, std::string value);
 
-    virtual ~GphotoBaseController() {
-        // We do not free the camera here as we only use it.
+            public:
+                GphotoBaseController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
+                                                                                                rootWidget(
+                                                                                                        rootWidget) {}
+
+                virtual ~GphotoBaseController() {
+                    // We do not free the camera here as we only use it.
+                }
+
+                /**
+                 * @return true, if camera is supported by this controller
+                 */
+                virtual bool supportsCamera() = 0;
+            };
+        }
     }
-
-    /**
-     * @return true, if camera is supported by this controller
-     */
-     virtual bool supportsCamera() = 0;
-};
+}
 
 #endif //SELF_O_MAT_IGPHOTOCONTROLLER_H

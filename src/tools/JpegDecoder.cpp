@@ -4,6 +4,8 @@
 
 #include "JpegDecoder.h"
 
+using namespace selfomat::tools;
+
 const std::string JpegDecoder::TAG = "JPEG DECODER";
 
 JpegDecoder::JpegDecoder() {
@@ -45,7 +47,7 @@ JpegDecoder::decodeJpegNoResize(unsigned char *jpegData, size_t jpegSize, void *
 
     // Allocate the buffer
     auto sizeNeeded = static_cast<size_t>(depth * jpegWidth * jpegHeight);
-    buffers::requireBufferWithSize(outBuffer, outBufferSize, sizeNeeded);
+    requireBufferWithSize(outBuffer, outBufferSize, sizeNeeded);
 
     // Decompress into the buffer
     auto retVal = tjDecompress2(tj, jpegData, jpegSize, (unsigned char *) *outBuffer, 0, 0, 0, pixel_format,
@@ -152,7 +154,7 @@ bool JpegDecoder::decodeJpeg(unsigned char *jpegData, size_t jpegSize, void **ou
         // Allocate the buffer
         auto sizeNeeded = static_cast<size_t>(depth * TJSCALED(jpegWidth, factor) * TJSCALED(jpegHeight, factor));
 
-        buffers::requireBufferWithSize(outBuffer, outBufferSize, sizeNeeded);
+        requireBufferWithSize(outBuffer, outBufferSize, sizeNeeded);
 
         auto retVal = tjDecompress2(tj, jpegData, jpegSize, (unsigned char *) *outBuffer,
                                     TJSCALED(jpegWidth, factor), 0, TJSCALED(jpegHeight, factor),
@@ -170,7 +172,7 @@ bool JpegDecoder::decodeJpeg(unsigned char *jpegData, size_t jpegSize, void **ou
         // Decode without scaling. The image is already smaller than the requested size.
         // Allocate the buffer
         auto sizeNeeded = static_cast<size_t>(depth * jpegWidth * jpegHeight);
-        buffers::requireBufferWithSize(outBuffer, outBufferSize, sizeNeeded);
+        requireBufferWithSize(outBuffer, outBufferSize, sizeNeeded);
 
         // Decompress into the buffer
         auto retVal = tjDecompress2(tj, jpegData, jpegSize, (unsigned char *) *outBuffer, 0, 0, 0, pixel_format,

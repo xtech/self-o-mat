@@ -15,76 +15,79 @@
 using namespace cv;
 using namespace std;
 
-class OpenCVCamera : public ICamera {
+namespace selfomat {
+    namespace camera {
 
-private:
-    VideoCapture cap;
+        class OpenCVCamera : public ICamera {
 
-public:
-    CameraStartResult start() override;
+        private:
+            VideoCapture cap;
 
-    bool capturePreviewBlocking(void **buffer, size_t *bufferSize, ImageInfo *resultInfo) override;
+        public:
+            CameraStartResult start() override;
 
-
-    void stop() override;
-
-    bool triggerCaptureBlocking() override;
+            bool capturePreviewBlocking(void **buffer, size_t *bufferSize, ImageInfo *resultInfo) override;
 
 
+            void stop() override;
 
-    int getIso() override;
-
-    int getShutterSpeed() override;
-
-    int getAperture() override;
-
-    int getShootingMode() override;
-
-    vector<string> *getIsoChoices() override;
-
-    vector<string> *getShutterSpeedChoices() override;
-
-    vector<string> *getApertureChoices() override;
-
-    vector<string> *getShootingModeChoices() override;
-
-    bool setIso(int iso_choice) override;
-
-    bool setShutterSpeed(int shutter_speed_choice) override;
-
-    bool setAperture(int aperture_choice) override;
+            bool triggerCaptureBlocking() override;
 
 
+            int getIso() override;
 
-    bool autofocusBlocking() override;
+            int getShutterSpeed() override;
 
-    vector<string> *getExposureCorrectionModeChoices() override;
+            int getAperture() override;
 
-    vector<string> *getImageFormatChoices() override;
+            int getShootingMode() override;
 
-    vector<string> *getImageFormatSdChoices() override;
+            vector<string> *getIsoChoices() override;
 
-    string getCameraName() override;
+            vector<string> *getShutterSpeedChoices() override;
 
-    string getLensName() override;
+            vector<string> *getApertureChoices() override;
 
-    int getExposureCorrection() override;
+            vector<string> *getShootingModeChoices() override;
 
-    int getImageFormat() override;
+            bool setIso(int iso_choice) override;
 
-    int getImageFormatSd() override;
+            bool setShutterSpeed(int shutter_speed_choice) override;
 
-    bool setExposureCorrection(int exposure_correction_choice) override;
-
-    bool setImageFormat(int image_format_choice) override;
-
-    bool setImageFormatSd(int image_format_sd_choice) override;
-
-    bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename, void **previewBuffer,
-                           size_t *previewBufferSize, ImageInfo *previewImageInfo) override;
-
-    bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;
-};
+            bool setAperture(int aperture_choice) override;
 
 
+            bool autofocusBlocking() override;
+
+            vector<string> *getExposureCorrectionModeChoices() override;
+
+            vector<string> *getImageFormatChoices() override;
+
+            vector<string> *getImageFormatSdChoices() override;
+
+            string getCameraName() override;
+
+            string getLensName() override;
+
+            int getExposureCorrection() override;
+
+            int getImageFormat() override;
+
+            int getImageFormatSd() override;
+
+            bool setExposureCorrection(int exposure_correction_choice) override;
+
+            bool setImageFormat(int image_format_choice) override;
+
+            bool setImageFormatSd(int image_format_sd_choice) override;
+
+            bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename,
+                                   void **previewBuffer,
+                                   size_t *previewBufferSize, ImageInfo *previewImageInfo) override;
+
+            bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;
+        };
+
+    }
+}
 #endif //SELF_O_MAT_OPENCVCAMERA_H

@@ -5,6 +5,8 @@
 
 #include "GphotoBaseController.h"
 
+using namespace selfomat::camera::gphoto;
+
 const std::string GphotoBaseController::TAG = "GphotoBaseController";
 
 bool GphotoBaseController::findWidget(std::string widgetName, CameraWidget **target) {

@@ -6,6 +6,8 @@
 
 #include "PrinterManager.h"
 
+using namespace selfomat::logic;
+
 bool PrinterManager::start() {
     refreshCupsDestinations();
     return true;
@@ -58,7 +60,7 @@ bool PrinterManager::prepareImageForPrint(Magick::Image image) {
     image.write(&blob);
 
     // copy the blob to our buffer for later use
-    buffers::requireBufferWithSize(&imageTmpBuffer, &imageTmpBufferSize, blob.length());
+    selfomat::tools::requireBufferWithSize(&imageTmpBuffer, &imageTmpBufferSize, blob.length());
 
     memcpy(imageTmpBuffer, blob.data(), blob.length());
 

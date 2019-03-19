@@ -5,6 +5,9 @@
 
 #include "ImageProcessor.h"
 
+using namespace selfomat::logic;
+using namespace selfomat::tools;
+
 const std::string ImageProcessor::TAG = "IMAGE PROCESSOR";
 
 bool ImageProcessor::start() {

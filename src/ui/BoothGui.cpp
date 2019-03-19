@@ -5,7 +5,7 @@
 #include "BoothGui.h"
 
 using namespace std;
-
+using namespace selfomat::ui;
 
 BoothGui::BoothGui() : debugLogQueue(), stateTimer() {
     videoMode = sf::VideoMode(1280, 800);

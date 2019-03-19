@@ -9,38 +9,43 @@
 #include <cups/cups.h>
 #include <cups/ipp.h>
 #include <iostream>
-#include "../ui/ILogger.h"
+#include "tools/ILogger.h"
 #include <Magick++.h>
 #include "../tools/buffers.h"
 
-class PrinterManager {
-private:
-    ILogger *logger;
-    std::string printer_name;
+using namespace selfomat::tools;
 
-    void *imageTmpBuffer = nullptr;
-    size_t imageTmpBufferSize = 0;
+namespace selfomat {
+    namespace logic {
+        class PrinterManager {
+        private:
+            ILogger *logger;
+            std::string printer_name;
 
-    bool hasImagePrepared = false;
-    size_t sizeOfPreparedImage = 0;
+            void *imageTmpBuffer = nullptr;
+            size_t imageTmpBufferSize = 0;
 
-    cups_dest_t *cupsDestinations = nullptr;
-    int cupsDestinationCount = 0;
+            bool hasImagePrepared = false;
+            size_t sizeOfPreparedImage = 0;
+
+            cups_dest_t *cupsDestinations = nullptr;
+            int cupsDestinationCount = 0;
 
 
-public:
-    bool refreshCupsDestinations();
+        public:
+            bool refreshCupsDestinations();
 
-    PrinterManager(ILogger *logger, std::string printer_name);
+            PrinterManager(ILogger *logger, std::string printer_name);
 
-    bool prepareImageForPrint(Magick::Image image);
+            bool prepareImageForPrint(Magick::Image image);
 
-    bool start();
+            bool start();
 
-    bool printImage();
+            bool printImage();
 
-    bool cancelPrint();
-};
-
+            bool cancelPrint();
+        };
+    }
+}
 
 #endif //SELF_O_MAT_PRINTERMANAGER_H

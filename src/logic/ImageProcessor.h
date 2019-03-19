@@ -9,47 +9,53 @@
 #include <Magick++.h>
 #include <magick/profile.h>
 #include <iostream>
-#include <ui/ILogger.h>
+#include <tools/ILogger.h>
 #include <tools/imageinfo.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <ui/ConsoleLogger.h>
+#include <tools/ConsoleLogger.h>
 #include <tools/buffers.h>
 #include <tools/verbose.h>
 #include <tools/JpegDecoder.h>
 #include <easyexif/exif.h>
 
 using namespace Magick;
-class ImageProcessor {
-private:
-    static const std::string TAG;
+using namespace selfomat::tools;
 
-    Blob adobeRgbIcc;
-    Blob sRgbIcc;
+namespace selfomat {
+    namespace logic {
+        class ImageProcessor {
+        private:
+            static const std::string TAG;
 
-    JpegDecoder jpegDecoder;
+            Blob adobeRgbIcc;
+            Blob sRgbIcc;
 
-    Image templateImage;
-    int offsetTop;
-    int offsetLeft;
-    int offsetBottom;
-    int offsetRight;
+            JpegDecoder jpegDecoder;
 
-    ILogger *logger;
+            Image templateImage;
+            int offsetTop;
+            int offsetLeft;
+            int offsetBottom;
+            int offsetRight;
 
-    void *latestBuffer = nullptr;
-    size_t latestBufferSize = 0;
+            ILogger *logger;
 
-public:
-    explicit ImageProcessor(ILogger *logger);
+            void *latestBuffer = nullptr;
+            size_t latestBufferSize = 0;
 
-    Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize);
+        public:
+            explicit ImageProcessor(ILogger *logger);
 
-    bool start();
-    bool stop();
+            Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize);
 
-    virtual ~ImageProcessor();
-};
+            bool start();
 
+            bool stop();
+
+            virtual ~ImageProcessor();
+        };
+    }
+}
 
 #endif //SELF_O_MAT_IMAGEPROCESSOR_H
