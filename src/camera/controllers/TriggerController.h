@@ -6,7 +6,7 @@
 #define SELF_O_MAT_GPHOTOTRIGGERCONTROLLER_H
 
 
-#include "GphotoBaseController.h"
+#include "BaseController.h"
 #include <string>
 #include <tools/verbose.h>
 
@@ -20,7 +20,7 @@ namespace selfomat {
                         TRIGGER_MODE_EOSREMOTERELEASE = 1
             };
 
-            class GphotoTriggerController : public GphotoBaseController {
+            class TriggerController : public BaseController {
                 static const std::string TAG;
 
             private:
@@ -29,7 +29,7 @@ namespace selfomat {
 
 
             public:
-                GphotoTriggerController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
+                TriggerController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
 
                 bool supportsCamera() override;
 

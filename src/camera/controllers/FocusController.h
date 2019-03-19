@@ -6,12 +6,12 @@
 #define SELF_O_MAT_GPHOTOFOCUSCONTROLLER_H
 
 
-#include <camera/controllers/GphotoBaseController.h>
+#include <camera/controllers/BaseController.h>
 
 namespace selfomat {
     namespace camera {
         namespace gphoto {
-            class GphotoFocusController : public GphotoBaseController {
+            class FocusController : public BaseController {
                 static const std::string TAG;
 
             private:
@@ -20,7 +20,7 @@ namespace selfomat {
 
 
             public:
-                GphotoFocusController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
+                FocusController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
 
                 bool supportsCamera() override;
 

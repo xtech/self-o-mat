@@ -17,7 +17,7 @@ namespace selfomat {
     namespace camera {
         namespace gphoto {
 
-            class GphotoBaseController {
+            class BaseController {
             private:
                 static const std::string TAG;
 
@@ -58,11 +58,11 @@ namespace selfomat {
                 bool setProperty(CameraWidget *widget, std::string value);
 
             public:
-                GphotoBaseController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
+                BaseController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
                                                                                                 rootWidget(
                                                                                                         rootWidget) {}
 
-                virtual ~GphotoBaseController() {
+                virtual ~BaseController() {
                     // We do not free the camera here as we only use it.
                 }
 

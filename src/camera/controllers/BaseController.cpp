@@ -3,13 +3,13 @@
 //
 
 
-#include "GphotoBaseController.h"
+#include "BaseController.h"
 
 using namespace selfomat::camera::gphoto;
 
-const std::string GphotoBaseController::TAG = "GphotoBaseController";
+const std::string BaseController::TAG = "BaseController";
 
-bool GphotoBaseController::findWidget(std::string widgetName, CameraWidget **target) {
+bool BaseController::findWidget(std::string widgetName, CameraWidget **target) {
     if(GP_OK == gp_widget_get_child_by_name(rootWidget, widgetName.c_str(), target)) {
         LOG_D(TAG, "Found widget: " << widgetName);
         return true;
@@ -19,7 +19,7 @@ bool GphotoBaseController::findWidget(std::string widgetName, CameraWidget **tar
     return false;
 }
 
-bool GphotoBaseController::loadChoices(CameraWidget *widget, std::vector<std::string> &choices) {
+bool BaseController::loadChoices(CameraWidget *widget, std::vector<std::string> &choices) {
     choices.clear();
 
     int choice_count = gp_widget_count_choices(widget);
@@ -39,7 +39,7 @@ bool GphotoBaseController::loadChoices(CameraWidget *widget, std::vector<std::st
     return true;
 }
 
-std::string GphotoBaseController::getProperty(CameraWidget *widget) {
+std::string BaseController::getProperty(CameraWidget *widget) {
     // Get the current choice
     const char *value;
 
@@ -52,7 +52,7 @@ std::string GphotoBaseController::getProperty(CameraWidget *widget) {
     return value_string;
 }
 
-bool GphotoBaseController::setProperty(CameraWidget *widget, std::string value) {
+bool BaseController::setProperty(CameraWidget *widget, std::string value) {
     if(GP_OK != gp_widget_set_value(widget, value.c_str()))
         return false;
 

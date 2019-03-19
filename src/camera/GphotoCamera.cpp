@@ -459,9 +459,9 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
 
 bool GphotoCamera::createCameraControllers() {
 
-    triggerController = new GphotoTriggerController(gp, camera, rootWidget);
-    focusController = new GphotoFocusController(gp, camera, rootWidget);
-    cameraInfoController = new GphotoCameraInfoController(gp, camera, rootWidget);
+    triggerController = new TriggerController(gp, camera, rootWidget);
+    focusController = new FocusController(gp, camera, rootWidget);
+    cameraInfoController = new InfoController(gp, camera, rootWidget);
 
     return true;
 }

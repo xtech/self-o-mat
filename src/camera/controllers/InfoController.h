@@ -6,18 +6,18 @@
 #define SELF_O_MAT_GPHOTOCAMERAINFOCONTROLLER_H
 
 
-#include "GphotoBaseController.h"
+#include "BaseController.h"
 
 namespace selfomat {
     namespace camera {
         namespace gphoto {
-            class GphotoCameraInfoController : public GphotoBaseController {
+            class InfoController : public BaseController {
 
             private:
                 CameraWidget *cameraNameWidget = nullptr;
                 CameraWidget *lensNameWidget = nullptr;
             public:
-                GphotoCameraInfoController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
+                InfoController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
 
                 std::string getCameraName();
 

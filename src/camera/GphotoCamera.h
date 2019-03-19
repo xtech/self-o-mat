@@ -12,9 +12,9 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <tools/buffers.h>
 #include <tools/JpegDecoder.h>
-#include <camera/controllers/GphotoFocusController.h>
-#include <camera/controllers/GphotoCameraInfoController.h>
-#include <camera/controllers/GphotoTriggerController.h>
+#include <camera/controllers/FocusController.h>
+#include <camera/controllers/InfoController.h>
+#include <camera/controllers/TriggerController.h>
 #include <mutex>
 
 extern "C" {
@@ -27,15 +27,13 @@ using namespace std;
 namespace selfomat {
     namespace camera {
         namespace gphoto {
-
-
             class GphotoCamera : public ICamera {
             private:
                 static const std::string TAG;
 
-                GphotoTriggerController *triggerController = nullptr;
-                GphotoFocusController *focusController = nullptr;
-                GphotoCameraInfoController *cameraInfoController = nullptr;
+                TriggerController *triggerController = nullptr;
+                FocusController *focusController = nullptr;
+                InfoController *cameraInfoController = nullptr;
 
                 JpegDecoder jpegDecoder;
 
@@ -144,7 +142,6 @@ namespace selfomat {
 
                 ~GphotoCamera() override;
             };
-
         }
     }
 }
