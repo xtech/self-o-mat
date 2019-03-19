@@ -38,23 +38,17 @@ bool ApertureController::setAperture(int choice) {
         return false;
     if(choice < 0 || choice >= choices.size())
         return false;
-    return setProperty(p_apertureWidget, choices[choice]);
+    return setProperty(p_apertureWidget, choices, choice);
 }
 
 bool ApertureController::pullSettings() {
     if(!supportsCamera())
         return false;
 
-    std::string currentChoiceStr = getProperty(p_apertureWidget);
+    currentChoice = getProperty(p_apertureWidget, choices);
 
-    for(int i = 0; i < choices.size(); i++) {
-        if(choices[i] == currentChoiceStr) {
-            currentChoice = i;
-            break;
-        }
-    }
     if(currentChoice >= 0) {
-        LOG_D(TAG, "Loaded aperture choice: " << currentChoiceStr);
+        LOG_D(TAG, "Loaded aperture choice: " << choices[currentChoice]);
         resetDirty();
         return true;
     }

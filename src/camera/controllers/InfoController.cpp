@@ -15,13 +15,13 @@ InfoController::InfoController(GPContext *gp, Camera *camera, CameraWidget *root
 std::string InfoController::getCameraName() {
     if(cameraNameWidget == nullptr)
         return "N/A";
-    return getProperty(cameraNameWidget);
+    return getPropertyText(cameraNameWidget);
 }
 
 std::string InfoController::getLensName() {
     if(lensNameWidget == nullptr)
         return "N/A";
-    return getProperty(lensNameWidget);
+    return getPropertyText(lensNameWidget);
 }
 
 bool InfoController::supportsCamera() {

@@ -45,19 +45,30 @@ namespace selfomat {
                 bool loadChoices(CameraWidget *widget, std::vector<std::string> &choices);
 
                 /**
-                 * Gets the current value of a given widget
+                 * Gets the current choice for a widget
                  * @param widget the widget
-                 * @return the value.
+                 * @param choices the possible choices
+                 * @return -1 on error else the index
                  */
-                std::string getProperty(CameraWidget *widget);
+                int getProperty(CameraWidget *widget, std::vector<std::string> &choices);
 
                 /**
-                 * Updates the widget to a specific value
+                 * Gets the current choice for a text widget
                  * @param widget the widget
-                 * @param value the value
+                 * @param choices the possible choices
+                 * @return -1 on error else the index
+                 */
+                std::string getPropertyText(CameraWidget *widget);
+
+
+                /**
+                 * Set the value of the widget. Range and Radio widgets are supported
+                 * @param widget the widget
+                 * @param choices the choices
+                 * @param choice the index of the choice
                  * @return true on success
                  */
-                bool setProperty(CameraWidget *widget, std::string value);
+                bool setProperty(CameraWidget *widget, std::vector<std::string> &choices, int choice);
 
             public:
                 BaseController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
