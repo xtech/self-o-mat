@@ -13,6 +13,9 @@
 #include <Magick++.h>
 #include "../tools/buffers.h"
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+
 using namespace selfomat::tools;
 
 namespace selfomat {
@@ -27,7 +30,7 @@ namespace selfomat {
             };
 
             PRINTER_STATE currentPrinterState;
-            char *currentStateReason = NULL;
+            std::vector<std::string> currentStateReasons;
 
             ILogger *logger;
             std::string printer_name;

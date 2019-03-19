@@ -36,41 +36,93 @@ bool PrinterManager::refreshCupsDestinations() {
 
 bool PrinterManager::refreshPrinterState() {
 
-    cups_dest_t *dest = NULL;
+    static const char * const requested_attributes[] = {
+            "printer-state",
+            "printer-state-reasons"
+    };
 
-    int printer_state = -1;
-    const char *printer_state_reasons = NULL;
+    char resource[256];
+    http_t *http;
+    const char *printer_uri;
+
+    ipp_t           *request;
+    ipp_t           *response;
+
+    ipp_attribute_t *attr;
+
+    cups_dest_t *dest = NULL;
 
     dest = cupsGetDest("Brother_HL-L2370DN_series",
                        NULL,
                        cupsDestinationCount,
                        cupsDestinations);
-    if (dest) {
-        printer_state = atoi(cupsGetOption("printer-state",
-                                                  dest->num_options,
-                                                  dest->options));
 
-        printer_state_reasons = cupsGetOption("printer-state-reasons",
-                                           dest->num_options,
-                                           dest->options);
-    }
+    http = cupsConnectDest(dest, CUPS_DEST_FLAGS_DEVICE,
+                            30000, NULL, resource,
+                            sizeof(resource), NULL, NULL);
 
-    switch(printer_state) {
-        case 3 :
-            currentPrinterState = STATE_IDLE;
-            break;
-        case 4 :
-            currentPrinterState = STATE_PRINTING;
-            break;
-        case 5 :
-            currentPrinterState = STATE_STOPPED;
-            break;
-        default:
+    if (httpGetFd(http) >= 0) {
+
+        request = ippNewRequest(IPP_OP_GET_PRINTER_ATTRIBUTES);
+
+        printer_uri = cupsGetOption("device-uri",
+                                    dest->num_options,
+                                    dest->options);
+
+        ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_URI,
+                     "printer-uri", NULL, printer_uri);
+
+        ippAddStrings(request, IPP_TAG_OPERATION, IPP_TAG_KEYWORD,
+                      "requested-attributes", 2, NULL,
+                      requested_attributes);
+
+
+        response = cupsDoRequest(http, request, resource);
+
+        if (cupsLastError() < IPP_STATUS_ERROR_BAD_REQUEST) {
+            if ((attr = ippFindAttribute(response, "printer-state", IPP_TAG_ENUM)) != NULL) {
+
+                switch(ippGetInteger(attr, 0)) {
+                    case 3 :
+                        currentPrinterState = STATE_IDLE;
+                        break;
+                    case 4 :
+                        currentPrinterState = STATE_PRINTING;
+                        break;
+                    case 5 :
+                        currentPrinterState = STATE_STOPPED;
+                        break;
+                    default:
+                        currentPrinterState = STATE_UNKNOWN;
+                }
+
+            }
+
+            if ((attr = ippFindAttribute(response, "printer-state-reasons", IPP_TAG_KEYWORD)) != NULL) {
+                int i, count = ippGetCount(attr);
+
+                currentStateReasons.clear();
+
+                for (i = 0; i < count; i ++) {
+                    currentStateReasons.insert( currentStateReasons.end(), ippGetString(attr, i, NULL));
+                }
+            }
+        } else {
             currentPrinterState = STATE_UNKNOWN;
+            currentStateReasons.clear();
+        }
+
+
+
+        ippDelete(response);
+
     }
 
-    std::cout << "Current printer state: " << currentPrinterState << std::endl;
-    std::cout << "Reasons: " << printer_state_reasons << std::endl;
+    httpClose(http);
+
+    std::cout << "Printer State: " << currentPrinterState << std::endl;
+    for (auto i: currentStateReasons)
+        std::cout << i << std::endl;
 
 }
 
