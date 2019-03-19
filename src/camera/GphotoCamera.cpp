@@ -45,7 +45,7 @@ CameraStartResult GphotoCamera::start() {
 
 
     // We have the root widget, find a controller which works with the connected camera
-    if(!findCameraController()) {
+    if(!createCameraControllers()) {
         LOG_E(TAG, "Could not find a controller for the connected camera.");
         return START_RESULT_ERROR;
     }
@@ -258,7 +258,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
 
 
                     // release the trigger if still pressed
-                    cameraController->releaseTrigger();
+                    triggerController->releaseTrigger();
 
                     const char *imageData = nullptr;
                     unsigned long int imageDataSize;
@@ -390,7 +390,7 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     }
 
     if (trigger_focus) {
-        cameraController->focus();
+        focusController->focus();
         trigger_focus = false;
         focusStartedTime = boost::posix_time::microsec_clock::local_time();
         focus_active = true;
@@ -399,7 +399,7 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
         auto now = boost::posix_time::microsec_clock::local_time();
         auto focusActiveTime = (now - focusStartedTime).total_milliseconds();
         if (focusActiveTime > 5000) {
-            cameraController->stopFocus();
+            focusController->stopFocus();
             focus_active = false;
         }
     }
@@ -419,7 +419,7 @@ bool GphotoCamera::triggerCaptureBlocking() {
     cameraIoMutex.lock();
 
 
-    bool success = cameraController->trigger();
+    bool success = triggerController->trigger();
 
     cameraIoMutex.unlock();
 
@@ -617,23 +617,12 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
     return success;
 }
 
-bool GphotoCamera::findCameraController() {
-    // Try the advanced controller first then revert to the basic one
-    cameraController = new CanonShutterButtonCameraController(gp, camera, rootWidget);
-    if(cameraController->supportsCamera())
-        return true;
+bool GphotoCamera::createCameraControllers() {
 
-    // Delete it, try next
-    delete(cameraController);
+    triggerController = new GphotoTriggerController(gp, camera, rootWidget);
+    focusController = new GphotoFocusController(gp, camera, rootWidget);
 
-    cameraController = new BasicCameraController(gp, camera, rootWidget);
-
-    if(cameraController->supportsCamera())
-        return true;
-
-    delete(cameraController);
-    cameraController = nullptr;
-    return false;
+    return true;
 }
 
 bool GphotoCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) {
@@ -651,5 +640,12 @@ bool GphotoCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std:
     latestRawBufferSize = 0;
 
     return true;
+}
+
+GphotoCamera::~GphotoCamera() {
+    if(focusController != nullptr)
+        delete(focusController);
+    if(triggerController != nullptr)
+        delete(triggerController);
 }
 

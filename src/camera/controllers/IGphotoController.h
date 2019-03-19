@@ -5,16 +5,23 @@
 #ifndef SELF_O_MAT_IGPHOTOCONTROLLER_H
 #define SELF_O_MAT_IGPHOTOCONTROLLER_H
 
+#include <string>
+#include <tools/verbose.h>
+
 extern "C" {
 #include <gphoto2/gphoto2.h>
 }
 
 class IGphotoController {
+private:
+    static const std::string TAG;
 
 protected:
     GPContext *gp;
     Camera *camera;
     CameraWidget *rootWidget;
+
+    bool findWidget(std::string widgetName, CameraWidget **target);
 
 public:
     IGphotoController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
@@ -28,42 +35,6 @@ public:
      * @return true, if camera is supported by this controller
      */
      virtual bool supportsCamera() = 0;
-
-    /**
-     * @return true if this controller can trigger the camera
-     */
-    virtual bool canTrigger() = 0;
-
-    /**
-     * @return true if this controller can focus the camera
-     */
-    virtual bool canFocus() = 0;
-
-    /**
-     * Trigger the capture
-     * @return true, if trigger was successful
-     */
-    virtual bool trigger() = 0;
-
-    /**
-     * Release the trigger
-     * @return true, if trigger release was successful
-     */
-    virtual bool releaseTrigger() = 0;
-
-
-    /**
-     * Focus the camera
-     * @return true, if focus was started successfully
-     */
-    virtual bool focus() = 0;
-
-    /**
-     * Stop focusing the camera
-     * @return true, if focus was started successfully
-     */
-    virtual bool stopFocus() = 0;
-
 };
 
 #endif //SELF_O_MAT_IGPHOTOCONTROLLER_H

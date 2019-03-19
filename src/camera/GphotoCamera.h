@@ -12,8 +12,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <tools/buffers.h>
 #include <tools/JpegDecoder.h>
-#include "IGphotoController.h"
-#include "CanonShutterButtonCameraController.h"
+#include <camera/controllers/GphotoFocusController.h>
+#include <camera/controllers/GphotoTriggerController.h>
 #include <mutex>
 
 extern "C" {
@@ -27,7 +27,8 @@ class GphotoCamera : public ICamera {
 private:
     static const std::string TAG;
 
-    IGphotoController *cameraController = nullptr;
+    GphotoTriggerController *triggerController = nullptr;
+    GphotoFocusController *focusController = nullptr;
 
     JpegDecoder jpegDecoder;
 
@@ -88,7 +89,7 @@ private:
 
     bool loadChoices(string property_name, std::vector<string> &choices);
 
-    bool findCameraController();
+    bool createCameraControllers();
 
     bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename);
 
@@ -152,7 +153,7 @@ public:
 
     bool setImageFormatSd(int image_format_sd_choice) override;
 
-
+    virtual ~GphotoCamera();
 };
 
 
