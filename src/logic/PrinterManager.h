@@ -15,6 +15,16 @@
 
 class PrinterManager {
 private:
+    enum PRINTER_STATE {
+        STATE_UNKNOWN,
+        STATE_IDLE,
+        STATE_PRINTING,
+        STATE_STOPPED
+    };
+
+    PRINTER_STATE currentPrinterState;
+    char *currentStateReason = NULL;
+
     ILogger *logger;
     std::string printer_name;
 
@@ -27,9 +37,10 @@ private:
     cups_dest_t *cupsDestinations = nullptr;
     int cupsDestinationCount = 0;
 
-
 public:
     bool refreshCupsDestinations();
+
+    bool refreshPrinterState();
 
     PrinterManager(ILogger *logger, std::string printer_name);
 

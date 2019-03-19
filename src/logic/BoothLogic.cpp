@@ -12,7 +12,7 @@ using namespace boost;
  * @return
  */
 vector<boost::filesystem::path> BoothLogic::findArduinos() {
-    filesystem::path devPath("/dev/");
+    filesystem::path devPath("/dev/pts");
 
     vector<filesystem::path> foundArduinos;
     for (auto &e : make_iterator_range(filesystem::directory_iterator(devPath))) {

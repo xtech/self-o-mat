@@ -8,6 +8,7 @@
 
 bool PrinterManager::start() {
     refreshCupsDestinations();
+    refreshPrinterState();
     return true;
 }
 
@@ -31,10 +32,51 @@ bool PrinterManager::refreshCupsDestinations() {
     return true;
 }
 
+bool PrinterManager::refreshPrinterState() {
+
+    cups_dest_t *dest = NULL;
+
+    int printer_state = -1;
+    const char *printer_state_reasons = NULL;
+
+    dest = cupsGetDest("Brother_HL-L2370DN_series",
+                       NULL,
+                       cupsDestinationCount,
+                       cupsDestinations);
+    if (dest) {
+        printer_state = atoi(cupsGetOption("printer-state",
+                                                  dest->num_options,
+                                                  dest->options));
+
+        printer_state_reasons = cupsGetOption("printer-state-reasons",
+                                           dest->num_options,
+                                           dest->options);
+    }
+
+    switch(printer_state) {
+        case 3 :
+            currentPrinterState = STATE_IDLE;
+            break;
+        case 4 :
+            currentPrinterState = STATE_PRINTING;
+            break;
+        case 5 :
+            currentPrinterState = STATE_STOPPED;
+            break;
+        default:
+            currentPrinterState = STATE_UNKNOWN;
+    }
+
+    std::cout << "Current printer state: " << currentPrinterState << std::endl;
+    std::cout << "Reasons: " << printer_state_reasons << std::endl;
+
+}
+
 bool PrinterManager::printImage() {
     if(!hasImagePrepared)
         return false;
     int job_id = cupsCreateJob(CUPS_HTTP_DEFAULT, printer_name.c_str(), "self-o-mat", 0, nullptr);
+
     if (job_id > 0) {
         std::cout << "successfully created the job" << std::endl;
         cupsStartDocument(CUPS_HTTP_DEFAULT, printer_name.c_str(), job_id, "my_image", "image/png", 1);
