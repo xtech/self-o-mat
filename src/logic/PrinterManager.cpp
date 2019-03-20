@@ -11,6 +11,7 @@ using namespace selfomat::logic;
 bool PrinterManager::start() {
     refreshCupsDestinations();
     refreshPrinterState();
+    resumePrinter();
     return true;
 }
 
@@ -36,10 +37,10 @@ bool PrinterManager::refreshCupsDestinations() {
 
 bool PrinterManager::refreshPrinterState() {
 
-    cups_dest_t *dest = NULL;
+    cups_dest_t     *dest = NULL;
+    const char      *printer_state_reasons = NULL;
+    int             printer_state = -1;
 
-    int printer_state = -1;
-    const char *printer_state_reasons = NULL;
 
     dest = cupsGetDest(printer_name.c_str(),
                        NULL,
@@ -74,14 +75,68 @@ bool PrinterManager::refreshPrinterState() {
     if(printer_state_reasons == nullptr)
         return false;
 
-    boost::split(currentStateReasons, printer_state_reasons, boost::is_any_of(", "), boost::token_compress_on);
-
+    boost::split(currentStateReasons,
+                 printer_state_reasons,
+                 boost::is_any_of(", "),
+                 boost::token_compress_on);
 
     std::cout << "Current printer state: " << currentPrinterState << std::endl;
     for (auto i: currentStateReasons)
         std::cout << i << std::endl;
 
-    return false;
+    return true;
+}
+
+bool PrinterManager::resumePrinter() {
+
+    http_t      *http;
+    ipp_t		*request;
+    char		uri[HTTP_MAX_URI];
+
+    http = httpConnect2(cupsServer(),
+                        ippPort(),
+                        NULL,
+                        AF_UNSPEC,
+                        cupsEncryption(),
+                        1,
+                        30000,
+                        NULL);
+
+
+
+    httpAssembleURIf(HTTP_URI_CODING_ALL, uri, sizeof(uri), "ipp", NULL, "localhost", ippPort(), "/printers/%s", printer_name.c_str());
+
+    request = ippNewRequest(IPP_OP_ENABLE_PRINTER);
+
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_URI, "printer-uri", NULL, uri);
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_NAME, "requesting-user-name", NULL, cupsUser());
+
+    ippDelete(cupsDoRequest(http, request, "/admin/"));
+
+    if (cupsLastError() > IPP_STATUS_OK_CONFLICTING) {
+
+        std::cout << "Cannot enable printer:" << cupsLastErrorString() << std::endl;
+
+        return false;
+    }
+
+    request = ippNewRequest(IPP_OP_RESUME_PRINTER);
+
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_URI, "printer-uri", NULL, uri);
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_NAME, "requesting-user-name", NULL, cupsUser());
+
+    ippDelete(cupsDoRequest(http, request, "/admin/"));
+
+    if (cupsLastError() > IPP_STATUS_OK_CONFLICTING) {
+
+        std::cout << "Cannot resume printer:" << cupsLastErrorString() << std::endl;
+
+        return false;
+    }
+
+    std::cout << "Printer resumed." << std::endl;
+
+    return true;
 }
 
 bool PrinterManager::printImage() {

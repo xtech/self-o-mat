@@ -55,6 +55,8 @@ namespace selfomat {
 
             bool start();
 
+            bool resumePrinter();
+
             bool printImage();
 
             bool cancelPrint();
