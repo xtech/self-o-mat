@@ -26,6 +26,7 @@ namespace selfomat {
                 const std::vector<std::string> * const getChoices();
 
                 bool setAperture(int choice);
+                int getAperture();
 
                 bool pullSettings() override;
             };

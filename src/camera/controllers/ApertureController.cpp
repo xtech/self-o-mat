@@ -55,3 +55,7 @@ bool ApertureController::pullSettings() {
     LOG_E(TAG, "Error loading aperture choice");
     return false;
 }
+
+int ApertureController::getAperture() {
+    return currentChoice;
+}

@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
     p_api = new api::BoothApi(p_logic, p_cam);
     p_api->start();
 
-
+    cout << "starting logic" << endl;
     if (!p_logic->start()) {
         cerr << "Error starting Logic - Exiting." << endl;
         return 2;

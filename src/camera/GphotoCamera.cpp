@@ -340,7 +340,7 @@ int GphotoCamera::getShutterSpeed() {
 }
 
 int GphotoCamera::getAperture() {
-    return 0;
+    return apertureController->getAperture();
 }
 
 int GphotoCamera::getShootingMode() {
