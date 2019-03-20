@@ -100,11 +100,11 @@ namespace selfomat {
                 return 0;
             }
 
-            vector<string> *getIsoChoices() override {
+            const vector<string> * const getIsoChoices() override {
                 return nullptr;
             }
 
-            vector<string> *getShutterSpeedChoices() override {
+            const vector<string> * const getShutterSpeedChoices() override {
                 return nullptr;
             }
 
@@ -112,7 +112,7 @@ namespace selfomat {
                 return nullptr;
             }
 
-            vector<string> *getShootingModeChoices() override {
+            const vector<string> * const getShootingModeChoices() override {
                 return nullptr;
             }
 
@@ -133,17 +133,14 @@ namespace selfomat {
                 return false;
             }
 
-            vector<string> *getExposureCorrectionModeChoices() override {
+            const vector<string> * const getExposureCorrectionModeChoices() override {
                 return nullptr;
             }
 
-            vector<string> *getImageFormatChoices() override {
+            const vector<string> * const getImageFormatChoices() override {
                 return nullptr;
             }
 
-            vector<string> *getImageFormatSdChoices() override {
-                return nullptr;
-            }
 
             string getCameraName() override {
                 return std::__cxx11::string();
@@ -161,19 +158,11 @@ namespace selfomat {
                 return 0;
             }
 
-            int getImageFormatSd() override {
-                return 0;
-            }
-
             bool setExposureCorrection(int exposure_correction_choice) override {
                 return false;
             }
 
             bool setImageFormat(int image_format_choice) override {
-                return false;
-            }
-
-            bool setImageFormatSd(int image_format_sd_choice) override {
                 return false;
             }
 

@@ -35,7 +35,6 @@ void BoothApi::getCurrentCameraSettings(const Rest::Request &request, Http::Resp
     currentCameraSettings.set_shutter_speed(camera->getShutterSpeed());
     currentCameraSettings.set_exposure_compensation(camera->getExposureCorrection());
     currentCameraSettings.set_image_format(camera->getImageFormat());
-    currentCameraSettings.set_image_format_sd(camera->getImageFormatSd());
     currentCameraSettings.set_lens_name(camera->getLensName());
     currentCameraSettings.set_camera_name(camera->getCameraName());
 
@@ -57,8 +56,6 @@ void BoothApi::setCameraSettings(const Rest::Request &request, Http::ResponseWri
     success &= camera->setAperture(newsettings.aperture());
     success &= camera->setExposureCorrection(newsettings.exposure_compensation());
     success &= camera->setImageFormat(newsettings.image_format());
-    success &= camera->setImageFormatSd(newsettings.image_format_sd());
-
 
     if (success) {
         response.send(Http::Code::Bad_Request);
@@ -89,7 +86,7 @@ void BoothApi::autofocus(const Rest::Request &request, Http::ResponseWriter resp
 void BoothApi::getCameraChoices(const Rest::Request &request, Http::ResponseWriter response) {
     CameraChoices choices;
     {
-        vector<string> *isoChoices = camera->getIsoChoices();
+        auto *isoChoices = camera->getIsoChoices();
         if(isoChoices != nullptr) {
             for (int i = 0; i < isoChoices->size(); i++) {
                 choices.add_iso_choices(isoChoices->at(i));
@@ -97,7 +94,7 @@ void BoothApi::getCameraChoices(const Rest::Request &request, Http::ResponseWrit
         }
     }
     {
-        vector<string> *shutterChoices = camera->getShutterSpeedChoices();
+        auto *shutterChoices = camera->getShutterSpeedChoices();
         if(shutterChoices != nullptr) {
             for (int i = 0; i < shutterChoices->size(); i++) {
                 choices.add_shutter_speed_choices(shutterChoices->at(i));
@@ -113,7 +110,7 @@ void BoothApi::getCameraChoices(const Rest::Request &request, Http::ResponseWrit
         }
     }
     {
-        vector<string> *cs = camera->getExposureCorrectionModeChoices();
+        auto *cs = camera->getExposureCorrectionModeChoices();
         if(cs != nullptr) {
             for (int i = 0; i < cs->size(); i++) {
                 choices.add_exposure_compensation_choices(cs->at(i));
@@ -121,18 +118,10 @@ void BoothApi::getCameraChoices(const Rest::Request &request, Http::ResponseWrit
         }
     }
     {
-        vector<string> *cs = camera->getImageFormatChoices();
+        auto *cs = camera->getImageFormatChoices();
         if(cs != nullptr) {
             for (int i = 0; i < cs->size(); i++) {
                 choices.add_image_format_choices(cs->at(i));
-            }
-        }
-    }
-    {
-        vector<string> *cs = camera->getImageFormatSdChoices();
-        if(cs != nullptr) {
-            for (int i = 0; i < cs->size(); i++) {
-                choices.add_image_format_sd_choices(cs->at(i));
             }
         }
     }

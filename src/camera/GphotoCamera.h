@@ -14,6 +14,9 @@
 #include <tools/JpegDecoder.h>
 #include <camera/controllers/FocusController.h>
 #include <camera/controllers/InfoController.h>
+#include <camera/controllers/ShutterController.h>
+#include <camera/controllers/IsoController.h>
+#include <camera/controllers/ImageFormatController.h>
 #include <camera/controllers/TriggerController.h>
 #include <camera/controllers/ApertureController.h>
 #include <mutex>
@@ -38,6 +41,9 @@ namespace selfomat {
                 ApertureController *apertureController = nullptr;
                 FocusController *focusController = nullptr;
                 InfoController *cameraInfoController = nullptr;
+                ImageFormatController *imageFormatController = nullptr;
+                IsoController *isoController = nullptr;
+                ShutterSpeedController *shutterController = nullptr;
 
                 JpegDecoder jpegDecoder;
 
@@ -114,20 +120,17 @@ namespace selfomat {
                 bool setAperture(int aperture_choice) override;
 
 
-                vector<string> *getIsoChoices() override;
+                const vector<string> * const getIsoChoices() override;
 
-                vector<string> *getShutterSpeedChoices() override;
+                const vector<string> * const getShutterSpeedChoices() override;
 
                 const vector<string> * const getApertureChoices() override;
 
-                vector<string> *getShootingModeChoices() override;
+                const vector<string> * const getShootingModeChoices() override;
 
+                const vector<string> * const getExposureCorrectionModeChoices() override;
 
-                vector<string> *getExposureCorrectionModeChoices() override;
-
-                vector<string> *getImageFormatChoices() override;
-
-                vector<string> *getImageFormatSdChoices() override;
+                const vector<string> * const getImageFormatChoices() override;
 
                 string getCameraName() override;
 
@@ -137,13 +140,9 @@ namespace selfomat {
 
                 int getImageFormat() override;
 
-                int getImageFormatSd() override;
-
                 bool setExposureCorrection(int exposure_correction_choice) override;
 
                 bool setImageFormat(int image_format_choice) override;
-
-                bool setImageFormatSd(int image_format_sd_choice) override;
 
                 ~GphotoCamera() override;
             };

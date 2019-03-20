@@ -19,7 +19,6 @@ message CameraSettings {
     required int32 aperture = 3;
     required int32 exposure_compensation = 4;
     required int32 image_format = 5;
-    required int32 image_format_sd = 6;
 
     required string camera_name = 7;
     required string lens_name = 8;
@@ -31,7 +30,6 @@ message CameraChoices {
     repeated string aperture_choices = 3;
     repeated string exposure_compensation_choices = 4;
     repeated string image_format_choices = 5;
-    repeated string image_format_sd_choices = 6;
 }
 
 message BoothSettings {

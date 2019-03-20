@@ -103,21 +103,10 @@ int OpenCVCamera::getShootingMode() {
     return 0;
 }
 
-vector<string> *OpenCVCamera::getIsoChoices() {
-    return nullptr;
-}
-
-vector<string> *OpenCVCamera::getShutterSpeedChoices() {
-    return nullptr;
-}
-
 const vector<string> *const OpenCVCamera::getApertureChoices() {
     return nullptr;
 }
 
-vector<string> *OpenCVCamera::getShootingModeChoices() {
-    return nullptr;
-}
 
 bool OpenCVCamera::setIso(int iso_choice) {
     return false;
@@ -135,17 +124,7 @@ bool OpenCVCamera::autofocusBlocking() {
     return false;
 }
 
-vector<string> *OpenCVCamera::getExposureCorrectionModeChoices() {
-    return nullptr;
-}
 
-vector<string> *OpenCVCamera::getImageFormatChoices() {
-    return nullptr;
-}
-
-vector<string> *OpenCVCamera::getImageFormatSdChoices() {
-    return nullptr;
-}
 
 string OpenCVCamera::getCameraName() {
     return std::__cxx11::string();
@@ -163,10 +142,6 @@ int OpenCVCamera::getImageFormat() {
     return 0;
 }
 
-int OpenCVCamera::getImageFormatSd() {
-    return 0;
-}
-
 bool OpenCVCamera::setExposureCorrection(int exposure_correction_choice) {
     return false;
 }
@@ -175,12 +150,29 @@ bool OpenCVCamera::setImageFormat(int image_format_choice) {
     return false;
 }
 
-bool OpenCVCamera::setImageFormatSd(int image_format_sd_choice) {
-    return false;
-}
 
 bool OpenCVCamera::getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) {
     return false;
+}
+
+const vector<string> *const OpenCVCamera::getIsoChoices() {
+    return nullptr;
+}
+
+const vector<string> *const OpenCVCamera::getShutterSpeedChoices() {
+    return nullptr;
+}
+
+const vector<string> *const OpenCVCamera::getShootingModeChoices() {
+    return nullptr;
+}
+
+const vector<string> *const OpenCVCamera::getExposureCorrectionModeChoices() {
+    return nullptr;
+}
+
+const vector<string> *const OpenCVCamera::getImageFormatChoices() {
+    return nullptr;
 }
 
 

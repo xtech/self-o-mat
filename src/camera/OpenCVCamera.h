@@ -42,13 +42,6 @@ namespace selfomat {
 
             int getShootingMode() override;
 
-            vector<string> *getIsoChoices() override;
-
-            vector<string> *getShutterSpeedChoices() override;
-
-
-
-            vector<string> *getShootingModeChoices() override;
 
             bool setIso(int iso_choice) override;
 
@@ -59,12 +52,6 @@ namespace selfomat {
 
             bool autofocusBlocking() override;
 
-            vector<string> *getExposureCorrectionModeChoices() override;
-
-            vector<string> *getImageFormatChoices() override;
-
-            vector<string> *getImageFormatSdChoices() override;
-
             string getCameraName() override;
 
             string getLensName() override;
@@ -73,13 +60,9 @@ namespace selfomat {
 
             int getImageFormat() override;
 
-            int getImageFormatSd() override;
-
             bool setExposureCorrection(int exposure_correction_choice) override;
 
             bool setImageFormat(int image_format_choice) override;
-
-            bool setImageFormatSd(int image_format_sd_choice) override;
 
             bool readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename,
                                    void **previewBuffer,
@@ -88,6 +71,16 @@ namespace selfomat {
             bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;
 
             const vector<string> *const getApertureChoices() override;
+
+            const vector<string> *const getIsoChoices() override;
+
+            const vector<string> *const getShutterSpeedChoices() override;
+
+            const vector<string> *const getShootingModeChoices() override;
+
+            const vector<string> *const getExposureCorrectionModeChoices() override;
+
+            const vector<string> *const getImageFormatChoices() override;
         };
 
     }

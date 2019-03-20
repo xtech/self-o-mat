@@ -110,48 +110,35 @@ namespace selfomat {
             }
 
             virtual int getIso() = 0;
-
             virtual int getShutterSpeed() = 0;
-
             virtual int getAperture() = 0;
-
             virtual int getShootingMode() = 0;
-
             virtual int getExposureCorrection() = 0;
-
             virtual int getImageFormat() = 0;
 
-            virtual int getImageFormatSd() = 0;
+            virtual const vector<string> * const getIsoChoices() = 0;
 
-            virtual vector<string> *getIsoChoices() = 0;
-
-            virtual vector<string> *getShutterSpeedChoices() = 0;
+            virtual const vector<string> * const getShutterSpeedChoices() = 0;
 
             virtual const vector<string> * const getApertureChoices() = 0;
 
-            virtual vector<string> *getShootingModeChoices() = 0;
+            virtual const vector<string> * const getShootingModeChoices() = 0;
 
-            virtual vector<string> *getExposureCorrectionModeChoices() = 0;
+            virtual const vector<string> * const getExposureCorrectionModeChoices() = 0;
 
-            virtual vector<string> *getImageFormatChoices() = 0;
-
-            virtual vector<string> *getImageFormatSdChoices() = 0;
+            virtual const vector<string> * const getImageFormatChoices() = 0;
 
             virtual string getCameraName() = 0;
 
             virtual string getLensName() = 0;
 
             virtual bool setIso(int iso_choice) = 0;
-
             virtual bool setShutterSpeed(int shutter_speed_choice) = 0;
-
             virtual bool setAperture(int aperture_choice) = 0;
-
             virtual bool setExposureCorrection(int exposure_correction_choice) = 0;
-
             virtual bool setImageFormat(int image_format_choice) = 0;
 
-            virtual bool setImageFormatSd(int image_format_sd_choice) = 0;
+
 
             virtual bool autofocusBlocking() = 0;
 
