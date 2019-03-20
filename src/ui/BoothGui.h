@@ -49,6 +49,7 @@ namespace selfomat {
             sf::VideoMode videoMode;
             sf::RenderWindow window;
             sf::Font hackFont;
+            sf::Font iconFont;
             sf::Color clearColor;
             sf::Text debugText;
             sf::Texture imageTexture;

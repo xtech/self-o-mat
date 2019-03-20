@@ -22,6 +22,11 @@ bool BoothGui::start() {
         return false;
     }
 
+    if (!iconFont.loadFromFile("./assets/self-o-mat.ttf")) {
+        cerr << "Could not load font." << endl;
+        return false;
+    }
+
     if (!textureLiveOverlay.loadFromFile("./assets/live.png")) {
         cerr << "Could not load live asset." << endl;
         return false;
