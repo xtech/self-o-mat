@@ -57,6 +57,8 @@ namespace selfomat {
             GUI_STATE currentState;
             sf::Clock stateTimer;
 
+            boost::mutex alertMutex;
+            std::map<std::string, Alert> alerts;
             sf::Clock alertTimer;
 
             sf::VideoMode videoMode;
@@ -103,9 +105,6 @@ namespace selfomat {
 
             FPSCounter renderFrameCounter;
             FPSCounter cameraFrameCounter;
-
-            int alert_y = 0;
-            std::map<std::string, Alert> alerts;
 
             void renderThread();
 

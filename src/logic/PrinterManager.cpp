@@ -37,6 +37,8 @@ bool PrinterManager::refreshCupsDestinations() {
 
 bool PrinterManager::refreshPrinterState() {
 
+    boost::unique_lock<boost::mutex> lk(printerStateMutex);
+
     cups_dest_t     *dest = NULL;
     const char      *printer_state_reasons = NULL;
     int             printer_state = -1;
@@ -58,36 +60,38 @@ bool PrinterManager::refreshPrinterState() {
 
     switch(printer_state) {
         case 3 :
-            currentPrinterState = STATE_IDLE;
+            currentPrinterState_ = STATE_IDLE;
             break;
         case 4 :
-            currentPrinterState = STATE_PRINTING;
+            currentPrinterState_ = STATE_PRINTING;
             break;
         case 5 :
-            currentPrinterState = STATE_STOPPED;
+            currentPrinterState_ = STATE_STOPPED;
             break;
         default:
-            currentPrinterState = STATE_UNKNOWN;
+            currentPrinterState_ = STATE_UNKNOWN;
     }
 
-    currentStateReasons.clear();
+    currentStateReasons_.clear();
 
     if(printer_state_reasons == nullptr)
         return false;
 
-    boost::split(currentStateReasons,
+    boost::split(currentStateReasons_,
                  printer_state_reasons,
                  boost::is_any_of(", "),
                  boost::token_compress_on);
 
-    std::cout << "Current printer state: " << currentPrinterState << std::endl;
-    for (auto i: currentStateReasons)
+    std::cout << "Current printer state: " << currentPrinterState_ << std::endl;
+    for (auto i: currentStateReasons_)
         std::cout << i << std::endl;
 
     return true;
 }
 
 bool PrinterManager::resumePrinter() {
+
+    boost::unique_lock<boost::mutex> lk(printerStateMutex);
 
     http_t      *http;
     ipp_t		*request;

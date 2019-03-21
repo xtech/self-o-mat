@@ -13,6 +13,7 @@
 #include <Magick++.h>
 #include "../tools/buffers.h"
 
+#include <boost/thread.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
@@ -29,8 +30,8 @@ namespace selfomat {
                 STATE_STOPPED
             };
 
-            PRINTER_STATE currentPrinterState;
-            std::vector<std::string> currentStateReasons;
+            PRINTER_STATE currentPrinterState_;
+            std::vector<std::string> currentStateReasons_;
 
             ILogger *logger;
             std::string printer_name;
@@ -44,7 +45,18 @@ namespace selfomat {
             cups_dest_t *cupsDestinations = nullptr;
             int cupsDestinationCount = 0;
 
+            boost::mutex printerStateMutex;
+
         public:
+            const int currentPrinterState() {
+                boost::unique_lock<boost::mutex> lk(printerStateMutex);
+                return currentPrinterState_;
+            }
+            const std::vector<std::string>& currentStateReasons() {
+                boost::unique_lock<boost::mutex> lk(printerStateMutex);
+                return currentStateReasons_;
+            }
+
             bool refreshCupsDestinations();
 
             bool refreshPrinterState();
