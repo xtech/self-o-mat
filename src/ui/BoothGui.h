@@ -24,8 +24,15 @@
 #define DEBUG_LEVEL_WARN 3
 #define DEBUG_LEVEL_ERROR 4
 
+
 namespace selfomat {
     namespace ui {
+
+        struct Alert {
+            int duration;
+            std::wstring text;
+        };
+
         class BoothGui : public IGui {
         private:
             bool isRunning;
@@ -50,8 +57,11 @@ namespace selfomat {
             sf::RenderWindow window;
             sf::Font hackFont;
             sf::Font iconFont;
+            sf::Font mainFont;
             sf::Color clearColor;
             sf::Text debugText;
+            sf::Text iconText;
+            sf::Text alertText;
             sf::Texture imageTexture;
             sf::Sprite imageSprite;
             sf::Sprite finalImageSprite;
@@ -88,12 +98,15 @@ namespace selfomat {
             FPSCounter renderFrameCounter;
             FPSCounter cameraFrameCounter;
 
+            std::map<std::string, Alert> alerts;
+
             void renderThread();
 
             void setState(GUI_STATE newState);
 
             float easeOutSin(float t, float b, float c, float d);
 
+            void drawAlerts();
             void drawDebug();
 
         public:

@@ -72,7 +72,7 @@ void BoothApi::setCameraSettings(const Rest::Request &request, Http::ResponseWri
 }
 
 BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(logic), camera(camera),
-                                                         httpEndpoint(Address(Ipv4::any(), 9080)) {}
+                                                         httpEndpoint(Address(Ipv4::any(), 9081)) {}
 
 void BoothApi::triggerCapture(const Rest::Request &request, Http::ResponseWriter response) {
     logic->trigger();

@@ -142,6 +142,9 @@ bool PrinterManager::resumePrinter() {
 bool PrinterManager::printImage() {
     if(!hasImagePrepared)
         return false;
+
+    resumePrinter();
+
     int job_id = cupsCreateJob(CUPS_HTTP_DEFAULT, printer_name.c_str(), "self-o-mat", 0, nullptr);
 
     if (job_id > 0) {

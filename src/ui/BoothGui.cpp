@@ -10,6 +10,10 @@ using namespace selfomat::ui;
 BoothGui::BoothGui() : debugLogQueue(), stateTimer() {
     videoMode = sf::VideoMode(1280, 800);
     currentState = STATE_INIT;
+
+    alerts.insert(std::make_pair("P", (Alert){ -1, L"Papier leer"}));
+    alerts.insert(std::make_pair("C", (Alert){ -1, L"Keine Kamera angeschlossen"}));
+    alerts.insert(std::make_pair("n", (Alert){ -1, L"Prüfe dein Netzwerk"}));
 }
 
 BoothGui::~BoothGui() {
@@ -23,6 +27,11 @@ bool BoothGui::start() {
     }
 
     if (!iconFont.loadFromFile("./assets/self-o-mat.ttf")) {
+        cerr << "Could not load font." << endl;
+        return false;
+    }
+
+    if (!mainFont.loadFromFile("./assets/AlegreyaSans-Bold.ttf")) {
         cerr << "Could not load font." << endl;
         return false;
     }
@@ -109,6 +118,15 @@ void BoothGui::renderThread() {
     debugText.setOutlineColor(sf::Color::White);
     debugText.setOutlineThickness(1.5);
     debugText.setCharacterSize(15);
+
+    iconText.setFont(iconFont);
+    iconText.setFillColor(sf::Color(20, 64, 66, 255));
+    iconText.setCharacterSize(50);
+
+    alertText.setFont(mainFont);
+    alertText.setFillColor(sf::Color(20, 64, 66, 255));
+    alertText.setCharacterSize(50);
+    alertText.setStyle(1); //Bold
 
     imageTexture.create(videoMode.width, videoMode.height);
     imageSprite = sf::Sprite(imageTexture);
@@ -356,7 +374,9 @@ void BoothGui::renderThread() {
                 break;
         }
 
-        drawDebug();
+        drawAlerts();
+
+        //drawDebug();
 
 
         // Draw the window
@@ -386,6 +406,37 @@ void BoothGui::log(int level, std::string s) {
     debugLogQueueMutex.unlock();
 }
 
+void BoothGui::drawAlerts() {
+    int         row = 0;
+    const int   offset_x = 30,
+                offset_y = 20,
+                spacing_x = 90,
+                spacing_y = 10;
+    const int   row_height = iconText.getCharacterSize() + spacing_y;
+    const int   count = alerts.size();
+
+    if (count < 1)
+        return;
+
+    sf::RectangleShape background(sf::Vector2f(window.getSize().x, (row_height * count) + (offset_y * 2)));
+    background.setFillColor(sf::Color::White);
+    window.draw(background);
+
+    for (auto &alert : alerts) {
+        int y = row_height * row;
+
+        iconText.setPosition(offset_x, y + offset_y + 7);
+        alertText.setPosition(offset_x + spacing_x, y + offset_y);
+
+        iconText.setString(alert.first);
+        alertText.setString(alert.second.text);
+
+        window.draw(iconText);
+        window.draw(alertText);
+
+        row++;
+    }
+}
 
 void BoothGui::drawDebug() {
     sf::String debugStr = "";
