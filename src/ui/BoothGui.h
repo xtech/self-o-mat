@@ -24,12 +24,16 @@
 #define DEBUG_LEVEL_WARN 3
 #define DEBUG_LEVEL_ERROR 4
 
+#define COLOR_MAIN          sf::Color(20, 64, 66, 255)
+#define COLOR_MAIN_LIGHT    sf::Color(155, 194, 189)
+#define COLOR_ALERT         sf::Color(200, 0, 0)
 
 namespace selfomat {
     namespace ui {
 
         struct Alert {
-            int duration;
+            sf::Int32 startTime;
+            sf::Int32 endTime;
             std::wstring text;
         };
 
@@ -52,6 +56,8 @@ namespace selfomat {
 
             GUI_STATE currentState;
             sf::Clock stateTimer;
+
+            sf::Clock alertTimer;
 
             sf::VideoMode videoMode;
             sf::RenderWindow window;
@@ -98,6 +104,7 @@ namespace selfomat {
             FPSCounter renderFrameCounter;
             FPSCounter cameraFrameCounter;
 
+            int alert_y = 0;
             std::map<std::string, Alert> alerts;
 
             void renderThread();
@@ -108,6 +115,8 @@ namespace selfomat {
 
             void drawAlerts();
             void drawDebug();
+
+            void removeAlert(std::string icon, bool forced);
 
         public:
             BoothGui();
@@ -158,6 +167,9 @@ namespace selfomat {
             void notifyPreviewIncoming() override {
                 setState(STATE_TRANS_PRINT_PREV1);
             }
+
+            void addAlert(std::string icon, std::wstring text, bool autoRemove);
+            void removeAlert(std::string icon);
 
             ~BoothGui() override;
 

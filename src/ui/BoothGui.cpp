@@ -7,13 +7,9 @@
 using namespace std;
 using namespace selfomat::ui;
 
-BoothGui::BoothGui() : debugLogQueue(), stateTimer() {
+BoothGui::BoothGui() : debugLogQueue(), stateTimer(), alertTimer() {
     videoMode = sf::VideoMode(1280, 800);
     currentState = STATE_INIT;
-
-    alerts.insert(std::make_pair("P", (Alert){ -1, L"Papier leer"}));
-    alerts.insert(std::make_pair("C", (Alert){ -1, L"Keine Kamera angeschlossen"}));
-    alerts.insert(std::make_pair("n", (Alert){ -1, L"Prüfe dein Netzwerk"}));
 }
 
 BoothGui::~BoothGui() {
@@ -120,11 +116,11 @@ void BoothGui::renderThread() {
     debugText.setCharacterSize(15);
 
     iconText.setFont(iconFont);
-    iconText.setFillColor(sf::Color(20, 64, 66, 255));
+    iconText.setFillColor(COLOR_ALERT);
     iconText.setCharacterSize(50);
 
     alertText.setFont(mainFont);
-    alertText.setFillColor(sf::Color(20, 64, 66, 255));
+    alertText.setFillColor(COLOR_ALERT);
     alertText.setCharacterSize(50);
     alertText.setStyle(1); //Bold
 
@@ -281,7 +277,7 @@ void BoothGui::renderThread() {
 
                 for(int i = 0; i < 6; i++) {
                     count_down_circle.setPosition(339.0f + i*(113.0f),templateY + 149.0f- 19.0f);
-                    count_down_circle.setFillColor(sf::Color(155, 194, 189));
+                    count_down_circle.setFillColor(COLOR_MAIN_LIGHT);
 
                     window.draw(count_down_circle);
                 }
@@ -304,9 +300,9 @@ void BoothGui::renderThread() {
                 for(int i = 0; i < 6; i++) {
                     count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f - 19.0f);
                     if(timeInState >= 500.0 * (i+1)) {
-                        count_down_circle.setFillColor(sf::Color(20, 64, 66, 255));
+                        count_down_circle.setFillColor(COLOR_MAIN);
                     } else {
-                        count_down_circle.setFillColor(sf::Color(155, 194, 189));
+                        count_down_circle.setFillColor(COLOR_MAIN_LIGHT);
                     }
 
                     window.draw(count_down_circle);
@@ -329,7 +325,7 @@ void BoothGui::renderThread() {
 
                 for(int i = 0; i < 6; i++) {
                     count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f- 19.0f);
-                    count_down_circle.setFillColor(sf::Color(20, 64, 66, 255));
+                    count_down_circle.setFillColor(COLOR_MAIN);
 
                     window.draw(count_down_circle);
                 }
@@ -407,25 +403,56 @@ void BoothGui::log(int level, std::string s) {
 }
 
 void BoothGui::drawAlerts() {
+    const auto  count = alerts.size();
+    auto        now = alertTimer.getElapsedTime().asMilliseconds();
     int         row = 0;
-    const int   offset_x = 30,
+    const int   offset_x = 35,
                 offset_y = 20,
                 spacing_x = 90,
                 spacing_y = 10;
     const int   row_height = iconText.getCharacterSize() + spacing_y;
-    const int   count = alerts.size();
+
+    float       alpha = min(1.0f, now / 300.0f);
+    sf::Int32   endTime = 0;
 
     if (count < 1)
         return;
 
+    for (auto &alert : alerts) {
+        if (alert.second.endTime == 0) {
+            endTime = 0;
+            break;
+        }
+
+        if (alert.second.endTime > endTime)
+            endTime = alert.second.endTime;
+    }
+
+    if (endTime > 0) {
+        alpha = min(alpha, max(0, endTime - now) / 300.0f);
+    }
+
+    // Darken the screen
+    sf::RectangleShape blackout(sf::Vector2f(window.getSize().x, window.getSize().x));
+    blackout.setFillColor(sf::Color(0, 0, 0, (uint8_t) (75 * alpha)));
+    window.draw(blackout);
+
+    // Draw a frame for the alerts
     sf::RectangleShape background(sf::Vector2f(window.getSize().x, (row_height * count) + (offset_y * 2)));
-    background.setFillColor(sf::Color::White);
+    background.setFillColor(sf::Color(255, 255, 255, (uint8_t) (255 * alpha)));
     window.draw(background);
 
+    // Draw the alerts
     for (auto &alert : alerts) {
         int y = row_height * row;
+        sf::Color color = COLOR_ALERT;
 
-        iconText.setPosition(offset_x, y + offset_y + 7);
+        color.a = (uint8_t) (255 * alpha);
+
+        iconText.setFillColor(color);
+        alertText.setFillColor(color);
+
+        iconText.setPosition(offset_x, y + offset_y + 8);
         alertText.setPosition(offset_x + spacing_x, y + offset_y);
 
         iconText.setString(alert.first);
@@ -433,6 +460,11 @@ void BoothGui::drawAlerts() {
 
         window.draw(iconText);
         window.draw(alertText);
+
+        // Remove old alerts
+        if (alert.second.endTime != 0 && now >= alert.second.endTime) {
+            removeAlert(alert.first, true);
+        }
 
         row++;
     }
@@ -460,4 +492,38 @@ void BoothGui::drawDebug() {
 
 float BoothGui::easeOutSin(float t, float b, float c, float d) {
     return static_cast<float>(c * sin(t / d * (M_PI / 2)) + b);
+}
+
+void BoothGui::addAlert(std::string icon, std::wstring text, bool autoRemove) {
+    removeAlert(icon);
+
+    if (alerts.empty())
+        alertTimer.restart();
+
+    sf::Int32 startTime = alertTimer.getElapsedTime().asMilliseconds();
+    sf::Int32 endTime = 0;
+
+    if (autoRemove) {
+        endTime = startTime + 5000;
+    }
+
+    alerts.insert(std::make_pair(icon, (Alert){startTime, endTime, std::move(text)}));
+}
+
+void BoothGui::removeAlert(std::string icon, bool forced) {
+    auto alert = alerts.find(icon);
+
+    if (alert == alerts.end())
+        return;
+
+    if (!forced && alert->second.endTime == 0) {
+        alert->second.endTime = alertTimer.getElapsedTime().asMilliseconds() + 300;
+    } else {
+        alerts.erase(icon);
+    }
+
+}
+
+void BoothGui::removeAlert(std::string icon) {
+    removeAlert(std::move(icon), false);
 }
