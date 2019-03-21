@@ -145,6 +145,8 @@ namespace selfomat {
 
             vector<boost::filesystem::path> findArduinos();
 
+            int getFreeStorageSpaceMB();
+
             void saveImage(void *data, size_t size, std::string filename);
 
         public:
