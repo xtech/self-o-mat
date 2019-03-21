@@ -21,17 +21,18 @@ using namespace selfomat::tools;
 
 namespace selfomat {
     namespace logic {
+
+        enum PRINTER_STATE {
+            STATE_UNKNOWN,
+            STATE_IDLE,
+            STATE_PRINTING,
+            STATE_STOPPED
+        };
+
         class PrinterManager {
         private:
-            enum PRINTER_STATE {
-                STATE_UNKNOWN,
-                STATE_IDLE,
-                STATE_PRINTING,
-                STATE_STOPPED
-            };
-
-            PRINTER_STATE currentPrinterState_;
-            std::vector<std::string> currentStateReasons_;
+            PRINTER_STATE currentPrinterState;
+            std::vector<std::string> currentStateReasons;
 
             ILogger *logger;
             std::string printer_name;
@@ -48,13 +49,13 @@ namespace selfomat {
             boost::mutex printerStateMutex;
 
         public:
-            const int currentPrinterState() {
+            const PRINTER_STATE getCurrentPrinterState() {
                 boost::unique_lock<boost::mutex> lk(printerStateMutex);
-                return currentPrinterState_;
+                return currentPrinterState;
             }
-            const std::vector<std::string>& currentStateReasons() {
+            const std::vector<std::string>& getCurrentStateReasons() {
                 boost::unique_lock<boost::mutex> lk(printerStateMutex);
-                return currentStateReasons_;
+                return currentStateReasons;
             }
 
             bool refreshCupsDestinations();

@@ -302,6 +302,15 @@ void BoothLogic::logicThread() {
                 free(rawBuffer);
             }
         }
+
+
+        // check the printer state
+        printerManager.refreshPrinterState();
+        if (printerManager.getCurrentPrinterState() == STATE_STOPPED) {
+            gui->addAlert("P", L"Drucker wurde gestoppt");
+        } else {
+            gui->removeAlert("P");
+        }
     }
 
 

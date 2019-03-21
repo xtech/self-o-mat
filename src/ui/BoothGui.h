@@ -57,7 +57,7 @@ namespace selfomat {
             GUI_STATE currentState;
             sf::Clock stateTimer;
 
-            boost::mutex alertMutex;
+            boost::recursive_mutex alertMutex;
             std::map<std::string, Alert> alerts;
             sf::Clock alertTimer;
 
@@ -167,7 +167,7 @@ namespace selfomat {
                 setState(STATE_TRANS_PRINT_PREV1);
             }
 
-            void addAlert(std::string icon, std::wstring text, bool autoRemove);
+            void addAlert(std::string icon, std::wstring text, bool autoRemove = false);
             void removeAlert(std::string icon);
 
             ~BoothGui() override;

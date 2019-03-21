@@ -9,7 +9,6 @@
 using namespace selfomat::logic;
 
 bool PrinterManager::start() {
-    refreshCupsDestinations();
     refreshPrinterState();
     resumePrinter();
     return true;
@@ -44,6 +43,9 @@ bool PrinterManager::refreshPrinterState() {
     int             printer_state = -1;
 
 
+    // Unfortunately necessary in order to get the current state
+    refreshCupsDestinations();
+
     dest = cupsGetDest(printer_name.c_str(),
                        NULL,
                        cupsDestinationCount,
@@ -56,34 +58,36 @@ bool PrinterManager::refreshPrinterState() {
         printer_state_reasons = cupsGetOption("printer-state-reasons",
                                               dest->num_options,
                                               dest->options);
+
+        printf("State: %d\n", printer_state);
     }
 
     switch(printer_state) {
         case 3 :
-            currentPrinterState_ = STATE_IDLE;
+            currentPrinterState = STATE_IDLE;
             break;
         case 4 :
-            currentPrinterState_ = STATE_PRINTING;
+            currentPrinterState = STATE_PRINTING;
             break;
         case 5 :
-            currentPrinterState_ = STATE_STOPPED;
+            currentPrinterState = STATE_STOPPED;
             break;
         default:
-            currentPrinterState_ = STATE_UNKNOWN;
+            currentPrinterState = STATE_UNKNOWN;
     }
 
-    currentStateReasons_.clear();
+    currentStateReasons.clear();
 
     if(printer_state_reasons == nullptr)
         return false;
 
-    boost::split(currentStateReasons_,
+    boost::split(currentStateReasons,
                  printer_state_reasons,
                  boost::is_any_of(", "),
                  boost::token_compress_on);
 
-    std::cout << "Current printer state: " << currentPrinterState_ << std::endl;
-    for (auto i: currentStateReasons_)
+    std::cout << "Current printer state: " << currentPrinterState << std::endl;
+    for (auto i: currentStateReasons)
         std::cout << i << std::endl;
 
     return true;
@@ -105,7 +109,6 @@ bool PrinterManager::resumePrinter() {
                         1,
                         30000,
                         NULL);
-
 
 
     httpAssembleURIf(HTTP_URI_CODING_ALL, uri, sizeof(uri), "ipp", NULL, "localhost", ippPort(), "/printers/%s", printer_name.c_str());

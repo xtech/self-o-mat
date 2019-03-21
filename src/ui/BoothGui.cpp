@@ -404,7 +404,7 @@ void BoothGui::log(int level, std::string s) {
 
 void BoothGui::drawAlerts() {
 
-    boost::unique_lock<boost::mutex> lk(alertMutex);
+    boost::recursive_mutex::scoped_lock scoped_lock(alertMutex);
 
     const auto  count = alerts.size();
     auto        now = alertTimer.getElapsedTime().asMilliseconds();
@@ -499,12 +499,12 @@ float BoothGui::easeOutSin(float t, float b, float c, float d) {
 
 void BoothGui::addAlert(std::string icon, std::wstring text, bool autoRemove) {
 
-    boost::unique_lock<boost::mutex> lk(alertMutex);
-
-    removeAlert(icon);
+    boost::recursive_mutex::scoped_lock scoped_lock(alertMutex);
 
     if (alerts.empty())
         alertTimer.restart();
+
+    removeAlert(icon, true);
 
     sf::Int32 startTime = alertTimer.getElapsedTime().asMilliseconds();
     sf::Int32 endTime = 0;
@@ -518,7 +518,7 @@ void BoothGui::addAlert(std::string icon, std::wstring text, bool autoRemove) {
 
 void BoothGui::removeAlert(std::string icon, bool forced) {
 
-    boost::unique_lock<boost::mutex> lk(alertMutex);
+    boost::recursive_mutex::scoped_lock scoped_lock(alertMutex);
 
     auto alert = alerts.find(icon);
 
