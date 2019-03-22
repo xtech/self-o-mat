@@ -9,23 +9,45 @@
 using namespace selfomat::logic;
 
 bool PrinterManager::start() {
+    //refreshCupsDevices();
     refreshPrinterState();
     resumePrinter();
     return true;
 }
 
+bool PrinterManager::refreshCupsDevices() {
 
+    cupsGetDevices(CUPS_HTTP_DEFAULT, 5, "usb", CUPS_EXCLUDE_NONE,
+            (cups_device_cb_t) [] (const char *device_class,
+                                   const char *device_id, const char *device_info,
+                                   const char *device_make_and_model,
+                                   const char *device_uri,
+                                   const char *device_location, void *user_data) {
+
+                std::cout << "Found Cups devices: " << device_uri << std::endl;
+
+
+
+        }, this);
+
+    return true;
+}
 
 bool PrinterManager::refreshCupsDestinations() {
+
     cupsFreeDests(cupsDestinationCount, cupsDestinations);
     cupsDestinationCount = 0;
 
-    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 1000, nullptr, 0,0,
+    // We do NOT want to discover the network, mask = CUPS_PRINTER_DISCOVERED
+    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 500, NULL, CUPS_PRINTER_LOCAL, CUPS_PRINTER_DISCOVERED,
             (cups_dest_cb_t) [] (void *user_data, unsigned flags, cups_dest_t *dest) {
                 auto *printerManager = (PrinterManager*)user_data;
                 printerManager->cupsDestinationCount = cupsCopyDest(dest, printerManager->cupsDestinationCount, &printerManager->cupsDestinations);
                 return 1;
         }, this);
+
+
+    printf("END\n");
 
 
     for(int i = 0; i < cupsDestinationCount; i++)

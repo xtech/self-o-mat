@@ -8,6 +8,7 @@
 
 #include <cups/cups.h>
 #include <cups/ipp.h>
+#include <cups/adminutil.h>
 #include <iostream>
 #include "tools/ILogger.h"
 #include <Magick++.h>
@@ -57,6 +58,8 @@ namespace selfomat {
                 boost::unique_lock<boost::mutex> lk(printerStateMutex);
                 return currentStateReasons;
             }
+
+            bool refreshCupsDevices();
 
             bool refreshCupsDestinations();
 

@@ -303,8 +303,8 @@ void BoothLogic::logicThread() {
             }
         }
 
-
         // check the printer state
+        printf("Refresh printer state...\n");
         printerManager.refreshPrinterState();
         if (printerManager.getCurrentPrinterState() == STATE_STOPPED) {
             gui->addAlert("P", L"Drucker wurde gestoppt");
@@ -312,13 +312,16 @@ void BoothLogic::logicThread() {
             gui->removeAlert("P");
         }
 
+
         // check the camera state
+        printf("Get camera state...\n");
         if (camera->getState() != STATE_WORKING) {
             gui->addAlert("C", L"Prüfe deine Kamera");
         } else {
             gui->removeAlert("C");
         }
 
+        printf("Get free disk space...\n");
         int freeStorage = getFreeStorageSpaceMB();
         if (freeStorage < 500) {
             if (freeStorage == -1)
@@ -328,6 +331,7 @@ void BoothLogic::logicThread() {
         } else {
             gui->removeAlert("U");
         }
+
     }
 
 

@@ -57,7 +57,7 @@ namespace selfomat {
             GUI_STATE currentState;
             sf::Clock stateTimer;
 
-            boost::recursive_mutex alertMutex;
+            boost::mutex alertMutex;
             std::map<std::string, Alert> alerts;
             sf::Clock alertTimer;
 
