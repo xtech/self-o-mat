@@ -14,7 +14,7 @@ using namespace selfomat::camera;
  * @return
  */
 vector<boost::filesystem::path> BoothLogic::findArduinos() {
-    filesystem::path devPath("/dev/pts");
+    filesystem::path devPath("/dev/");
 
     vector<filesystem::path> foundArduinos;
     for (auto &e : make_iterator_range(filesystem::directory_iterator(devPath))) {
