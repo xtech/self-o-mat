@@ -27,7 +27,6 @@ bool PrinterManager::refreshCupsDevices() {
                 std::cout << "Found Cups devices: " << device_uri << std::endl;
 
 
-
         }, this);
 
     return true;

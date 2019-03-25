@@ -124,6 +124,11 @@ void BoothGui::renderThread() {
     alertText.setCharacterSize(50);
     alertText.setStyle(1); //Bold
 
+    printText.setFont(mainFont);
+    printText.setFillColor(COLOR_MAIN);
+    printText.setCharacterSize(80);
+    printText.setStyle(1);
+
     imageTexture.create(videoMode.width, videoMode.height);
     imageSprite = sf::Sprite(imageTexture);
     //finalImageSprite = sf::Sprite(imageTexture);
@@ -256,31 +261,17 @@ void BoothGui::renderThread() {
             }
                 break;
             case STATE_TRANS_FINAL_IMAGE_PRINT: {
-                window.draw(finalImageSprite);
-                window.draw(imageSpriteFinalOverlay);
 
                 float duration = 350.0f;
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 float linearPercentage = min(1.0f, timeInState / duration);
 
-
                 // Add easing to the percentage
                 float percentage = easeOutSin(linearPercentage, 0.0f, 1.0f, 1.0f);
 
-
-                float templateY = window.getSize().y - percentage * texturePrintOverlay.getSize().y;
-
-                imageSpritePrintOverlay.setPosition(0, templateY);
-
-                window.draw(imageSpritePrintOverlay);
-
-
-                for(int i = 0; i < 6; i++) {
-                    count_down_circle.setPosition(339.0f + i*(113.0f),templateY + 149.0f- 19.0f);
-                    count_down_circle.setFillColor(COLOR_MAIN_LIGHT);
-
-                    window.draw(count_down_circle);
-                }
+                window.draw(finalImageSprite);
+                window.draw(imageSpriteFinalOverlay);
+                drawPrintOverlay(percentage);
 
                 if (timeInState >= duration) {
                     setState(STATE_FINAL_IMAGE_PRINT);
@@ -290,45 +281,19 @@ void BoothGui::renderThread() {
             case STATE_FINAL_IMAGE_PRINT: {
                 window.draw(finalImageSprite);
                 window.draw(imageSpriteFinalOverlay);
-                window.draw(imageSpritePrintOverlay);
-
-                float duration = 3500.0f;
-                float timeInState = stateTimer.getElapsedTime().asMilliseconds();
-
-                float templateY = window.getSize().y - texturePrintOverlay.getSize().y;
-
-                for(int i = 0; i < 6; i++) {
-                    count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f - 19.0f);
-                    if(timeInState >= 500.0 * (i+1)) {
-                        count_down_circle.setFillColor(COLOR_MAIN);
-                    } else {
-                        count_down_circle.setFillColor(COLOR_MAIN_LIGHT);
-                    }
-
-                    window.draw(count_down_circle);
-                }
+                drawPrintOverlay();
             }
                 break;
             case STATE_TRANS_PRINT_PREV1: {
                 float duration = 250.0f;
-
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 float percentage = timeInState / duration;
 
-
                 float alpha = max(0.0f, min(255.0f, percentage * 255.0f));
+
                 window.draw(finalImageSprite);
                 window.draw(imageSpriteFinalOverlay);
-                window.draw(imageSpritePrintOverlay);
-
-                float templateY = window.getSize().y - texturePrintOverlay.getSize().y;
-
-                for(int i = 0; i < 6; i++) {
-                    count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f- 19.0f);
-                    count_down_circle.setFillColor(COLOR_MAIN);
-
-                    window.draw(count_down_circle);
-                }
+                drawPrintOverlay(-1);
 
                 rect_overlay.setFillColor(sf::Color(0, 0, 0, alpha));
                 window.draw(rect_overlay);
@@ -353,8 +318,6 @@ void BoothGui::renderThread() {
                 rect_overlay.setFillColor(sf::Color(0, 0, 0, alpha));
                 window.draw(rect_overlay);
 
-
-
                 // Switch state as soon as the animation is over
                 if (timeInState > 300.0f) {
                     setState(STATE_LIVE_PREVIEW);
@@ -371,9 +334,7 @@ void BoothGui::renderThread() {
         }
 
         drawAlerts();
-
-        //drawDebug();
-
+        drawDebug();
 
         // Draw the window
         window.display();
@@ -400,6 +361,38 @@ void BoothGui::log(int level, std::string s) {
     if (debugLogQueue.size() > DEBUG_QUEUE_SIZE)
         debugLogQueue.pop_back();
     debugLogQueueMutex.unlock();
+}
+
+void BoothGui::drawPrintOverlay(float percentage) {
+
+    float timeInState = stateTimer.getElapsedTime().asMilliseconds();
+    float templateY = window.getSize().y - abs(percentage) * texturePrintOverlay.getSize().y;
+
+    sf::RectangleShape printBackground(sf::Vector2f(window.getSize().x, texturePrintOverlay.getSize().y));
+    printBackground.setFillColor(sf::Color::White);
+    printBackground.setPosition(0, templateY);
+    window.draw(printBackground);
+
+    printText.setString(L"Druck abbrechen?");
+    sf::FloatRect textRect = printText.getLocalBounds();
+    printText.setPosition((window.getSize().x - textRect.width) / 2.0f, templateY + 10);
+    window.draw(printText);
+
+    imageSpritePrintOverlay.setPosition(((window.getSize().x + max(textRect.width, 600.0f))/ 2.0f) + 20, templateY);
+    window.draw(imageSpritePrintOverlay);
+
+
+    for(int i = 0; i < 6; i++) {
+        count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f - 19.0f);
+        if(percentage == -1 || (percentage >= 1 && timeInState >= 500.0 * (i+1))) {
+            count_down_circle.setFillColor(COLOR_MAIN);
+        } else {
+            count_down_circle.setFillColor(COLOR_MAIN_LIGHT);
+        }
+
+        window.draw(count_down_circle);
+    }
+
 }
 
 void BoothGui::drawAlerts() {
@@ -436,7 +429,7 @@ void BoothGui::drawAlerts() {
     }
 
     // Darken the screen
-    sf::RectangleShape blackout(sf::Vector2f(window.getSize().x, window.getSize().x));
+    sf::RectangleShape blackout(sf::Vector2f(window.getSize().x, window.getSize().y));
     blackout.setFillColor(sf::Color(0, 0, 0, (uint8_t) (75 * alpha)));
     window.draw(blackout);
 

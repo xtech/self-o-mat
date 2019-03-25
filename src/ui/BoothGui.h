@@ -70,6 +70,7 @@ namespace selfomat {
             sf::Text debugText;
             sf::Text iconText;
             sf::Text alertText;
+            sf::Text printText;
             sf::Texture imageTexture;
             sf::Sprite imageSprite;
             sf::Sprite finalImageSprite;
@@ -112,6 +113,7 @@ namespace selfomat {
 
             float easeOutSin(float t, float b, float c, float d);
 
+            void drawPrintOverlay(float percentage = 1.0f);
             void drawAlerts();
             void drawDebug();
 
