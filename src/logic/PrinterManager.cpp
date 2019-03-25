@@ -34,6 +34,8 @@ bool PrinterManager::refreshCupsDevices() {
 
 bool PrinterManager::refreshCupsDestinations() {
 
+    int oldCupsDestinationCount = cupsDestinationCount;
+
     cupsFreeDests(cupsDestinationCount, cupsDestinations);
     cupsDestinationCount = 0;
 
@@ -46,8 +48,10 @@ bool PrinterManager::refreshCupsDestinations() {
         }, this);
 
 
-    for(int i = 0; i < cupsDestinationCount; i++)
-        std::cout << "Found Cups destination: " << cupsDestinations[i].name << std::endl;
+    if (oldCupsDestinationCount != cupsDestinationCount) {
+        for(int i = 0; i < cupsDestinationCount; i++)
+            std::cout << "Found Cups destination: " << cupsDestinations[i].name << std::endl;
+    }
 
     return true;
 }
@@ -59,6 +63,8 @@ bool PrinterManager::refreshPrinterState() {
     cups_dest_t     *dest = NULL;
     const char      *printer_state_reasons = NULL;
     int             printer_state = -1;
+
+    PRINTER_STATE oldPrinterState = currentPrinterState;
 
 
     // Unfortunately necessary in order to get the current state
@@ -103,10 +109,11 @@ bool PrinterManager::refreshPrinterState() {
                  boost::token_compress_on);
 
 
-
-    std::cout << "Current printer state: " << currentPrinterState << std::endl;
-    for (auto i: currentStateReasons)
-        std::cout << i << std::endl;
+    if (oldPrinterState != currentPrinterState) {
+        std::cout << "Current printer state: " << currentPrinterState << std::endl;
+        for (auto i: currentStateReasons)
+            std::cout << i << std::endl;
+    }
 
     return true;
 }

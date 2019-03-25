@@ -6,141 +6,128 @@
 
 using namespace selfomat::api;
 
+BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(logic), camera(camera),
+                                                                          server ("0.0.0.0", "9080", mux, false) {}
+
 bool BoothApi::start() {
 
+    mux.handle("/camera_settings")
+            .get([this](served::response & res, const served::request & req) {
+                CameraSettings currentCameraSettings;
 
-    httpEndpoint.init();
+                currentCameraSettings.set_aperture(camera->getAperture());
+                currentCameraSettings.set_iso(camera->getIso());
+                currentCameraSettings.set_shutter_speed(camera->getShutterSpeed());
+                currentCameraSettings.set_exposure_compensation(camera->getExposureCorrection());
+                currentCameraSettings.set_image_format(camera->getImageFormat());
+                currentCameraSettings.set_lens_name(camera->getLensName());
+                currentCameraSettings.set_camera_name(camera->getCameraName());
 
-    Rest::Router router;
+                res << currentCameraSettings.SerializeAsString();
+            })
+            .post([this](served::response & res, const served::request & req) {
+                CameraSettings newsettings;
 
-    Rest::Routes::Get(router, "/camera_settings", Rest::Routes::bind(&BoothApi::getCurrentCameraSettings, this));
-    Rest::Routes::Get(router, "/camera_choices", Rest::Routes::bind(&BoothApi::getCameraChoices, this));
-    Rest::Routes::Post(router, "/camera_settings", Rest::Routes::bind(&BoothApi::setCameraSettings, this));
-    Rest::Routes::Post(router, "/trigger", Rest::Routes::bind(&BoothApi::triggerCapture, this));
-    Rest::Routes::Post(router, "/focus", Rest::Routes::bind(&BoothApi::autofocus, this));
+                if (!newsettings.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                bool success = true;
+
+                success &= camera->setIso(newsettings.iso());
+                success &= camera->setShutterSpeed(newsettings.shutter_speed());
+                success &= camera->setAperture(newsettings.aperture());
+                success &= camera->setExposureCorrection(newsettings.exposure_compensation());
+                success &= camera->setImageFormat(newsettings.image_format());
 
 
-    httpEndpoint.setHandler(router.handler());
-    httpEndpoint.serveThreaded();
+                if (success) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                std::cout << "Got new camera settings" << std::endl;
+                newsettings.PrintDebugString();
+
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/camera_choices")
+            .get([this](served::response & res, const served::request & req) {
+                CameraChoices choices;
+                {
+                    auto *isoChoices = camera->getIsoChoices();
+                    if(isoChoices != nullptr) {
+                        for (int i = 0; i < isoChoices->size(); i++) {
+                            choices.add_iso_choices(isoChoices->at(i));
+                        }
+                    }
+                }
+                {
+                    auto *shutterChoices = camera->getShutterSpeedChoices();
+                    if(shutterChoices != nullptr) {
+                        for (int i = 0; i < shutterChoices->size(); i++) {
+                            choices.add_shutter_speed_choices(shutterChoices->at(i));
+                        }
+                    }
+                }
+                {
+                    auto *apertureChoices = camera->getApertureChoices();
+                    if(apertureChoices != nullptr) {
+                        for (int i = 0; i < apertureChoices->size(); i++) {
+                            choices.add_aperture_choices(apertureChoices->at(i));
+                        }
+                    }
+                }
+                {
+                    auto *cs = camera->getExposureCorrectionModeChoices();
+                    if(cs != nullptr) {
+                        for (int i = 0; i < cs->size(); i++) {
+                            choices.add_exposure_compensation_choices(cs->at(i));
+                        }
+                    }
+                }
+                {
+                    auto *cs = camera->getImageFormatChoices();
+                    if(cs != nullptr) {
+                        for (int i = 0; i < cs->size(); i++) {
+                            choices.add_image_format_choices(cs->at(i));
+                        }
+                    }
+                }
+
+                res << choices.SerializeAsString();
+            });
+
+    mux.handle("/trigger")
+            .post([this](served::response & res, const served::request & req) {
+                logic->trigger();
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/focus")
+            .post([this](served::response & res, const served::request & req) {
+                camera->autofocusBlocking();
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    // Create the server and run with 2 handler thread.
+    server.run(2, false);
+
+    cout << "Api started" << endl;
 
     return true;
 }
 
-
-void BoothApi::getCurrentCameraSettings(const Rest::Request &request, Http::ResponseWriter response) {
-    CameraSettings currentCameraSettings;
-
-    currentCameraSettings.set_aperture(camera->getAperture());
-    currentCameraSettings.set_iso(camera->getIso());
-    currentCameraSettings.set_shutter_speed(camera->getShutterSpeed());
-    currentCameraSettings.set_exposure_compensation(camera->getExposureCorrection());
-    currentCameraSettings.set_image_format(camera->getImageFormat());
-    currentCameraSettings.set_image_format_sd(camera->getImageFormatSd());
-    currentCameraSettings.set_lens_name(camera->getLensName());
-    currentCameraSettings.set_camera_name(camera->getCameraName());
-
-    response.send(Http::Code::Ok, currentCameraSettings.SerializeAsString());
-}
-
-void BoothApi::setCameraSettings(const Rest::Request &request, Http::ResponseWriter response) {
-    CameraSettings newsettings;
-
-    if (!newsettings.ParseFromString(request.body())) {
-        response.send(Http::Code::Bad_Request);
-        return;
-    }
-
-    bool success = true;
-
-    success &= camera->setIso(newsettings.iso());
-    success &= camera->setShutterSpeed(newsettings.shutter_speed());
-    success &= camera->setAperture(newsettings.aperture());
-    success &= camera->setExposureCorrection(newsettings.exposure_compensation());
-    success &= camera->setImageFormat(newsettings.image_format());
-    success &= camera->setImageFormatSd(newsettings.image_format_sd());
-
-
-    if (success) {
-        response.send(Http::Code::Bad_Request);
-        return;
-    }
-
-    std::cout << "Got new camera settings" << std::endl;
-    newsettings.PrintDebugString();
-
-    response.send(Http::Code::Ok);
-}
-
-BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(logic), camera(camera),
-                                                         httpEndpoint(Address(Ipv4::any(), 9080)) {}
-
-void BoothApi::triggerCapture(const Rest::Request &request, Http::ResponseWriter response) {
-    logic->trigger();
-    response.send(Http::Code::Ok);
-}
-
-void BoothApi::autofocus(const Rest::Request &request, Http::ResponseWriter response) {
-    camera->autofocusBlocking();
-    response.send(Http::Code::Ok);
-}
-
-
-
-void BoothApi::getCameraChoices(const Rest::Request &request, Http::ResponseWriter response) {
-    CameraChoices choices;
-    {
-        vector<string> *isoChoices = camera->getIsoChoices();
-        if(isoChoices != nullptr) {
-            for (int i = 0; i < isoChoices->size(); i++) {
-                choices.add_iso_choices(isoChoices->at(i));
-            }
-        }
-    }
-    {
-        vector<string> *shutterChoices = camera->getShutterSpeedChoices();
-        if(shutterChoices != nullptr) {
-            for (int i = 0; i < shutterChoices->size(); i++) {
-                choices.add_shutter_speed_choices(shutterChoices->at(i));
-            }
-        }
-    }
-    {
-        auto *apertureChoices = camera->getApertureChoices();
-        if(apertureChoices != nullptr) {
-            for (int i = 0; i < apertureChoices->size(); i++) {
-                choices.add_aperture_choices(apertureChoices->at(i));
-            }
-        }
-    }
-    {
-        vector<string> *cs = camera->getExposureCorrectionModeChoices();
-        if(cs != nullptr) {
-            for (int i = 0; i < cs->size(); i++) {
-                choices.add_exposure_compensation_choices(cs->at(i));
-            }
-        }
-    }
-    {
-        vector<string> *cs = camera->getImageFormatChoices();
-        if(cs != nullptr) {
-            for (int i = 0; i < cs->size(); i++) {
-                choices.add_image_format_choices(cs->at(i));
-            }
-        }
-    }
-    {
-        vector<string> *cs = camera->getImageFormatSdChoices();
-        if(cs != nullptr) {
-            for (int i = 0; i < cs->size(); i++) {
-                choices.add_image_format_sd_choices(cs->at(i));
-            }
-        }
-    }
-    response.send(Http::Code::Ok, choices.SerializeAsString());
-}
-
 bool BoothApi::stop() {
     cout << "Stopping the api" << endl;
-    httpEndpoint.shutdown();
+
+    server.stop();
+
     return true;
 }

@@ -12,7 +12,7 @@ if(VERBOSE)
 endif()
 
 # Generate protobuf files on file change
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}src/protobuf/api.pb.cc ${CMAKE_CURRENT_SOURCE_DIR}src/protobuf/api.pb.h
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/protobuf/api.pb.cc ${CMAKE_CURRENT_SOURCE_DIR}/src/protobuf/api.pb.h
         DEPENDS api.proto
         COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/compile_protobuf.sh
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -23,7 +23,6 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}src/protobuf/api.pb.cc ${CM
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 find_package(Cups REQUIRED)
-find_package(Pistache REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
@@ -36,7 +35,7 @@ include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${CUPS_INCLUDE_DIR})
 include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${Protobuf_INCLUDE_DIR})
-include_directories(/usr/local/include/pistache )
+include_directories(/usr/local/include/served)
 
 
 
@@ -55,7 +54,7 @@ add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothL
         src/logic/PrinterManager.h src/api/BoothApi.h src/api/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/ui/NopGui.cpp
         src/ui/NopGui.h src/tools/JpegDecoder.cpp src/tools/JpegDecoder.h src/tools/verbose.h
         src/camera/controllers/BaseController.h
-        dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp src/camera/controllers/TriggerController.cpp src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h src/camera/controllers/ApertureController.cpp src/camera/controllers/ApertureController.h)
+        dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp src/camera/controllers/TriggerController.cpp src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h src/camera/controllers/ApertureController.h src/camera/controllers/ChoiceRangeController.cpp src/camera/controllers/ChoiceRangeController.h)
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})
 target_link_libraries(self_o_mat gphoto2)
@@ -66,7 +65,7 @@ target_link_libraries(self_o_mat sfml-window)
 target_link_libraries(self_o_mat ${OpenCV_LIBS})
 target_link_libraries(self_o_mat ${ImageMagick_LIBRARIES})
 target_link_libraries(self_o_mat ${CUPS_LIBRARIES})
-target_link_libraries(self_o_mat pistache )
+target_link_libraries(self_o_mat served)
 target_link_libraries(self_o_mat protobuf)
 
 if(USE_SPI)

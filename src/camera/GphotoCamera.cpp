@@ -332,15 +332,15 @@ bool GphotoCamera::triggerCaptureBlocking() {
 
 
 int GphotoCamera::getIso() {
-    return 0;
+    return isoController->getChoice();
 }
 
 int GphotoCamera::getShutterSpeed() {
-    return 0;
+    return shutterController->getChoice();
 }
 
 int GphotoCamera::getAperture() {
-    return 0;
+    return apertureController->getChoice();
 }
 
 int GphotoCamera::getShootingMode() {
@@ -348,15 +348,15 @@ int GphotoCamera::getShootingMode() {
 }
 
 bool GphotoCamera::setIso(int iso_choice) {
-    return true;
+    return isoController->setChoice(iso_choice);
 }
 
 bool GphotoCamera::setShutterSpeed(int shutter_speed_choice) {
-    return false;
+    return shutterController->setChoice(shutter_speed_choice);
 }
 
 bool GphotoCamera::setAperture(int aperture_choice) {
-    return apertureController->setAperture(aperture_choice);
+    return apertureController->setChoice(aperture_choice);
 }
 
 void GphotoCamera::pullCameraSettings() {
@@ -364,19 +364,19 @@ void GphotoCamera::pullCameraSettings() {
         p_controller->pullSettings();
 }
 
-vector<string> *GphotoCamera::getIsoChoices() {
-    return nullptr;
+const vector<string> * const GphotoCamera::getIsoChoices() {
+    return isoController->getChoices();
 }
 
-vector<string> *GphotoCamera::getShutterSpeedChoices() {
-    return nullptr;
+const vector<string> * const GphotoCamera::getShutterSpeedChoices() {
+    return shutterController->getChoices();
 }
 
 const vector<string> * const GphotoCamera::getApertureChoices() {
     return apertureController->getChoices();
 }
 
-vector<string> *GphotoCamera::getShootingModeChoices() {
+const vector<string> * const GphotoCamera::getShootingModeChoices() {
     return nullptr;
 }
 
@@ -384,17 +384,14 @@ bool GphotoCamera::autofocusBlocking() {
     trigger_focus = true;
 }
 
-vector<string> *GphotoCamera::getExposureCorrectionModeChoices() {
+const vector<string> * const GphotoCamera::getExposureCorrectionModeChoices() {
     return nullptr;
 }
 
-vector<string> *GphotoCamera::getImageFormatChoices() {
-    return nullptr;
+const vector<string> * const GphotoCamera::getImageFormatChoices() {
+    return imageFormatController->getChoices();
 }
 
-vector<string> *GphotoCamera::getImageFormatSdChoices() {
-    return nullptr;
-}
 
 string GphotoCamera::getCameraName() {
     return cameraInfoController->getCameraName();
@@ -409,11 +406,7 @@ int GphotoCamera::getExposureCorrection() {
 }
 
 int GphotoCamera::getImageFormat() {
-    return 0;
-}
-
-int GphotoCamera::getImageFormatSd() {
-    return 0;
+    return imageFormatController->getChoice();
 }
 
 bool GphotoCamera::setExposureCorrection(int exposure_correction_choice) {
@@ -421,12 +414,9 @@ bool GphotoCamera::setExposureCorrection(int exposure_correction_choice) {
 }
 
 bool GphotoCamera::setImageFormat(int image_format_choice) {
-    return false;
+    return imageFormatController->setChoice(image_format_choice);
 }
 
-bool GphotoCamera::setImageFormatSd(int image_format_sd_choice) {
-    return false;
-}
 
 
 bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFileName, void **previewBuffer,
@@ -473,6 +463,12 @@ bool GphotoCamera::createCameraControllers() {
     registeredControllers.push_back(cameraInfoController);
     apertureController = new ApertureController(gp, camera, rootWidget);
     registeredControllers.push_back(apertureController);
+    imageFormatController = new ImageFormatController(gp, camera, rootWidget);
+    registeredControllers.push_back(imageFormatController);
+    isoController = new IsoController(gp, camera, rootWidget);
+    registeredControllers.push_back(isoController);
+    shutterController = new ShutterSpeedController(gp, camera, rootWidget);
+    registeredControllers.push_back(shutterController);
 
     return true;
 }

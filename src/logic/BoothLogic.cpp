@@ -171,6 +171,8 @@ void BoothLogic::triggerFlash() {
 }
 
 void BoothLogic::stop() {
+    std::cout << "stopping logic" << std::endl;
+
     camera->stop();
     if(button_serial_port.is_open())
         button_serial_port.close();

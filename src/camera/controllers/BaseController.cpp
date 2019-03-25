@@ -173,3 +173,4 @@ std::string BaseController::getPropertyText(CameraWidget *widget) {
 
     return value_string;
 }
+

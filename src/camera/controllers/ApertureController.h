@@ -6,32 +6,22 @@
 #define SELF_O_MAT_APERTURECONTROLLER_H
 
 
-#include "BaseController.h"
+#include "ChoiceRangeController.h"
 #include <vector>
 
 namespace selfomat {
     namespace camera {
         namespace gphoto {
-            class ApertureController : public BaseController {
-            private:
-                static const std::string TAG;
-                CameraWidget *p_apertureWidget = nullptr;
-                int currentChoice;
-                std::vector<std::string> choices;
-
+            class ApertureController : public ChoiceRangeController {
             public:
-                ApertureController(GPContext *gp, Camera *camera, CameraWidget *rootWidget);
-                bool supportsCamera() override;
-
-                const std::vector<std::string> * const getChoices();
-
-                bool setAperture(int choice);
-
-                bool pullSettings() override;
+                ApertureController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) :
+                    ChoiceRangeController(gp, camera, rootWidget, {"aperture", "f-number"}) {
+                }
             };
         }
     }
 }
+
 
 
 #endif //SELF_O_MAT_APERTURECONTROLLER_H
