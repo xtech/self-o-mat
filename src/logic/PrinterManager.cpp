@@ -46,9 +46,6 @@ bool PrinterManager::refreshCupsDestinations() {
         }, this);
 
 
-    printf("END\n");
-
-
     for(int i = 0; i < cupsDestinationCount; i++)
         std::cout << "Found Cups destination: " << cupsDestinations[i].name << std::endl;
 
@@ -79,8 +76,6 @@ bool PrinterManager::refreshPrinterState() {
         printer_state_reasons = cupsGetOption("printer-state-reasons",
                                               dest->num_options,
                                               dest->options);
-
-        printf("State: %d\n", printer_state);
     }
 
     switch(printer_state) {
@@ -106,6 +101,8 @@ bool PrinterManager::refreshPrinterState() {
                  printer_state_reasons,
                  boost::is_any_of(", "),
                  boost::token_compress_on);
+
+
 
     std::cout << "Current printer state: " << currentPrinterState << std::endl;
     for (auto i: currentStateReasons)
