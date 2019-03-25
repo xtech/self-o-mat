@@ -47,6 +47,8 @@ bool OpenCVCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
 
 
 void OpenCVCamera::stop() {
+    cout << "Stopping camera!" << endl;
+
     cap.release();
 }
 

@@ -171,6 +171,8 @@ void BoothLogic::triggerFlash() {
 }
 
 void BoothLogic::stop() {
+    std::cout << "stopping logic" << std::endl;
+
     camera->stop();
     if(button_serial_port.is_open())
         button_serial_port.close();
@@ -292,7 +294,7 @@ void BoothLogic::logicThread() {
         {
             unique_lock<boost::mutex> lk(printerStateMutex);
             allowSave = (0 == printerState);
-        } 
+        }
         if(allowSave) {
             void *rawBuffer = nullptr;
             size_t rawSize = 0;

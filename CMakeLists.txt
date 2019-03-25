@@ -23,7 +23,6 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/protobuf/api.pb.cc ${C
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 find_package(Cups REQUIRED)
-find_package(Pistache REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
@@ -36,7 +35,7 @@ include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${CUPS_INCLUDE_DIR})
 include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${Protobuf_INCLUDE_DIR})
-include_directories(/usr/local/include/pistache )
+include_directories(/usr/local/include/served)
 
 
 
@@ -66,7 +65,7 @@ target_link_libraries(self_o_mat sfml-window)
 target_link_libraries(self_o_mat ${OpenCV_LIBS})
 target_link_libraries(self_o_mat ${ImageMagick_LIBRARIES})
 target_link_libraries(self_o_mat ${CUPS_LIBRARIES})
-target_link_libraries(self_o_mat pistache )
+target_link_libraries(self_o_mat served)
 target_link_libraries(self_o_mat protobuf)
 
 if(USE_SPI)

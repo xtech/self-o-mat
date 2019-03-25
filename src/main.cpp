@@ -22,9 +22,15 @@ selfomat::logic::BoothLogic *p_logic = nullptr;
 
 void exitfunc(int code) {
     std::cout << "starting clean up" << std::endl;
-    // First, we stop the logic as it will stop camera and gui for us
+
+    // First, we stop the api, otherwise p_api->stop() won't get called
+    if (p_api != nullptr) {
+        p_api->stop();
+        delete (p_api);
+    }
+
+    // Now we stop the logic as it will stop camera and gui for us
     if (p_logic != nullptr) {
-        std::cout << "stopping logic" << std::endl;
         p_logic->stop();
         delete (p_cam);
         delete (p_gui);
@@ -38,12 +44,6 @@ void exitfunc(int code) {
             p_gui->stop();
             delete (p_gui);
         }
-    }
-
-    // Finally, stop the api
-    if (p_api != nullptr) {
-        p_api->stop();
-        delete (p_api);
     }
 
     std::cout << "Cleaned up" << endl;
@@ -123,9 +123,6 @@ int main(int argc, char *argv[]) {
         cerr << "Error starting Logic - Exiting." << endl;
         return 2;
     }
-
-
-    cout << "Api started" << endl;
 
     p_logic->join();
 }

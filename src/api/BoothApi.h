@@ -8,12 +8,9 @@
 #include "../protobuf/api.pb.h"
 #include "../logic/BoothLogic.h"
 
-#include <pistache/endpoint.h>
-#include <pistache/router.h>
-
+#include <served/served.hpp>
 
 using namespace selfomat;
-using namespace Pistache;
 namespace selfomat {
     namespace api {
 
@@ -21,18 +18,9 @@ namespace selfomat {
         private:
             selfomat::logic::BoothLogic *logic;
             ICamera *camera;
-            Http::Endpoint httpEndpoint;
 
-            void getCameraChoices(const Rest::Request &request, Http::ResponseWriter response);
-
-            void getCurrentCameraSettings(const Rest::Request &request, Http::ResponseWriter response);
-
-            void setCameraSettings(const Rest::Request &request, Http::ResponseWriter response);
-
-            void triggerCapture(const Rest::Request &request, Http::ResponseWriter response);
-
-            void autofocus(const Rest::Request &request, Http::ResponseWriter response);
-
+            served::multiplexer mux;
+            served::net::server server;
 
         public:
             BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera);

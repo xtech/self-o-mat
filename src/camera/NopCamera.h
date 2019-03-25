@@ -45,7 +45,7 @@ namespace selfomat {
             }
 
             void stop() override {
-
+                cout << "Stopping camera!" << endl;
             }
 
             bool triggerCaptureBlocking() override {
