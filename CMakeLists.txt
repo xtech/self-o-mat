@@ -35,7 +35,7 @@ include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${CUPS_INCLUDE_DIR})
 include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${Protobuf_INCLUDE_DIR})
-include_directories(/usr/local/include/served)
+include_directories(dependencies/served/src)
 
 set(SERVED_BUILD_TESTS OFF)
 set(SERVED_BUILD_EXAMPLES OFF)
