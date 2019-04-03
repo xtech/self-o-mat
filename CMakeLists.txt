@@ -37,7 +37,9 @@ include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${Protobuf_INCLUDE_DIR})
 include_directories(/usr/local/include/served)
 
-
+set(SERVED_BUILD_TESTS OFF)
+set(SERVED_BUILD_EXAMPLES OFF)
+add_subdirectory(dependencies/served)
 
 if(USE_SPI)
     message("We have wiring pi!")
