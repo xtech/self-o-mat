@@ -304,6 +304,33 @@ void BoothLogic::logicThread() {
                 free(rawBuffer);
             }
         }
+
+        // check the printer state
+        printerManager.refreshPrinterState();
+        if (printerManager.getCurrentPrinterState() == STATE_STOPPED) {
+            gui->addAlert("P", L"Drucker wurde gestoppt");
+        } else {
+            gui->removeAlert("P");
+        }
+
+
+        // check the camera state
+        if (camera->getState() != STATE_WORKING) {
+            gui->addAlert("C", L"Prüfe deine Kamera");
+        } else {
+            gui->removeAlert("C");
+        }
+
+        int freeStorage = getFreeStorageSpaceMB();
+        if (freeStorage < 500) {
+            if (freeStorage == -1)
+                gui->addAlert("U", L"Kein Speichermedium gefunden");
+            else
+                gui->addAlert("U", L"Geringe Speicherkapazität: " + to_wstring(freeStorage) + L"MB");
+        } else {
+            gui->removeAlert("U");
+        }
+
     }
 
 
@@ -400,6 +427,17 @@ void BoothLogic::printerThread() {
             printerStateCV.notify_all();
         }
     }
+}
+
+int BoothLogic::getFreeStorageSpaceMB() {
+    if(imageDir.empty()) {
+        cerr << "No image dir specified" << endl;
+        return -1;
+    }
+
+    filesystem::space_info s = filesystem::space(imageDir);
+
+    return (s.free / 1024 / 1024);
 }
 
 void BoothLogic::saveImage(void *data, size_t size, std::string filename) {

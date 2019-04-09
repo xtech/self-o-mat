@@ -7,7 +7,7 @@
 using namespace std;
 using namespace selfomat::ui;
 
-BoothGui::BoothGui() : debugLogQueue(), stateTimer() {
+BoothGui::BoothGui() : debugLogQueue(), stateTimer(), alertTimer() {
     videoMode = sf::VideoMode(1280, 800);
     currentState = STATE_INIT;
 }
@@ -18,6 +18,16 @@ BoothGui::~BoothGui() {
 bool BoothGui::start() {
     // Load assets
     if (!hackFont.loadFromFile("./assets/Hack-Regular.ttf")) {
+        cerr << "Could not load font." << endl;
+        return false;
+    }
+
+    if (!iconFont.loadFromFile("./assets/self-o-mat.ttf")) {
+        cerr << "Could not load font." << endl;
+        return false;
+    }
+
+    if (!mainFont.loadFromFile("./assets/AlegreyaSans-Bold.ttf")) {
         cerr << "Could not load font." << endl;
         return false;
     }
@@ -104,6 +114,20 @@ void BoothGui::renderThread() {
     debugText.setOutlineColor(sf::Color::White);
     debugText.setOutlineThickness(1.5);
     debugText.setCharacterSize(15);
+
+    iconText.setFont(iconFont);
+    iconText.setFillColor(COLOR_ALERT);
+    iconText.setCharacterSize(50);
+
+    alertText.setFont(mainFont);
+    alertText.setFillColor(COLOR_ALERT);
+    alertText.setCharacterSize(50);
+    alertText.setStyle(1); //Bold
+
+    printText.setFont(mainFont);
+    printText.setFillColor(COLOR_MAIN);
+    printText.setCharacterSize(80);
+    printText.setStyle(1);
 
     imageTexture.create(videoMode.width, videoMode.height);
     imageSprite = sf::Sprite(imageTexture);
@@ -237,31 +261,17 @@ void BoothGui::renderThread() {
             }
                 break;
             case STATE_TRANS_FINAL_IMAGE_PRINT: {
-                window.draw(finalImageSprite);
-                window.draw(imageSpriteFinalOverlay);
 
                 float duration = 350.0f;
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 float linearPercentage = min(1.0f, timeInState / duration);
 
-
                 // Add easing to the percentage
                 float percentage = easeOutSin(linearPercentage, 0.0f, 1.0f, 1.0f);
 
-
-                float templateY = window.getSize().y - percentage * texturePrintOverlay.getSize().y;
-
-                imageSpritePrintOverlay.setPosition(0, templateY);
-
-                window.draw(imageSpritePrintOverlay);
-
-
-                for(int i = 0; i < 6; i++) {
-                    count_down_circle.setPosition(339.0f + i*(113.0f),templateY + 149.0f- 19.0f);
-                    count_down_circle.setFillColor(sf::Color(155, 194, 189));
-
-                    window.draw(count_down_circle);
-                }
+                window.draw(finalImageSprite);
+                window.draw(imageSpriteFinalOverlay);
+                drawPrintOverlay(percentage);
 
                 if (timeInState >= duration) {
                     setState(STATE_FINAL_IMAGE_PRINT);
@@ -271,45 +281,19 @@ void BoothGui::renderThread() {
             case STATE_FINAL_IMAGE_PRINT: {
                 window.draw(finalImageSprite);
                 window.draw(imageSpriteFinalOverlay);
-                window.draw(imageSpritePrintOverlay);
-
-                float duration = 3500.0f;
-                float timeInState = stateTimer.getElapsedTime().asMilliseconds();
-
-                float templateY = window.getSize().y - texturePrintOverlay.getSize().y;
-
-                for(int i = 0; i < 6; i++) {
-                    count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f - 19.0f);
-                    if(timeInState >= 500.0 * (i+1)) {
-                        count_down_circle.setFillColor(sf::Color(20, 64, 66, 255));
-                    } else {
-                        count_down_circle.setFillColor(sf::Color(155, 194, 189));
-                    }
-
-                    window.draw(count_down_circle);
-                }
+                drawPrintOverlay();
             }
                 break;
             case STATE_TRANS_PRINT_PREV1: {
                 float duration = 250.0f;
-
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 float percentage = timeInState / duration;
 
-
                 float alpha = max(0.0f, min(255.0f, percentage * 255.0f));
+
                 window.draw(finalImageSprite);
                 window.draw(imageSpriteFinalOverlay);
-                window.draw(imageSpritePrintOverlay);
-
-                float templateY = window.getSize().y - texturePrintOverlay.getSize().y;
-
-                for(int i = 0; i < 6; i++) {
-                    count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f- 19.0f);
-                    count_down_circle.setFillColor(sf::Color(20, 64, 66, 255));
-
-                    window.draw(count_down_circle);
-                }
+                drawPrintOverlay(-1);
 
                 rect_overlay.setFillColor(sf::Color(0, 0, 0, alpha));
                 window.draw(rect_overlay);
@@ -334,8 +318,6 @@ void BoothGui::renderThread() {
                 rect_overlay.setFillColor(sf::Color(0, 0, 0, alpha));
                 window.draw(rect_overlay);
 
-
-
                 // Switch state as soon as the animation is over
                 if (timeInState > 300.0f) {
                     setState(STATE_LIVE_PREVIEW);
@@ -351,8 +333,8 @@ void BoothGui::renderThread() {
                 break;
         }
 
+        drawAlerts();
         drawDebug();
-
 
         // Draw the window
         window.display();
@@ -381,6 +363,108 @@ void BoothGui::log(int level, std::string s) {
     debugLogQueueMutex.unlock();
 }
 
+void BoothGui::drawPrintOverlay(float percentage) {
+
+    float timeInState = stateTimer.getElapsedTime().asMilliseconds();
+    float templateY = window.getSize().y - abs(percentage) * texturePrintOverlay.getSize().y;
+
+    sf::RectangleShape printBackground(sf::Vector2f(window.getSize().x, texturePrintOverlay.getSize().y));
+    printBackground.setFillColor(sf::Color::White);
+    printBackground.setPosition(0, templateY);
+    window.draw(printBackground);
+
+    printText.setString(L"Druck abbrechen?");
+    sf::FloatRect textRect = printText.getLocalBounds();
+    printText.setPosition((window.getSize().x - textRect.width) / 2.0f, templateY + 10);
+    window.draw(printText);
+
+    imageSpritePrintOverlay.setPosition(((window.getSize().x + max(textRect.width, 600.0f))/ 2.0f) + 20, templateY);
+    window.draw(imageSpritePrintOverlay);
+
+
+    for(int i = 0; i < 6; i++) {
+        count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f - 19.0f);
+        if(percentage == -1 || (percentage >= 1 && timeInState >= 500.0 * (i+1))) {
+            count_down_circle.setFillColor(COLOR_MAIN);
+        } else {
+            count_down_circle.setFillColor(COLOR_MAIN_LIGHT);
+        }
+
+        window.draw(count_down_circle);
+    }
+
+}
+
+void BoothGui::drawAlerts() {
+
+    boost::unique_lock<boost::mutex> lk(alertMutex);
+
+    const auto  count = alerts.size();
+    auto        now = alertTimer.getElapsedTime().asMilliseconds();
+    int         row = 0;
+    const int   offset_x = 35,
+                offset_y = 20,
+                spacing_x = 90,
+                spacing_y = 10;
+    const int   row_height = iconText.getCharacterSize() + spacing_y;
+
+    float       alpha = min(1.0f, now / 300.0f);
+    sf::Int32   endTime = 0;
+
+    if (count < 1)
+        return;
+
+    for (auto &alert : alerts) {
+        if (alert.second.endTime == 0) {
+            endTime = 0;
+            break;
+        }
+
+        if (alert.second.endTime > endTime)
+            endTime = alert.second.endTime;
+    }
+
+    if (endTime > 0) {
+        alpha = min(alpha, max(0, endTime - now) / 300.0f);
+    }
+
+    // Darken the screen
+    sf::RectangleShape blackout(sf::Vector2f(window.getSize().x, window.getSize().y));
+    blackout.setFillColor(sf::Color(0, 0, 0, (uint8_t) (75 * alpha)));
+    window.draw(blackout);
+
+    // Draw a frame for the alerts
+    sf::RectangleShape background(sf::Vector2f(window.getSize().x, (row_height * count) + (offset_y * 2)));
+    background.setFillColor(sf::Color(255, 255, 255, (uint8_t) (255 * alpha)));
+    window.draw(background);
+
+    // Draw the alerts
+    for (auto &alert : alerts) {
+        int y = row_height * row;
+        sf::Color color = COLOR_ALERT;
+
+        color.a = (uint8_t) (255 * alpha);
+
+        iconText.setFillColor(color);
+        alertText.setFillColor(color);
+
+        iconText.setPosition(offset_x, y + offset_y + 8);
+        alertText.setPosition(offset_x + spacing_x, y + offset_y);
+
+        iconText.setString(alert.first);
+        alertText.setString(alert.second.text);
+
+        window.draw(iconText);
+        window.draw(alertText);
+
+        // Remove old alerts
+        if (alert.second.endTime != 0 && now >= alert.second.endTime) {
+            removeAlert(alert.first, true);
+        }
+
+        row++;
+    }
+}
 
 void BoothGui::drawDebug() {
     sf::String debugStr = "";
@@ -404,4 +488,44 @@ void BoothGui::drawDebug() {
 
 float BoothGui::easeOutSin(float t, float b, float c, float d) {
     return static_cast<float>(c * sin(t / d * (M_PI / 2)) + b);
+}
+
+void BoothGui::addAlert(std::string icon, std::wstring text, bool autoRemove) {
+
+    boost::unique_lock<boost::mutex> lk(alertMutex);
+
+    if (alerts.empty())
+        alertTimer.restart();
+
+    removeAlert(icon, true);
+
+    sf::Int32 startTime = alertTimer.getElapsedTime().asMilliseconds();
+    sf::Int32 endTime = 0;
+
+    if (autoRemove) {
+        endTime = startTime + 5000;
+    }
+
+    alerts.insert(std::make_pair(icon, (Alert){startTime, endTime, std::move(text)}));
+}
+
+void BoothGui::removeAlert(std::string icon, bool forced) {
+
+    auto alert = alerts.find(icon);
+
+    if (alert == alerts.end())
+        return;
+
+    if (!forced && alert->second.endTime == 0) {
+        alert->second.endTime = alertTimer.getElapsedTime().asMilliseconds() + 300;
+    } else {
+        alerts.erase(icon);
+    }
+
+}
+
+void BoothGui::removeAlert(std::string icon) {
+    boost::unique_lock<boost::mutex> lk(alertMutex);
+
+    removeAlert(std::move(icon), false);
 }

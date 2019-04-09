@@ -28,6 +28,10 @@ namespace selfomat {
 
             virtual void notifyPreviewIncoming() = 0;
 
+            virtual void addAlert(std::string icon, std::wstring text, bool autoRemove = false) = 0;
+
+            virtual void removeAlert(std::string icon) = 0;
+
         };
     }
 }

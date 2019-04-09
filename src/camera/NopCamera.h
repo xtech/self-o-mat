@@ -20,6 +20,7 @@ namespace selfomat {
 
         public:
             CameraStartResult start() override {
+                setState(STATE_WORKING);
                 return START_RESULT_SUCCESS;
             }
 
@@ -46,6 +47,7 @@ namespace selfomat {
 
             void stop() override {
                 cout << "Stopping camera!" << endl;
+                setState(STATE_STOPPED);
             }
 
             bool triggerCaptureBlocking() override {

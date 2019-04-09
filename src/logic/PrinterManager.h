@@ -8,11 +8,13 @@
 
 #include <cups/cups.h>
 #include <cups/ipp.h>
+#include <cups/adminutil.h>
 #include <iostream>
 #include "tools/ILogger.h"
 #include <Magick++.h>
 #include "../tools/buffers.h"
 
+#include <boost/thread.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
@@ -20,15 +22,16 @@ using namespace selfomat::tools;
 
 namespace selfomat {
     namespace logic {
+
+        enum PRINTER_STATE {
+            STATE_UNKNOWN,
+            STATE_IDLE,
+            STATE_PRINTING,
+            STATE_STOPPED
+        };
+
         class PrinterManager {
         private:
-            enum PRINTER_STATE {
-                STATE_UNKNOWN,
-                STATE_IDLE,
-                STATE_PRINTING,
-                STATE_STOPPED
-            };
-
             PRINTER_STATE currentPrinterState;
             std::vector<std::string> currentStateReasons;
 
@@ -44,7 +47,20 @@ namespace selfomat {
             cups_dest_t *cupsDestinations = nullptr;
             int cupsDestinationCount = 0;
 
+            boost::mutex printerStateMutex;
+
         public:
+            const PRINTER_STATE getCurrentPrinterState() {
+                boost::unique_lock<boost::mutex> lk(printerStateMutex);
+                return currentPrinterState;
+            }
+            const std::vector<std::string>& getCurrentStateReasons() {
+                boost::unique_lock<boost::mutex> lk(printerStateMutex);
+                return currentStateReasons;
+            }
+
+            bool refreshCupsDevices();
+
             bool refreshCupsDestinations();
 
             bool refreshPrinterState();

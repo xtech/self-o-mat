@@ -9,19 +9,38 @@
 using namespace selfomat::logic;
 
 bool PrinterManager::start() {
-    refreshCupsDestinations();
+    //refreshCupsDevices();
     refreshPrinterState();
     resumePrinter();
     return true;
 }
 
+bool PrinterManager::refreshCupsDevices() {
 
+    cupsGetDevices(CUPS_HTTP_DEFAULT, 5, "usb", CUPS_EXCLUDE_NONE,
+            (cups_device_cb_t) [] (const char *device_class,
+                                   const char *device_id, const char *device_info,
+                                   const char *device_make_and_model,
+                                   const char *device_uri,
+                                   const char *device_location, void *user_data) {
+
+                std::cout << "Found Cups devices: " << device_uri << std::endl;
+
+
+        }, this);
+
+    return true;
+}
 
 bool PrinterManager::refreshCupsDestinations() {
+
+    int oldCupsDestinationCount = cupsDestinationCount;
+
     cupsFreeDests(cupsDestinationCount, cupsDestinations);
     cupsDestinationCount = 0;
 
-    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 1000, nullptr, 0,0,
+    // We do NOT want to discover the network, mask = CUPS_PRINTER_DISCOVERED
+    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 500, NULL, CUPS_PRINTER_LOCAL, CUPS_PRINTER_DISCOVERED,
             (cups_dest_cb_t) [] (void *user_data, unsigned flags, cups_dest_t *dest) {
                 auto *printerManager = (PrinterManager*)user_data;
                 printerManager->cupsDestinationCount = cupsCopyDest(dest, printerManager->cupsDestinationCount, &printerManager->cupsDestinations);
@@ -29,18 +48,27 @@ bool PrinterManager::refreshCupsDestinations() {
         }, this);
 
 
-    for(int i = 0; i < cupsDestinationCount; i++)
-        std::cout << "Found Cups destination: " << cupsDestinations[i].name << std::endl;
+    if (oldCupsDestinationCount != cupsDestinationCount) {
+        for(int i = 0; i < cupsDestinationCount; i++)
+            std::cout << "Found Cups destination: " << cupsDestinations[i].name << std::endl;
+    }
 
     return true;
 }
 
 bool PrinterManager::refreshPrinterState() {
 
+    boost::unique_lock<boost::mutex> lk(printerStateMutex);
+
     cups_dest_t     *dest = NULL;
     const char      *printer_state_reasons = NULL;
     int             printer_state = -1;
 
+    PRINTER_STATE oldPrinterState = currentPrinterState;
+
+
+    // Unfortunately necessary in order to get the current state
+    refreshCupsDestinations();
 
     dest = cupsGetDest(printer_name.c_str(),
                        NULL,
@@ -80,14 +108,19 @@ bool PrinterManager::refreshPrinterState() {
                  boost::is_any_of(", "),
                  boost::token_compress_on);
 
-    std::cout << "Current printer state: " << currentPrinterState << std::endl;
-    for (auto i: currentStateReasons)
-        std::cout << i << std::endl;
+
+    if (oldPrinterState != currentPrinterState) {
+        std::cout << "Current printer state: " << currentPrinterState << std::endl;
+        for (auto i: currentStateReasons)
+            std::cout << i << std::endl;
+    }
 
     return true;
 }
 
 bool PrinterManager::resumePrinter() {
+
+    boost::unique_lock<boost::mutex> lk(printerStateMutex);
 
     http_t      *http;
     ipp_t		*request;
@@ -101,7 +134,6 @@ bool PrinterManager::resumePrinter() {
                         1,
                         30000,
                         NULL);
-
 
 
     httpAssembleURIf(HTTP_URI_CODING_ALL, uri, sizeof(uri), "ipp", NULL, "localhost", ippPort(), "/printers/%s", printer_name.c_str());
@@ -142,6 +174,9 @@ bool PrinterManager::resumePrinter() {
 bool PrinterManager::printImage() {
     if(!hasImagePrepared)
         return false;
+
+    resumePrinter();
+
     int job_id = cupsCreateJob(CUPS_HTTP_DEFAULT, printer_name.c_str(), "self-o-mat", 0, nullptr);
 
     if (job_id > 0) {
