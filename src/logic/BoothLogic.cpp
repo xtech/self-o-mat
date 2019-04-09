@@ -150,18 +150,23 @@ void BoothLogic::triggerFlash() {
 
 void BoothLogic::stop() {
     std::cout << "stopping logic" << std::endl;
+    isRunning = false;
 
-    camera->stop();
+
     if (button_serial_port.is_open())
         button_serial_port.close();
 
     gui->stop();
-    isRunning = false;
+
     imageProcessor.stop();
 
+    cout << "waiting for logic" << endl;
     logicThreadHandle.join();
+    cout << "waiting for io" << endl;
     ioThreadHandle.join();
+    cout << "waiting for cam" << endl;
     cameraThreadHandle.join();
+    cout << "waiting for print" << endl;
     printThreadHandle.join();
 }
 
@@ -276,6 +281,7 @@ void BoothLogic::cameraThread() {
             }
         }
     }
+    camera->stop();
 }
 
 void BoothLogic::logicThread() {
@@ -380,7 +386,10 @@ void BoothLogic::printerThread() {
             cout << "[Printer Thread] Waiting for an image to process" << endl;
             unique_lock<boost::mutex> lk(printerStateMutex);
             while (printerState == PRINTER_STATE_IDLE || printerState == PRINTER_STATE_WAITING_FOR_DATA) {
-                printerStateCV.wait(lk);
+                printerStateCV.timed_wait(lk, boost::posix_time::milliseconds(500));
+                // application should close
+                if(!isRunning)
+                    return;
             }
         }
 
@@ -472,4 +481,9 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     fclose(fp);
 
     cout << "File written to: " << fullImagePath << endl;
+}
+
+void BoothLogic::stopForUpdate() {
+    returnCode = 0x42;
+    stop();
 }

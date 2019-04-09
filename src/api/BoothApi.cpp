@@ -116,6 +116,14 @@ bool BoothApi::start() {
                 return;
             });
 
+    mux.handle("/update")
+            .post([this](served::response & res, const served::request & req) {
+                logic->stopForUpdate();
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+
     // Create the server and run with 2 handler thread.
     server.run(2, false);
 

@@ -77,6 +77,7 @@ namespace selfomat {
 
 
         private:
+            int returnCode = 0;
             string imageDir;
 
             bool has_button, has_flash;
@@ -156,11 +157,15 @@ namespace selfomat {
 
             void stop();
 
-            void join() {
+            int join() {
                 logicThreadHandle.join();
                 ioThreadHandle.join();
                 cameraThreadHandle.join();
+                printThreadHandle.join();
+                return returnCode;
             }
+
+            void stopForUpdate();
 
             virtual ~BoothLogic();
 
