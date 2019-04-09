@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
     // Read settings for the device we're running on
 
     string camera_type;
+    bool debug = false;
     bool has_button = false;
     bool has_flash = false;
     string button_port_name;
@@ -87,6 +88,7 @@ int main(int argc, char *argv[]) {
         printer_name = ptree.get<string>("printer_name");
         image_dir = ptree.get<string>("image_dir");
         button_port_name = ptree.get<string>("button_port_name");
+        debug = ptree.get<bool>("debug");
         has_button = ptree.get<bool>("has_button");
         has_flash = ptree.get<bool>("has_flash");
     } catch (boost::exception &e) {
@@ -99,7 +101,7 @@ int main(int argc, char *argv[]) {
     cout << "Has Flash: " << has_flash << endl;
 
 
-    p_gui = new BoothGui();
+    p_gui = new BoothGui(debug);
     if (!p_gui->start()) {
         cerr << "Error starting gui - Exiting." << endl;
         return 1;

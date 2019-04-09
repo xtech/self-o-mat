@@ -38,8 +38,13 @@ namespace selfomat {
         };
 
         class BoothGui : public IGui {
+        public:
+            explicit BoothGui(bool debug);
+
         private:
             bool isRunning;
+
+            bool debug;
 
             enum GUI_STATE {
                 STATE_INIT,

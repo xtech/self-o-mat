@@ -7,9 +7,11 @@
 using namespace std;
 using namespace selfomat::ui;
 
-BoothGui::BoothGui() : debugLogQueue(), stateTimer(), alertTimer() {
+BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
+    // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
     currentState = STATE_INIT;
+    this->debug = debug;
 }
 
 BoothGui::~BoothGui() {
@@ -467,6 +469,9 @@ void BoothGui::drawAlerts() {
 }
 
 void BoothGui::drawDebug() {
+    if (!debug)
+        return;
+
     sf::String debugStr = "";
     debugStr += "Drawing Fps:";
     debugStr += to_string(renderFrameCounter.fps);

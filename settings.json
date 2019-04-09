@@ -2,6 +2,7 @@
   "camera_type": "gphoto",
   "has_flash": false,
   "has_button": false,
+  "debug": false,
   "button_port_name": "/dev/null",
   "printer_name": "PDF",
   "image_dir": "/home/clemens/Pictures"
