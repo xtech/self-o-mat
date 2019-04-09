@@ -44,7 +44,6 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
 }
 
 
-
 bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
     // TODO: Check if we really connected to the button and not some other serial device and return a status
     try {
@@ -56,7 +55,7 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
         char c;
         auto count = asio::read(tmp_serial_port, asio::buffer(&c, 1));
         tmp_serial_port.close();
-        if(count > 0) {
+        if (count > 0) {
             cout << "Got a " << c << endl;
             if (c == 'b') {
                 cout << "Found the button" << endl;
@@ -90,14 +89,14 @@ bool BoothLogic::start() {
     gui->logDebug("Starting Logic");
 
     gui->logDebug("Initializing Image Processor");
-    if(!imageProcessor.start())
+    if (!imageProcessor.start())
         return false;
 
     gui->logDebug("Starting Printer");
-    if(!printerManager.start())
+    if (!printerManager.start())
         return false;
 
-    if(has_button) {
+    if (has_button) {
         gui->logInfo("Seraching for connected Arduinos");
 
 
@@ -127,54 +126,33 @@ bool BoothLogic::start() {
     }
 
 
+    // Start the threads
+    ioThreadHandle = boost::thread(boost::bind(&BoothLogic::ioThread, this));
+    logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
+    cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
+    printThreadHandle = boost::thread(boost::bind(&BoothLogic::printerThread, this));
 
-
-    CameraStartResult result;
-
-    do {
-        gui->logDebug("Starting Camera");
-        result = camera->start();
-        switch (result) {
-            case START_RESULT_SUCCESS:
-                isRunning = true;
-                gui->logInfo("...camera started successfully!");
-                // Start the logic thread
-                ioThreadHandle = boost::thread(boost::bind(&BoothLogic::ioThread, this));
-                logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
-                cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
-                printThreadHandle = boost::thread(boost::bind(&BoothLogic::printerThread, this));
-                return true;
-            case START_RESULT_ERROR:
-                gui->logError("Fatal error starting camera.");
-                return false;
-            case START_RESULT_NOT_FOUND:
-                gui->logError("No camera found. Retrying");
-                break;
-
-        }
-
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-    } while (true);
+    return true;
 }
 
 void BoothLogic::triggerFlash() {
-    #ifdef USE_SPI
-        digitalWrite(PIN_SS, LOW);
-        flash_struct flash;
-        flash.delay = 0;
-        flash.duration = 1000;
-        flash.brightness=255;
-        flash.fade = 255;
-        wiringPiSPIDataRW(0, (unsigned char*)&flash, 6);
-        digitalWrite(PIN_SS, HIGH);
-    #endif
+#ifdef USE_SPI
+    digitalWrite(PIN_SS, LOW);
+    flash_struct flash;
+    flash.delay = 0;
+    flash.duration = 1000;
+    flash.brightness=255;
+    flash.fade = 255;
+    wiringPiSPIDataRW(0, (unsigned char*)&flash, 6);
+    digitalWrite(PIN_SS, HIGH);
+#endif
 }
 
 void BoothLogic::stop() {
     std::cout << "stopping logic" << std::endl;
 
     camera->stop();
-    if(button_serial_port.is_open())
+    if (button_serial_port.is_open())
         button_serial_port.close();
 
     gui->stop();
@@ -190,89 +168,111 @@ void BoothLogic::stop() {
 void BoothLogic::cameraThread() {
     gui->logDebug("Starting Camera Thread");
     gui->initialized();
-    while(isRunning) {
+    while (isRunning) {
+        if (camera->getState() != CameraState::STATE_WORKING) {
+            // Camera is not working, try to get it working
+            gui->logDebug("Starting Camera");
+            CameraStartResult result = camera->start();
 
-        bool capture = triggered;
-        if(capture) {
-            triggerMutex.lock();
-            triggered = false;
-            triggerMutex.unlock();
-        }
-
-        if(capture) {
-            // Do the capture
-            gui->logDebug("Doing the capture");
-            gui->hidePreviewImage();
-
-            // We need to wait for the printer thread (not really hopefully)
-            {
-                cout << "[Camera Thread] Waiting for printer thread to finish" << endl;
-                unique_lock<boost::mutex> lk(printerStateMutex);
-                while (printerState != PRINTER_STATE_IDLE) {
-                    printerStateCV.wait(lk);
-                }
+            switch (result) {
+                case START_RESULT_SUCCESS:
+                    isRunning = true;
+                    gui->logInfo("...camera started successfully!");
+                    continue;
+                case START_RESULT_ERROR:
+                    gui->logError("Fatal error starting camera.");
+                    break;
+                case START_RESULT_NOT_FOUND:
+                    gui->logError("No camera found. Retrying");
+                    break;
+            }
+            // delay searching to avoid spamming the bus
+            boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+        } else {
+            // Camera is working, use it
+            bool capture = triggered;
+            if (capture) {
+                triggerMutex.lock();
+                triggered = false;
+                triggerMutex.unlock();
             }
 
+            if (capture) {
+                // Do the capture
+                gui->logDebug("Doing the capture");
+                gui->hidePreviewImage();
 
-            // Update printer thread state to one
-            {
-                unique_lock<boost::mutex> lk(printerStateMutex);
-                printerState = PRINTER_STATE_WAITING_FOR_DATA;
-                printerStateCV.notify_all();
-            }
-
-            cancelPrintMutex.lock();
-            printCanceled = false;
-            cancelPrintMutex.unlock();
-
-            // Get the mutex for the last jpeg image. We should have no problem doing this
-            jpegImageMutex.lock();
-
-
-            auto triggerSuccess = camera->triggerCaptureBlocking();
-
-            triggerFlash();
-
-            gui->logDebug("Successfully triggered");
-            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-            auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize, &latestJpegFileName,
-                    &imageBuffer, &imageBufferSize, &imageInfo);
-            jpegImageMutex.unlock();
-
-            {
-                unique_lock<boost::mutex> lk(printerStateMutex);
-                printerState = PRINTER_STATE_WAITING_FOR_USER_INPUT;
-                printerStateCV.notify_all();
-            }
-
-            if (success) {
-                gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
-                gui->notifyFinalImageSent();
-
-                // 4500ms from here for the user to decide
-                boost::this_thread::sleep(boost::posix_time::milliseconds(4500));
-
-                // Notify the printer thread
+                // We need to wait for the printer thread (not really hopefully)
                 {
-                    unique_lock<boost::mutex> lk(printerStateMutex);
-                    printerState = PRINTER_STATE_WORKING;
+                    cout << "[Camera Thread] Waiting for printer thread to finish" << endl;
+                    unique_lock <boost::mutex> lk(printerStateMutex);
+                    while (printerState != PRINTER_STATE_IDLE) {
+                        printerStateCV.wait(lk);
+                    }
+                }
+
+
+                // Update printer thread state to one
+                {
+                    unique_lock <boost::mutex> lk(printerStateMutex);
+                    printerState = PRINTER_STATE_WAITING_FOR_DATA;
                     printerStateCV.notify_all();
                 }
-            } else {
-                gui->logError("Got an error");
-            }
 
-            if(button_serial_port.is_open())
-                button_serial_port.write_some(asio::buffer("k", 1));
+                cancelPrintMutex.lock();
+                printCanceled = false;
+                cancelPrintMutex.unlock();
 
-            gui->notifyPreviewIncoming();
-        } else {
-            // Get a preview
-            auto success = camera->capturePreviewBlocking(&imageBuffer, &imageBufferSize, &imageInfo);
-            if(success) {
-                gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
+                // Get the mutex for the last jpeg image. We should have no problem doing this
+                jpegImageMutex.lock();
+
+
+                auto triggerSuccess = camera->triggerCaptureBlocking();
+
+                triggerFlash();
+
+                gui->logDebug("Successfully triggered");
+                boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+                auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize, &latestJpegFileName,
+                                                         &imageBuffer, &imageBufferSize, &imageInfo);
+                jpegImageMutex.unlock();
+
+                {
+                    unique_lock <boost::mutex> lk(printerStateMutex);
+                    printerState = PRINTER_STATE_WAITING_FOR_USER_INPUT;
+                    printerStateCV.notify_all();
+                }
+
+                if (success) {
+                    gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
+                    gui->notifyFinalImageSent();
+
+                    // 4500ms from here for the user to decide
+                    boost::this_thread::sleep(boost::posix_time::milliseconds(4500));
+
+                    // Notify the printer thread
+                    {
+                        unique_lock <boost::mutex> lk(printerStateMutex);
+                        printerState = PRINTER_STATE_WORKING;
+                        printerStateCV.notify_all();
+                    }
+                } else {
+                    gui->logError("Got an error");
+                }
+
+                if (button_serial_port.is_open())
+                    button_serial_port.write_some(asio::buffer("k", 1));
+
+                gui->notifyPreviewIncoming();
             } else {
-                gui->logError("Error capturing preview.");
+                // Get a preview
+                auto success = camera->capturePreviewBlocking(&imageBuffer, &imageBufferSize, &imageInfo);
+                if (success) {
+                    gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
+                } else {
+                    gui->logError("Error capturing preview. Restarting camera");
+                    camera->stop();
+                }
             }
         }
     }
@@ -283,7 +283,7 @@ void BoothLogic::logicThread() {
 
     while (isRunning) {
         // Send the heartbeat
-        if(button_serial_port.is_open())
+        if (button_serial_port.is_open())
             button_serial_port.write_some(asio::buffer(".", 1));
         //flash_serial_port.write_some(asio::buffer("i", 1));
         boost::this_thread::sleep(boost::posix_time::seconds(1));
@@ -295,7 +295,7 @@ void BoothLogic::logicThread() {
             unique_lock<boost::mutex> lk(printerStateMutex);
             allowSave = (0 == printerState);
         }
-        if(allowSave) {
+        if (allowSave) {
             void *rawBuffer = nullptr;
             size_t rawSize = 0;
             std::string rawFilename;
@@ -338,8 +338,8 @@ void BoothLogic::logicThread() {
 
 void BoothLogic::ioThread() {
     cout << "IO Thread Started" << endl;
-    while(isRunning) {
-        if(button_serial_port.is_open()) {
+    while (isRunning) {
+        if (button_serial_port.is_open()) {
             auto count = asio::read(button_serial_port, asio::buffer(&c, 1));
             if (count > 0) {
                 cout << "Got char: " << c << endl;
@@ -356,7 +356,8 @@ void BoothLogic::ioThread() {
                         break;
                     case 'd':
                         stop();
-                    default:break;
+                    default:
+                        break;
                 }
             }
         }
@@ -374,7 +375,7 @@ void BoothLogic::trigger() {
 }
 
 void BoothLogic::printerThread() {
-    while(isRunning) {
+    while (isRunning) {
         {
             cout << "[Printer Thread] Waiting for an image to process" << endl;
             unique_lock<boost::mutex> lk(printerStateMutex);
@@ -430,7 +431,7 @@ void BoothLogic::printerThread() {
 }
 
 int BoothLogic::getFreeStorageSpaceMB() {
-    if(imageDir.empty()) {
+    if (imageDir.empty()) {
         cerr << "No image dir specified" << endl;
         return -1;
     }
@@ -441,7 +442,7 @@ int BoothLogic::getFreeStorageSpaceMB() {
 }
 
 void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
-    if(imageDir.empty()) {
+    if (imageDir.empty()) {
         cerr << "No image dir specified" << endl;
         return;
     }
@@ -450,10 +451,10 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 
     std::string fullImagePath = imageDir;
 
-    fullImagePath+="/";
-    fullImagePath+=to_string((long)time);
-    fullImagePath+="_";
-    fullImagePath+=filename;
+    fullImagePath += "/";
+    fullImagePath += to_string((long) time);
+    fullImagePath += "_";
+    fullImagePath += filename;
 
 
     cout << "Writing image to:" << fullImagePath << endl;
@@ -461,7 +462,7 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     FILE *fp;
 
     fp = fopen(fullImagePath.c_str(), "wb");
-    if(fp == nullptr) {
+    if (fp == nullptr) {
         cerr << "Error opening output file" << endl;
         return;
     }
