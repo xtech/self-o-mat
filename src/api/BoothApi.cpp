@@ -5,156 +5,372 @@
 #include "BoothApi.h"
 
 using namespace selfomat::api;
+using namespace xtech::selfomat;
 
 BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(logic), camera(camera),
-                                                                          server ("0.0.0.0", "9080", mux, false) {}
+                                                                          server("0.0.0.0", "9080", mux, false) {}
+
 
 bool BoothApi::start() {
 
-    mux.handle("/camera_settings")
-            .get([this](served::response & res, const served::request & req) {
-                CameraSettings currentCameraSettings;
 
-                currentCameraSettings.set_aperture(camera->getAperture());
-                currentCameraSettings.set_iso(camera->getIso());
-                currentCameraSettings.set_shutter_speed(camera->getShutterSpeed());
-                currentCameraSettings.set_exposure_compensation(camera->getExposureCorrection());
-                currentCameraSettings.set_image_format(camera->getImageFormat());
-                currentCameraSettings.set_lens_name(camera->getLensName());
-                currentCameraSettings.set_camera_name(camera->getCameraName());
 
-                res << currentCameraSettings.SerializeAsString();
-            })
-            .post([this](served::response & res, const served::request & req) {
-                CameraSettings newsettings;
-
-                if (!newsettings.ParseFromString(req.body())) {
+    mux.handle("/camera_settings/aperture")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
                     return;
                 }
 
-                bool success = true;
-
-                success &= camera->setIso(newsettings.iso());
-                success &= camera->setShutterSpeed(newsettings.shutter_speed());
-                success &= camera->setAperture(newsettings.aperture());
-                success &= camera->setExposureCorrection(newsettings.exposure_compensation());
-                success &= camera->setImageFormat(newsettings.image_format());
-
-                if (!success) {
-                    served::response::stock_reply(400, res);
-                    return;
-                }
-
-                std::cout << "Got new camera settings" << std::endl;
-                newsettings.PrintDebugString();
-
+                camera->setAperture(update.value());
 
                 served::response::stock_reply(200, res);
                 return;
             });
-      mux.handle("/booth_settings")
-            .get([this](served::response & res, const served::request & req) {
+
+    mux.handle("/camera_settings/iso")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                camera->setIso(update.value());
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/camera_settings/shutter_speed")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                camera->setShutterSpeed(update.value());
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/camera_settings/exposure_correction")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                camera->setExposureCorrection(update.value());
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/camera_settings/image_format")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                camera->setImageFormat(update.value());
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/camera_settings")
+            .get([this](served::response &res, const served::request &req) {
+                CameraSettings currentCameraSettings;
+                {
+                    auto setting = currentCameraSettings.mutable_aperture();
+                    setting->set_update_url("/camera_settings/aperture");
+                    setting->set_name("Aperture");
+
+                    setting->set_currentindex(camera->getAperture());
+                    auto *choices = camera->getApertureChoices();
+                    if (choices != nullptr) {
+                        for (int i = 0; i < choices->size(); i++) {
+                            setting->add_values(choices->at(i));
+                        }
+                    }
+                }
+
+                {
+                    auto setting = currentCameraSettings.mutable_iso();
+                    setting->set_name("ISO");
+                    setting->set_update_url("/camera_settings/iso");
+                    setting->set_currentindex(camera->getIso());
+                    auto *choices = camera->getIsoChoices();
+                    if (choices != nullptr) {
+                        for (int i = 0; i < choices->size(); i++) {
+                            setting->add_values(choices->at(i));
+                        }
+                    }
+                }
+
+                {
+                    auto setting = currentCameraSettings.mutable_shutter_speed();
+                    setting->set_name("Shutter Speed");
+                    setting->set_update_url("/camera_settings/shutter_speed");
+                    setting->set_currentindex(camera->getShutterSpeed());
+                    auto *choices = camera->getShutterSpeedChoices();
+                    if (choices != nullptr) {
+                        for (int i = 0; i < choices->size(); i++) {
+                            setting->add_values(choices->at(i));
+                        }
+                    }
+                }
+
+                {
+                    auto setting = currentCameraSettings.mutable_exposure_compensation();
+                    setting->set_name("Exposure Compensation (during Flash)");
+                    setting->set_update_url("/camera_settings/exposure_correction");
+                    setting->set_currentindex(camera->getExposureCorrection());
+                    auto *choices = camera->getExposureCorrectionModeChoices();
+                    if (choices != nullptr) {
+                        for (int i = 0; i < choices->size(); i++) {
+                            setting->add_values(choices->at(i));
+                        }
+                    }
+                }
+
+                {
+                    auto setting = currentCameraSettings.mutable_image_format();
+                    setting->set_name("Image Format");
+                    setting->set_update_url("/camera_settings/image_format");
+                    setting->set_currentindex(camera->getImageFormat());
+                    auto *choices = camera->getImageFormatChoices();
+                    if (choices != nullptr) {
+                        for (int i = 0; i < choices->size(); i++) {
+                            setting->add_values(choices->at(i));
+                        }
+                    }
+                }
+
+                auto lensNameSetting = currentCameraSettings.mutable_lens_name();
+                lensNameSetting->set_name("Lens Name");
+                lensNameSetting->set_value(camera->getLensName());
+                auto cameraNameSetting = currentCameraSettings.mutable_camera_name();
+                cameraNameSetting->set_name("Camera Name");
+                cameraNameSetting->set_value(camera->getCameraName());
+
+                res << currentCameraSettings.SerializeAsString();
+            });
+
+    mux.handle("/booth_settings")
+            .get([this](served::response &res, const served::request &req) {
                 BoothSettings currentBoothSettings;
 
-                currentBoothSettings.set_printer_enabled(logic->getPrinterEnabled());
+                {
+                    auto setting = currentBoothSettings.mutable_printer_enabled();
+                    setting->set_name("Printer Enabled?");
+                    setting->set_update_url("/booth_settings/printer/enabled");
+                    setting->set_currentvalue(logic->getPrinterEnabled());
+                }
+
                 bool flashEnabled;
                 float flashBrightness, flashFade;
                 uint64_t delayMicros, durationMicros;
                 logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
-                currentBoothSettings.set_flash_enabled(flashEnabled);
-                currentBoothSettings.set_flash_duration_micros(durationMicros);
-                currentBoothSettings.set_flash_delay_micros(delayMicros);
-                currentBoothSettings.set_flash_brightness(flashBrightness);
-                currentBoothSettings.set_flash_fade(flashFade);
-                currentBoothSettings.set_template_enabled(logic->getTemplateEnabled());
+                {
+                    auto setting = currentBoothSettings.mutable_flash_enabled();
+                    setting->set_update_url("/booth_settings/flash/enabled");
+                    setting->set_name("Flash Enabled?");
+                    setting->set_currentvalue(flashEnabled);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_brightness();
+                    setting->set_update_url("/booth_settings/flash/brightness");
+                    setting->set_name("Flash Brightness");
+                    setting->set_currentvalue(flashBrightness);
+                    setting->set_minvalue(0.0f);
+                    setting->set_maxvalue(1.0f);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_fade();
+                    setting->set_update_url("/booth_settings/flash/fade");
+                    setting->set_name("Flash Fade");
+                    setting->set_currentvalue(flashFade);
+                    setting->set_minvalue(0.0f);
+                    setting->set_maxvalue(1.0f);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_delay_micros();
+                    setting->set_update_url("/booth_settings/flash/delay");
+                    setting->set_name("Flash Delay Microseconds");
+                    setting->set_currentvalue(delayMicros);
+                    setting->set_minvalue(0);
+                    setting->set_maxvalue(100000);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_duration_micros();
+                    setting->set_update_url("/booth_settings/flash/duration");
+                    setting->set_name("Flash Duration Microseconds");
+                    setting->set_currentvalue(durationMicros);
+                    setting->set_minvalue(0);
+                    setting->set_maxvalue(100000);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_template_enabled();
+                    setting->set_update_url("/booth_settings/template_enabled");
+                    setting->set_name("Template Enabled?");
+                    setting->set_currentvalue(logic->getTemplateEnabled());
+                }
 
                 res << currentBoothSettings.SerializeAsString();
-            })
-            .post([this](served::response & res, const served::request & req) {
-                BoothSettings newsettings;
+            });
 
-                if (!newsettings.ParseFromString(req.body())) {
+    mux.handle("/booth_settings/printer/enabled")
+            .post([this](served::response &res, const served::request &req) {
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
                     return;
                 }
 
+                logic->setPrinterEnabled(update.value(), true);
 
-                logic->setPrinterEnabled(newsettings.printer_enabled(), true);
-                logic->setFlashParameters(newsettings.flash_enabled(), newsettings.flash_brightness(), newsettings.flash_fade(), newsettings.flash_delay_micros(), newsettings.flash_duration_micros(), true);
-                logic->setTemplateEnabled(newsettings.template_enabled(), true);
+                served::response::stock_reply(200, res);
+                return;
+            });
+    mux.handle("/booth_settings/flash/enabled")
+            .post([this](served::response &res, const served::request &req) {
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
 
-                std::cout << "Got new booth settings" << std::endl;
-                newsettings.PrintDebugString();
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                flashEnabled = update.value();
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/booth_settings/flash/brightness")
+            .post([this](served::response &res, const served::request &req) {
+                FloatUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                flashBrightness = update.value();
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+    mux.handle("/booth_settings/flash/fade")
+            .post([this](served::response &res, const served::request &req) {
+                FloatUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                flashFade = update.value();
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
 
                 served::response::stock_reply(200, res);
                 return;
             });
 
 
-    mux.handle("/camera_choices")
-            .get([this](served::response & res, const served::request & req) {
-                CameraChoices choices;
-                {
-                    auto *isoChoices = camera->getIsoChoices();
-                    if(isoChoices != nullptr) {
-                        for (int i = 0; i < isoChoices->size(); i++) {
-                            choices.add_iso_choices(isoChoices->at(i));
-                        }
-                    }
-                }
-                {
-                    auto *shutterChoices = camera->getShutterSpeedChoices();
-                    if(shutterChoices != nullptr) {
-                        for (int i = 0; i < shutterChoices->size(); i++) {
-                            choices.add_shutter_speed_choices(shutterChoices->at(i));
-                        }
-                    }
-                }
-                {
-                    auto *apertureChoices = camera->getApertureChoices();
-                    if(apertureChoices != nullptr) {
-                        for (int i = 0; i < apertureChoices->size(); i++) {
-                            choices.add_aperture_choices(apertureChoices->at(i));
-                        }
-                    }
-                }
-                {
-                    auto *cs = camera->getExposureCorrectionModeChoices();
-                    if(cs != nullptr) {
-                        for (int i = 0; i < cs->size(); i++) {
-                            choices.add_exposure_compensation_choices(cs->at(i));
-                        }
-                    }
-                }
-                {
-                    auto *cs = camera->getImageFormatChoices();
-                    if(cs != nullptr) {
-                        for (int i = 0; i < cs->size(); i++) {
-                            choices.add_image_format_choices(cs->at(i));
-                        }
-                    }
+    mux.handle("/booth_settings/flash/delay")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
                 }
 
-                res << choices.SerializeAsString();
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                delayMicros = update.value();
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+
+                served::response::stock_reply(200, res);
+                return;
             });
 
+    mux.handle("/booth_settings/flash/duration")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                durationMicros = update.value();
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/booth_settings/template_enabled")
+            .post([this](served::response &res, const served::request &req) {
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setTemplateEnabled(update.value(), true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+
     mux.handle("/trigger")
-            .post([this](served::response & res, const served::request & req) {
+            .post([this](served::response &res, const served::request &req) {
                 logic->trigger();
                 served::response::stock_reply(200, res);
                 return;
             });
 
     mux.handle("/focus")
-            .post([this](served::response & res, const served::request & req) {
+            .post([this](served::response &res, const served::request &req) {
                 camera->autofocusBlocking();
                 served::response::stock_reply(200, res);
                 return;
             });
 
     mux.handle("/update")
-            .post([this](served::response & res, const served::request & req) {
+            .post([this](served::response &res, const served::request &req) {
                 logic->stopForUpdate();
                 served::response::stock_reply(200, res);
                 return;
