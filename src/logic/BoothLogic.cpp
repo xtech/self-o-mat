@@ -3,6 +3,7 @@
 //
 
 #include "BoothLogic.h"
+#include <tools/blocking_reader.h>
 
 using namespace std;
 using namespace boost;
@@ -33,7 +34,7 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
     // TODO: Check if we really connected to the button and not some other serial device and return a status
     try {
         button_serial_port.open(serialPath.string());
-        button_serial_port.set_option(asio::serial_port_base::baud_rate(9600));
+        button_serial_port.set_option(asio::serial_port_base::baud_rate(38400));
         button_serial_port.write_some(asio::buffer("!", 1));
         button_serial_port.write_some(asio::buffer(".", 1));
     } catch (std::exception const &e) {
@@ -48,14 +49,14 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
     // TODO: Check if we really connected to the button and not some other serial device and return a status
     try {
         tmp_serial_port.open(serialPath.string());
-        tmp_serial_port.set_option(asio::serial_port_base::baud_rate(9600));
+        tmp_serial_port.set_option(asio::serial_port_base::baud_rate(38400));
         tmp_serial_port.write_some(asio::buffer("i", 1));
 
         cout << "Waiting for identification" << endl;
         char c;
-        auto count = asio::read(tmp_serial_port, asio::buffer(&c, 1));
-        tmp_serial_port.close();
-        if (count > 0) {
+
+        blocking_reader reader(tmp_serial_port, 3000);
+        if (reader.read_char(c)) {
             cout << "Got a " << c << endl;
             if (c == 'b') {
                 cout << "Found the button" << endl;
@@ -65,6 +66,7 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
         } else {
             cout << "No identification received" << endl;
         }
+        tmp_serial_port.close();
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
         return false;
@@ -351,8 +353,8 @@ void BoothLogic::ioThread() {
     cout << "IO Thread Started" << endl;
     while (isRunning) {
         if (button_serial_port.is_open()) {
-            auto count = asio::read(button_serial_port, asio::buffer(&c, 1));
-            if (count > 0) {
+            blocking_reader reader(button_serial_port, 500);
+            while (reader.read_char(c) && c != '\n') {
                 cout << "Got char: " << c << endl;
                 switch (c) {
                     case 'c':
