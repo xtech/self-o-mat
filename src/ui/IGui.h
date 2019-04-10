@@ -32,6 +32,7 @@ namespace selfomat {
 
             virtual void removeAlert(std::string icon) = 0;
 
+            virtual void setPrinterEnabled(bool printerEnabled) = 0;
         };
     }
 }

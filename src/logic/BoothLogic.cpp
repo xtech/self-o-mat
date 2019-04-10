@@ -127,6 +127,7 @@ bool BoothLogic::start() {
 
 
     // Start the threads
+    isRunning = true;
     ioThreadHandle = boost::thread(boost::bind(&BoothLogic::ioThread, this));
     logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
     cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
@@ -181,7 +182,6 @@ void BoothLogic::cameraThread() {
 
             switch (result) {
                 case START_RESULT_SUCCESS:
-                    isRunning = true;
                     gui->logInfo("...camera started successfully!");
                     continue;
                 case START_RESULT_ERROR:
@@ -210,7 +210,7 @@ void BoothLogic::cameraThread() {
                 // We need to wait for the printer thread (not really hopefully)
                 {
                     cout << "[Camera Thread] Waiting for printer thread to finish" << endl;
-                    unique_lock <boost::mutex> lk(printerStateMutex);
+                    unique_lock<boost::mutex> lk(printerStateMutex);
                     while (printerState != PRINTER_STATE_IDLE) {
                         printerStateCV.wait(lk);
                     }
@@ -219,7 +219,7 @@ void BoothLogic::cameraThread() {
 
                 // Update printer thread state to one
                 {
-                    unique_lock <boost::mutex> lk(printerStateMutex);
+                    unique_lock<boost::mutex> lk(printerStateMutex);
                     printerState = PRINTER_STATE_WAITING_FOR_DATA;
                     printerStateCV.notify_all();
                 }
@@ -232,7 +232,7 @@ void BoothLogic::cameraThread() {
                 jpegImageMutex.lock();
 
 
-                auto triggerSuccess = camera->triggerCaptureBlocking();
+                camera->triggerCaptureBlocking();
 
                 triggerFlash();
 
@@ -243,7 +243,7 @@ void BoothLogic::cameraThread() {
                 jpegImageMutex.unlock();
 
                 {
-                    unique_lock <boost::mutex> lk(printerStateMutex);
+                    unique_lock<boost::mutex> lk(printerStateMutex);
                     printerState = PRINTER_STATE_WAITING_FOR_USER_INPUT;
                     printerStateCV.notify_all();
                 }
@@ -251,13 +251,15 @@ void BoothLogic::cameraThread() {
                 if (success) {
                     gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
                     gui->notifyFinalImageSent();
+                    if (printerEnabled && button_serial_port.is_open())
+                        button_serial_port.write_some(asio::buffer("p", 1));
 
                     // 4500ms from here for the user to decide
                     boost::this_thread::sleep(boost::posix_time::milliseconds(4500));
 
                     // Notify the printer thread
                     {
-                        unique_lock <boost::mutex> lk(printerStateMutex);
+                        unique_lock<boost::mutex> lk(printerStateMutex);
                         printerState = PRINTER_STATE_WORKING;
                         printerStateCV.notify_all();
                     }
@@ -382,55 +384,73 @@ void BoothLogic::trigger() {
 
 void BoothLogic::printerThread() {
     while (isRunning) {
+        bool do_print;
         {
             cout << "[Printer Thread] Waiting for an image to process" << endl;
             unique_lock<boost::mutex> lk(printerStateMutex);
             while (printerState == PRINTER_STATE_IDLE || printerState == PRINTER_STATE_WAITING_FOR_DATA) {
                 printerStateCV.timed_wait(lk, boost::posix_time::milliseconds(500));
                 // application should close
-                if(!isRunning)
+                if (!isRunning)
                     return;
             }
+            do_print = printerEnabled;
         }
 
-        cout << "[Printer Thread] " << "Processing image" << endl;
+        cout << "[Printer Thread] " << "Processing image. Printing enabled: " << do_print << endl;
 
-        // We need the final jpeg image. So lock the mutex
-        {
-            unique_lock<boost::mutex> lk(jpegImageMutex);
+        if (do_print) {
+            // We need the final jpeg image. So lock the mutex
+            {
+                unique_lock<boost::mutex> lk(jpegImageMutex);
 
-            // first we save the image
-            saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
+                // first we save the image
+                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
 
-            Magick::Image framed = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
-            cout << "[Printer Thread] " << "Framed" << endl;
-            printerManager.prepareImageForPrint(framed);
-            cout << "[Printer Thread] " << "Prepared" << endl;
-        }
+                Magick::Image framed = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
+                cout << "[Printer Thread] " << "Framed" << endl;
+                printerManager.prepareImageForPrint(framed);
+                cout << "[Printer Thread] " << "Prepared" << endl;
+            }
 
-        {
-            cout << "[Printer Thread] Waiting for the user to decide if he wants to print" << endl;
-            unique_lock<boost::mutex> lk(printerStateMutex);
-            while (printerState == PRINTER_STATE_WAITING_FOR_USER_INPUT) {
-                printerStateCV.wait(lk);
+            {
+                cout << "[Printer Thread] Waiting for the user to decide if he wants to print" << endl;
+                unique_lock<boost::mutex> lk(printerStateMutex);
+                while (printerState == PRINTER_STATE_WAITING_FOR_USER_INPUT) {
+                    printerStateCV.wait(lk);
+                }
+            }
+
+
+            // We need the info if the user wants to print or not
+            {
+                unique_lock<boost::mutex> lk(cancelPrintMutex);
+                if (!printCanceled) {
+                    cout << "[Printer Thread] " << "Printing" << endl;
+                    printerManager.printImage();
+                } else {
+                    cout << "[Printer Thread] " << "Printing canceled" << endl;
+                    printerManager.cancelPrint();
+                }
+            }
+        } else {
+            // We need the final jpeg image. So lock the mutex
+            {
+                unique_lock<boost::mutex> lk(jpegImageMutex);
+
+                // we only need to save the image
+                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
+            }
+
+            // wait for logic thread
+            {
+                unique_lock<boost::mutex> lk(printerStateMutex);
+                while (printerState == PRINTER_STATE_WAITING_FOR_USER_INPUT) {
+                    printerStateCV.wait(lk);
+                }
             }
         }
 
-
-        // We need the info if the user wants to print or not
-        {
-            unique_lock<boost::mutex> lk(cancelPrintMutex);
-            if (!printCanceled) {
-                cout << "[Printer Thread] " << "Printing" << endl;
-                printerManager.printImage();
-            } else {
-                cout << "[Printer Thread] " << "Printing canceled" << endl;
-                printerManager.cancelPrint();
-            }
-        }
-
-
-        cout << "[Printer Thread] I'm done with my work, so i'll just update the printer state to IDLE" << endl;
         {
             unique_lock<boost::mutex> lk(printerStateMutex);
             printerState = PRINTER_STATE_IDLE;
@@ -447,7 +467,7 @@ int BoothLogic::getFreeStorageSpaceMB() {
 
     filesystem::space_info s = filesystem::space(imageDir);
 
-    return (s.free / 1024 / 1024);
+    return static_cast<int>(s.free / 1024 / 1024);
 }
 
 void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
@@ -486,4 +506,39 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 void BoothLogic::stopForUpdate() {
     returnCode = 0x42;
     stop();
+}
+
+void BoothLogic::setPrinterEnabled(bool printerEnabled, bool persist) {
+    this->printerEnabled= printerEnabled;
+    gui->setPrinterEnabled(printerEnabled);
+    if(persist) {
+        writeSettings();
+    }
+}
+
+bool BoothLogic::getPrinterEnabled() {
+    return printerEnabled;
+}
+
+void BoothLogic::readSettings() {
+    boost::property_tree::ptree ptree;
+
+    try {
+        boost::property_tree::read_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
+        setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
+    } catch (boost::exception &e) {
+        cerr << "Error loading settings settings. Writing defaults. Error was: " << boost::diagnostic_information(e) << endl;
+        writeSettings();
+    }
+
+}
+
+void BoothLogic::writeSettings() {
+    boost::property_tree::ptree ptree;
+    ptree.put("printer_enabled", printerEnabled);
+    try {
+        boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
+    } catch (boost::exception &e) {
+        cerr << "Error writing settings. Error was: " << boost::diagnostic_information(e) << endl;
+    }
 }
