@@ -56,7 +56,6 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
         char c;
 
         blocking_reader reader(tmp_serial_port, 3000);
-        tmp_serial_port.close();
         if (reader.read_char(c)) {
             cout << "Got a " << c << endl;
             if (c == 'b') {
@@ -67,6 +66,7 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
         } else {
             cout << "No identification received" << endl;
         }
+        tmp_serial_port.close();
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
         return false;
