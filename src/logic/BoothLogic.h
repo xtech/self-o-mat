@@ -82,7 +82,13 @@ namespace selfomat {
             bool has_button, has_flash;
             string button_port;
 
+            // # BOOTH SETTINGS HERE
             bool printerEnabled;
+
+            bool flashEnabled;
+            float flashBrightness, flashFade;
+            uint64_t flashDurationMicros, flashDelayMicros;
+
 
             PrinterManager printerManager;
             ImageProcessor imageProcessor;
@@ -171,9 +177,11 @@ namespace selfomat {
 
             virtual ~BoothLogic();
 
-            void setPrinterEnabled(bool printerEnabled, bool persist = true);
+            void setPrinterEnabled(bool printerEnabled, bool persist = false);
             bool getPrinterEnabled();
 
+            void setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros, uint64_t durationMicros, bool persist = false);
+            void getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros, uint64_t *durationMicros);
         };
 
     }

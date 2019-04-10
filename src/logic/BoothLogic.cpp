@@ -137,13 +137,16 @@ bool BoothLogic::start() {
 }
 
 void BoothLogic::triggerFlash() {
+    if(!flashEnabled)
+        return;
+
 #ifdef USE_SPI
     digitalWrite(PIN_SS, LOW);
     flash_struct flash;
-    flash.delay = 0;
-    flash.duration = 1000;
-    flash.brightness=255;
-    flash.fade = 255;
+    flash.delay = flashDelayMicros/100;
+    flash.duration = flashDurationMicros/100;
+    flash.brightness=(int)(255.0f*flashBrightness);
+    flash.fade = (int)(255.0f*flashFade);
     wiringPiSPIDataRW(0, (unsigned char*)&flash, 6);
     digitalWrite(PIN_SS, HIGH);
 #endif
@@ -523,22 +526,58 @@ bool BoothLogic::getPrinterEnabled() {
 void BoothLogic::readSettings() {
     boost::property_tree::ptree ptree;
 
+    bool success = true;
     try {
         boost::property_tree::read_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
-        setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     } catch (boost::exception &e) {
         cerr << "Error loading settings settings. Writing defaults. Error was: " << boost::diagnostic_information(e) << endl;
-        writeSettings();
+        success = false;
     }
 
+    setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
+    this->flashEnabled=ptree.get<bool>("flash_enabled", true);
+    this->flashDurationMicros=ptree.get<uint64_t>("flash_duration_micros", 100000);
+    this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
+    this->flashBrightness=ptree.get<float>("flash_brightness", 1.0f);
+    this->flashFade=ptree.get<float>("flash_fade", 0.0f);
+
+    if(!success)
+        writeSettings();
 }
 
 void BoothLogic::writeSettings() {
     boost::property_tree::ptree ptree;
     ptree.put("printer_enabled", printerEnabled);
+    ptree.put("flash_enabled", this->flashEnabled);
+    ptree.put("flash_duration_micros", this->flashDurationMicros);
+    ptree.put("flash_delay_micros", this->flashDelayMicros);
+    ptree.put("flash_brightness", this->flashBrightness);
+    ptree.put("flash_fade", this->flashFade);
+
     try {
         boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
     } catch (boost::exception &e) {
         cerr << "Error writing settings. Error was: " << boost::diagnostic_information(e) << endl;
     }
+}
+
+void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros,
+                                    uint64_t durationMicros, bool persist) {
+    this->flashEnabled = enabled;
+    this->flashBrightness = brightness;
+    this->flashFade = fade;
+    this->flashDelayMicros = delayMicros;
+    this->flashDurationMicros = durationMicros;
+    if(persist) {
+        writeSettings();
+    }
+}
+
+void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros,
+                                    uint64_t *durationMicros) {
+     *enabled = this->flashEnabled;
+     *brightness = this->flashBrightness;
+     *fade = this->flashFade;
+     *delayMicros = this->flashDelayMicros;
+     *durationMicros = this->flashDurationMicros;
 }
