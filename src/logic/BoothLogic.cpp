@@ -90,6 +90,10 @@ bool BoothLogic::start() {
 
     gui->logDebug("Starting Logic");
 
+    if (showAgreement) {
+        gui->showAgreement();
+    }
+
     gui->logDebug("Initializing Image Processor");
     if (!imageProcessor.start())
         return false;
@@ -158,6 +162,7 @@ void BoothLogic::stop() {
     std::cout << "stopping logic" << std::endl;
     isRunning = false;
 
+    writeSettings();
 
     if (button_serial_port.is_open())
         button_serial_port.close();
@@ -363,8 +368,10 @@ void BoothLogic::ioThread() {
                         cancelPrintMutex.unlock();
                         break;
                     case 't':
-                        if (gui->isWaitingForButton()) {
-                            gui->buttonPushed();
+                        if (showAgreement) {
+                            gui->hideAgreement();
+                            showAgreement = false;
+                            writeSettings();
                         } else {
                             trigger();
                         }
@@ -384,6 +391,9 @@ BoothLogic::~BoothLogic() {
 }
 
 void BoothLogic::trigger() {
+    if (showAgreement)
+        return;
+
     triggerMutex.lock();
     triggered = true;
     triggerMutex.unlock();
@@ -545,6 +555,7 @@ void BoothLogic::readSettings() {
 
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
+    this->showAgreement=ptree.get<bool>("show_agreement", true);
     this->flashEnabled=ptree.get<bool>("flash_enabled", true);
     this->flashDurationMicros=ptree.get<uint64_t>("flash_duration_micros", 100000);
     this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
@@ -557,6 +568,7 @@ void BoothLogic::readSettings() {
 
 void BoothLogic::writeSettings() {
     boost::property_tree::ptree ptree;
+    ptree.put("show_agreement", showAgreement);
     ptree.put("printer_enabled", printerEnabled);
     ptree.put("template_enabled", templateEnabled);
     ptree.put("flash_enabled", this->flashEnabled);

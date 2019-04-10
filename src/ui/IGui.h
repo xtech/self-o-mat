@@ -49,10 +49,8 @@ namespace selfomat {
 
             virtual void removeAlert(std::string icon) = 0;
 
-
-            virtual bool isWaitingForButton() = 0;
-
-            virtual void buttonPushed() = 0;
+            virtual void showAgreement() = 0;
+            virtual void hideAgreement() = 0;
 
             virtual void setPrinterEnabled(bool printerEnabled) = 0;
 

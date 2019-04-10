@@ -7,12 +7,11 @@
 using namespace std;
 using namespace selfomat::ui;
 
-BoothGui::BoothGui(bool debug, bool showAgreement) : debugLogQueue(), stateTimer(), alertTimer() {
+BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
     this->currentState = STATE_INIT;
     this->debug = debug;
-    this->shouldShowAgreement = showAgreement;
 }
 
 BoothGui::~BoothGui() {
@@ -53,13 +52,11 @@ bool BoothGui::start() {
     }
     imageSpritePrintOverlay.setTexture(texturePrintOverlay);
 
-    if (shouldShowAgreement) {
-        wifstream infile { "./assets/agreement.txt" };
-        agreement = { istreambuf_iterator<wchar_t>(infile), istreambuf_iterator<wchar_t>() };
-        if (agreement.length() < 1) {
-            cerr << "Could not load agreement text." << endl;
-            return false;
-        }
+    wifstream infile { "./assets/agreement.txt" };
+    agreement = { istreambuf_iterator<wchar_t>(infile), istreambuf_iterator<wchar_t>() };
+    if (agreement.length() < 1) {
+        cerr << "Could not load agreement text." << endl;
+        return false;
     }
 
 
@@ -404,7 +401,9 @@ void BoothGui::setState(BoothGui::GUI_STATE newState) {
 
 void BoothGui::initialized() {
     // Move the state from initialized to preview live
-    setState(shouldShowAgreement ? STATE_AGREEMENT : STATE_TRANS_PREV2_PREV3);
+    if (currentState == STATE_INIT) {
+        setState(STATE_TRANS_PREV2_PREV3);
+    }
 }
 
 void BoothGui::log(int level, std::string s) {
@@ -628,6 +627,18 @@ float BoothGui::easeOutSin(float t, float b, float c, float d) {
     return static_cast<float>(c * sin(t / d * (M_PI / 2)) + b);
 }
 
+void BoothGui::showAgreement() {
+    setState(STATE_AGREEMENT);
+}
+
+
+void BoothGui::hideAgreement()  {
+    if (currentState != STATE_AGREEMENT)
+        return;
+
+    setState(STATE_TRANS_AGREEMENT);
+}
+
 void BoothGui::addAlert(std::string icon, std::wstring text, bool autoRemove) {
 
     boost::unique_lock<boost::mutex> lk(alertMutex);
@@ -666,25 +677,6 @@ void BoothGui::removeAlert(std::string icon) {
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
     removeAlert(std::move(icon), false);
-}
-
-bool BoothGui::isWaitingForButton()  {
-    switch (getCurrentGuiState()) {
-        case STATE_AGREEMENT:
-            return true;
-        default:
-            return false;
-    }
-}
-
-void BoothGui::buttonPushed()  {
-    switch (getCurrentGuiState()) {
-        case STATE_AGREEMENT:
-            setState(STATE_TRANS_AGREEMENT);
-            break;
-        default:
-            break;
-    }
 }
 
 void BoothGui::setPrinterEnabled(bool printerEnabled) {

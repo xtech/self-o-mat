@@ -41,7 +41,7 @@ namespace selfomat {
 
         class BoothGui : public IGui {
         public:
-            explicit BoothGui(bool debug, bool showAgreement);
+            explicit BoothGui(bool debug);
 
         private:
             bool isRunning;
@@ -101,8 +101,6 @@ namespace selfomat {
             uint32_t imageHeight = 0;
             bool imageDirty = true;
             bool imageShown = false;
-
-            bool shouldShowAgreement = false;
 
             boost::thread renderThreadHandle;
 
@@ -178,11 +176,11 @@ namespace selfomat {
                 setState(STATE_TRANS_PRINT_PREV1);
             }
 
+            void showAgreement() override;
+            void hideAgreement() override;
+
             void addAlert(std::string icon, std::wstring text, bool autoRemove = false) override;
             void removeAlert(std::string icon) override;
-
-            bool isWaitingForButton() override;
-            void buttonPushed() override;
 
             void setPrinterEnabled(bool printerEnabled) override;
             void setTemplateEnabled(bool templateEnabled) override;

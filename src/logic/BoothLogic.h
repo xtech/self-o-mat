@@ -86,6 +86,7 @@ namespace selfomat {
             bool printerEnabled;
             bool templateEnabled;
             bool flashEnabled;
+            bool showAgreement;
             float flashBrightness, flashFade;
             uint64_t flashDurationMicros, flashDelayMicros;
 
