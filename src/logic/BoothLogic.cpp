@@ -92,6 +92,8 @@ bool BoothLogic::start() {
 
     if (showAgreement) {
         gui->showAgreement();
+        if (button_serial_port.is_open())
+            button_serial_port.write_some(asio::buffer("p", 1));
     }
 
     gui->logDebug("Initializing Image Processor");
@@ -363,18 +365,20 @@ void BoothLogic::ioThread() {
                 cout << "Got char: " << c << endl;
                 switch (c) {
                     case 'c':
-                        cancelPrintMutex.lock();
-                        printCanceled = true;
-                        cancelPrintMutex.unlock();
-                        break;
-                    case 't':
                         if (showAgreement) {
                             gui->hideAgreement();
                             showAgreement = false;
                             writeSettings();
+                            if (button_serial_port.is_open())
+                                button_serial_port.write_some(asio::buffer("k", 1));
                         } else {
-                            trigger();
+                            cancelPrintMutex.lock();
+                            printCanceled = true;
+                            cancelPrintMutex.unlock();
                         }
+                        break;
+                    case 't':
+                        trigger();
                         break;
                     case 'd':
                         stop();
