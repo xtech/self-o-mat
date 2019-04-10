@@ -48,6 +48,7 @@ namespace selfomat {
             explicit ImageProcessor(ILogger *logger);
 
             Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize);
+            Image decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize);
 
             bool start();
 

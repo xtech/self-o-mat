@@ -71,18 +71,24 @@ namespace selfomat {
                                                                         imageDir(imageDir) {
                 triggered = false;
 
-                // TODO: Load from json file
-                printer_enabled = true;
+                readSettings();
             }
 
 
         private:
+            int returnCode = 0;
             string imageDir;
 
             bool has_button, has_flash;
             string button_port;
 
-            bool printer_enabled;
+            // # BOOTH SETTINGS HERE
+            bool printerEnabled;
+            bool templateEnabled;
+            bool flashEnabled;
+            float flashBrightness, flashFade;
+            uint64_t flashDurationMicros, flashDelayMicros;
+
 
             PrinterManager printerManager;
             ImageProcessor imageProcessor;
@@ -129,6 +135,9 @@ namespace selfomat {
             boost::thread cameraThreadHandle;
             boost::thread printThreadHandle;
 
+            void readSettings();
+            void writeSettings();
+
             bool connectButton(boost::filesystem::path serialPath);
 
             bool connectToSerial(boost::filesystem::path serialPath);
@@ -157,14 +166,26 @@ namespace selfomat {
 
             void stop();
 
-            void join() {
+            int join() {
                 logicThreadHandle.join();
                 ioThreadHandle.join();
                 cameraThreadHandle.join();
+                printThreadHandle.join();
+                return returnCode;
             }
+
+            void stopForUpdate();
 
             virtual ~BoothLogic();
 
+            void setPrinterEnabled(bool printerEnabled, bool persist = false);
+            bool getPrinterEnabled();
+
+            void setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros, uint64_t durationMicros, bool persist = false);
+            void getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros, uint64_t *durationMicros);
+
+            void setTemplateEnabled(bool templateEnabled, bool persist = false);
+            bool getTemplateEnabled();
         };
 
     }

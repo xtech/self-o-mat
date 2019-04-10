@@ -127,5 +127,5 @@ int main(int argc, char *argv[]) {
         return 2;
     }
 
-    p_logic->join();
+    return p_logic->join();
 }

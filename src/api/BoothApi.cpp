@@ -41,8 +41,7 @@ bool BoothApi::start() {
                 success &= camera->setExposureCorrection(newsettings.exposure_compensation());
                 success &= camera->setImageFormat(newsettings.image_format());
 
-
-                if (success) {
+                if (!success) {
                     served::response::stock_reply(400, res);
                     return;
                 }
@@ -54,6 +53,44 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
                 return;
             });
+      mux.handle("/booth_settings")
+            .get([this](served::response & res, const served::request & req) {
+                BoothSettings currentBoothSettings;
+
+                currentBoothSettings.set_printer_enabled(logic->getPrinterEnabled());
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                currentBoothSettings.set_flash_enabled(flashEnabled);
+                currentBoothSettings.set_flash_duration_micros(durationMicros);
+                currentBoothSettings.set_flash_delay_micros(delayMicros);
+                currentBoothSettings.set_flash_brightness(flashBrightness);
+                currentBoothSettings.set_flash_fade(flashFade);
+                currentBoothSettings.set_template_enabled(logic->getTemplateEnabled());
+
+                res << currentBoothSettings.SerializeAsString();
+            })
+            .post([this](served::response & res, const served::request & req) {
+                BoothSettings newsettings;
+
+                if (!newsettings.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+
+                logic->setPrinterEnabled(newsettings.printer_enabled(), true);
+                logic->setFlashParameters(newsettings.flash_enabled(), newsettings.flash_brightness(), newsettings.flash_fade(), newsettings.flash_delay_micros(), newsettings.flash_duration_micros(), true);
+                logic->setTemplateEnabled(newsettings.template_enabled(), true);
+
+                std::cout << "Got new booth settings" << std::endl;
+                newsettings.PrintDebugString();
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
 
     mux.handle("/camera_choices")
             .get([this](served::response & res, const served::request & req) {
@@ -115,6 +152,14 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
                 return;
             });
+
+    mux.handle("/update")
+            .post([this](served::response & res, const served::request & req) {
+                logic->stopForUpdate();
+                served::response::stock_reply(200, res);
+                return;
+            });
+
 
     // Create the server and run with 2 handler thread.
     server.run(2, false);

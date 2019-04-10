@@ -34,4 +34,10 @@ message CameraChoices {
 
 message BoothSettings {
     required bool printer_enabled = 1;
+    required bool flash_enabled = 2;
+    required float flash_brightness = 3;
+    required float flash_fade = 4;
+    required uint64 flash_delay_micros = 5;
+    required uint64 flash_duration_micros = 6;
+    required bool template_enabled = 7;
 }

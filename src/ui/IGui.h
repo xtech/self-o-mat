@@ -49,10 +49,16 @@ namespace selfomat {
 
             virtual void removeAlert(std::string icon) = 0;
 
+<<<<<<< HEAD
             virtual bool isWaitingForButton() = 0;
 
             virtual void buttonPushed() = 0;
 
+=======
+            virtual void setPrinterEnabled(bool printerEnabled) = 0;
+
+            virtual void setTemplateEnabled(bool templateEnabled) = 0;
+>>>>>>> master
         };
     }
 }

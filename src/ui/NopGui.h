@@ -41,6 +41,14 @@ namespace selfomat {
             void logError(std::string s) override;
 
             void logError(const char *s) override;
+
+            void addAlert(std::string icon, std::wstring text, bool autoRemove) override;
+
+            void removeAlert(std::string icon) override;
+
+            void setPrinterEnabled(bool printerEnabled) override;
+
+            void setTemplateEnabled(bool templateEnabled) override;
         };
     }
 }
