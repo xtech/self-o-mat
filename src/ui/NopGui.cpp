@@ -78,3 +78,7 @@ void NopGui::removeAlert(std::string icon) {
 void NopGui::setPrinterEnabled(bool printerEnabled) {
 
 }
+
+void NopGui::setTemplateEnabled(bool templateEnabled) {
+
+}

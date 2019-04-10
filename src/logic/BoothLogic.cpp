@@ -410,9 +410,14 @@ void BoothLogic::printerThread() {
                 // first we save the image
                 saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
 
-                Magick::Image framed = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
+                Magick::Image toPrepare;
+                if(templateEnabled) {
+                    toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
+                } else {
+                    toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize);
+                }
                 cout << "[Printer Thread] " << "Framed" << endl;
-                printerManager.prepareImageForPrint(framed);
+                printerManager.prepareImageForPrint(toPrepare);
                 cout << "[Printer Thread] " << "Prepared" << endl;
             }
 
@@ -535,6 +540,7 @@ void BoothLogic::readSettings() {
     }
 
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
+    setTemplateEnabled(ptree.get<bool>("template_enabled", false));
     this->flashEnabled=ptree.get<bool>("flash_enabled", true);
     this->flashDurationMicros=ptree.get<uint64_t>("flash_duration_micros", 100000);
     this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
@@ -548,6 +554,7 @@ void BoothLogic::readSettings() {
 void BoothLogic::writeSettings() {
     boost::property_tree::ptree ptree;
     ptree.put("printer_enabled", printerEnabled);
+    ptree.put("template_enabled", templateEnabled);
     ptree.put("flash_enabled", this->flashEnabled);
     ptree.put("flash_duration_micros", this->flashDurationMicros);
     ptree.put("flash_delay_micros", this->flashDelayMicros);
@@ -580,4 +587,15 @@ void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fad
      *fade = this->flashFade;
      *delayMicros = this->flashDelayMicros;
      *durationMicros = this->flashDurationMicros;
+}
+
+void BoothLogic::setTemplateEnabled(bool templateEnabled, bool persist) {
+    this->templateEnabled = templateEnabled;
+    gui->setTemplateEnabled(templateEnabled);
+    if(persist)
+        writeSettings();
+}
+
+bool BoothLogic::getTemplateEnabled() {
+    return templateEnabled;
 }

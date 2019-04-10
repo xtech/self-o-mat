@@ -84,7 +84,7 @@ namespace selfomat {
 
             // # BOOTH SETTINGS HERE
             bool printerEnabled;
-
+            bool templateEnabled;
             bool flashEnabled;
             float flashBrightness, flashFade;
             uint64_t flashDurationMicros, flashDelayMicros;
@@ -182,6 +182,9 @@ namespace selfomat {
 
             void setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros, uint64_t durationMicros, bool persist = false);
             void getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros, uint64_t *durationMicros);
+
+            void setTemplateEnabled(bool templateEnabled, bool persist = false);
+            bool getTemplateEnabled();
         };
 
     }
