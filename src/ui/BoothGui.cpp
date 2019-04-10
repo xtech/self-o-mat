@@ -7,11 +7,12 @@
 using namespace std;
 using namespace selfomat::ui;
 
-BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
+BoothGui::BoothGui(bool debug, bool showAgreement) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
-    currentState = STATE_INIT;
+    this->currentState = STATE_INIT;
     this->debug = debug;
+    this->shouldShowAgreement = showAgreement;
 }
 
 BoothGui::~BoothGui() {
@@ -52,6 +53,15 @@ bool BoothGui::start() {
     }
     imageSpritePrintOverlay.setTexture(texturePrintOverlay);
 
+    if (shouldShowAgreement) {
+        wifstream infile { "./assets/agreement.txt" };
+        agreement = { istreambuf_iterator<wchar_t>(infile), istreambuf_iterator<wchar_t>() };
+        if (agreement.length() < 1) {
+            cerr << "Could not load agreement text." << endl;
+            return false;
+        }
+    }
+
 
     // Read properties for the template
     boost::property_tree::ptree ptree;
@@ -82,7 +92,7 @@ void BoothGui::stop() {
 }
 
 void BoothGui::updatePreviewImage(void *data, uint32_t width, uint32_t height) {
-    if (currentState == STATE_TRANS_PRINT_PREV1)
+    if (getCurrentGuiState() == STATE_TRANS_PRINT_PREV1)
         return;
     imageMutex.lock();
     imageBuffer = data;
@@ -92,7 +102,7 @@ void BoothGui::updatePreviewImage(void *data, uint32_t width, uint32_t height) {
     imageShown = true;
     imageMutex.unlock();
 
-    if(currentState == STATE_TRANS_PREV1_PREV2) {
+    if(getCurrentGuiState() == STATE_TRANS_PREV1_PREV2) {
         // We now have a preview image, let it continue
         setState(STATE_TRANS_PREV2_PREV3);
     }
@@ -130,6 +140,10 @@ void BoothGui::renderThread() {
     printText.setFillColor(COLOR_MAIN);
     printText.setCharacterSize(80);
     printText.setStyle(1);
+
+    agreementText.setFont(hackFont);
+    agreementText.setFillColor(sf::Color::White);
+    agreementText.setStyle(1); //Bold
 
     imageTexture.create(videoMode.width, videoMode.height);
     imageSprite = sf::Sprite(imageTexture);
@@ -218,15 +232,16 @@ void BoothGui::renderThread() {
         }
 
 
-        switch (currentState) {
+        switch (getCurrentGuiState()) {
             case STATE_LIVE_PREVIEW:
                 if (imageShown) {
                     // We can show a preview image
                     window.draw(imageSprite);
 
-
-                    float alpha_float = 0.4f * cos(float(stateTimer.getElapsedTime().asMilliseconds()) / 800.0f) + .6f;
-                    auto alpha = uint8_t(alpha_float * 255.0f);
+                    float timeInState = stateTimer.getElapsedTime().asMilliseconds();
+                    float alpha_float = min(1.0f, timeInState / 300.0f);
+                    float alpha_float_cos = 0.4f * cos(timeInState / 800.0f) + .6f;
+                    auto alpha = uint8_t(alpha_float * alpha_float_cos * 255.0f);
 
                     imageSpriteLiveOverlay.setColor(sf::Color(255, 255, 255, alpha));
                     window.draw(imageSpriteLiveOverlay);
@@ -327,11 +342,28 @@ void BoothGui::renderThread() {
 
             }
                 break;
+            case STATE_AGREEMENT: {
+                float timeInState = stateTimer.getElapsedTime().asMilliseconds();
+                float alpha = min(1.0f, timeInState / 300.0f);
+                drawAgreement(alpha);
+            }
+                break;
+            case STATE_TRANS_AGREEMENT: {
+                float timeInState = stateTimer.getElapsedTime().asMilliseconds();
+                float alpha = min(1.0f, timeInState / 300.0f);
+                drawAgreement(1 - alpha);
+                if (timeInState > 300.0f) {
+                    setState(STATE_TRANS_PREV2_PREV3);
+                }
+            }
+                break;
             case STATE_INIT:
-                window.clear(sf::Color(0, 255, 0));
+                if (debug)
+                    window.clear(sf::Color(0, 255, 0));
                 break;
             default:
-                window.clear(sf::Color(255, 0, 0));
+                if (debug)
+                    window.clear(sf::Color(255, 0, 0));
                 break;
         }
 
@@ -345,13 +377,15 @@ void BoothGui::renderThread() {
 }
 
 void BoothGui::setState(BoothGui::GUI_STATE newState) {
+    boost::unique_lock<boost::mutex> lk(guiStateMutex);
+
     currentState = newState;
     stateTimer.restart();
 }
 
 void BoothGui::initialized() {
     // Move the state from initialized to preview live
-    setState(STATE_LIVE_PREVIEW);
+    setState(shouldShowAgreement ? STATE_AGREEMENT : STATE_TRANS_PREV2_PREV3);
 }
 
 void BoothGui::log(int level, std::string s) {
@@ -395,6 +429,78 @@ void BoothGui::drawPrintOverlay(float percentage) {
         window.draw(count_down_circle);
     }
 
+}
+
+void BoothGui::drawAgreement(float alpha) {
+    std::wstring title = L"Nutzungsbedingungen";
+    std::wstring button = L"Akzeptieren?";
+    std::vector<std::wstring> blocks;
+    u_int8_t lines = 0;
+    u_int8_t margin = 50;
+    u_int8_t marginTop = 175;
+    u_int8_t lineSpacing = 40;
+
+    float timeInState = stateTimer.getElapsedTime().asMilliseconds();
+    float alpha_float_cos = 0.4f * cos(timeInState / 800.0f) + .6f;
+    auto alpha_accept = uint8_t(alpha * alpha_float_cos * 255.0f);
+
+
+    agreementText.setFillColor(sf::Color(255, 255, 255, alpha_accept));
+
+    agreementText.setCharacterSize(30);
+    agreementText.setString(button);
+
+    float width = agreementText.getLocalBounds().width;
+
+    agreementText.setPosition((window.getSize().x - width) / 2.0f, window.getSize().y - margin - 30);
+    window.draw(agreementText);
+
+    agreementText.setFillColor(sf::Color(255, 255, 255, 255 * alpha));
+
+    agreementText.setCharacterSize(50);
+    agreementText.setString(title);
+
+    width = agreementText.getLocalBounds().width;
+
+    agreementText.setPosition((window.getSize().x - width) / 2.0f, margin);
+    window.draw(agreementText);
+
+    agreementText.setCharacterSize(30);
+
+    boost::split(blocks,
+                 agreement,
+                 boost::is_any_of("\n"));
+
+    for (size_t b = 0; b < blocks.size(); b++) {
+        u_int8_t blocklines = 0;
+        std::wstring line;
+        std::vector<std::wstring> words;
+
+        boost::split(words,
+                     blocks[b],
+                     boost::is_any_of(" "));
+
+        for (size_t i = 0; i-blocklines < words.size(); i++) {
+            auto oldLine = line;
+            line = line + words[i-blocklines] + L" ";
+            agreementText.setString(line);
+            float lineWidth = agreementText.getLocalBounds().width;
+            if (lineWidth > window.getSize().x - (margin * 2)) {
+                agreementText.setString(oldLine);
+                agreementText.setPosition(margin, (lineSpacing * (lines + blocklines)) + marginTop);
+                window.draw(agreementText);
+                line.clear();
+                blocklines++;
+            }
+        }
+
+        agreementText.setString(line);
+        agreementText.setPosition(margin, (lineSpacing * (lines + blocklines)) + marginTop);
+        window.draw(agreementText);
+
+        lines += blocklines;
+        lines++;
+    }
 }
 
 void BoothGui::drawAlerts() {
@@ -533,4 +639,23 @@ void BoothGui::removeAlert(std::string icon) {
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
     removeAlert(std::move(icon), false);
+}
+
+bool BoothGui::isWaitingForButton()  {
+    switch (getCurrentGuiState()) {
+        case STATE_AGREEMENT:
+            return true;
+        default:
+            return false;
+    }
+}
+
+void BoothGui::buttonPushed()  {
+    switch (getCurrentGuiState()) {
+        case STATE_AGREEMENT:
+            setState(STATE_TRANS_AGREEMENT);
+            break;
+        default:
+            break;
+    }
 }

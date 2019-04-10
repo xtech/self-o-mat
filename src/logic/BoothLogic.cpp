@@ -350,9 +350,11 @@ void BoothLogic::ioThread() {
                         cancelPrintMutex.unlock();
                         break;
                     case 't':
-                        triggerMutex.lock();
-                        triggered = true;
-                        triggerMutex.unlock();
+                        if (gui->isWaitingForButton()) {
+                            gui->buttonPushed();
+                        } else {
+                            trigger();
+                        }
                         break;
                     case 'd':
                         stop();

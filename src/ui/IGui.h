@@ -14,6 +14,23 @@ namespace selfomat {
         class IGui : public ILogger {
         public:
 
+            enum GUI_STATE {
+                STATE_INIT,
+                STATE_AGREEMENT,
+                STATE_TRANS_AGREEMENT,
+                STATE_LIVE_PREVIEW,
+                STATE_BLACK,
+                STATE_TRANS_BLACK_FINAL,
+                STATE_FINAL_IMAGE,
+                STATE_TRANS_FINAL_IMAGE_PRINT,
+                STATE_FINAL_IMAGE_PRINT,
+                STATE_TRANS_PRINT_PREV1,
+                STATE_TRANS_PREV1_PREV2,
+                STATE_TRANS_PREV2_PREV3
+            };
+
+            virtual const GUI_STATE getCurrentGuiState() = 0;
+
             virtual void initialized() = 0;
 
             virtual bool start() = 0;
@@ -31,6 +48,10 @@ namespace selfomat {
             virtual void addAlert(std::string icon, std::wstring text, bool autoRemove = false) = 0;
 
             virtual void removeAlert(std::string icon) = 0;
+
+            virtual bool isWaitingForButton() = 0;
+
+            virtual void buttonPushed() = 0;
 
         };
     }

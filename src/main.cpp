@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
     bool debug = false;
     bool has_button = false;
     bool has_flash = false;
+    bool draw_agreement = true;
     string button_port_name;
     string printer_name;
     string image_dir;
@@ -101,7 +102,7 @@ int main(int argc, char *argv[]) {
     cout << "Has Flash: " << has_flash << endl;
 
 
-    p_gui = new BoothGui(debug);
+    p_gui = new BoothGui(debug, draw_agreement);
     if (!p_gui->start()) {
         cerr << "Error starting gui - Exiting." << endl;
         return 1;

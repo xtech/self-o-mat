@@ -17,6 +17,8 @@
 #include "IGui.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 #define DEBUG_QUEUE_SIZE 100
 #define DEBUG_LEVEL_DEBUG 1
@@ -39,25 +41,12 @@ namespace selfomat {
 
         class BoothGui : public IGui {
         public:
-            explicit BoothGui(bool debug);
+            explicit BoothGui(bool debug, bool showAgreement);
 
         private:
             bool isRunning;
 
             bool debug;
-
-            enum GUI_STATE {
-                STATE_INIT,
-                STATE_LIVE_PREVIEW,
-                STATE_BLACK,
-                STATE_TRANS_BLACK_FINAL,
-                STATE_FINAL_IMAGE,
-                STATE_TRANS_FINAL_IMAGE_PRINT,
-                STATE_FINAL_IMAGE_PRINT,
-                STATE_TRANS_PRINT_PREV1,
-                STATE_TRANS_PREV1_PREV2,
-                STATE_TRANS_PREV2_PREV3
-            };
 
             GUI_STATE currentState;
             sf::Clock stateTimer;
@@ -76,6 +65,7 @@ namespace selfomat {
             sf::Text iconText;
             sf::Text alertText;
             sf::Text printText;
+            sf::Text agreementText;
             sf::Texture imageTexture;
             sf::Sprite imageSprite;
             sf::Sprite finalImageSprite;
@@ -95,6 +85,8 @@ namespace selfomat {
             sf::Sprite imageSpritePrintOverlay;
             sf::Sprite imageSpriteFinalOverlay;
 
+            std::wstring agreement;
+
             int finalOverlayOffsetTop;
             int finalOverlayOffsetLeft;
             int finalOverlayOffsetBottom;
@@ -107,10 +99,14 @@ namespace selfomat {
             bool imageDirty = true;
             bool imageShown = false;
 
+            bool shouldShowAgreement = false;
+
             boost::thread renderThreadHandle;
 
             FPSCounter renderFrameCounter;
             FPSCounter cameraFrameCounter;
+
+            boost::mutex guiStateMutex;
 
             void renderThread();
 
@@ -120,6 +116,7 @@ namespace selfomat {
 
             void drawPrintOverlay(float percentage = 1.0f);
             void drawAlerts();
+            void drawAgreement(float alpha = 1);
             void drawDebug();
 
             void removeAlert(std::string icon, bool forced);
@@ -127,6 +124,10 @@ namespace selfomat {
         public:
             BoothGui();
 
+            const GUI_STATE getCurrentGuiState() override {
+                boost::unique_lock<boost::mutex> lk(guiStateMutex);
+                return currentState;
+            }
 
             void log(int level, std::string s);
 
@@ -174,8 +175,11 @@ namespace selfomat {
                 setState(STATE_TRANS_PRINT_PREV1);
             }
 
-            void addAlert(std::string icon, std::wstring text, bool autoRemove = false);
-            void removeAlert(std::string icon);
+            void addAlert(std::string icon, std::wstring text, bool autoRemove = false) override;
+            void removeAlert(std::string icon) override;
+
+            bool isWaitingForButton() override;
+            void buttonPushed() override;
 
             ~BoothGui() override;
 
