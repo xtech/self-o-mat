@@ -21,6 +21,11 @@ selfomat::logic::BoothLogic *p_logic = nullptr;
 
 
 void exitfunc(int code) {
+    // Clean up only once
+    static bool cleaned = false;
+    if (cleaned)
+        return;
+
     std::cout << "starting clean up" << std::endl;
 
     // First, we stop the api, otherwise p_api->stop() won't get called
@@ -47,6 +52,7 @@ void exitfunc(int code) {
     }
 
     std::cout << "Cleaned up" << endl;
+    cleaned = true;
 }
 
 void exitfunc() {
