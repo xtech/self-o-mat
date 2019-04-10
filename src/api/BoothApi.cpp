@@ -58,6 +58,16 @@ bool BoothApi::start() {
                 BoothSettings currentBoothSettings;
 
                 currentBoothSettings.set_printer_enabled(logic->getPrinterEnabled());
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                currentBoothSettings.set_flash_enabled(flashEnabled);
+                currentBoothSettings.set_flash_duration_micros(durationMicros);
+                currentBoothSettings.set_flash_delay_micros(delayMicros);
+                currentBoothSettings.set_flash_brightness(flashBrightness);
+                currentBoothSettings.set_flash_fade(flashFade);
+                currentBoothSettings.set_template_enabled(logic->getTemplateEnabled());
 
                 res << currentBoothSettings.SerializeAsString();
             })
@@ -70,7 +80,9 @@ bool BoothApi::start() {
                 }
 
 
-                logic->setPrinterEnabled(newsettings.printer_enabled());
+                logic->setPrinterEnabled(newsettings.printer_enabled(), true);
+                logic->setFlashParameters(newsettings.flash_enabled(), newsettings.flash_brightness(), newsettings.flash_fade(), newsettings.flash_delay_micros(), newsettings.flash_duration_micros(), true);
+                logic->setTemplateEnabled(newsettings.template_enabled(), true);
 
                 std::cout << "Got new booth settings" << std::endl;
                 newsettings.PrintDebugString();

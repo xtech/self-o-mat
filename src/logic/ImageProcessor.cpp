@@ -174,4 +174,64 @@ bool ImageProcessor::stop() {
     return true;
 }
 
+Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize) {
+    struct timespec tstart, tend;
+
+
+
+    int targetHeight = offsetBottom - offsetTop;
+    int targetWidth = offsetRight - offsetLeft;
+
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+
+    bool srgb = true;
+
+    // Parse exif information for the color profile used
+    easyexif::EXIFInfo exifResult;
+    int exifParseResultCode = exifResult.parseFrom((const unsigned char*)inputImageJpeg, static_cast<unsigned int>(jpegBufferSize));
+    if(exifParseResultCode) {
+        LOG_E(TAG, "Could not parse exif data. Assuming sRGB");
+    } else {
+        if(exifResult.ColorSpace == 2) {
+            srgb = false;
+        } else if(exifResult.ColorSpace == 65535 && exifResult.InteropIndex == "R03" ){
+            srgb = false;
+        } else if(exifResult.ColorSpace == 1) {
+            srgb = true;
+        } else if(exifResult.InteropIndex == "R98") {
+            srgb = true;
+        } else {
+            LOG_E(TAG, "Could not determine sRGB or Adobe RGB. I'll assume sRGB.");
+        }
+    }
+
+
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("reading exif took %.5f s\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+
+
+    // Decode using Turbojpeg
+    ImageInfo latestImageInfo{};
+    jpegDecoder.decodeJpeg((unsigned char*)inputImageJpeg, jpegBufferSize, &latestBuffer, &latestBufferSize,
+                           &latestImageInfo, RGB, targetWidth, targetHeight, LARGER_THAN_REQUIRED);
+
+
+    Image inputImageMagic(latestImageInfo.width, latestImageInfo.height, "RGB", StorageType::CharPixel, latestBuffer);
+
+
+
+    if(srgb) {
+        LOG_D(TAG, "Decoding image as sRGB");
+        inputImageMagic.iccColorProfile(sRgbIcc);
+    } else {
+        LOG_D(TAG, "Decoding image as Adobe RGB");
+        inputImageMagic.iccColorProfile(adobeRgbIcc);
+    }
+
+    return inputImageMagic;
+}
+
 

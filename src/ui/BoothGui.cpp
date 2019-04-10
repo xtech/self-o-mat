@@ -165,9 +165,6 @@ void BoothGui::renderThread() {
                 }
 
 
-                // TODO: needed?
-                //imageSprite.setTexture(imageTexture, true);
-                //imageSprite.setTextureRect(sf::IntRect(0, 0, imageHeight, imageWidth));
 
                 // Calculate the sprite's new shape so that the image fits
                 float scaleX = (float) window.getSize().x / (float) imageWidth;
@@ -187,29 +184,36 @@ void BoothGui::renderThread() {
                                         windowCenterY - imageCenterY);
 
 
-                float finalOverlayCenterX =
-                        ((float) finalOverlayOffsetLeft + (float) finalOverlayOffsetRight) / 2.0f;
-                float finalOverlayCenterY =
-                        ((float) finalOverlayOffsetTop + (float) finalOverlayOffsetBottom) / 2.0f;
+                if(templateEnabled) {
+                    float finalOverlayCenterX =
+                            ((float) finalOverlayOffsetLeft + (float) finalOverlayOffsetRight) / 2.0f;
+                    float finalOverlayCenterY =
+                            ((float) finalOverlayOffsetTop + (float) finalOverlayOffsetBottom) / 2.0f;
 
 
-                finalImageSprite.setTexture(imageTexture, true);
-                finalImageSprite.setTextureRect(sf::IntRect(0, 0, imageWidth, imageHeight));
+                    finalImageSprite.setTexture(imageTexture, true);
+                    finalImageSprite.setTextureRect(sf::IntRect(0, 0, imageWidth, imageHeight));
 
-                // Same for the final sprite
-                float finalScaleX = (float) (finalOverlayOffsetRight - finalOverlayOffsetLeft) / (float) imageWidth;
-                float finalScaleY =
-                        (float) (finalOverlayOffsetBottom - finalOverlayOffsetTop) / (float) imageHeight;
-                float finalScale = max(finalScaleX, finalScaleY);
-                finalImageSprite.setScale(finalScale, finalScale);
+                    // Same for the final sprite
+                    float finalScaleX = (float) (finalOverlayOffsetRight - finalOverlayOffsetLeft) / (float) imageWidth;
+                    float finalScaleY =
+                            (float) (finalOverlayOffsetBottom - finalOverlayOffsetTop) / (float) imageHeight;
+                    float finalScale = max(finalScaleX, finalScaleY);
+                    finalImageSprite.setScale(finalScale, finalScale);
 
-                float finalImageCenterX = (float) imageWidth * finalScale * 0.5f;
-                float finalImageCenterY = (float) imageHeight * finalScale * 0.5f;
+                    float finalImageCenterX = (float) imageWidth * finalScale * 0.5f;
+                    float finalImageCenterY = (float) imageHeight * finalScale * 0.5f;
 
-                finalImageSprite.setPosition(finalOverlayCenterX - finalImageCenterX,
-                                             finalOverlayCenterY - finalImageCenterY);
+                    finalImageSprite.setPosition(finalOverlayCenterX - finalImageCenterX,
+                                                 finalOverlayCenterY - finalImageCenterY);
 
-
+                } else {
+                    finalImageSprite.setTexture(imageTexture, true);
+                    finalImageSprite.setTextureRect(sf::IntRect(0, 0, imageWidth, imageHeight));
+                    finalImageSprite.setScale(-scale, scale);
+                    finalImageSprite.setPosition(videoMode.width - (windowCenterX - imageCenterX),
+                                            windowCenterY - imageCenterY);
+                }
 
                 imageTexture.update((sf::Uint8 *) imageBuffer, imageWidth, imageHeight, 0, 0);
                 imageDirty = false;
@@ -241,7 +245,9 @@ void BoothGui::renderThread() {
                 auto alpha = uint8_t((1.0f - alpha_float) * 255.0f);
 
                 window.draw(finalImageSprite);
-                window.draw(imageSpriteFinalOverlay);
+                if(templateEnabled) {
+                    window.draw(imageSpriteFinalOverlay);
+                }
 
                 rect_overlay.setFillColor(sf::Color(0, 0, 0, alpha));
                 window.draw(rect_overlay);
@@ -254,7 +260,10 @@ void BoothGui::renderThread() {
                 break;
             case STATE_FINAL_IMAGE: {
                 window.draw(finalImageSprite);
-                window.draw(imageSpriteFinalOverlay);
+                if(templateEnabled) {
+                    window.draw(imageSpriteFinalOverlay);
+                }
+
                 float duration = 1000.0f;
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 if (timeInState >= duration) {
@@ -272,7 +281,10 @@ void BoothGui::renderThread() {
                 float percentage = easeOutSin(linearPercentage, 0.0f, 1.0f, 1.0f);
 
                 window.draw(finalImageSprite);
-                window.draw(imageSpriteFinalOverlay);
+                if(templateEnabled) {
+                    window.draw(imageSpriteFinalOverlay);
+                }
+
 
                 drawPrintOverlay(percentage);
 
@@ -283,7 +295,10 @@ void BoothGui::renderThread() {
                 break;
             case STATE_FINAL_IMAGE_PRINT: {
                 window.draw(finalImageSprite);
-                window.draw(imageSpriteFinalOverlay);
+                if(templateEnabled) {
+                    window.draw(imageSpriteFinalOverlay);
+                }
+
                 drawPrintOverlay();
             }
                 break;
@@ -295,7 +310,10 @@ void BoothGui::renderThread() {
                 float alpha = max(0.0f, min(255.0f, percentage * 255.0f));
 
                 window.draw(finalImageSprite);
-                window.draw(imageSpriteFinalOverlay);
+                if(templateEnabled) {
+                    window.draw(imageSpriteFinalOverlay);
+                }
+
                 drawPrintOverlay(-1);
 
                 rect_overlay.setFillColor(sf::Color(0, 0, 0, alpha));
@@ -539,4 +557,8 @@ void BoothGui::removeAlert(std::string icon) {
 
 void BoothGui::setPrinterEnabled(bool printerEnabled) {
     this->printerEnabled = printerEnabled;
+}
+
+void BoothGui::setTemplateEnabled(bool templateEnabled) {
+    this->templateEnabled = templateEnabled;
 }

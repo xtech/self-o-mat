@@ -47,6 +47,8 @@ namespace selfomat {
             void removeAlert(std::string icon) override;
 
             void setPrinterEnabled(bool printerEnabled) override;
+
+            void setTemplateEnabled(bool templateEnabled) override;
         };
     }
 }
