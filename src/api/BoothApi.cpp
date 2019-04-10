@@ -41,8 +41,7 @@ bool BoothApi::start() {
                 success &= camera->setExposureCorrection(newsettings.exposure_compensation());
                 success &= camera->setImageFormat(newsettings.image_format());
 
-
-                if (success) {
+                if (!success) {
                     served::response::stock_reply(400, res);
                     return;
                 }
@@ -54,6 +53,32 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
                 return;
             });
+      mux.handle("/booth_settings")
+            .get([this](served::response & res, const served::request & req) {
+                BoothSettings currentBoothSettings;
+
+                currentBoothSettings.set_printer_enabled(logic->getPrinterEnabled());
+
+                res << currentBoothSettings.SerializeAsString();
+            })
+            .post([this](served::response & res, const served::request & req) {
+                BoothSettings newsettings;
+
+                if (!newsettings.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+
+                logic->setPrinterEnabled(newsettings.printer_enabled());
+
+                std::cout << "Got new booth settings" << std::endl;
+                newsettings.PrintDebugString();
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
 
     mux.handle("/camera_choices")
             .get([this](served::response & res, const served::request & req) {
