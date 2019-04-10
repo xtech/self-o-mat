@@ -42,7 +42,12 @@ bool ChoiceRangeController::setChoice(int choice) {
         return false;
     if(choice < 0 || choice >= choices.size())
         return false;
-    return setProperty(p_choiceRangeWidget, choices, choice);
+
+    if(setProperty(p_choiceRangeWidget, choices, choice)) {
+        currentChoice = choice;
+        return true;
+    }
+    return false;
 }
 
 bool ChoiceRangeController::pullSettings() {

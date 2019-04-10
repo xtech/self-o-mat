@@ -161,6 +161,7 @@ bool BoothApi::start() {
                 cameraNameSetting->set_name("Camera Name");
                 cameraNameSetting->set_value(camera->getCameraName());
 
+
                 res << currentCameraSettings.SerializeAsString();
             });
 
