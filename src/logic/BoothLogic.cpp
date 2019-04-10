@@ -33,7 +33,7 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
     // TODO: Check if we really connected to the button and not some other serial device and return a status
     try {
         button_serial_port.open(serialPath.string());
-        button_serial_port.set_option(asio::serial_port_base::baud_rate(9600));
+        button_serial_port.set_option(asio::serial_port_base::baud_rate(38400));
         button_serial_port.write_some(asio::buffer("!", 1));
         button_serial_port.write_some(asio::buffer(".", 1));
     } catch (std::exception const &e) {
@@ -48,7 +48,7 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
     // TODO: Check if we really connected to the button and not some other serial device and return a status
     try {
         tmp_serial_port.open(serialPath.string());
-        tmp_serial_port.set_option(asio::serial_port_base::baud_rate(9600));
+        tmp_serial_port.set_option(asio::serial_port_base::baud_rate(38400));
         tmp_serial_port.write_some(asio::buffer("i", 1));
 
         cout << "Waiting for identification" << endl;
