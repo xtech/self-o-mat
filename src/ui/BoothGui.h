@@ -46,6 +46,8 @@ namespace selfomat {
 
             bool debug;
 
+            bool printerEnabled = false;
+
             enum GUI_STATE {
                 STATE_INIT,
                 STATE_LIVE_PREVIEW,
@@ -174,10 +176,13 @@ namespace selfomat {
                 setState(STATE_TRANS_PRINT_PREV1);
             }
 
-            void addAlert(std::string icon, std::wstring text, bool autoRemove = false);
-            void removeAlert(std::string icon);
+            void addAlert(std::string icon, std::wstring text, bool autoRemove = false) override;
+            void removeAlert(std::string icon) override;
+
+            void setPrinterEnabled(bool printerEnabled) override;
 
             ~BoothGui() override;
+
 
         };
     }

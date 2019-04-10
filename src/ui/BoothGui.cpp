@@ -273,6 +273,7 @@ void BoothGui::renderThread() {
 
                 window.draw(finalImageSprite);
                 window.draw(imageSpriteFinalOverlay);
+
                 drawPrintOverlay(percentage);
 
                 if (timeInState >= duration) {
@@ -366,7 +367,8 @@ void BoothGui::log(int level, std::string s) {
 }
 
 void BoothGui::drawPrintOverlay(float percentage) {
-
+    if(!printerEnabled)
+        return;
     float timeInState = stateTimer.getElapsedTime().asMilliseconds();
     float templateY = window.getSize().y - abs(percentage) * texturePrintOverlay.getSize().y;
 
@@ -533,4 +535,8 @@ void BoothGui::removeAlert(std::string icon) {
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
     removeAlert(std::move(icon), false);
+}
+
+void BoothGui::setPrinterEnabled(bool printerEnabled) {
+    this->printerEnabled = printerEnabled;
 }

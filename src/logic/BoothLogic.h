@@ -71,8 +71,7 @@ namespace selfomat {
                                                                         imageDir(imageDir) {
                 triggered = false;
 
-                // TODO: Load from json file
-                printer_enabled = true;
+                readSettings();
             }
 
 
@@ -83,7 +82,7 @@ namespace selfomat {
             bool has_button, has_flash;
             string button_port;
 
-            bool printer_enabled;
+            bool printerEnabled;
 
             PrinterManager printerManager;
             ImageProcessor imageProcessor;
@@ -129,6 +128,9 @@ namespace selfomat {
             boost::thread cameraThreadHandle;
             boost::thread printThreadHandle;
 
+            void readSettings();
+            void writeSettings();
+
             bool connectButton(boost::filesystem::path serialPath);
 
             bool connectToSerial(boost::filesystem::path serialPath);
@@ -168,6 +170,9 @@ namespace selfomat {
             void stopForUpdate();
 
             virtual ~BoothLogic();
+
+            void setPrinterEnabled(bool printerEnabled, bool persist = true);
+            bool getPrinterEnabled();
 
         };
 
