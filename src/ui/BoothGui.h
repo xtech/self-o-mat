@@ -48,25 +48,9 @@ namespace selfomat {
 
             bool debug;
 
-<<<<<<< HEAD
-=======
             bool printerEnabled;
             bool templateEnabled;
 
-            enum GUI_STATE {
-                STATE_INIT,
-                STATE_LIVE_PREVIEW,
-                STATE_BLACK,
-                STATE_TRANS_BLACK_FINAL,
-                STATE_FINAL_IMAGE,
-                STATE_TRANS_FINAL_IMAGE_PRINT,
-                STATE_FINAL_IMAGE_PRINT,
-                STATE_TRANS_PRINT_PREV1,
-                STATE_TRANS_PREV1_PREV2,
-                STATE_TRANS_PREV2_PREV3
-            };
-
->>>>>>> master
             GUI_STATE currentState;
             sf::Clock stateTimer;
 
@@ -197,15 +181,11 @@ namespace selfomat {
             void addAlert(std::string icon, std::wstring text, bool autoRemove = false) override;
             void removeAlert(std::string icon) override;
 
-<<<<<<< HEAD
             bool isWaitingForButton() override;
             void buttonPushed() override;
-=======
+
             void setPrinterEnabled(bool printerEnabled) override;
-
-
             void setTemplateEnabled(bool templateEnabled) override;
->>>>>>> master
 
             ~BoothGui() override;
 

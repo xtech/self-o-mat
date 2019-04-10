@@ -661,7 +661,6 @@ void BoothGui::removeAlert(std::string icon) {
     removeAlert(std::move(icon), false);
 }
 
-<<<<<<< HEAD
 bool BoothGui::isWaitingForButton()  {
     switch (getCurrentGuiState()) {
         case STATE_AGREEMENT:
@@ -680,7 +679,7 @@ void BoothGui::buttonPushed()  {
             break;
     }
 }
-=======
+
 void BoothGui::setPrinterEnabled(bool printerEnabled) {
     this->printerEnabled = printerEnabled;
 }
@@ -688,4 +687,3 @@ void BoothGui::setPrinterEnabled(bool printerEnabled) {
 void BoothGui::setTemplateEnabled(bool templateEnabled) {
     this->templateEnabled = templateEnabled;
 }
->>>>>>> master
