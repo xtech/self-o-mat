@@ -3,6 +3,7 @@
 //
 
 #include "BoothLogic.h"
+#include <tools/blocking_reader.h>
 
 using namespace std;
 using namespace boost;
@@ -53,9 +54,10 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
 
         cout << "Waiting for identification" << endl;
         char c;
-        auto count = asio::read(tmp_serial_port, asio::buffer(&c, 1));
+
+        blocking_reader reader(tmp_serial_port, 3000);
         tmp_serial_port.close();
-        if (count > 0) {
+        if (reader.read_char(c)) {
             cout << "Got a " << c << endl;
             if (c == 'b') {
                 cout << "Found the button" << endl;
@@ -351,8 +353,8 @@ void BoothLogic::ioThread() {
     cout << "IO Thread Started" << endl;
     while (isRunning) {
         if (button_serial_port.is_open()) {
-            auto count = asio::read(button_serial_port, asio::buffer(&c, 1));
-            if (count > 0) {
+            blocking_reader reader(button_serial_port, 500);
+            while (reader.read_char(c) && c != '\n') {
                 cout << "Got char: " << c << endl;
                 switch (c) {
                     case 'c':
