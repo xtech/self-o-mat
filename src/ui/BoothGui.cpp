@@ -566,6 +566,8 @@ void BoothGui::drawAlerts() {
     background.setFillColor(sf::Color(255, 255, 255, (uint8_t) (255 * alpha)));
     window.draw(background);
 
+    vector <std::string> alertsToRemove;
+
     // Draw the alerts
     for (auto &alert : alerts) {
         int y = row_height * row;
@@ -585,12 +587,17 @@ void BoothGui::drawAlerts() {
         window.draw(iconText);
         window.draw(alertText);
 
-        // Remove old alerts
+        // Should we remove this alert?
         if (alert.second.endTime != 0 && now >= alert.second.endTime) {
-            removeAlert(alert.first, true);
+            alertsToRemove.push_back(alert.first);
         }
 
         row++;
+    }
+
+    // Remove old alerts
+    for (auto &alert : alertsToRemove) {
+        removeAlert(alert, true);
     }
 }
 
