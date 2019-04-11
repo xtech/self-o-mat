@@ -11,6 +11,7 @@ BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
     this->currentState = STATE_INIT;
+    this->shouldShowAgreement = false;
     this->debug = debug;
 }
 

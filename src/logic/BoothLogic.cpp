@@ -122,7 +122,7 @@ bool BoothLogic::start() {
     if (showAgreement) {
         gui->showAgreement();
         if (button_serial_port.is_open())
-            button_serial_port.write_some(asio::buffer("p", 1));
+            button_serial_port.write_some(asio::buffer("a", 1));
     }
 
     gui->logDebug("Initializing Image Processor");
