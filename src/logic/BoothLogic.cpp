@@ -364,18 +364,17 @@ void BoothLogic::ioThread() {
             while (reader.read_char(c) && c != '\n') {
                 cout << "Got char: " << c << endl;
                 switch (c) {
-                    case 'c':
+                    case 'a':
                         if (showAgreement) {
                             gui->hideAgreement();
                             showAgreement = false;
                             writeSettings();
-                            if (button_serial_port.is_open())
-                                button_serial_port.write_some(asio::buffer("k", 1));
-                        } else {
-                            cancelPrintMutex.lock();
-                            printCanceled = true;
-                            cancelPrintMutex.unlock();
                         }
+                        break;
+                    case 'c':
+                        cancelPrintMutex.lock();
+                        printCanceled = true;
+                        cancelPrintMutex.unlock();
                         break;
                     case 't':
                         trigger();
