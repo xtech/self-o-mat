@@ -401,7 +401,10 @@ void BoothGui::setState(BoothGui::GUI_STATE newState) {
 
 void BoothGui::initialized() {
     // Move the state from initialized to preview live
-    if (currentState == STATE_INIT) {
+    if (shouldShowAgreement) {
+        setState(STATE_AGREEMENT);
+        shouldShowAgreement = false;
+    } else {
         setState(STATE_TRANS_PREV2_PREV3);
     }
 }
@@ -628,7 +631,11 @@ float BoothGui::easeOutSin(float t, float b, float c, float d) {
 }
 
 void BoothGui::showAgreement() {
-    setState(STATE_AGREEMENT);
+    if (currentState != STATE_INIT) {
+        setState(STATE_AGREEMENT);
+    } else {
+        shouldShowAgreement = true;
+    }
 }
 
 

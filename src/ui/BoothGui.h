@@ -51,6 +51,8 @@ namespace selfomat {
             bool printerEnabled;
             bool templateEnabled;
 
+            bool shouldShowAgreement;
+
             GUI_STATE currentState;
             sf::Clock stateTimer;
 

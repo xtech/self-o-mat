@@ -90,20 +90,6 @@ bool BoothLogic::start() {
 
     gui->logDebug("Starting Logic");
 
-    if (showAgreement) {
-        gui->showAgreement();
-        if (button_serial_port.is_open())
-            button_serial_port.write_some(asio::buffer("p", 1));
-    }
-
-    gui->logDebug("Initializing Image Processor");
-    if (!imageProcessor.start())
-        return false;
-
-    gui->logDebug("Starting Printer");
-    if (!printerManager.start())
-        return false;
-
     if (has_button) {
         gui->logInfo("Seraching for connected Arduinos");
 
@@ -133,6 +119,19 @@ bool BoothLogic::start() {
         }
     }
 
+    if (showAgreement) {
+        gui->showAgreement();
+        if (button_serial_port.is_open())
+            button_serial_port.write_some(asio::buffer("p", 1));
+    }
+
+    gui->logDebug("Initializing Image Processor");
+    if (!imageProcessor.start())
+        return false;
+
+    gui->logDebug("Starting Printer");
+    if (!printerManager.start())
+        return false;
 
     // Start the threads
     isRunning = true;
