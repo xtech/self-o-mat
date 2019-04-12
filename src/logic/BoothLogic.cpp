@@ -415,6 +415,16 @@ void BoothLogic::trigger() {
     triggerMutex.unlock();
 }
 
+void BoothLogic::enableStressTest() {
+    if (button_serial_port.is_open())
+        button_serial_port.write_some(boost::asio::buffer("S", 1));
+}
+
+void BoothLogic::disableStressTest() {
+    if (button_serial_port.is_open())
+        button_serial_port.write_some(boost::asio::buffer("s", 1));
+}
+
 void BoothLogic::printerThread() {
     while (isRunning) {
         bool do_print;

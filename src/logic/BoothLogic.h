@@ -172,6 +172,9 @@ namespace selfomat {
 
             void stop();
 
+            void enableStressTest();
+            void disableStressTest();
+
             int join() {
                 if (logicThreadHandle.joinable()) {
                     logicThreadHandle.join();

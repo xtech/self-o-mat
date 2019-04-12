@@ -423,6 +423,21 @@ bool BoothApi::start() {
             });
 
 
+    mux.handle("/stress")
+            .post([this](served::response &res, const served::request &req) {
+                logic->enableStressTest();
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/unstress")
+            .post([this](served::response &res, const served::request &req) {
+                logic->disableStressTest();
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+
     // Create the server and run with 2 handler thread.
     server.run(2, false);
 
