@@ -17,6 +17,11 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/aperture")
             .post([this](served::response &res, const served::request &req) {
+                if(camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -31,6 +36,11 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/iso")
             .post([this](served::response &res, const served::request &req) {
+                if(camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -45,6 +55,11 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/shutter_speed")
             .post([this](served::response &res, const served::request &req) {
+                if(camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -59,6 +74,11 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/exposure_correction")
             .post([this](served::response &res, const served::request &req) {
+                if(camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -73,6 +93,11 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/image_format")
             .post([this](served::response &res, const served::request &req) {
+                if(camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -87,6 +112,11 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings")
             .get([this](served::response &res, const served::request &req) {
+                if(camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
                 CameraSettings currentCameraSettings;
                 {
                     auto setting = currentCameraSettings.mutable_aperture();
@@ -165,73 +195,6 @@ bool BoothApi::start() {
                 res << currentCameraSettings.SerializeAsString();
             });
 
-    mux.handle("/booth_settings")
-            .get([this](served::response &res, const served::request &req) {
-                BoothSettings currentBoothSettings;
-
-                {
-                    auto setting = currentBoothSettings.mutable_printer_enabled();
-                    setting->set_name("Printer Enabled?");
-                    setting->set_update_url("/booth_settings/printer/enabled");
-                    setting->set_currentvalue(logic->getPrinterEnabled());
-                }
-
-                bool flashEnabled;
-                float flashBrightness, flashFade;
-                uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
-                {
-                    auto setting = currentBoothSettings.mutable_flash_enabled();
-                    setting->set_update_url("/booth_settings/flash/enabled");
-                    setting->set_name("Flash Enabled?");
-                    setting->set_currentvalue(flashEnabled);
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_flash_brightness();
-                    setting->set_update_url("/booth_settings/flash/brightness");
-                    setting->set_name("Flash Brightness");
-                    setting->set_currentvalue(flashBrightness);
-                    setting->set_minvalue(0.0f);
-                    setting->set_maxvalue(1.0f);
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_flash_fade();
-                    setting->set_update_url("/booth_settings/flash/fade");
-                    setting->set_name("Flash Fade");
-                    setting->set_currentvalue(flashFade);
-                    setting->set_minvalue(0.0f);
-                    setting->set_maxvalue(1.0f);
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_flash_delay_micros();
-                    setting->set_update_url("/booth_settings/flash/delay");
-                    setting->set_name("Flash Delay Microseconds");
-                    setting->set_currentvalue(delayMicros);
-                    setting->set_minvalue(0);
-                    setting->set_maxvalue(100000);
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_flash_duration_micros();
-                    setting->set_update_url("/booth_settings/flash/duration");
-                    setting->set_name("Flash Duration Microseconds");
-                    setting->set_currentvalue(durationMicros);
-                    setting->set_minvalue(0);
-                    setting->set_maxvalue(100000);
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_template_enabled();
-                    setting->set_update_url("/booth_settings/template_enabled");
-                    setting->set_name("Template Enabled?");
-                    setting->set_currentvalue(logic->getTemplateEnabled());
-                }
-
-                res << currentBoothSettings.SerializeAsString();
-            });
 
     mux.handle("/booth_settings/printer/enabled")
             .post([this](served::response &res, const served::request &req) {
@@ -242,6 +205,8 @@ bool BoothApi::start() {
                 }
 
                 logic->setPrinterEnabled(update.value(), true);
+
+                cout << "updated printer enabled to: " << update.value() << endl;
 
                 served::response::stock_reply(200, res);
                 return;
@@ -358,6 +323,11 @@ bool BoothApi::start() {
 
     mux.handle("/trigger")
             .post([this](served::response &res, const served::request &req) {
+                if(camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
                 logic->trigger();
                 served::response::stock_reply(200, res);
                 return;
@@ -365,6 +335,11 @@ bool BoothApi::start() {
 
     mux.handle("/focus")
             .post([this](served::response &res, const served::request &req) {
+                if(camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
                 camera->autofocusBlocking();
                 served::response::stock_reply(200, res);
                 return;
@@ -375,6 +350,76 @@ bool BoothApi::start() {
                 logic->stopForUpdate();
                 served::response::stock_reply(200, res);
                 return;
+            });
+
+    mux.handle("/booth_settings")
+            .get([this](served::response &res, const served::request &req) {
+                BoothSettings currentBoothSettings;
+
+                {
+                    auto setting = currentBoothSettings.mutable_printer_enabled();
+                    setting->set_name("Printer Enabled?");
+                    setting->set_update_url("/booth_settings/printer/enabled");
+                    setting->set_currentvalue(logic->getPrinterEnabled());
+                }
+
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                {
+                    auto setting = currentBoothSettings.mutable_flash_enabled();
+                    setting->set_update_url("/booth_settings/flash/enabled");
+                    setting->set_name("Flash Enabled?");
+                    setting->set_currentvalue(flashEnabled);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_brightness();
+                    setting->set_update_url("/booth_settings/flash/brightness");
+                    setting->set_name("Flash Brightness");
+                    setting->set_currentvalue(flashBrightness);
+                    setting->set_minvalue(0.0f);
+                    setting->set_maxvalue(1.0f);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_fade();
+                    setting->set_update_url("/booth_settings/flash/fade");
+                    setting->set_name("Flash Fade");
+                    setting->set_currentvalue(flashFade);
+                    setting->set_minvalue(0.0f);
+                    setting->set_maxvalue(1.0f);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_delay_micros();
+                    setting->set_update_url("/booth_settings/flash/delay");
+                    setting->set_name("Flash Delay Microseconds");
+                    setting->set_currentvalue(delayMicros);
+                    setting->set_minvalue(0);
+                    setting->set_maxvalue(100000);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_duration_micros();
+                    setting->set_update_url("/booth_settings/flash/duration");
+                    setting->set_name("Flash Duration Microseconds");
+                    setting->set_currentvalue(durationMicros);
+                    setting->set_minvalue(0);
+                    setting->set_maxvalue(100000);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_template_enabled();
+                    setting->set_update_url("/booth_settings/template_enabled");
+                    setting->set_name("Template Enabled?");
+                    setting->set_currentvalue(logic->getTemplateEnabled());
+                }
+
+
+
+                res << currentBoothSettings.SerializeAsString();
             });
 
 
