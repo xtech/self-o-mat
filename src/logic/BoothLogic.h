@@ -20,6 +20,10 @@
 #include <boost/lexical_cast.hpp>
 #include <Magick++.h>
 
+#include <unistd.h>
+#include <linux/reboot.h>
+#include <sys/reboot.h>
+
 #include <boost/algorithm/hex.hpp>
 
 //#define USE_SPI
@@ -181,6 +185,12 @@ namespace selfomat {
                 if (printThreadHandle.joinable()) {
                     printThreadHandle.join();
                 }
+
+                if (returnCode == -1) {
+                    sync();
+                    reboot(LINUX_REBOOT_CMD_POWER_OFF);
+                }
+
                 return returnCode;
             }
 

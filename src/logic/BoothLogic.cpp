@@ -4,9 +4,6 @@
 
 #include "BoothLogic.h"
 #include <tools/blocking_reader.h>
-#include <unistd.h>
-#include <linux/reboot.h>
-#include <sys/reboot.h>
 
 using namespace std;
 using namespace selfomat::logic;
@@ -395,9 +392,8 @@ void BoothLogic::ioThread() {
                         trigger();
                         break;
                     case 'd':
+                        returnCode = -1;
                         stop();
-                        sync();
-                        reboot(LINUX_REBOOT_CMD_POWER_OFF);
                     default:
                         break;
                 }
