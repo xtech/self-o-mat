@@ -94,13 +94,24 @@ void GphotoCamera::stop() {
     cameraIoMutex.unlock();
 
     // free the widgets
-    gp_widget_free(rootWidget);
+    if (rootWidget != nullptr) {
+        gp_widget_free(rootWidget);
+        rootWidget = nullptr;
+    }
 
-    gp_camera_exit(camera, gp);
-    gp_camera_free(camera);
+    if (camera != nullptr && gp != nullptr) {
+        gp_camera_exit(camera, gp);
+    }
 
+    if (camera != nullptr) {
+        gp_camera_free(camera);
+        camera = nullptr;
+    }
 
-    gp_context_unref(gp);
+    if (gp != nullptr) {
+        gp_context_unref(gp);
+        gp = nullptr;
+    }
 
     // Free the buffers
     if (latestBuffer != nullptr) {

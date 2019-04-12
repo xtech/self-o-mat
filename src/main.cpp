@@ -21,6 +21,7 @@ selfomat::logic::BoothLogic *p_logic = nullptr;
 
 
 void exitfunc(int code) {
+
     // Clean up only once
     static bool cleaned = false;
     if (cleaned)

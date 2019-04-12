@@ -169,10 +169,18 @@ namespace selfomat {
             void stop();
 
             int join() {
-                logicThreadHandle.join();
-                ioThreadHandle.join();
-                cameraThreadHandle.join();
-                printThreadHandle.join();
+                if (logicThreadHandle.joinable()) {
+                    logicThreadHandle.join();
+                }
+                if (ioThreadHandle.joinable()) {
+                    ioThreadHandle.join();
+                }
+                if (cameraThreadHandle.joinable()) {
+                    cameraThreadHandle.join();
+                }
+                if (printThreadHandle.joinable()) {
+                    printThreadHandle.join();
+                }
                 return returnCode;
             }
 

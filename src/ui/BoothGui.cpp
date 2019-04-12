@@ -85,8 +85,10 @@ bool BoothGui::start() {
 
 void BoothGui::stop() {
     isRunning = false;
-    std::cout << "Waiting for gui to stop" << std::endl;
-    renderThreadHandle.join();
+    if (renderThreadHandle.joinable()) {
+        std::cout << "Waiting for gui to stop" << std::endl;
+        renderThreadHandle.join();
+    }
 }
 
 void BoothGui::updatePreviewImage(void *data, uint32_t width, uint32_t height) {

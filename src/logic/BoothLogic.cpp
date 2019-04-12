@@ -173,18 +173,29 @@ void BoothLogic::stop() {
     if (button_serial_port.is_open())
         button_serial_port.close();
 
-    gui->stop();
+    if (logicThreadHandle.joinable()) {
+        cout << "waiting for logic" << endl;
+        logicThreadHandle.join();
+    }
+    if (ioThreadHandle.joinable()) {
+        cout << "waiting for io" << endl;
+        ioThreadHandle.join();
+    }
+    if (cameraThreadHandle.joinable()) {
+        cout << "waiting for cam" << endl;
+        cameraThreadHandle.join();
+    }
+    if (printThreadHandle.joinable()) {
+        cout << "waiting for print" << endl;
+        printThreadHandle.join();
+    }
+
+    if (gui != nullptr) {
+        gui->stop();
+        gui = NULL;
+    }
 
     imageProcessor.stop();
-
-    cout << "waiting for logic" << endl;
-    logicThreadHandle.join();
-    cout << "waiting for io" << endl;
-    ioThreadHandle.join();
-    cout << "waiting for cam" << endl;
-    cameraThreadHandle.join();
-    cout << "waiting for print" << endl;
-    printThreadHandle.join();
 }
 
 void BoothLogic::cameraThread() {
