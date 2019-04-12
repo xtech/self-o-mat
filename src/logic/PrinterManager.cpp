@@ -48,7 +48,7 @@ bool PrinterManager::refreshCupsDestinations() {
         }, this);
 
 
-    if (oldCupsDestinationCount != cupsDestinationCount) {
+    if (oldCupsDestinationCount < 1) {
         for(int i = 0; i < cupsDestinationCount; i++)
             std::cout << "Found Cups destination: " << cupsDestinations[i].name << std::endl;
     }
