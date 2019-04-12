@@ -393,7 +393,7 @@ void BoothLogic::ioThread() {
                         break;
                     case 'd':
                         returnCode = -1;
-                        stop();
+                        isRunning = false;
                     default:
                         break;
                 }
