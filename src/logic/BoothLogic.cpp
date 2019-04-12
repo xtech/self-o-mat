@@ -35,7 +35,10 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
     try {
         button_serial_port.open(serialPath.string());
         button_serial_port.set_option(asio::serial_port_base::baud_rate(38400));
-        button_serial_port.write_some(asio::buffer("!", 1));
+        if (disable_watchdog)
+            button_serial_port.write_some(asio::buffer("!", 1));
+        else
+            button_serial_port.write_some(asio::buffer("?", 1));
         button_serial_port.write_some(asio::buffer(".", 1));
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;

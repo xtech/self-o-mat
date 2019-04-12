@@ -61,7 +61,7 @@ namespace selfomat {
         class BoothLogic {
         public:
             explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash,
-                                string printer_name, string imageDir) : camera(camera), gui(gui), io_service(),
+                                string printer_name, string imageDir, bool disable_watchdog) : camera(camera), gui(gui), io_service(),
                                                                         tmp_serial_port(io_service),
                                                                         button_serial_port(io_service),
                                                                         imageProcessor(gui),
@@ -69,7 +69,8 @@ namespace selfomat {
                                                                         has_button(has_button),
                                                                         button_port(button_port), has_flash(has_flash),
                                                                         imageDir(imageDir) {
-                triggered = false;
+                this->triggered = false;
+                this->disable_watchdog = disable_watchdog;
 
                 readSettings();
             }
@@ -79,7 +80,7 @@ namespace selfomat {
             int returnCode = 0;
             string imageDir;
 
-            bool has_button, has_flash;
+            bool has_button, has_flash, disable_watchdog;
             string button_port;
 
             // # BOOTH SETTINGS HERE

@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
 
     string camera_type;
     bool debug = false;
+    bool disable_watchdog = false;
     bool has_button = false;
     bool has_flash = false;
     string button_port_name;
@@ -95,6 +96,7 @@ int main(int argc, char *argv[]) {
         image_dir = ptree.get<string>("image_dir");
         button_port_name = ptree.get<string>("button_port_name");
         debug = ptree.get<bool>("debug");
+        disable_watchdog = ptree.get<bool>("disable_watchdog");
         has_button = ptree.get<bool>("has_button");
         has_flash = ptree.get<bool>("has_flash");
     } catch (boost::exception &e) {
@@ -121,7 +123,7 @@ int main(int argc, char *argv[]) {
         p_cam = new NopCamera();
     }
 
-    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, printer_name, image_dir);
+    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, printer_name, image_dir, disable_watchdog);
 
     p_api = new api::BoothApi(p_logic, p_cam);
     p_api->start();
