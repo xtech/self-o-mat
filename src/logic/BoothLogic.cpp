@@ -4,9 +4,11 @@
 
 #include "BoothLogic.h"
 #include <tools/blocking_reader.h>
+#include <unistd.h>
+#include <linux/reboot.h>
+#include <sys/reboot.h>
 
 using namespace std;
-using namespace boost;
 using namespace selfomat::logic;
 using namespace selfomat::camera;
 
@@ -15,11 +17,11 @@ using namespace selfomat::camera;
  * @return
  */
 vector<boost::filesystem::path> BoothLogic::findArduinos() {
-    filesystem::path devPath("/dev/");
+    boost::filesystem::path devPath("/dev/");
 
-    vector<filesystem::path> foundArduinos;
-    for (auto &e : make_iterator_range(filesystem::directory_iterator(devPath))) {
-        if (starts_with(e.path().string(), button_port))
+    vector<boost::filesystem::path> foundArduinos;
+    for (auto &e : boost::make_iterator_range(boost::filesystem::directory_iterator(devPath))) {
+        if (boost::starts_with(e.path().string(), button_port))
             foundArduinos.push_back(e.path());
     }
     return foundArduinos;
@@ -34,12 +36,12 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
     // TODO: Check if we really connected to the button and not some other serial device and return a status
     try {
         button_serial_port.open(serialPath.string());
-        button_serial_port.set_option(asio::serial_port_base::baud_rate(38400));
+        button_serial_port.set_option(boost::asio::serial_port_base::baud_rate(38400));
         if (disable_watchdog)
-            button_serial_port.write_some(asio::buffer("!", 1));
+            button_serial_port.write_some(boost::asio::buffer("!", 1));
         else
-            button_serial_port.write_some(asio::buffer("?", 1));
-        button_serial_port.write_some(asio::buffer(".", 1));
+            button_serial_port.write_some(boost::asio::buffer("?", 1));
+        button_serial_port.write_some(boost::asio::buffer(".", 1));
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
         return false;
@@ -52,8 +54,8 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
     // TODO: Check if we really connected to the button and not some other serial device and return a status
     try {
         tmp_serial_port.open(serialPath.string());
-        tmp_serial_port.set_option(asio::serial_port_base::baud_rate(38400));
-        tmp_serial_port.write_some(asio::buffer("i", 1));
+        tmp_serial_port.set_option(boost::asio::serial_port_base::baud_rate(38400));
+        tmp_serial_port.write_some(boost::asio::buffer("i", 1));
 
         cout << "Waiting for identification" << endl;
         char c;
@@ -125,7 +127,7 @@ bool BoothLogic::start() {
     if (showAgreement) {
         gui->showAgreement();
         if (button_serial_port.is_open())
-            button_serial_port.write_some(asio::buffer("a", 1));
+            button_serial_port.write_some(boost::asio::buffer("a", 1));
     }
 
     gui->logDebug("Initializing Image Processor");
@@ -224,7 +226,7 @@ void BoothLogic::cameraThread() {
                 // We need to wait for the printer thread (not really hopefully)
                 {
                     cout << "[Camera Thread] Waiting for printer thread to finish" << endl;
-                    unique_lock<boost::mutex> lk(printerStateMutex);
+                    boost::unique_lock<boost::mutex> lk(printerStateMutex);
                     while (printerState != PRINTER_STATE_IDLE) {
                         printerStateCV.wait(lk);
                     }
@@ -233,7 +235,7 @@ void BoothLogic::cameraThread() {
 
                 // Update printer thread state to one
                 {
-                    unique_lock<boost::mutex> lk(printerStateMutex);
+                    boost::unique_lock<boost::mutex> lk(printerStateMutex);
                     printerState = PRINTER_STATE_WAITING_FOR_DATA;
                     printerStateCV.notify_all();
                 }
@@ -257,7 +259,7 @@ void BoothLogic::cameraThread() {
                 jpegImageMutex.unlock();
 
                 {
-                    unique_lock<boost::mutex> lk(printerStateMutex);
+                    boost::unique_lock<boost::mutex> lk(printerStateMutex);
                     printerState = PRINTER_STATE_WAITING_FOR_USER_INPUT;
                     printerStateCV.notify_all();
                 }
@@ -266,14 +268,14 @@ void BoothLogic::cameraThread() {
                     gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
                     gui->notifyFinalImageSent();
                     if (printerEnabled && button_serial_port.is_open())
-                        button_serial_port.write_some(asio::buffer("p", 1));
+                        button_serial_port.write_some(boost::asio::buffer("p", 1));
 
                     // 4500ms from here for the user to decide
                     boost::this_thread::sleep(boost::posix_time::milliseconds(4500));
 
                     // Notify the printer thread
                     {
-                        unique_lock<boost::mutex> lk(printerStateMutex);
+                        boost::unique_lock<boost::mutex> lk(printerStateMutex);
                         printerState = PRINTER_STATE_WORKING;
                         printerStateCV.notify_all();
                     }
@@ -282,7 +284,7 @@ void BoothLogic::cameraThread() {
                 }
 
                 if (button_serial_port.is_open())
-                    button_serial_port.write_some(asio::buffer("k", 1));
+                    button_serial_port.write_some(boost::asio::buffer("k", 1));
 
                 gui->notifyPreviewIncoming();
             } else {
@@ -306,7 +308,7 @@ void BoothLogic::logicThread() {
     while (isRunning) {
         // Send the heartbeat
         if (button_serial_port.is_open())
-            button_serial_port.write_some(asio::buffer(".", 1));
+            button_serial_port.write_some(boost::asio::buffer(".", 1));
         //flash_serial_port.write_some(asio::buffer("i", 1));
         boost::this_thread::sleep(boost::posix_time::seconds(1));
 
@@ -314,7 +316,7 @@ void BoothLogic::logicThread() {
         // check for an image and save it. but only if printer thread is idle
         bool allowSave = false;
         {
-            unique_lock<boost::mutex> lk(printerStateMutex);
+            boost::unique_lock<boost::mutex> lk(printerStateMutex);
             allowSave = (0 == printerState);
         }
         if (allowSave) {
@@ -383,6 +385,8 @@ void BoothLogic::ioThread() {
                         break;
                     case 'd':
                         stop();
+                        sync();
+                        reboot(LINUX_REBOOT_CMD_POWER_OFF);
                     default:
                         break;
                 }
@@ -409,7 +413,7 @@ void BoothLogic::printerThread() {
         bool do_print;
         {
             cout << "[Printer Thread] Waiting for an image to process" << endl;
-            unique_lock<boost::mutex> lk(printerStateMutex);
+            boost::unique_lock<boost::mutex> lk(printerStateMutex);
             while (printerState == PRINTER_STATE_IDLE || printerState == PRINTER_STATE_WAITING_FOR_DATA) {
                 printerStateCV.timed_wait(lk, boost::posix_time::milliseconds(500));
                 // application should close
@@ -424,7 +428,7 @@ void BoothLogic::printerThread() {
         if (do_print) {
             // We need the final jpeg image. So lock the mutex
             {
-                unique_lock<boost::mutex> lk(jpegImageMutex);
+                boost::unique_lock<boost::mutex> lk(jpegImageMutex);
 
                 // first we save the image
                 saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
@@ -442,7 +446,7 @@ void BoothLogic::printerThread() {
 
             {
                 cout << "[Printer Thread] Waiting for the user to decide if he wants to print" << endl;
-                unique_lock<boost::mutex> lk(printerStateMutex);
+                boost::unique_lock<boost::mutex> lk(printerStateMutex);
                 while (printerState == PRINTER_STATE_WAITING_FOR_USER_INPUT) {
                     printerStateCV.wait(lk);
                 }
@@ -451,7 +455,7 @@ void BoothLogic::printerThread() {
 
             // We need the info if the user wants to print or not
             {
-                unique_lock<boost::mutex> lk(cancelPrintMutex);
+                boost::unique_lock<boost::mutex> lk(cancelPrintMutex);
                 if (!printCanceled) {
                     cout << "[Printer Thread] " << "Printing" << endl;
                     printerManager.printImage();
@@ -463,7 +467,7 @@ void BoothLogic::printerThread() {
         } else {
             // We need the final jpeg image. So lock the mutex
             {
-                unique_lock<boost::mutex> lk(jpegImageMutex);
+                boost::unique_lock<boost::mutex> lk(jpegImageMutex);
 
                 // we only need to save the image
                 saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
@@ -471,7 +475,7 @@ void BoothLogic::printerThread() {
 
             // wait for logic thread
             {
-                unique_lock<boost::mutex> lk(printerStateMutex);
+                boost::unique_lock<boost::mutex> lk(printerStateMutex);
                 while (printerState == PRINTER_STATE_WAITING_FOR_USER_INPUT) {
                     printerStateCV.wait(lk);
                 }
@@ -479,7 +483,7 @@ void BoothLogic::printerThread() {
         }
 
         {
-            unique_lock<boost::mutex> lk(printerStateMutex);
+            boost::unique_lock<boost::mutex> lk(printerStateMutex);
             printerState = PRINTER_STATE_IDLE;
             printerStateCV.notify_all();
         }
@@ -492,7 +496,7 @@ int BoothLogic::getFreeStorageSpaceMB() {
         return -1;
     }
 
-    filesystem::space_info s = filesystem::space(imageDir);
+    boost::filesystem::space_info s = boost::filesystem::space(imageDir);
 
     return static_cast<int>(s.free / 1024 / 1024);
 }
@@ -532,7 +536,7 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 
 void BoothLogic::stopForUpdate() {
     if (button_serial_port.is_open())
-        button_serial_port.write_some(asio::buffer("f", 1));
+        button_serial_port.write_some(boost::asio::buffer("f", 1));
 
     returnCode = 0x42;
     stop();
