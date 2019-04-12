@@ -86,6 +86,7 @@ namespace selfomat {
             bool printerEnabled;
             bool templateEnabled;
             bool flashEnabled;
+            bool showAgreement;
             float flashBrightness, flashFade;
             uint64_t flashDurationMicros, flashDelayMicros;
 
@@ -96,6 +97,7 @@ namespace selfomat {
             bool isRunning;
             boost::mutex triggerMutex;
             bool triggered;
+            bool isShowingAgreement;
 
             // We have a second thread running which first tries to get the jpegImageMutex
             // as soon as it has the jpegImageMutex it prepares for printing.

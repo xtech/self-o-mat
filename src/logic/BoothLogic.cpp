@@ -90,14 +90,6 @@ bool BoothLogic::start() {
 
     gui->logDebug("Starting Logic");
 
-    gui->logDebug("Initializing Image Processor");
-    if (!imageProcessor.start())
-        return false;
-
-    gui->logDebug("Starting Printer");
-    if (!printerManager.start())
-        return false;
-
     if (has_button) {
         gui->logInfo("Seraching for connected Arduinos");
 
@@ -127,6 +119,19 @@ bool BoothLogic::start() {
         }
     }
 
+    if (showAgreement) {
+        gui->showAgreement();
+        if (button_serial_port.is_open())
+            button_serial_port.write_some(asio::buffer("a", 1));
+    }
+
+    gui->logDebug("Initializing Image Processor");
+    if (!imageProcessor.start())
+        return false;
+
+    gui->logDebug("Starting Printer");
+    if (!printerManager.start())
+        return false;
 
     // Start the threads
     isRunning = true;
@@ -158,6 +163,7 @@ void BoothLogic::stop() {
     std::cout << "stopping logic" << std::endl;
     isRunning = false;
 
+    writeSettings();
 
     if (button_serial_port.is_open())
         button_serial_port.close();
@@ -357,15 +363,20 @@ void BoothLogic::ioThread() {
             while (reader.read_char(c) && c != '\n') {
                 cout << "Got char: " << c << endl;
                 switch (c) {
+                    case 'a':
+                        if (showAgreement) {
+                            gui->hideAgreement();
+                            showAgreement = false;
+                            writeSettings();
+                        }
+                        break;
                     case 'c':
                         cancelPrintMutex.lock();
                         printCanceled = true;
                         cancelPrintMutex.unlock();
                         break;
                     case 't':
-                        triggerMutex.lock();
-                        triggered = true;
-                        triggerMutex.unlock();
+                        trigger();
                         break;
                     case 'd':
                         stop();
@@ -382,6 +393,9 @@ BoothLogic::~BoothLogic() {
 }
 
 void BoothLogic::trigger() {
+    if (showAgreement)
+        return;
+
     triggerMutex.lock();
     triggered = true;
     triggerMutex.unlock();
@@ -543,6 +557,7 @@ void BoothLogic::readSettings() {
 
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
+    this->showAgreement=ptree.get<bool>("show_agreement", true);
     this->flashEnabled=ptree.get<bool>("flash_enabled", true);
     this->flashDurationMicros=ptree.get<uint64_t>("flash_duration_micros", 100000);
     this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
@@ -555,6 +570,7 @@ void BoothLogic::readSettings() {
 
 void BoothLogic::writeSettings() {
     boost::property_tree::ptree ptree;
+    ptree.put("show_agreement", showAgreement);
     ptree.put("printer_enabled", printerEnabled);
     ptree.put("template_enabled", templateEnabled);
     ptree.put("flash_enabled", this->flashEnabled);
