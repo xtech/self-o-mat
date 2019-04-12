@@ -19,13 +19,15 @@ selfomat::camera::ICamera *p_cam = nullptr;
 selfomat::api::BoothApi *p_api = nullptr;
 selfomat::logic::BoothLogic *p_logic = nullptr;
 
+bool cleaned = false;
 
 void exitfunc(int code) {
 
     // Clean up only once
-    static bool cleaned = false;
     if (cleaned)
         return;
+
+    cleaned = true;
 
     std::cout << "starting clean up" << std::endl;
 
@@ -53,7 +55,6 @@ void exitfunc(int code) {
     }
 
     std::cout << "Cleaned up" << endl;
-    cleaned = true;
 }
 
 void exitfunc() {
