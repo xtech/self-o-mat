@@ -528,6 +528,9 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 }
 
 void BoothLogic::stopForUpdate() {
+    if (button_serial_port.is_open())
+        button_serial_port.write_some(asio::buffer("f", 1));
+
     returnCode = 0x42;
     stop();
 }
