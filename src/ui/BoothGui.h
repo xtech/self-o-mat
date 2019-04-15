@@ -90,6 +90,9 @@ namespace selfomat {
             sf::Sprite imageSpritePrintOverlay;
             sf::Sprite imageSpriteFinalOverlay;
 
+            sf::Texture textureNoCamera;
+            sf::Sprite imageNoCamera;
+
             std::wstring agreement;
 
             int finalOverlayOffsetTop;

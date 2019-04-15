@@ -53,6 +53,13 @@ bool BoothGui::start() {
     }
     imageSpritePrintOverlay.setTexture(texturePrintOverlay);
 
+    if (!textureNoCamera.loadFromFile("./assets/no-camera.png")) {
+        cerr << "Could not load 'no camera' asset." << endl;
+        return false;
+    }
+    imageNoCamera.setTexture(textureNoCamera);
+
+
     wifstream infile { "./assets/agreement.txt" };
     agreement = { istreambuf_iterator<wchar_t>(infile), istreambuf_iterator<wchar_t>() };
     if (agreement.length() < 1) {
@@ -237,8 +244,14 @@ void BoothGui::renderThread() {
 
 
         switch (getCurrentGuiState()) {
-            case STATE_LIVE_PREVIEW:
-                if (imageShown) {
+            case STATE_LIVE_PREVIEW: {
+
+                auto alert = alerts.find(ALERT_CAMERA);
+                if (alert != alerts.end()) {
+
+                    window.draw(imageNoCamera);
+
+                } else if (imageShown) {
                     // We can show a preview image
                     window.draw(imageSprite);
 
@@ -250,6 +263,7 @@ void BoothGui::renderThread() {
                     imageSpriteLiveOverlay.setColor(sf::Color(255, 255, 255, alpha));
                     window.draw(imageSpriteLiveOverlay);
                 }
+            }
                 break;
             case STATE_BLACK:
                 break;
