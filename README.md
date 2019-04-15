@@ -32,7 +32,7 @@ make
 4. Run self-o-mat
 ```
 #setup your installation
-nano settings.json
 cd <source dir>
+nano settings.json
 build/self_o_mat
 ```
