@@ -4,7 +4,7 @@
 
 `--recursive` is required to clone git submodules.
 
-## Install
+# Install
 
 1. Install the following dependencies:
 ```sudo apt-get install build-essential cmake gphoto2 libgphoto2-dev libmagick++-dev libboost-all-dev libopencv-dev libsfml-dev libcups2-dev libprotobuf-dev protobuf-compiler libusb-dev automake autoconf pkg-config autopoint gettext libtool```
