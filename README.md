@@ -18,6 +18,7 @@ autoreconf --install --symlink
 ./configure
 make
 sudo make install
+sudo ldconfig
 ```
 
 3. Build self-o-mat
