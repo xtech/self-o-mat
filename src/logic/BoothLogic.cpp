@@ -8,6 +8,7 @@
 using namespace std;
 using namespace selfomat::logic;
 using namespace selfomat::camera;
+using namespace selfomat::ui;
 
 /**
  * Looks for arduinos in /dev and returns all found ones
@@ -340,27 +341,27 @@ void BoothLogic::logicThread() {
         // check the printer state
         printerManager.refreshPrinterState();
         if (printerManager.getCurrentPrinterState() == STATE_STOPPED) {
-            gui->addAlert("P", L"Drucker wurde gestoppt");
+            gui->addAlert(ALERT_PRINTER, L"Drucker wurde gestoppt");
         } else {
-            gui->removeAlert("P");
+            gui->removeAlert(ALERT_PRINTER);
         }
 
 
         // check the camera state
         if (camera->getState() != STATE_WORKING) {
-            gui->addAlert("C", L"Prüfe deine Kamera");
+            gui->addAlert(ALERT_CAMERA, L"Prüfe deine Kamera");
         } else {
-            gui->removeAlert("C");
+            gui->removeAlert(ALERT_CAMERA);
         }
 
         int freeStorage = getFreeStorageSpaceMB();
         if (freeStorage < 500) {
             if (freeStorage == -1)
-                gui->addAlert("U", L"Kein Speichermedium gefunden");
+                gui->addAlert(ALERT_STORAGE, L"Kein Speichermedium gefunden");
             else
-                gui->addAlert("U", L"Geringe Speicherkapazität: " + to_wstring(freeStorage) + L"MB");
+                gui->addAlert(ALERT_STORAGE, L"Geringe Speicherkapazität: " + to_wstring(freeStorage) + L"MB");
         } else {
-            gui->removeAlert("U");
+            gui->removeAlert(ALERT_STORAGE);
         }
 
     }

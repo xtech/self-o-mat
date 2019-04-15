@@ -7,27 +7,37 @@
 
 #include "tools/ILogger.h"
 
+#include <boost/unordered_map.hpp>
+#include <boost/assign/list_of.hpp>
+
 using namespace selfomat::tools;
 
 namespace selfomat {
     namespace ui {
+
+        enum GUI_STATE {
+            STATE_INIT,
+            STATE_AGREEMENT,
+            STATE_TRANS_AGREEMENT,
+            STATE_LIVE_PREVIEW,
+            STATE_BLACK,
+            STATE_TRANS_BLACK_FINAL,
+            STATE_FINAL_IMAGE,
+            STATE_TRANS_FINAL_IMAGE_PRINT,
+            STATE_FINAL_IMAGE_PRINT,
+            STATE_TRANS_PRINT_PREV1,
+            STATE_TRANS_PREV1_PREV2,
+            STATE_TRANS_PREV2_PREV3
+        };
+
+        enum ALERT_TYPE {
+            ALERT_CAMERA,
+            ALERT_PRINTER,
+            ALERT_STORAGE
+        };
+
         class IGui : public ILogger {
         public:
-
-            enum GUI_STATE {
-                STATE_INIT,
-                STATE_AGREEMENT,
-                STATE_TRANS_AGREEMENT,
-                STATE_LIVE_PREVIEW,
-                STATE_BLACK,
-                STATE_TRANS_BLACK_FINAL,
-                STATE_FINAL_IMAGE,
-                STATE_TRANS_FINAL_IMAGE_PRINT,
-                STATE_FINAL_IMAGE_PRINT,
-                STATE_TRANS_PRINT_PREV1,
-                STATE_TRANS_PREV1_PREV2,
-                STATE_TRANS_PREV2_PREV3
-            };
 
             virtual const GUI_STATE getCurrentGuiState() = 0;
 
@@ -45,9 +55,9 @@ namespace selfomat {
 
             virtual void notifyPreviewIncoming() = 0;
 
-            virtual void addAlert(std::string icon, std::wstring text, bool autoRemove = false) = 0;
+            virtual void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false) = 0;
 
-            virtual void removeAlert(std::string icon) = 0;
+            virtual void removeAlert(ALERT_TYPE type) = 0;
 
             virtual void showAgreement() = 0;
             virtual void hideAgreement() = 0;
@@ -55,6 +65,12 @@ namespace selfomat {
             virtual void setPrinterEnabled(bool printerEnabled) = 0;
 
             virtual void setTemplateEnabled(bool templateEnabled) = 0;
+
+            const boost::unordered_map<ALERT_TYPE,const char*> alertTypeToString = boost::assign::map_list_of
+                    (ALERT_CAMERA, "C")
+                    (ALERT_PRINTER, "P")
+                    (ALERT_STORAGE, "U");
+
         };
     }
 }

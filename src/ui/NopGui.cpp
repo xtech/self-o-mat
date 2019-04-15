@@ -67,11 +67,11 @@ void NopGui::logError(const char *s) {
     std::cout << "error: " << s << std::endl;
 }
 
-void NopGui::addAlert(std::string icon, std::wstring text, bool autoRemove) {
+void NopGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) {
 
 }
 
-void NopGui::removeAlert(std::string icon) {
+void NopGui::removeAlert(ALERT_TYPE type) {
 
 }
 

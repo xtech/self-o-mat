@@ -42,9 +42,9 @@ namespace selfomat {
 
             void logError(const char *s) override;
 
-            void addAlert(std::string icon, std::wstring text, bool autoRemove) override;
+            void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) override;
 
-            void removeAlert(std::string icon) override;
+            void removeAlert(ALERT_TYPE type) override;
 
             void setPrinterEnabled(bool printerEnabled) override;
 

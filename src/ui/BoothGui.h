@@ -57,7 +57,7 @@ namespace selfomat {
             sf::Clock stateTimer;
 
             boost::mutex alertMutex;
-            std::map<std::string, Alert> alerts;
+            std::map<ALERT_TYPE, Alert> alerts;
             sf::Clock alertTimer;
 
             sf::VideoMode videoMode;
@@ -122,7 +122,7 @@ namespace selfomat {
             void drawAgreement(float alpha = 1);
             void drawDebug();
 
-            void removeAlert(std::string icon, bool forced);
+            void removeAlert(ALERT_TYPE type, bool forced);
 
         public:
             BoothGui();
@@ -181,8 +181,8 @@ namespace selfomat {
             void showAgreement() override;
             void hideAgreement() override;
 
-            void addAlert(std::string icon, std::wstring text, bool autoRemove = false) override;
-            void removeAlert(std::string icon) override;
+            void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false) override;
+            void removeAlert(ALERT_TYPE type) override;
 
             void setPrinterEnabled(bool printerEnabled) override;
             void setTemplateEnabled(bool templateEnabled) override;

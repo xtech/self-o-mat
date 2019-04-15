@@ -395,7 +395,7 @@ void BoothGui::renderThread() {
     window.close();
 }
 
-void BoothGui::setState(BoothGui::GUI_STATE newState) {
+void BoothGui::setState(GUI_STATE newState) {
     boost::unique_lock<boost::mutex> lk(guiStateMutex);
 
     currentState = newState;
@@ -571,7 +571,7 @@ void BoothGui::drawAlerts() {
     background.setFillColor(sf::Color(255, 255, 255, (uint8_t) (255 * alpha)));
     window.draw(background);
 
-    vector <std::string> alertsToRemove;
+    vector <ALERT_TYPE> alertsToRemove;
 
     // Draw the alerts
     for (auto &alert : alerts) {
@@ -586,7 +586,7 @@ void BoothGui::drawAlerts() {
         iconText.setPosition(offset_x, y + offset_y + 8);
         alertText.setPosition(offset_x + spacing_x, y + offset_y);
 
-        iconText.setString(alert.first);
+        iconText.setString(alertTypeToString.at(alert.first));
         alertText.setString(alert.second.text);
 
         window.draw(iconText);
@@ -649,14 +649,14 @@ void BoothGui::hideAgreement()  {
     setState(STATE_TRANS_AGREEMENT);
 }
 
-void BoothGui::addAlert(std::string icon, std::wstring text, bool autoRemove) {
+void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) {
 
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
     if (alerts.empty())
         alertTimer.restart();
 
-    removeAlert(icon, true);
+    removeAlert(type, true);
 
     sf::Int32 startTime = alertTimer.getElapsedTime().asMilliseconds();
     sf::Int32 endTime = 0;
@@ -665,12 +665,12 @@ void BoothGui::addAlert(std::string icon, std::wstring text, bool autoRemove) {
         endTime = startTime + 5000;
     }
 
-    alerts.insert(std::make_pair(icon, (Alert){startTime, endTime, std::move(text)}));
+    alerts.insert(std::make_pair(type, (Alert){startTime, endTime, std::move(text)}));
 }
 
-void BoothGui::removeAlert(std::string icon, bool forced) {
+void BoothGui::removeAlert(ALERT_TYPE type, bool forced) {
 
-    auto alert = alerts.find(icon);
+    auto alert = alerts.find(type);
 
     if (alert == alerts.end())
         return;
@@ -678,15 +678,15 @@ void BoothGui::removeAlert(std::string icon, bool forced) {
     if (!forced && alert->second.endTime == 0) {
         alert->second.endTime = alertTimer.getElapsedTime().asMilliseconds() + 300;
     } else {
-        alerts.erase(icon);
+        alerts.erase(type);
     }
 
 }
 
-void BoothGui::removeAlert(std::string icon) {
+void BoothGui::removeAlert(ALERT_TYPE type) {
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
-    removeAlert(std::move(icon), false);
+    removeAlert(type, false);
 }
 
 void BoothGui::setPrinterEnabled(bool printerEnabled) {
