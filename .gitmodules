@@ -4,3 +4,11 @@
 [submodule "dependencies/served"]
 	path = dependencies/served
 	url = https://github.com/meltwater/served.git
+[submodule "dependencies/boost-thread"]
+	path = dependencies/boost-thread
+	url = https://github.com/boostorg/thread.git
+	branch = tags/boost-1.70.0
+[submodule "dependencies/boost-system"]
+	path = dependencies/boost-system
+	url = https://github.com/boostorg/system.git
+	branch = 9b8cb7f1f674998fedcbdf85791b0d41cc8bcab4
