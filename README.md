@@ -11,16 +11,20 @@
 
 
 2. Get libgphoto2:
+```
 git clone https://github.com/gphoto/libgphoto2.git
 cd libgphoto2
 git checkout tags/libgphoto2-2_5_22-release
 autoreconf --install --symlink
 make
 sudo make install
+```
 
 3. Build self-o-mat
+```
 cd self-o-mat
 mkdir build
 cd build
 cmake ..
 make
+```
