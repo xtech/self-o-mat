@@ -7,19 +7,9 @@
 # Install
 
 1. Install the following dependencies:
-```sudo apt-get install build-essential cmake libmagick++-dev libboost-all-dev libopencv-dev libsfml-dev libcups2-dev libprotobuf-dev protobuf-compiler libusb-dev automake autoconf pkg-config autopoint gettext libtool nasm```
+```sudo apt-get install build-essential cmake libmagick++-dev libboost-all-dev libopencv-dev libsfml-dev libcups2-dev libprotobuf-dev protobuf-compiler libusb-dev automake autoconf pkg-config autopoint gettext libtool nasm libturbojpeg0-dev```
 
-2. Get libjpeg-turbo:
-```
-download from: https://sourceforge.net/projects/libjpeg-turbo/files/2.0.0/libjpeg-turbo-2.0.0.tar.gz/download
-tar -xf libjpeg-turbo.tar.gz
-cd libjpeg-turbo-2.0.0
-mkdir build && cd build && cmake ..
-make
-sudo make install
-```
-
-3. Get libgphoto2:
+2. Get libgphoto2:
 ```
 git clone https://github.com/gphoto/libgphoto2.git
 cd libgphoto2
@@ -30,7 +20,7 @@ make
 sudo make install
 ```
 
-4. Build self-o-mat
+3. Build self-o-mat
 ```
 cd self-o-mat
 mkdir build
@@ -39,7 +29,7 @@ cmake ..
 make
 ```
 
-5. Run self-o-mat
+4. Run self-o-mat
 ```
 #setup your installation
 nano settings.json
