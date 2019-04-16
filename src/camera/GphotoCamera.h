@@ -16,6 +16,7 @@
 #include <camera/controllers/InfoController.h>
 #include <camera/controllers/ShutterController.h>
 #include <camera/controllers/IsoController.h>
+#include <camera/controllers/ExposureCorrectionController.h>
 #include <camera/controllers/ImageFormatController.h>
 #include <camera/controllers/TriggerController.h>
 #include <camera/controllers/ApertureController.h>
@@ -43,6 +44,7 @@ namespace selfomat {
                 InfoController *cameraInfoController = nullptr;
                 ImageFormatController *imageFormatController = nullptr;
                 IsoController *isoController = nullptr;
+                ExposureCorrectionController *exposureCorrectionController = nullptr;
                 ShutterSpeedController *shutterController = nullptr;
 
                 JpegDecoder jpegDecoder;

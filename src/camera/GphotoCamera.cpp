@@ -396,7 +396,7 @@ bool GphotoCamera::autofocusBlocking() {
 }
 
 const vector<string> * const GphotoCamera::getExposureCorrectionModeChoices() {
-    return nullptr;
+    return exposureCorrectionController->getChoices();
 }
 
 const vector<string> * const GphotoCamera::getImageFormatChoices() {
@@ -413,7 +413,7 @@ string GphotoCamera::getLensName() {
 }
 
 int GphotoCamera::getExposureCorrection() {
-    return 0;
+    return exposureCorrectionController->getChoice();
 }
 
 int GphotoCamera::getImageFormat() {
@@ -421,7 +421,7 @@ int GphotoCamera::getImageFormat() {
 }
 
 bool GphotoCamera::setExposureCorrection(int exposure_correction_choice) {
-    return false;
+    return exposureCorrectionController->setChoice(exposure_correction_choice);
 }
 
 bool GphotoCamera::setImageFormat(int image_format_choice) {
@@ -477,6 +477,7 @@ bool GphotoCamera::createCameraControllers() {
     imageFormatController = new ImageFormatController(gp, camera, rootWidget);
     registeredControllers.push_back(imageFormatController);
     isoController = new IsoController(gp, camera, rootWidget);
+    exposureCorrectionController = new ExposureCorrectionController(gp, camera, rootWidget);
     registeredControllers.push_back(isoController);
     shutterController = new ShutterSpeedController(gp, camera, rootWidget);
     registeredControllers.push_back(shutterController);
