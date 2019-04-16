@@ -33,8 +33,8 @@ cp -r $1/assets .
 cp -r $1/settings.json .
 
 # get libs
-if [[ ! -d libs ]]; then
-    mkdir libs
+if [ ! -d libs ]; then
+    mkdir -p libs
 fi
 ldd $BINARY | grep "=> /" | while read a b c d; do cp "$c" libs/; done
 
