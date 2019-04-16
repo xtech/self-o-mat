@@ -75,5 +75,9 @@ if(USE_SPI)
 endif()
 
 
+add_custom_target(PACK /bin/sh
+        ${CMAKE_CURRENT_SOURCE_DIR}/pack.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+add_dependencies(PACK self_o_mat)
 
 #add_dependencies(self_o_mat compile_protobuf)
