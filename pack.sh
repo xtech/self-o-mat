@@ -43,4 +43,5 @@ tar cfz $NAME.tar.gz $FILES
 gpg --quiet --batch --yes --output $NAME.sig --detach-sig $NAME.tar.gz
 tar cf $TAR $NAME.tar.gz $NAME.sig
 rm $NAME.tar.gz $NAME.sig
-rm -rf $2/libs
+
+clean
