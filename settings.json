@@ -1,6 +1,6 @@
 {
-  "camera_type": "gphoto",
-  "has_flash": true,
+  "camera_type": "nop",
+  "has_flash": false,
   "has_button": true,
   "disable_watchdog": true,
   "debug": false,
