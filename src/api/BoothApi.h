@@ -22,6 +22,13 @@ namespace selfomat {
             served::multiplexer mux;
             served::net::server server;
 
+            void setHeaders(served::response &res);
+
+            const std::map<std::string, std::string> headers = {
+                    {"Access-Control-Allow-Origin", "*"},
+                    {"Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT"}
+            };
+
         public:
             BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera);
 
