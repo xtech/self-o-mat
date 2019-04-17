@@ -139,8 +139,8 @@ int main(int argc, char *argv[]) {
             p_api->start();
             break;
         } catch (boost::exception &e) {
-            cerr << "Error starting api - retrying in 1 sec" << endl;
-            boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+            cerr << "Error starting api - retrying in 5 sec" << endl;
+            boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
         }
     }
 
