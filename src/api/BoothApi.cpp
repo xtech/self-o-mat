@@ -439,7 +439,7 @@ bool BoothApi::start() {
 
 
     // Create the server and run with 2 handler thread.
-    server.run(2, false);
+    server.run(1, false);
 
     cout << "Api started" << endl;
 
