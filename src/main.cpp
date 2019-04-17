@@ -136,15 +136,16 @@ int main(int argc, char *argv[]) {
     while(true) {
         try {
             p_api = new api::BoothApi(p_logic, p_cam);
+            cout << "Starting API" << endl;
             p_api->start();
             break;
         } catch (boost::exception &e) {
-            cerr << "Error starting api - retrying in 5 sec" << endl;
+            cerr << "Error creqting api - retrying in 5 sec" << endl;
             boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
         }
     }
 
-    cout << "Started Api" << endl;
+    cout << "API started" << endl;
 
     if (!p_logic->start()) {
         cerr << "Error starting Logic - Exiting." << endl;

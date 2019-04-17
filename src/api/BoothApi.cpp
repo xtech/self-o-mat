@@ -479,7 +479,8 @@ bool BoothApi::start() {
 
 
     // Create the server and run with 2 handler thread.
-    server.run(1, false);
+    // THIS IS NEEDED BECAUSE BLOCKING=FALSE IS IGNORED BY SERVERD IF THREADS = 1!!!!
+    server.run(2, false);
 
     cout << "Api started" << endl;
 
