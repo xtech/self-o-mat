@@ -5,9 +5,6 @@ clean() {
     # to to build dir
     cd $2
 
-    # remove old update
-    rm -rf update.tar
-
     # clean libs
     rm -rf ./libs
 
@@ -19,7 +16,7 @@ clean() {
 
 echo "Packing files in $1"
 
-NAME=self_o_mat
+NAME=app
 BINARY=self_o_mat
 FILES="$BINARY settings.json assets/* libs/* firmware.hex"
 TAR=update.tar
@@ -28,6 +25,7 @@ TAR=update.tar
 clean
 
 cd $2
+rm -f $TAR
 
 # get the settings and assets from src dir into the build dir
 cp -r $1/assets .
