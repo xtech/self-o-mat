@@ -117,6 +117,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    cout << "Started Gui" << endl;
+
     if (camera_type == "gphoto") {
         p_cam = new gphoto::GphotoCamera();
     } else if (camera_type == "opencv") {
@@ -125,12 +127,17 @@ int main(int argc, char *argv[]) {
         p_cam = new NopCamera();
     }
 
+    cout << "Started Camera" << endl;
+
     p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, printer_name, image_dir, disable_watchdog);
+
+    cout << "Started Logic" << endl;
 
     p_api = new api::BoothApi(p_logic, p_cam);
     p_api->start();
 
-    cout << "starting logic" << endl;
+    cout << "Started Api" << endl;
+
     if (!p_logic->start()) {
         cerr << "Error starting Logic - Exiting." << endl;
         return 2;

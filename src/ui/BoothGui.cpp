@@ -378,13 +378,13 @@ void BoothGui::renderThread() {
             case STATE_AGREEMENT: {
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 float alpha = min(1.0f, timeInState / 300.0f);
-                //drawAgreement(alpha);
+                drawAgreement(alpha);
             }
                 break;
             case STATE_TRANS_AGREEMENT: {
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 float alpha = min(1.0f, timeInState / 300.0f);
-                //drawAgreement(1 - alpha);
+                drawAgreement(1 - alpha);
                 if (timeInState > 300.0f) {
                     setState(STATE_TRANS_PREV2_PREV3);
                 }
