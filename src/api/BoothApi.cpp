@@ -10,13 +10,17 @@ using namespace xtech::selfomat;
 BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(logic), camera(camera),
                                                                           server("0.0.0.0", "9080", mux, false) {}
 
+void BoothApi::setHeaders(served::response &res) {
+    for (auto const& h : this->headers)
+        res.set_header(h.first, h.second);
+}
 
 bool BoothApi::start() {
 
-
-
     mux.handle("/camera_settings/aperture")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 if(camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -36,6 +40,8 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/iso")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 if(camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -55,6 +61,8 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/shutter_speed")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 if(camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -74,6 +82,8 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/exposure_correction")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 if(camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -93,6 +103,8 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/image_format")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 if(camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -112,6 +124,8 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings")
             .get([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 if(camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -198,6 +212,8 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/printer/enabled")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 BoolUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -213,6 +229,8 @@ bool BoothApi::start() {
             });
     mux.handle("/booth_settings/flash/enabled")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 BoolUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -232,6 +250,8 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/flash/brightness")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 FloatUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -250,6 +270,8 @@ bool BoothApi::start() {
             });
     mux.handle("/booth_settings/flash/fade")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 FloatUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -270,6 +292,8 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/flash/delay")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -289,6 +313,8 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/flash/duration")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -308,6 +334,8 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/template_enabled")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 BoolUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -323,6 +351,8 @@ bool BoothApi::start() {
 
     mux.handle("/trigger")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 if(camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -335,6 +365,8 @@ bool BoothApi::start() {
 
     mux.handle("/focus")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 if(camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -347,6 +379,8 @@ bool BoothApi::start() {
 
     mux.handle("/update")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 logic->stopForUpdate();
                 served::response::stock_reply(200, res);
                 return;
@@ -354,6 +388,8 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings")
             .get([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 BoothSettings currentBoothSettings;
 
                 {
@@ -425,6 +461,8 @@ bool BoothApi::start() {
 
     mux.handle("/stress")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 logic->enableStressTest();
                 served::response::stock_reply(200, res);
                 return;
@@ -432,6 +470,8 @@ bool BoothApi::start() {
 
     mux.handle("/unstress")
             .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
                 logic->disableStressTest();
                 served::response::stock_reply(200, res);
                 return;
