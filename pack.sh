@@ -14,6 +14,7 @@ clean() {
     # clean settings and assets
     rm -rf ./assets
     rm -rf ./settings.json
+    rm -rf ./firmware.hex
 }
 
 echo "Packing files in $1"
@@ -30,7 +31,8 @@ cd $2
 
 # get the settings and assets from src dir into the build dir
 cp -r $1/assets .
-cp -r $1/settings.json .
+cp $1/settings.json .
+cp $1/firmware.hex .
 
 # get libs
 if [ ! -d libs ]; then
