@@ -1,10 +1,10 @@
 {
   "camera_type": "gphoto",
-  "has_flash": false,
-  "has_button": false,
+  "has_flash": true,
+  "has_button": true,
   "disable_watchdog": true,
   "debug": false,
-  "button_port_name": "/dev/null",
+  "button_port_name": "/dev/ttyS0",
   "printer_name": "PDF",
-  "image_dir": "/home/clemens/Pictures"
+  "image_dir": "/tmp"
 }
