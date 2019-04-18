@@ -15,7 +15,7 @@ export class Tab1Page implements OnInit {
   settings: CameraSettings;
   pageTitle = 'Camera Settings';
 
-  constructor(private readonly apiService: XAPIService) {
+  constructor(readonly apiService: XAPIService) {
   }
 
   updateCameraSettings(cameraSettings: CameraSettings) {

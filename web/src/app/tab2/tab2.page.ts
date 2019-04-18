@@ -15,7 +15,7 @@ export class Tab2Page implements OnInit {
   settings: BoothSettings;
   pageTitle = 'Self-o-mat Settings';
 
-  constructor(private readonly apiService: XAPIService) {
+  constructor(readonly apiService: XAPIService) {
   }
 
   updateBoothSettings(boothSettings: BoothSettings) {
