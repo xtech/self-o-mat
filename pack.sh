@@ -12,13 +12,14 @@ clean() {
     rm -rf ./assets
     rm -rf ./settings.json
     rm -rf ./firmware.hex
+    rm -rf ./version
 }
 
 echo "Packing files in $1"
 
 NAME=app
 BINARY=self_o_mat
-FILES="$BINARY settings.json assets/* libs/* firmware.hex"
+FILES="$BINARY settings.json assets/* libs/* firmware.hex version"
 TAR=update.tar
 
 
@@ -31,6 +32,9 @@ rm -f $TAR
 cp -r $1/assets .
 cp $1/settings.json .
 cp $1/firmware.hex .
+
+# write version info
+echo -n "v_`date +'%s'`" > version
 
 # get libs
 if [ ! -d libs ]; then
