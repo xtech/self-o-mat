@@ -11,7 +11,7 @@ rm -rf ./app
 
 cd $1/web
 
-npm install
-ionic build --prod
+#npm install
+#ionic build --prod
 
 cp -r ./www $2/app
