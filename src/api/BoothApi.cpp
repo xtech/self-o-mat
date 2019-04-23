@@ -11,7 +11,7 @@ BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(
                                                                           server("0.0.0.0", "9080", mux, false) {}
 
 void BoothApi::setHeaders(served::response &res) {
-    for (auto const& h : this->headers)
+    for (auto const &h : this->headers)
         res.set_header(h.first, h.second);
 }
 
@@ -21,7 +21,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                if(camera->getState() != STATE_WORKING) {
+                if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
                 }
@@ -42,7 +42,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                if(camera->getState() != STATE_WORKING) {
+                if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
                 }
@@ -63,7 +63,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                if(camera->getState() != STATE_WORKING) {
+                if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
                 }
@@ -84,7 +84,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                if(camera->getState() != STATE_WORKING) {
+                if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
                 }
@@ -105,7 +105,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                if(camera->getState() != STATE_WORKING) {
+                if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
                 }
@@ -126,7 +126,7 @@ bool BoothApi::start() {
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                if(camera->getState() != STATE_WORKING) {
+                if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
                 }
@@ -353,7 +353,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                if(camera->getState() != STATE_WORKING) {
+                if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
                 }
@@ -367,7 +367,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                if(camera->getState() != STATE_WORKING) {
+                if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
                 }
@@ -454,7 +454,6 @@ bool BoothApi::start() {
                 }
 
 
-
                 res << currentBoothSettings.SerializeAsString();
             });
 
@@ -484,37 +483,39 @@ bool BoothApi::start() {
                 std::string filename = "./version";
 
                 ifstream f(filename, ios::in);
-                string file_contents { istreambuf_iterator<char>(f), istreambuf_iterator<char>() };
+                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
 
                 res.set_status(200);
                 res.set_body(file_contents);
             });
 
 
-    mux.handle("/app/{file:.*}")
+    mux.handle("/app/svg/{file}")
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                std::string filename = "./assets/app/"+req.params["file"];
+                std::string filename = "./assets/app/svg/" + req.params["file"];
 
-                cout << "getting file: " << filename << endl;
-
-                auto index = filename.find_last_of('.');
-                auto extension = filename.substr(index, filename.length()-index);
-
-                cout << "file extension was: " << extension << endl;
-
-                if(extension == ".svg") {
-                    res.set_header("Content-Type", "image/svg+xml");
-                }
+                res.set_header("Content-Type", "image/svg+xml");
 
                 ifstream f(filename, ios::in);
-                string file_contents { istreambuf_iterator<char>(f), istreambuf_iterator<char>() };
+                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
 
                 res.set_status(200);
                 res.set_body(file_contents);
             });
+    mux.handle("/app/{file}")
+            .get([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
 
+                std::string filename = "./assets/app/" + req.params["file"];
+
+                ifstream f(filename, ios::in);
+                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
+
+                res.set_status(200);
+                res.set_body(file_contents);
+            });
 
     // Create the server and run with 2 handler thread.
     // THIS IS NEEDED BECAUSE BLOCKING=FALSE IS IGNORED BY SERVERD IF THREADS = 1!!!!
