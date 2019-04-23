@@ -494,7 +494,7 @@ bool BoothApi::start() {
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                std::string filename = "./assets/app/svg/" + req.params["file"];
+                std::string filename = "./app/svg/" + req.params["file"];
 
                 res.set_header("Content-Type", "image/svg+xml");
 
@@ -504,11 +504,12 @@ bool BoothApi::start() {
                 res.set_status(200);
                 res.set_body(file_contents);
             });
+
     mux.handle("/app/{file}")
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                std::string filename = "./assets/app/" + req.params["file"];
+                std::string filename = "./app/" + req.params["file"];
 
                 ifstream f(filename, ios::in);
                 string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
