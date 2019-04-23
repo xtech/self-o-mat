@@ -1,17 +1,13 @@
 #!/bin/sh
 
 
-clean() {
-    # to to build dir
-    cd $2
-
-    # clean app
-    rm -rf ./app
-}
-
 echo "Building web files $1"
 
-clean
+# to to build dir
+cd $2
+
+# clean app
+rm -rf ./app
 
 cd $1/web
 
