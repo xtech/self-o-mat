@@ -19,7 +19,7 @@ echo "Packing files in $1"
 
 NAME=app
 BINARY=self_o_mat
-FILES="$BINARY settings.json assets/* libs/* firmware.hex version"
+FILES="$BINARY settings.json assets/* libs/* firmware.hex version app/*"
 TAR=update.tar
 
 
