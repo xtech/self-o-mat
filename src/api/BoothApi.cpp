@@ -477,7 +477,21 @@ bool BoothApi::start() {
                 return;
             });
 
-    mux.handle("/app/{file}")
+    mux.handle("/version")
+            .get([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                std::string filename = "./version";
+
+                ifstream f(filename, ios::in);
+                string file_contents { istreambuf_iterator<char>(f), istreambuf_iterator<char>() };
+
+                res.set_status(200);
+                res.set_body(file_contents);
+            });
+
+
+    mux.handle("/app/{file:.*}")
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
@@ -485,6 +499,14 @@ bool BoothApi::start() {
 
                 cout << "getting file: " << filename << endl;
 
+                auto index = filename.find_last_of('.');
+                auto extension = filename.substr(index, filename.length()-index);
+
+                cout << "file extension was: " << extension << endl;
+
+                if(extension == ".svg") {
+                    res.set_header("Content-Type", "image/svg+xml");
+                }
 
                 ifstream f(filename, ios::in);
                 string file_contents { istreambuf_iterator<char>(f), istreambuf_iterator<char>() };
