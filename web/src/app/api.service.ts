@@ -31,6 +31,7 @@ export class XAPIService {
     isNumber(val) { return typeof val === 'number'; }
     isList(val) { return val instanceof xtech.selfomat.ListSetting; }
     isReadOnly(val) { return val instanceof xtech.selfomat.ReadOnlySetting; }
+    isPost(val) { return val instanceof xtech.selfomat.PostSetting; }
     getList(val): xtech.selfomat.ListSetting {
         if (!this.isList(val)) {
             return null;
@@ -94,6 +95,17 @@ export class XAPIService {
                 console.log(error);
             });
 
+    }
+
+    post($event, setting) {
+        if (setting instanceof xtech.selfomat.PostSetting) {
+            this.http.post(environment.SERVER_URL + setting['postUrl'],
+            	null,
+            	{responseType: 'text'})
+            	.subscribe(data => {}, error => {
+             	   console.log(error);
+            	});
+        }
     }
 
     trigger() {

@@ -104,6 +104,26 @@ export namespace xtech {
             public toJSON(): { [k: string]: any };
         }
 
+        interface IPostSetting {
+            name: string;
+            postUrl: string;
+        }
+
+        class PostSetting implements IPostSetting {
+            constructor(properties?: xtech.selfomat.IPostSetting);
+            public name: string;
+            public postUrl: string;
+            public static create(properties?: xtech.selfomat.IPostSetting): xtech.selfomat.PostSetting;
+            public static encode(message: xtech.selfomat.IPostSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: xtech.selfomat.IPostSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): xtech.selfomat.PostSetting;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): xtech.selfomat.PostSetting;
+            public static verify(message: { [k: string]: any }): (string|null);
+            public static fromObject(object: { [k: string]: any }): xtech.selfomat.PostSetting;
+            public static toObject(message: xtech.selfomat.PostSetting, options?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
         interface IListSetting {
             name: string;
             currentIndex: number;
@@ -210,6 +230,7 @@ export namespace xtech {
             imageFormat: xtech.selfomat.IListSetting;
             cameraName: xtech.selfomat.IReadOnlySetting;
             lensName: xtech.selfomat.IReadOnlySetting;
+            focus?: (xtech.selfomat.IPostSetting|null);
         }
 
         class CameraSettings implements ICameraSettings {
@@ -221,6 +242,7 @@ export namespace xtech {
             public imageFormat: xtech.selfomat.IListSetting;
             public cameraName: xtech.selfomat.IReadOnlySetting;
             public lensName: xtech.selfomat.IReadOnlySetting;
+            public focus?: (xtech.selfomat.IPostSetting|null);
             public static create(properties?: xtech.selfomat.ICameraSettings): xtech.selfomat.CameraSettings;
             public static encode(message: xtech.selfomat.ICameraSettings, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.ICameraSettings, writer?: $protobuf.Writer): $protobuf.Writer;

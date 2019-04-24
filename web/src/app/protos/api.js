@@ -1040,6 +1040,216 @@
                 return ReadOnlySetting;
             })();
     
+            selfomat.PostSetting = (function() {
+    
+                /**
+                 * Properties of a PostSetting.
+                 * @memberof xtech.selfomat
+                 * @interface IPostSetting
+                 * @property {string} name PostSetting name
+                 * @property {string} postUrl PostSetting postUrl
+                 */
+    
+                /**
+                 * Constructs a new PostSetting.
+                 * @memberof xtech.selfomat
+                 * @classdesc Represents a PostSetting.
+                 * @implements IPostSetting
+                 * @constructor
+                 * @param {xtech.selfomat.IPostSetting=} [properties] Properties to set
+                 */
+                function PostSetting(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * PostSetting name.
+                 * @member {string} name
+                 * @memberof xtech.selfomat.PostSetting
+                 * @instance
+                 */
+                PostSetting.prototype.name = "";
+    
+                /**
+                 * PostSetting postUrl.
+                 * @member {string} postUrl
+                 * @memberof xtech.selfomat.PostSetting
+                 * @instance
+                 */
+                PostSetting.prototype.postUrl = "";
+    
+                /**
+                 * Creates a new PostSetting instance using the specified properties.
+                 * @function create
+                 * @memberof xtech.selfomat.PostSetting
+                 * @static
+                 * @param {xtech.selfomat.IPostSetting=} [properties] Properties to set
+                 * @returns {xtech.selfomat.PostSetting} PostSetting instance
+                 */
+                PostSetting.create = function create(properties) {
+                    return new PostSetting(properties);
+                };
+    
+                /**
+                 * Encodes the specified PostSetting message. Does not implicitly {@link xtech.selfomat.PostSetting.verify|verify} messages.
+                 * @function encode
+                 * @memberof xtech.selfomat.PostSetting
+                 * @static
+                 * @param {xtech.selfomat.IPostSetting} message PostSetting message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                PostSetting.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.postUrl);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified PostSetting message, length delimited. Does not implicitly {@link xtech.selfomat.PostSetting.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof xtech.selfomat.PostSetting
+                 * @static
+                 * @param {xtech.selfomat.IPostSetting} message PostSetting message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                PostSetting.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a PostSetting message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof xtech.selfomat.PostSetting
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {xtech.selfomat.PostSetting} PostSetting
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                PostSetting.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.xtech.selfomat.PostSetting();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.name = reader.string();
+                            break;
+                        case 2:
+                            message.postUrl = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    if (!message.hasOwnProperty("name"))
+                        throw $util.ProtocolError("missing required 'name'", { instance: message });
+                    if (!message.hasOwnProperty("postUrl"))
+                        throw $util.ProtocolError("missing required 'postUrl'", { instance: message });
+                    return message;
+                };
+    
+                /**
+                 * Decodes a PostSetting message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof xtech.selfomat.PostSetting
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {xtech.selfomat.PostSetting} PostSetting
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                PostSetting.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a PostSetting message.
+                 * @function verify
+                 * @memberof xtech.selfomat.PostSetting
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                PostSetting.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (!$util.isString(message.name))
+                        return "name: string expected";
+                    if (!$util.isString(message.postUrl))
+                        return "postUrl: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a PostSetting message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof xtech.selfomat.PostSetting
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {xtech.selfomat.PostSetting} PostSetting
+                 */
+                PostSetting.fromObject = function fromObject(object) {
+                    if (object instanceof $root.xtech.selfomat.PostSetting)
+                        return object;
+                    var message = new $root.xtech.selfomat.PostSetting();
+                    if (object.name != null)
+                        message.name = String(object.name);
+                    if (object.postUrl != null)
+                        message.postUrl = String(object.postUrl);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a PostSetting message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof xtech.selfomat.PostSetting
+                 * @static
+                 * @param {xtech.selfomat.PostSetting} message PostSetting
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                PostSetting.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.name = "";
+                        object.postUrl = "";
+                    }
+                    if (message.name != null && message.hasOwnProperty("name"))
+                        object.name = message.name;
+                    if (message.postUrl != null && message.hasOwnProperty("postUrl"))
+                        object.postUrl = message.postUrl;
+                    return object;
+                };
+    
+                /**
+                 * Converts this PostSetting to JSON.
+                 * @function toJSON
+                 * @memberof xtech.selfomat.PostSetting
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                PostSetting.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return PostSetting;
+            })();
+    
             selfomat.ListSetting = (function() {
     
                 /**
@@ -2150,6 +2360,7 @@
                  * @property {xtech.selfomat.IListSetting} imageFormat CameraSettings imageFormat
                  * @property {xtech.selfomat.IReadOnlySetting} cameraName CameraSettings cameraName
                  * @property {xtech.selfomat.IReadOnlySetting} lensName CameraSettings lensName
+                 * @property {xtech.selfomat.IPostSetting|null} [focus] CameraSettings focus
                  */
     
                 /**
@@ -2224,6 +2435,14 @@
                 CameraSettings.prototype.lensName = null;
     
                 /**
+                 * CameraSettings focus.
+                 * @member {xtech.selfomat.IPostSetting|null|undefined} focus
+                 * @memberof xtech.selfomat.CameraSettings
+                 * @instance
+                 */
+                CameraSettings.prototype.focus = null;
+    
+                /**
                  * Creates a new CameraSettings instance using the specified properties.
                  * @function create
                  * @memberof xtech.selfomat.CameraSettings
@@ -2254,6 +2473,8 @@
                     $root.xtech.selfomat.ListSetting.encode(message.imageFormat, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.cameraName, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.lensName, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                    if (message.focus != null && message.hasOwnProperty("focus"))
+                        $root.xtech.selfomat.PostSetting.encode(message.focus, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
                     return writer;
                 };
     
@@ -2308,6 +2529,9 @@
                             break;
                         case 8:
                             message.lensName = $root.xtech.selfomat.ReadOnlySetting.decode(reader, reader.uint32());
+                            break;
+                        case 9:
+                            message.focus = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -2393,6 +2617,11 @@
                         if (error)
                             return "lensName." + error;
                     }
+                    if (message.focus != null && message.hasOwnProperty("focus")) {
+                        var error = $root.xtech.selfomat.PostSetting.verify(message.focus);
+                        if (error)
+                            return "focus." + error;
+                    }
                     return null;
                 };
     
@@ -2443,6 +2672,11 @@
                             throw TypeError(".xtech.selfomat.CameraSettings.lensName: object expected");
                         message.lensName = $root.xtech.selfomat.ReadOnlySetting.fromObject(object.lensName);
                     }
+                    if (object.focus != null) {
+                        if (typeof object.focus !== "object")
+                            throw TypeError(".xtech.selfomat.CameraSettings.focus: object expected");
+                        message.focus = $root.xtech.selfomat.PostSetting.fromObject(object.focus);
+                    }
                     return message;
                 };
     
@@ -2467,6 +2701,7 @@
                         object.imageFormat = null;
                         object.cameraName = null;
                         object.lensName = null;
+                        object.focus = null;
                     }
                     if (message.iso != null && message.hasOwnProperty("iso"))
                         object.iso = $root.xtech.selfomat.ListSetting.toObject(message.iso, options);
@@ -2482,6 +2717,8 @@
                         object.cameraName = $root.xtech.selfomat.ReadOnlySetting.toObject(message.cameraName, options);
                     if (message.lensName != null && message.hasOwnProperty("lensName"))
                         object.lensName = $root.xtech.selfomat.ReadOnlySetting.toObject(message.lensName, options);
+                    if (message.focus != null && message.hasOwnProperty("focus"))
+                        object.focus = $root.xtech.selfomat.PostSetting.toObject(message.focus, options);
                     return object;
                 };
     

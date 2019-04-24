@@ -9,7 +9,7 @@
 <ion-content>
 
   <ion-list>
-    <ion-item *ngFor="let setting of apiService.values(settings)" lines="none">
+    <ion-item *ngFor="let setting of apiService.values(settings)" lines="none" [detail]="apiService.isPost(setting)" (click)='apiService.post($event, setting)'>
       <ion-label *ngIf="!apiService.isNumber(setting['minValue'])">{{setting['name']}}</ion-label>
       <ion-label slot="start" *ngIf="apiService.isNumber(setting['minValue'])">{{setting['name']}}</ion-label>
       <ion-toggle slot="end" *ngIf="apiService.isBoolean(setting['currentValue'])" [(ngModel)]="setting['currentValue']" (ionChange)="apiService.updateSetting($event, setting)"></ion-toggle>
