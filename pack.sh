@@ -1,9 +1,17 @@
 #!/bin/sh
 
 
+NAME=app
+BINARY=self_o_mat
+FILES="$BINARY settings.json assets/* libs/* firmware.hex version app/*"
+TAR=update.tar
+BIN_DIR=$2
+
 clean() {
+    echo "Cleaning in $BIN_DIR"
+
     # to to build dir
-    cd $2
+    cd $BIN_DIR
 
     # clean libs
     rm -rf ./libs
@@ -13,20 +21,19 @@ clean() {
     rm -rf ./settings.json
     rm -rf ./firmware.hex
     rm -rf ./version
+    rm -rf $TAR
 }
 
 echo "Packing files in $1"
 
-NAME=app
-BINARY=self_o_mat
-FILES="$BINARY settings.json assets/* libs/* firmware.hex version app/*"
-TAR=update.tar
 
 
 clean
 
+
 cd $2
-rm -f $TAR
+rm -f selfomat.update
+
 
 # get the settings and assets from src dir into the build dir
 cp -r $1/assets .
@@ -47,5 +54,6 @@ tar cfz $NAME.tar.gz $FILES
 gpg --quiet --batch --yes --output $NAME.sig --detach-sig $NAME.tar.gz
 tar cf $TAR $NAME.tar.gz $NAME.sig
 rm $NAME.tar.gz $NAME.sig
+gpg --batch --yes --output selfomat.update --encrypt --recipient post@self-o-mat.de $TAR
 
 clean
