@@ -174,7 +174,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_exposure_compensation();
-                    setting->set_name("Exposure Compensation (during Flash)");
+                    setting->set_name("Exposure Compensation");
                     setting->set_update_url("/camera_settings/exposure_correction");
                     setting->set_currentindex(camera->getExposureCorrection());
                     auto *choices = camera->getExposureCorrectionModeChoices();
@@ -196,6 +196,12 @@ bool BoothApi::start() {
                             setting->add_values(choices->at(i));
                         }
                     }
+                }
+
+                {
+                    auto setting = currentCameraSettings.mutable_focus();
+                    setting->set_name("Adjust Focus");
+                    setting->set_post_url("/focus");
                 }
 
                 auto lensNameSetting = currentCameraSettings.mutable_lens_name();
