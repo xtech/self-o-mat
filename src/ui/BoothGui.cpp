@@ -7,6 +7,15 @@
 using namespace std;
 using namespace selfomat::ui;
 
+std::wstring readFile(const char* filename)
+{
+    std::wifstream wif(filename);
+    wif.imbue(std::locale("de_DE.UTF-8"));
+    std::wstringstream wss;
+    wss << wif.rdbuf();
+    return wss.str();
+}
+
 BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
@@ -59,9 +68,7 @@ bool BoothGui::start() {
     }
     imageNoCamera.setTexture(textureNoCamera);
 
-
-    wifstream infile { "./assets/agreement.txt" };
-    agreement = { istreambuf_iterator<wchar_t>(infile), istreambuf_iterator<wchar_t>() };
+    agreement = readFile("./assets/agreement.txt");
     if (agreement.length() < 1) {
         cerr << "Could not load agreement text." << endl;
         return false;
