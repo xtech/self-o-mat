@@ -3,6 +3,7 @@ import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../environments/environment';
+import {LoadingController} from '@ionic/angular';
 
 import {xtech} from './protos/api';
 
@@ -14,7 +15,10 @@ import * as Long from 'long';
 
 export class XAPIService {
 
-    constructor(private readonly http: HttpClient) {}
+    constructor(
+    	private readonly http: HttpClient,
+    	public loadingController: LoadingController
+    ) {}
 
     values(obj: Object): any[] {
         if (obj == null) {
@@ -97,12 +101,18 @@ export class XAPIService {
 
     }
 
-    post($event, setting) {
+    async post($event, setting) {
+
+	const loading = await this.loadingController.create({});
+        await loading.present();
+
         if (setting instanceof xtech.selfomat.PostSetting) {
             this.http.post(environment.SERVER_URL + setting['postUrl'],
             	null,
             	{responseType: 'text'})
-            	.subscribe(data => {}, error => {
+            	.subscribe(data => {
+             	   loading.dismiss();
+            	}, error => {
              	   console.log(error);
             	});
         }
