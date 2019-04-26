@@ -102,11 +102,11 @@ export class XAPIService {
     }
 
     async post($event, setting) {
-
-	const loading = await this.loadingController.create({});
-        await loading.present();
-
         if (setting instanceof xtech.selfomat.PostSetting) {
+
+            const loading = await this.loadingController.create({});
+            await loading.present();
+
             this.http.post(environment.SERVER_URL + setting['postUrl'],
             	null,
             	{responseType: 'text'})
