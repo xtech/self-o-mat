@@ -18,11 +18,6 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/protobuf/api.pb.cc ${C
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/app
-        DEPENDS web/src web/package.json web/angular.json
-        COMMAND /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/build_web.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-        USES_TERMINAL)
-
 
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
@@ -82,10 +77,6 @@ if(USE_SPI)
 endif()
 
 
-add_custom_target(PACK /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/pack.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/app)
-
-add_custom_target(WEB DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/app)
+add_custom_target(PACK /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/pack.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_dependencies(PACK self_o_mat)
-add_dependencies(self_o_mat WEB)

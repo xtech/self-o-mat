@@ -21,6 +21,7 @@ clean() {
     rm -rf ./settings.json
     rm -rf ./firmware.hex
     rm -rf ./version
+    rm -rf ./app
     rm -rf $TAR
 }
 
@@ -39,6 +40,7 @@ rm -f selfomat.update
 cp -r $1/assets .
 cp $1/settings.json .
 cp $1/firmware.hex .
+cp -r $1/web/www ./app
 
 # write version info
 echo -n "v_`date +'%s'`" > version
