@@ -591,7 +591,7 @@ void BoothLogic::readSettings() {
     this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
     this->flashBrightness=ptree.get<float>("flash_brightness", 1.0f);
     this->flashFade=ptree.get<float>("flash_fade", 0.0f);
-    this->ledOffset=ptree.get<uint8_t>("led_offset", 0);
+    this->ledOffset=ptree.get<int8_t>("led_offset", 0);
 
     if(!success)
         writeSettings();
