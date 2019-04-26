@@ -166,6 +166,9 @@ namespace selfomat {
 
             void saveImage(void *data, size_t size, std::string filename);
 
+            void sendCommand(uint8_t command);
+            void sendCommand(uint8_t command, uint8_t argument);
+
         public:
             void trigger();
 

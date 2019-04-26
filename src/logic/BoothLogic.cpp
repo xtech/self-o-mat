@@ -36,10 +36,10 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
         button_serial_port.open(serialPath.string());
         button_serial_port.set_option(boost::asio::serial_port_base::baud_rate(38400));
         if (disable_watchdog)
-            button_serial_port.write_some(boost::asio::buffer("!", 1));
+            sendCommand('!');
         else
-            button_serial_port.write_some(boost::asio::buffer("?", 1));
-        button_serial_port.write_some(boost::asio::buffer(".", 1));
+            sendCommand('?');
+        sendCommand('.');
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
         return false;
@@ -124,8 +124,7 @@ bool BoothLogic::start() {
 
     if (showAgreement) {
         gui->showAgreement();
-        if (button_serial_port.is_open())
-            button_serial_port.write_some(boost::asio::buffer("a", 1));
+        sendCommand('a');
     }
 
     gui->logDebug("Initializing Image Processor");
@@ -277,7 +276,7 @@ void BoothLogic::cameraThread() {
                     gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
                     gui->notifyFinalImageSent();
                     if (printerEnabled && button_serial_port.is_open())
-                        button_serial_port.write_some(boost::asio::buffer("p", 1));
+                        sendCommand('p');
 
                     // 4500ms from here for the user to decide
                     boost::this_thread::sleep(boost::posix_time::milliseconds(4500));
@@ -292,8 +291,7 @@ void BoothLogic::cameraThread() {
                     gui->logError("Got an error");
                 }
 
-                if (button_serial_port.is_open())
-                    button_serial_port.write_some(boost::asio::buffer("k", 1));
+                sendCommand('k');
 
                 gui->notifyPreviewIncoming();
             } else {
@@ -316,8 +314,7 @@ void BoothLogic::logicThread() {
 
     while (isRunning) {
         // Send the heartbeat
-        if (button_serial_port.is_open())
-            button_serial_port.write_some(boost::asio::buffer(".", 1));
+        sendCommand('.');
         //flash_serial_port.write_some(asio::buffer("i", 1));
         boost::this_thread::sleep(boost::posix_time::seconds(1));
 
@@ -417,13 +414,11 @@ void BoothLogic::trigger() {
 }
 
 void BoothLogic::enableStressTest() {
-    if (button_serial_port.is_open())
-        button_serial_port.write_some(boost::asio::buffer("S", 1));
+    sendCommand('S');
 }
 
 void BoothLogic::disableStressTest() {
-    if (button_serial_port.is_open())
-        button_serial_port.write_some(boost::asio::buffer("s", 1));
+    sendCommand('s');
 }
 
 void BoothLogic::printerThread() {
@@ -553,8 +548,7 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 }
 
 void BoothLogic::stopForUpdate() {
-    if (button_serial_port.is_open())
-        button_serial_port.write_some(boost::asio::buffer("f", 1));
+    sendCommand('f');
 
     returnCode = 0x42;
     stop();
@@ -591,7 +585,7 @@ void BoothLogic::readSettings() {
     this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
     this->flashBrightness=ptree.get<float>("flash_brightness", 1.0f);
     this->flashFade=ptree.get<float>("flash_fade", 0.0f);
-    this->ledOffset=ptree.get<uint8_t>("led_offset", 0);
+    setLEDOffset(ptree.get<uint8_t>("led_offset", 0));
 
     if(!success)
         writeSettings();
@@ -650,11 +644,26 @@ bool BoothLogic::getTemplateEnabled() {
 
 void BoothLogic::setLEDOffset(int8_t offset, bool persist) {
     this->ledOffset = offset;
-    // TODO: send new value to the controller board
+    sendCommand('L', offset);
     if(persist)
         writeSettings();
 }
 
 int8_t BoothLogic::getLEDOffset() {
     return ledOffset;
+}
+
+void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
+    if (!button_serial_port.is_open())
+        return;
+    std::vector<uint8_t> data;
+    data.push_back(command);
+    data.push_back(argument);
+    button_serial_port.write_some(boost::asio::buffer(data.data(), 2));
+}
+
+void BoothLogic::sendCommand(uint8_t command) {
+    if (!button_serial_port.is_open())
+        return;
+    button_serial_port.write_some(boost::asio::buffer(&command, 1));
 }
