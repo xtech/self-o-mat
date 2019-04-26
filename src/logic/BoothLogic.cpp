@@ -644,7 +644,7 @@ bool BoothLogic::getTemplateEnabled() {
 
 void BoothLogic::setLEDOffset(int8_t offset, bool persist) {
     this->ledOffset = offset;
-    sendCommand('L', offset);
+    sendCommand('L', offset+8);
     if(persist)
         writeSettings();
 }
