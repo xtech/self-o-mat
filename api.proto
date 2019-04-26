@@ -87,6 +87,7 @@ message BoothSettings {
     required FloatSetting flash_fade = 4;
     required IntSetting flash_delay_micros = 5;
     required IntSetting flash_duration_micros = 6;
-    required BoolSetting template_enabled = 7;
-    required ListSetting led_offset = 8;
+    required ListSetting flash_exposure_compensation = 7;
+    required BoolSetting template_enabled = 8;
+    required ListSetting led_offset = 9;
 }

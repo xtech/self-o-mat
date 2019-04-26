@@ -246,7 +246,8 @@ bool BoothApi::start() {
                 bool flashEnabled;
                 float flashBrightness, flashFade;
                 uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                int8_t flashExposureCompensation;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros, &flashExposureCompensation);
                 flashEnabled = update.value();
                 logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
 
@@ -267,7 +268,8 @@ bool BoothApi::start() {
                 bool flashEnabled;
                 float flashBrightness, flashFade;
                 uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                int8_t flashExposureCompensation;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros, &flashExposureCompensation);
                 flashBrightness = update.value();
                 logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
 
@@ -287,9 +289,10 @@ bool BoothApi::start() {
                 bool flashEnabled;
                 float flashBrightness, flashFade;
                 uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                int8_t flashExposureCompensation;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros, &flashExposureCompensation);
                 flashFade = update.value();
-                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, flashExposureCompensation, true);
 
                 served::response::stock_reply(200, res);
                 return;
@@ -309,9 +312,10 @@ bool BoothApi::start() {
                 bool flashEnabled;
                 float flashBrightness, flashFade;
                 uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                int8_t flashExposureCompensation;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros, &flashExposureCompensation);
                 delayMicros = update.value();
-                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, flashExposureCompensation, true);
 
                 served::response::stock_reply(200, res);
                 return;
@@ -330,9 +334,32 @@ bool BoothApi::start() {
                 bool flashEnabled;
                 float flashBrightness, flashFade;
                 uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                int8_t flashExposureCompensation;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros, &flashExposureCompensation);
                 durationMicros = update.value();
-                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, flashExposureCompensation, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/booth_settings/flash/exposure_correction")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                bool flashEnabled;
+                float flashBrightness, flashFade;
+                uint64_t delayMicros, durationMicros;
+                int8_t flashExposureCompensation;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros, &flashExposureCompensation);
+                flashExposureCompensation = update.value();
+                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, flashExposureCompensation, true);
 
                 served::response::stock_reply(200, res);
                 return;
@@ -424,7 +451,8 @@ bool BoothApi::start() {
                 bool flashEnabled;
                 float flashBrightness, flashFade;
                 uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                int8_t flashExposureCompensation;
+                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros, &flashExposureCompensation);
                 {
                     auto setting = currentBoothSettings.mutable_flash_enabled();
                     setting->set_update_url("/booth_settings/flash/enabled");
@@ -466,6 +494,24 @@ bool BoothApi::start() {
                     setting->set_currentvalue(durationMicros);
                     setting->set_minvalue(0);
                     setting->set_maxvalue(100000);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flash_exposure_compensation();
+                    setting->set_name("Flash Exposure Compensation");
+                    setting->set_update_url("/booth_settings/flash/exposure_correction");
+                    if (flashExposureCompensation == -1) {
+                        setting->set_currentindex(camera->getExposureCorrection());
+                    } else {
+                        setting->set_currentindex(flashExposureCompensation);
+                    }
+
+                    auto *choices = camera->getExposureCorrectionModeChoices();
+                    if (choices != nullptr) {
+                        for (int i = 0; i < choices->size(); i++) {
+                            setting->add_values(choices->at(i));
+                        }
+                    }
                 }
 
                 {

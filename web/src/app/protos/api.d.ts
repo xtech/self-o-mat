@@ -261,6 +261,7 @@ export namespace xtech {
             flashFade: xtech.selfomat.IFloatSetting;
             flashDelayMicros: xtech.selfomat.IIntSetting;
             flashDurationMicros: xtech.selfomat.IIntSetting;
+            flashExposureCompensation: xtech.selfomat.IListSetting;
             templateEnabled: xtech.selfomat.IBoolSetting;
             ledOffset: xtech.selfomat.IListSetting;
         }
@@ -273,6 +274,7 @@ export namespace xtech {
             public flashFade: xtech.selfomat.IFloatSetting;
             public flashDelayMicros: xtech.selfomat.IIntSetting;
             public flashDurationMicros: xtech.selfomat.IIntSetting;
+            public flashExposureCompensation: xtech.selfomat.IListSetting;
             public templateEnabled: xtech.selfomat.IBoolSetting;
             public ledOffset: xtech.selfomat.IListSetting;
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;

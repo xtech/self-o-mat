@@ -591,6 +591,7 @@ void BoothLogic::readSettings() {
     this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
     this->flashBrightness=ptree.get<float>("flash_brightness", 1.0f);
     this->flashFade=ptree.get<float>("flash_fade", 0.0f);
+    this->flashExposureCompensation=ptree.get<int8_t>("flash_exposure_compensation", -1);
     this->ledOffset=ptree.get<int8_t>("led_offset", 0);
 
     if(!success)
@@ -607,6 +608,7 @@ void BoothLogic::writeSettings() {
     ptree.put("flash_delay_micros", this->flashDelayMicros);
     ptree.put("flash_brightness", this->flashBrightness);
     ptree.put("flash_fade", this->flashFade);
+    ptree.put("flashExposureCompensation", this->flashExposureCompensation);
     ptree.put("led_offset", this->ledOffset);
 
     try {
@@ -617,24 +619,26 @@ void BoothLogic::writeSettings() {
 }
 
 void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros,
-                                    uint64_t durationMicros, bool persist) {
+                                    uint64_t durationMicros, int8_t exposureCompensation, bool persist) {
     this->flashEnabled = enabled;
     this->flashBrightness = brightness;
     this->flashFade = fade;
     this->flashDelayMicros = delayMicros;
     this->flashDurationMicros = durationMicros;
+    this->flashExposureCompensation = exposureCompensation;
     if(persist) {
         writeSettings();
     }
 }
 
 void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros,
-                                    uint64_t *durationMicros) {
+                                    uint64_t *durationMicros, int8_t *exposureCompensation) {
      *enabled = this->flashEnabled;
      *brightness = this->flashBrightness;
      *fade = this->flashFade;
      *delayMicros = this->flashDelayMicros;
      *durationMicros = this->flashDurationMicros;
+     *exposureCompensation = this->flashExposureCompensation;
 }
 
 void BoothLogic::setTemplateEnabled(bool templateEnabled, bool persist) {

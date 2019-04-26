@@ -94,6 +94,7 @@ namespace selfomat {
             bool showAgreement;
             float flashBrightness, flashFade;
             uint64_t flashDurationMicros, flashDelayMicros;
+            int8_t flashExposureCompensation;
             int8_t ledOffset;
 
 
@@ -205,8 +206,8 @@ namespace selfomat {
             void setPrinterEnabled(bool printerEnabled, bool persist = false);
             bool getPrinterEnabled();
 
-            void setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros, uint64_t durationMicros, bool persist = false);
-            void getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros, uint64_t *durationMicros);
+            void setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros, uint64_t durationMicros, int8_t exposureCompensation, bool persist = false);
+            void getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros, uint64_t *durationMicros, int8_t *exposureCompensation);
 
             void setTemplateEnabled(bool templateEnabled, bool persist = false);
             bool getTemplateEnabled();
