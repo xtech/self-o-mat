@@ -94,6 +94,7 @@ namespace selfomat {
             bool showAgreement;
             float flashBrightness, flashFade;
             uint64_t flashDurationMicros, flashDelayMicros;
+            int8_t ledOffset;
 
 
             PrinterManager printerManager;
@@ -209,6 +210,9 @@ namespace selfomat {
 
             void setTemplateEnabled(bool templateEnabled, bool persist = false);
             bool getTemplateEnabled();
+
+            void setLEDOffset(int8_t offset, bool persist = false);
+            int8_t getLEDOffset();
         };
 
     }

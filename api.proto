@@ -88,4 +88,5 @@ message BoothSettings {
     required IntSetting flash_delay_micros = 5;
     required IntSetting flash_duration_micros = 6;
     required BoolSetting template_enabled = 7;
+    required ListSetting led_offset = 8;
 }

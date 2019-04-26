@@ -354,6 +354,22 @@ bool BoothApi::start() {
                 return;
             });
 
+    mux.handle("/booth_settings/led_offset")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setLEDOffset(update.value()-8, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
 
     mux.handle("/trigger")
             .post([this](served::response &res, const served::request &req) {
@@ -457,6 +473,16 @@ bool BoothApi::start() {
                     setting->set_update_url("/booth_settings/template_enabled");
                     setting->set_name("Template Enabled?");
                     setting->set_currentvalue(logic->getTemplateEnabled());
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_led_offset();
+                    setting->set_update_url("/booth_settings/led_offset");
+                    setting->set_name("LED Offset");
+                    setting->set_currentindex(logic->getLEDOffset()+8);
+                    for (int i = -8; i <= 8; i++) {
+                        setting->add_values(std::to_string(i));
+                    }
                 }
 
 
