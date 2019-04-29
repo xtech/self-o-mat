@@ -86,7 +86,6 @@ int main(int argc, char *argv[]) {
     bool has_button = false;
     bool has_flash = false;
     string button_port_name;
-    string printer_name;
     string image_dir;
 
     boost::property_tree::ptree ptree;
@@ -94,7 +93,6 @@ int main(int argc, char *argv[]) {
     try {
         boost::property_tree::read_json("./settings.json", ptree);
         camera_type = ptree.get<string>("camera_type");
-        printer_name = ptree.get<string>("printer_name");
         image_dir = ptree.get<string>("image_dir");
         button_port_name = ptree.get<string>("button_port_name");
         debug = ptree.get<bool>("debug");
@@ -129,7 +127,7 @@ int main(int argc, char *argv[]) {
 
     cout << "Started Camera" << endl;
 
-    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, printer_name, image_dir, disable_watchdog);
+    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, disable_watchdog);
 
     cout << "Started Logic" << endl;
 

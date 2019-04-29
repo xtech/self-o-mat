@@ -5,6 +5,5 @@
   "disable_watchdog": true,
   "debug": false,
   "button_port_name": "/dev/ttyS0",
-  "printer_name": "PDF",
   "image_dir": "/tmp"
 }

@@ -65,11 +65,11 @@ namespace selfomat {
         class BoothLogic {
         public:
             explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash,
-                                string printer_name, string imageDir, bool disable_watchdog) : camera(camera), gui(gui), io_service(),
+                                string imageDir, bool disable_watchdog) : camera(camera), gui(gui), io_service(),
                                                                         tmp_serial_port(io_service),
                                                                         button_serial_port(io_service),
                                                                         imageProcessor(gui),
-                                                                        printerManager(gui, printer_name),
+                                                                        printerManager(gui),
                                                                         has_button(has_button),
                                                                         button_port(button_port), has_flash(has_flash),
                                                                         imageDir(imageDir) {

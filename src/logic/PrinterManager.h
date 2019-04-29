@@ -65,7 +65,7 @@ namespace selfomat {
 
             bool refreshPrinterState();
 
-            PrinterManager(ILogger *logger, std::string printer_name);
+            PrinterManager(ILogger *logger);
 
             bool prepareImageForPrint(Magick::Image image);
 

@@ -34,23 +34,58 @@ bool PrinterManager::refreshCupsDevices() {
 
 bool PrinterManager::refreshCupsDestinations() {
 
-    int oldCupsDestinationCount = cupsDestinationCount;
-
     cupsFreeDests(cupsDestinationCount, cupsDestinations);
     cupsDestinationCount = 0;
 
     // We do NOT want to discover the network, mask = CUPS_PRINTER_DISCOVERED
-    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 500, NULL, CUPS_PRINTER_LOCAL, CUPS_PRINTER_DISCOVERED,
+    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 300, NULL, CUPS_PRINTER_LOCAL, CUPS_PRINTER_DISCOVERED,
             (cups_dest_cb_t) [] (void *user_data, unsigned flags, cups_dest_t *dest) {
                 auto *printerManager = (PrinterManager*)user_data;
-                printerManager->cupsDestinationCount = cupsCopyDest(dest, printerManager->cupsDestinationCount, &printerManager->cupsDestinations);
+                auto printerName = std::string (dest->name);
+
+                if (flags & CUPS_DEST_FLAGS_REMOVED) {
+                    if (printerName == printerManager->printer_name) {
+                        std::cout << "Removed default printer: " << printerName << std::endl;
+                        printerManager->printer_name.clear();
+                    }
+
+                    printerManager->cupsDestinationCount =
+                            cupsRemoveDest(dest->name, dest->instance,
+                                           printerManager->cupsDestinationCount,
+                                           &printerManager->cupsDestinations);
+                }
+                else {
+                    if (dest->is_default && printerManager->printer_name != printerName) {
+                        std::cout << "Found default printer: " << printerName << std::endl;
+                        printerManager->printer_name = printerName;
+                    }
+
+                    printerManager->cupsDestinationCount =
+                            cupsCopyDest(dest, printerManager->cupsDestinationCount,
+                                         &printerManager->cupsDestinations);
+                }
+
                 return 1;
         }, this);
 
+    // Check
+    if (!printer_name.empty()) {
+        bool foundDefault = false;
+        for(int i = 0; i < cupsDestinationCount; i++) {
+            if (cupsDestinations[i].name == printer_name) {
+                foundDefault = true;
+                break;
+            }
+        }
+        if (!foundDefault) {
+            std::cout << "No printer" << std::endl;
+            printer_name.clear();
+        }
+    }
 
-    if (oldCupsDestinationCount < 1) {
-        for(int i = 0; i < cupsDestinationCount; i++)
-            std::cout << "Found Cups destination: " << cupsDestinations[i].name << std::endl;
+    if (printer_name.empty() && cupsDestinationCount > 0) {
+        std::cout << "Found any printer: " << cupsDestinations[0].name << std::endl;
+        printer_name = cupsDestinations[0].name;
     }
 
     return true;
@@ -69,6 +104,12 @@ bool PrinterManager::refreshPrinterState() {
 
     // Unfortunately necessary in order to get the current state
     refreshCupsDestinations();
+
+    currentStateReasons.clear();
+
+    if (printer_name.empty()) {
+        return false;
+    }
 
     dest = cupsGetDest(printer_name.c_str(),
                        NULL,
@@ -98,8 +139,6 @@ bool PrinterManager::refreshPrinterState() {
             currentPrinterState = STATE_UNKNOWN;
     }
 
-    currentStateReasons.clear();
-
     if(printer_state_reasons == nullptr)
         return false;
 
@@ -119,6 +158,10 @@ bool PrinterManager::refreshPrinterState() {
 }
 
 bool PrinterManager::resumePrinter() {
+
+    if (printer_name.empty()) {
+        return false;
+    }
 
     boost::unique_lock<boost::mutex> lk(printerStateMutex);
 
@@ -172,7 +215,7 @@ bool PrinterManager::resumePrinter() {
 }
 
 bool PrinterManager::printImage() {
-    if(!hasImagePrepared)
+    if(!hasImagePrepared || printer_name.empty())
         return false;
 
     resumePrinter();
@@ -192,8 +235,7 @@ bool PrinterManager::printImage() {
     return false;
 }
 
-PrinterManager::PrinterManager(ILogger *logger, std::string printer_name) : logger(logger), printer_name(
-        std::move(printer_name)) {}
+PrinterManager::PrinterManager(ILogger *logger) : logger(logger) {}
 
 bool PrinterManager::prepareImageForPrint(Magick::Image image) {
     // Write image to blob
