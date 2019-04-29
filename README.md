@@ -4,8 +4,8 @@ The self-o-mat project started with the desire to build an __inexpensive photobo
 Since then, a lot has changed: We have found that many of you share the same view: __Building a photobooth should be easy!__ Therefore we have created a photobooth kit which is now available at: [https://self-o-mat.de](https://self-o-mat.de). You can of course just use the open-source software and build your own full-featured DIY-photobox __for free__.
 
 ## Basics
-_"A Raspberry Pi and a DSLR camera should be all that's necessary to build a high quality photobooth!"_ - This was the basic idea when we started designing the self-o-mat and it hasn't changed since:
-__A DSLR camera and a Raspberry Pi is all you need to get started!__
+_"A Raspberry Pi&reg; and a DSLR camera should be all that's necessary to build a high quality photobooth!"_ - This was the basic idea when we started designing the self-o-mat and it hasn't changed since:
+__A DSLR camera and a Raspberry Pi&reg; is all you need to get started!__
 
 
 <img src="https://github.com/xtech/self-o-mat/raw/master/images/banner1.png" height="100" /><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner2.png" height="100" /><a href="https://www.raspberrypi.org"/><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner3.png" height="100" /></a><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner4.png" height="100" /><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner5.png" height="100" />
@@ -14,7 +14,7 @@ __A DSLR camera and a Raspberry Pi is all you need to get started!__
 ## Features
 Currently the self-o-mat software is a basic but stable and reliable software with the following features:
 - __Live Preview__ - get a fluid live preview of the current shot
-- __Full quality images__ - even with a Raspberry Pi we're able to process large JPEG files and RAW images
+- __Full quality images__ - even with a Raspberry Pi&reg; we're able to process large JPEG files and RAW images
 - __High performance__ - no loading times or lags
 - __Support for most DSL cameras and webcams__ - Just connect your existing camera
 - __Live Image Printing__ - Connect any CUPS compatible printer and print each image directly. Great for giveaways at weddings!
@@ -75,11 +75,11 @@ You'll need a controller to trigger the image capture. Basically you have two op
 ### The self-o-mat Controller Board
 <img src="https://github.com/xtech/self-o-mat/raw/master/images/RPi_Hat.png" height="450" />
 
-The __self-o-mat controller board__ is a simple add-on to the Raspberry Pi which is able to control the photobooth for you:
+The __self-o-mat controller board__ is a simple add-on to the Raspberry Pi&reg; which is able to control the photobooth for you:
 - Connect any button to the board to __trigger the capture__. You can use an __arcade button__, a __large buzzer__, a __coin slot__ or any other switch as trigger.
 - Tell the user the __exact moment__ when the photo is taken: Just connect an __Neo Pixel LED ring or strip__ for a count down animation before the trigger.
 - The __LED ring flash__ connector can be used to connect our LED flash. It is triggered to illuminate pictures with a __soft__ light for perfect pictures. The flash __brightness and duration__ can be set through the self-o-mat software.
-- Connect a 7-15V DC power supply to the power input of the board and it will __power the Raspberry Pi for you__. The booard has an __Arduino compatible processor__ which is able to switch the power. So the Raspberry Pi can shut down gracefully and turn its own power off.
+- Connect a 7-15V DC power supply to the power input of the board and it will __power the Raspberry Pi&reg; for you__. The booard has an __Arduino compatible processor__ which is able to switch the power. So the Raspberry Pi&reg; can shut down gracefully and turn its own power off.
 - The board has __switched power outputs__. Just connect additional components which should be switched with your photobox. For example __a screen__ or an __LED flash__ could be connected. As soon as the booth is powered the outputs will be powered as well.
 
 __You can [Get the controller board here!](https://shop.self-o-mat.de/zubehoer/28-controller-board.html)__
@@ -93,7 +93,7 @@ Self-o-mat is triggered by sending commands to the serial console. In order to t
 
 Every photobooth should have a flash for best possible images. __If you already own a flash, you're done. Just connect it to your DSLR camera!__ If you need a customized solution which can be __configured via the self-o-mat app__ read on.
 
-We have created a beatuiful __LED Ring flash__ which features __over 100 high CRI LEDs__ for __perfect color accuracy__. Just power the flash and connect it to the Raspberry Pi (or to our self-o-mat controller board) and the software will flash it during image capture.
+We have created a beatuiful __LED Ring flash__ which features __over 100 high CRI LEDs__ for __perfect color accuracy__. Just power the flash and connect it to the Raspberry Pi&reg; (or to our self-o-mat controller board) and the software will flash it during image capture.
 __You can [Get the flash here!](https://shop.self-o-mat.de/zubehoer/32-led-flash.html)__
 
 
