@@ -70,5 +70,5 @@ So now you're running the self-o-mat software and your photoboot is technically 
 
 # The Controller
 The __self-o-mat controller board__ is a simple add-on to the Raspberry Pi. You can just plug it on top of the Pi and connect a power supply. It will then power the Raspberry Pi and trigger the capture. Additionally it can show a count down using an Neo Pixel LED ring or strip.
-![self-o-mat controller](https://github.com/xtech/self-o-mat/raw/master/images/RPi_Hat.png | width=100)
+<img src="https://github.com/xtech/self-o-mat/raw/master/images/RPi_Hat.png" height="450" />
 
