@@ -1,7 +1,7 @@
 # The self-o-mat Project
 The self-o-mat project started with the desire to build an __inexpensive photobooth__ for personal use which is able to produce __high quality images__ using __DSLR cameras__. Since we wanted to build a solution for personal use, the project needed to run on inexpensive hardware and work with our DSLR cameras. Sadly we did not find a project which is able to deliver this - so the self-o-mat project was born.
 
-Since then, a lot has changed: We have found that many of you share the same view: __Building a photobooth should be easy!__ Therefore we have created a photobooth kit which is now available at: [https://self-o-mat.de](https://self-o-mat.de). You can of course just use the open-source software and build your own full-featured photobooth __for free__.
+Since then, a lot has changed: We have found that many of you share the same view: __Building a photobooth should be easy!__ Therefore we have created a photobooth kit which is now available at: [https://self-o-mat.de](https://self-o-mat.de). You can of course just use the open-source software and build your own full-featured DIY-photobox __for free__.
 
 ## Basics
 _"A Raspberry Pi and a DSLR camera should be all that's necessary to build a high quality photobooth!"_ - This was the basic idea when we started designing the self-o-mat and it hasn't changed since:
@@ -79,7 +79,7 @@ The __self-o-mat controller board__ is a simple add-on to the Raspberry Pi which
 - Tell the user the __exact moment__ when the photo is taken: Just connect an __Neo Pixel LED ring or strip__ for a count down animation before the trigger.
 - The __LED ring flash__ connector can be used to connect our LED flash. It is triggered to illuminate pictures with a __soft__ light for perfect pictures. The flash __brightness and duration__ can be set through the self-o-mat software.
 - Connect a 7-15V DC power supply to the power input of the board and it will __power the Raspberry Pi for you__. The booard has an __Arduino compatible processor__ which is able to switch the power. So the Raspberry Pi can shut down gracefully and turn its own power off.
-- The board has __switched power outputs__. Just connect additional components which should be switched with your photobooth. For example __a screen__ or an __LED flash__ could be connected. As soon as the booth is powered the outputs will be powered as well.
+- The board has __switched power outputs__. Just connect additional components which should be switched with your photobox. For example __a screen__ or an __LED flash__ could be connected. As soon as the booth is powered the outputs will be powered as well.
 
 __You can [Get the controller board here!](https://shop.self-o-mat.de/zubehoer/28-controller-board.html)__
 
