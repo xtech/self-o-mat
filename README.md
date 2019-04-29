@@ -65,12 +65,35 @@ cd <source dir>
 build/self_o_mat
 ```
 
-## Now what?
+# Now what?
 So now you're running the self-o-mat software and your photoboot is technically done. Just add a trigger mechanism and put it in a box. For better image quality, add a flash to your box. If you want to get started quickly, we have created some components for you:
 
-# The Controller
-The __self-o-mat controller board__ is a simple add-on to the Raspberry Pi. You can just plug it on top of the Pi and connect a power supply. It will then power the Raspberry Pi and trigger the capture. Additionally it can show a count down using an Neo Pixel LED ring or strip.
+## The Controller
+You'll need a controller to trigger the image capture. Basically you have two options: The self-o-mat controller or a DIY solution.
 
-
+### The self-o-mat Controller Board
 <img src="https://github.com/xtech/self-o-mat/raw/master/images/RPi_Hat.png" height="450" />
+
+The __self-o-mat controller board__ is a simple add-on to the Raspberry Pi which is able to control the photobooth for you:
+- Connect any button to the board to __trigger the capture__. You can use an __arcade button__, a __large buzzer__, a __coin slot__ or any other switch as trigger.
+- Tell the user the __exact moment__ when the photo is taken: Just connect an __Neo Pixel LED ring or strip__ for a count down animation before the trigger.
+- The __LED ring flash__ connector can be used to connect our LED flash. It is triggered to illuminate pictures with a __soft__ light for perfect pictures. The flash __brightness and duration__ can be set through the self-o-mat software.
+- Connect a 7-15V DC power supply to the power input of the board and it will __power the Raspberry Pi for you__. The booard has an __Arduino compatible processor__ which is able to switch the power. So the Raspberry Pi can shut down gracefully and turn its own power off.
+- The board has __switched power outputs__. Just connect additional components which should be switched with your photobooth. For example __a screen__ or an __LED flash__ could be connected. As soon as the booth is powered the outputs will be powered as well.
+
+__You can [Get the controller board here!](https://shop.self-o-mat.de/zubehoer/28-controller-board.html)__
+
+### The DIY Solution
+Self-o-mat is triggered by sending commands to the serial console. In order to trigger the software, use any Arduino board and write the trigger signals to the serial port. Serial settings and protocol can be adjusted in the software.
+
+## Flash
+
+<img src="https://github.com/xtech/self-o-mat/raw/master/images/LED_Ring_Flash.png" height="450" />
+
+Every photobooth should have a flash for best possible images. __If you already own a flash, you're done. Just connect it to your DSLR camera!__ If you need a customized solution which can be __configured via the self-o-mat app__ read on.
+
+We have created a beatuiful __LED Ring flash__ which features __over 100 high CRI LEDs__ for __perfect color accuracy__. Just power the flash and connect it to the Raspberry Pi (or to our self-o-mat controller board) and the software will flash it during image capture.
+__You can [Get the flash here!](https://shop.self-o-mat.de/zubehoer/32-led-flash.html)__
+
+
 
