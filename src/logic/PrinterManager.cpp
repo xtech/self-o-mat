@@ -37,55 +37,41 @@ bool PrinterManager::refreshCupsDestinations() {
     cupsFreeDests(cupsDestinationCount, cupsDestinations);
     cupsDestinationCount = 0;
 
-    // We do NOT want to discover the network, mask = CUPS_PRINTER_DISCOVERED
-    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 300, NULL, CUPS_PRINTER_LOCAL, CUPS_PRINTER_DISCOVERED,
+    // We do NOT want to discover the network, mask = (CUPS_PRINTER_DISCOVERED | CUPS_PRINTER_REMOTE)
+    cupsEnumDests(CUPS_DEST_FLAGS_NONE, 300, NULL, CUPS_PRINTER_LOCAL, (CUPS_PRINTER_DISCOVERED | CUPS_PRINTER_REMOTE),
             (cups_dest_cb_t) [] (void *user_data, unsigned flags, cups_dest_t *dest) {
                 auto *printerManager = (PrinterManager*)user_data;
                 auto printerName = std::string (dest->name);
 
-                if (flags & CUPS_DEST_FLAGS_REMOVED) {
-                    if (printerName == printerManager->printer_name) {
-                        std::cout << "Removed default printer: " << printerName << std::endl;
-                        printerManager->printer_name.clear();
-                    }
-
-                    printerManager->cupsDestinationCount =
-                            cupsRemoveDest(dest->name, dest->instance,
-                                           printerManager->cupsDestinationCount,
-                                           &printerManager->cupsDestinations);
+                if (dest->is_default && printerManager->printer_name != printerName) {
+                    std::cout << "Found default printer: " << printerName << std::endl;
+                    printerManager->printer_name = printerName;
                 }
-                else {
-                    if (dest->is_default && printerManager->printer_name != printerName) {
-                        std::cout << "Found default printer: " << printerName << std::endl;
-                        printerManager->printer_name = printerName;
-                    }
 
-                    printerManager->cupsDestinationCount =
-                            cupsCopyDest(dest, printerManager->cupsDestinationCount,
-                                         &printerManager->cupsDestinations);
-                }
+                printerManager->cupsDestinationCount =
+                        cupsCopyDest(dest, printerManager->cupsDestinationCount,
+                                     &printerManager->cupsDestinations);
 
                 return 1;
         }, this);
 
-    // Check
     if (!printer_name.empty()) {
         bool foundDefault = false;
         for(int i = 0; i < cupsDestinationCount; i++) {
-            if (cupsDestinations[i].name == printer_name) {
+            if (std::string (cupsDestinations[i].name) == printer_name) {
                 foundDefault = true;
                 break;
             }
         }
         if (!foundDefault) {
-            std::cout << "No printer" << std::endl;
+            std::cout << "Removed old default printer" << std::endl;
             printer_name.clear();
         }
     }
 
     if (printer_name.empty() && cupsDestinationCount > 0) {
         std::cout << "Found any printer: " << cupsDestinations[0].name << std::endl;
-        printer_name = cupsDestinations[0].name;
+        printer_name = std::string (cupsDestinations[0].name);
     }
 
     return true;
