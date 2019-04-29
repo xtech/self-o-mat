@@ -8,7 +8,7 @@ _"A Raspberry Pi&reg; and a DSLR camera should be all that's necessary to build 
 __A DSLR camera and a Raspberry Pi&reg; is all you need to get started!__
 
 
-<img src="https://github.com/xtech/self-o-mat/raw/master/images/banner1.png" height="100" /><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner2.png" height="100" /><a href="https://www.raspberrypi.org"/><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner3.png" height="100" /></a><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner4.png" height="100" /><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner5.png" height="100" />
+<img src="https://github.com/xtech/self-o-mat/raw/master/images/banner_1.png" height="100" /><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner_2.png" height="100" /><a href="https://www.raspberrypi.org"/><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner_3.png" height="100" /></a><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner_4.png" height="100" /><img src="https://github.com/xtech/self-o-mat/raw/master/images/banner_5.png" height="100" />
 
 
 ## Features
