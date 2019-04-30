@@ -33,7 +33,8 @@ namespace selfomat {
         enum ALERT_TYPE {
             ALERT_CAMERA,
             ALERT_PRINTER,
-            ALERT_STORAGE
+            ALERT_STORAGE,
+            ALERT_STORAGE_ERROR
         };
 
         class IGui : public ILogger {
@@ -69,7 +70,8 @@ namespace selfomat {
             const boost::unordered_map<ALERT_TYPE,const char*> alertTypeToString = boost::assign::map_list_of
                     (ALERT_CAMERA, "C")
                     (ALERT_PRINTER, "P")
-                    (ALERT_STORAGE, "U");
+                    (ALERT_STORAGE, "U")
+                    (ALERT_STORAGE_ERROR, "U");
 
         };
     }
