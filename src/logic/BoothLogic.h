@@ -194,9 +194,10 @@ namespace selfomat {
                 }
 
                 if (returnCode == -1) {
-                    sync();
                     reboot(LINUX_REBOOT_CMD_POWER_OFF);
                 }
+
+                sync();
 
                 return returnCode;
             }
