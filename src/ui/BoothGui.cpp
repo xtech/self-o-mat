@@ -487,7 +487,7 @@ void BoothGui::drawAgreement(float alpha) {
     u_int8_t lineSpacing = 40;
 
     float timeInState = stateTimer.getElapsedTime().asMilliseconds();
-    float alpha_float_cos = 0.4f * cos(timeInState / 800.0f) + .6f;
+    float alpha_float_cos = 0.3f * cos(timeInState / 300.0f) + .7f;
     auto alpha_accept = uint8_t(alpha * alpha_float_cos * 255.0f);
 
 
