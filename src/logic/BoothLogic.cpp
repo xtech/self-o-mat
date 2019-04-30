@@ -165,15 +165,16 @@ void BoothLogic::stop() {
     std::cout << "stopping logic" << std::endl;
     isRunning = false;
 
+    if (logicThreadHandle.joinable()) {
+        cout << "waiting for logic" << endl;
+        logicThreadHandle.join();
+    }
+
     writeSettings();
 
     if (button_serial_port.is_open())
         button_serial_port.close();
 
-    if (logicThreadHandle.joinable()) {
-        cout << "waiting for logic" << endl;
-        logicThreadHandle.join();
-    }
     if (ioThreadHandle.joinable()) {
         cout << "waiting for io" << endl;
         ioThreadHandle.join();
@@ -363,7 +364,14 @@ void BoothLogic::logicThread() {
 
     }
 
-
+    // Sync to disk
+    cout << "Syncing changes to disk" << endl;
+    boost::thread syncThreadHandle(sync);
+    while(!syncThreadHandle.try_join_for(boost::chrono::milliseconds(1000))) {
+        cout << "Still syncing..." << endl;
+        sendCommand('.');
+    }
+    cout << "Syncing done" << endl;
 }
 
 void BoothLogic::ioThread() {
