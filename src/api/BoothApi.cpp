@@ -550,6 +550,19 @@ bool BoothApi::start() {
                 res.set_body(file_contents);
             });
 
+    mux.handle("/app/")
+            .get([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                std::string filename = "./app/index.html";
+
+                ifstream f(filename, ios::in);
+                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
+
+                res.set_status(200);
+                res.set_body(file_contents);
+            });
+
     // Create the server and run with 2 handler thread.
     // THIS IS NEEDED BECAUSE BLOCKING=FALSE IS IGNORED BY SERVERD IF THREADS = 1!!!!
     server.run(2, false);
