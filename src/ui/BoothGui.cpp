@@ -551,6 +551,11 @@ void BoothGui::drawAgreement(float alpha) {
 
 void BoothGui::drawAlerts() {
 
+    if (currentState == STATE_AGREEMENT) {
+        alertTimer.restart();
+        return;
+    }
+
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
     const auto  count = alerts.size();
