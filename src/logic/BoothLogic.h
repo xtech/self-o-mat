@@ -173,6 +173,7 @@ namespace selfomat {
 
             int getFreeStorageSpaceMB();
 
+            bool saveImage(void *data, size_t size, std::string filename, bool showAlert);
             bool saveImage(void *data, size_t size, std::string filename);
 
             bool isMountpoint(std::string folder);

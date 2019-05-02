@@ -331,7 +331,7 @@ void BoothLogic::logicThread() {
             size_t rawSize = 0;
             std::string rawFilename;
             if (camera->getLastRawImage(&rawBuffer, &rawSize, &rawFilename)) {
-                saveImage(rawBuffer, rawSize, rawFilename);
+                saveImage(rawBuffer, rawSize, rawFilename, true);
                 free(rawBuffer);
             }
         }
@@ -452,12 +452,7 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(jpegImageMutex);
 
                 // first we save the image
-                auto success = saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
-                if(!success) {
-                    cout << "error saving image. showing alert" << endl;
-                    gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
-                }
-
+                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, true);
 
                 Magick::Image toPrepare;
                 if(templateEnabled) {
@@ -496,13 +491,7 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(jpegImageMutex);
 
                 // we only need to save the image
-                auto success = saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
-
-                if(!success) {
-                    cout << "error saving image. showing alert" << endl;
-                    gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
-                }
-
+                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, true);
             }
 
             // wait for logic thread
@@ -564,7 +553,20 @@ bool BoothLogic::isMountpoint(std::string folder) {
     return file_stat.st_dev != parent_stat.st_dev;
 }
 
+bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool showAlert) {
+    auto success = saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
+    if(!success && showAlert) {
+        gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
+    }
+
+    return success;
+}
+
 bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
+    if (!storageEnabled) {
+        return true;
+    }
+
     if (imageDir.empty()) {
         cerr << "No image dir specified" << endl;
         return false;
@@ -585,9 +587,6 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     fullImagePath += to_string((long) time);
     fullImagePath += "_";
     fullImagePath += filename;
-
-
-
 
 
     cout << "Writing image to:" << fullImagePath << endl;
@@ -619,7 +618,6 @@ void BoothLogic::stopForUpdate() {
 
 void BoothLogic::setStorageEnabled(bool storageEnabled, bool persist) {
     this->storageEnabled = storageEnabled;
-    //gui->setPrinterEnabled(printerEnabled);
     if(persist) {
         writeSettings();
     }

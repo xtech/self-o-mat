@@ -255,6 +255,7 @@ export namespace xtech {
         }
 
         interface IBoothSettings {
+            storageEnabled: xtech.selfomat.IBoolSetting;
             printerEnabled: xtech.selfomat.IBoolSetting;
             flashEnabled: xtech.selfomat.IBoolSetting;
             flashBrightness: xtech.selfomat.IFloatSetting;
@@ -267,6 +268,7 @@ export namespace xtech {
 
         class BoothSettings implements IBoothSettings {
             constructor(properties?: xtech.selfomat.IBoothSettings);
+            public storageEnabled: xtech.selfomat.IBoolSetting;
             public printerEnabled: xtech.selfomat.IBoolSetting;
             public flashEnabled: xtech.selfomat.IBoolSetting;
             public flashBrightness: xtech.selfomat.IFloatSetting;

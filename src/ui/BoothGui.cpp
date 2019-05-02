@@ -688,7 +688,7 @@ void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) {
     sf::Int32 endTime = 0;
 
     if (autoRemove) {
-        endTime = startTime + 5000;
+        endTime = startTime + 10000;
     }
 
     alerts.insert(std::make_pair(type, (Alert){startTime, endTime, std::move(text)}));

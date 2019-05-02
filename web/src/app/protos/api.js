@@ -2742,6 +2742,7 @@
                  * Properties of a BoothSettings.
                  * @memberof xtech.selfomat
                  * @interface IBoothSettings
+                 * @property {xtech.selfomat.IBoolSetting} storageEnabled BoothSettings storageEnabled
                  * @property {xtech.selfomat.IBoolSetting} printerEnabled BoothSettings printerEnabled
                  * @property {xtech.selfomat.IBoolSetting} flashEnabled BoothSettings flashEnabled
                  * @property {xtech.selfomat.IFloatSetting} flashBrightness BoothSettings flashBrightness
@@ -2766,6 +2767,14 @@
                             if (properties[keys[i]] != null)
                                 this[keys[i]] = properties[keys[i]];
                 }
+    
+                /**
+                 * BoothSettings storageEnabled.
+                 * @member {xtech.selfomat.IBoolSetting} storageEnabled
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.storageEnabled = null;
     
                 /**
                  * BoothSettings printerEnabled.
@@ -2855,14 +2864,15 @@
                 BoothSettings.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    $root.xtech.selfomat.BoolSetting.encode(message.printerEnabled, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    $root.xtech.selfomat.BoolSetting.encode(message.flashEnabled, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    $root.xtech.selfomat.FloatSetting.encode(message.flashBrightness, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                    $root.xtech.selfomat.FloatSetting.encode(message.flashFade, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                    $root.xtech.selfomat.IntSetting.encode(message.flashDelayMicros, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                    $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                    $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                    $root.xtech.selfomat.ListSetting.encode(message.ledOffset, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                    $root.xtech.selfomat.BoolSetting.encode(message.storageEnabled, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    $root.xtech.selfomat.BoolSetting.encode(message.printerEnabled, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    $root.xtech.selfomat.BoolSetting.encode(message.flashEnabled, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                    $root.xtech.selfomat.FloatSetting.encode(message.flashBrightness, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                    $root.xtech.selfomat.FloatSetting.encode(message.flashFade, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+                    $root.xtech.selfomat.IntSetting.encode(message.flashDelayMicros, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                    $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
+                    $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                    $root.xtech.selfomat.ListSetting.encode(message.ledOffset, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
                     return writer;
                 };
     
@@ -2898,27 +2908,30 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.printerEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            message.storageEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
                         case 2:
-                            message.flashEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            message.printerEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
                         case 3:
-                            message.flashBrightness = $root.xtech.selfomat.FloatSetting.decode(reader, reader.uint32());
+                            message.flashEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
                         case 4:
-                            message.flashFade = $root.xtech.selfomat.FloatSetting.decode(reader, reader.uint32());
+                            message.flashBrightness = $root.xtech.selfomat.FloatSetting.decode(reader, reader.uint32());
                             break;
                         case 5:
-                            message.flashDelayMicros = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
+                            message.flashFade = $root.xtech.selfomat.FloatSetting.decode(reader, reader.uint32());
                             break;
                         case 6:
-                            message.flashDurationMicros = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
+                            message.flashDelayMicros = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
                             break;
                         case 7:
-                            message.templateEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            message.flashDurationMicros = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
                             break;
                         case 8:
+                            message.templateEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            break;
+                        case 9:
                             message.ledOffset = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
                             break;
                         default:
@@ -2926,6 +2939,8 @@
                             break;
                         }
                     }
+                    if (!message.hasOwnProperty("storageEnabled"))
+                        throw $util.ProtocolError("missing required 'storageEnabled'", { instance: message });
                     if (!message.hasOwnProperty("printerEnabled"))
                         throw $util.ProtocolError("missing required 'printerEnabled'", { instance: message });
                     if (!message.hasOwnProperty("flashEnabled"))
@@ -2972,6 +2987,11 @@
                 BoothSettings.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    {
+                        var error = $root.xtech.selfomat.BoolSetting.verify(message.storageEnabled);
+                        if (error)
+                            return "storageEnabled." + error;
+                    }
                     {
                         var error = $root.xtech.selfomat.BoolSetting.verify(message.printerEnabled);
                         if (error)
@@ -3027,6 +3047,11 @@
                     if (object instanceof $root.xtech.selfomat.BoothSettings)
                         return object;
                     var message = new $root.xtech.selfomat.BoothSettings();
+                    if (object.storageEnabled != null) {
+                        if (typeof object.storageEnabled !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.storageEnabled: object expected");
+                        message.storageEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.storageEnabled);
+                    }
                     if (object.printerEnabled != null) {
                         if (typeof object.printerEnabled !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.printerEnabled: object expected");
@@ -3084,6 +3109,7 @@
                         options = {};
                     var object = {};
                     if (options.defaults) {
+                        object.storageEnabled = null;
                         object.printerEnabled = null;
                         object.flashEnabled = null;
                         object.flashBrightness = null;
@@ -3093,6 +3119,8 @@
                         object.templateEnabled = null;
                         object.ledOffset = null;
                     }
+                    if (message.storageEnabled != null && message.hasOwnProperty("storageEnabled"))
+                        object.storageEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.storageEnabled, options);
                     if (message.printerEnabled != null && message.hasOwnProperty("printerEnabled"))
                         object.printerEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.printerEnabled, options);
                     if (message.flashEnabled != null && message.hasOwnProperty("flashEnabled"))
