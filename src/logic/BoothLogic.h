@@ -26,6 +26,14 @@
 
 #include <boost/algorithm/hex.hpp>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <libgen.h>
+
+#include <sys/stat.h>
+#include <tools/blocking_reader.h>
+
+
 //#define USE_SPI
 
 #ifdef USE_SPI
@@ -165,7 +173,9 @@ namespace selfomat {
 
             int getFreeStorageSpaceMB();
 
-            void saveImage(void *data, size_t size, std::string filename);
+            bool saveImage(void *data, size_t size, std::string filename);
+
+            bool isMountpoint(std::string folder);
 
             void sendCommand(uint8_t command);
             void sendCommand(uint8_t command, uint8_t argument);
@@ -197,7 +207,7 @@ namespace selfomat {
                 if (returnCode == -1) {
                     reboot(LINUX_REBOOT_CMD_POWER_OFF);
                 }
-                
+
                 return returnCode;
             }
 

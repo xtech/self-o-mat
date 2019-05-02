@@ -3,7 +3,6 @@
 //
 
 #include "BoothLogic.h"
-#include <tools/blocking_reader.h>
 
 using namespace std;
 using namespace selfomat::logic;
@@ -321,6 +320,7 @@ void BoothLogic::logicThread() {
 
 
         // check for an image and save it. but only if printer thread is idle
+        // THIS IS ONLY FOR RAW FILES!!!
         bool allowSave = false;
         {
             boost::unique_lock<boost::mutex> lk(printerStateMutex);
@@ -452,7 +452,12 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(jpegImageMutex);
 
                 // first we save the image
-                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
+                auto success = saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
+                if(!success) {
+                    cout << "error saving image. showing alert" << endl;
+                    gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
+                }
+
 
                 Magick::Image toPrepare;
                 if(templateEnabled) {
@@ -491,7 +496,13 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(jpegImageMutex);
 
                 // we only need to save the image
-                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
+                auto success = saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
+
+                if(!success) {
+                    cout << "error saving image. showing alert" << endl;
+                    gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
+                }
+
             }
 
             // wait for logic thread
@@ -522,11 +533,49 @@ int BoothLogic::getFreeStorageSpaceMB() {
     return static_cast<int>(s.free / 1024 / 1024);
 }
 
-void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
+bool BoothLogic::isMountpoint(std::string folder) {
+    /* get the parent directory  of the file */
+
+    std::string folder_cpy(folder.c_str());
+    std::string parent_name = dirname((char*)folder_cpy.c_str());
+
+    /* get the file's stat info */
+    struct stat file_stat{};
+    if( -1 == stat(folder.c_str(), &file_stat) ) {
+        cerr << "stat error" << endl;
+        return false;
+    }
+
+    /* determine whether the supplied file is a directory
+      if it isn't, then it can't be a mountpoint. */
+    if( !(file_stat.st_mode & S_IFDIR) ) {
+        cerr << "image dir is not a directory" << endl;
+        return false;
+    }
+
+    /* get the parent's stat info */
+    struct stat parent_stat{};
+    if( -1 == stat(parent_name.c_str(), &parent_stat) ) {
+        cout << "parent stat fail" << endl;
+        return false;
+    }
+
+    // it's a mount point if devices differ
+    return file_stat.st_dev != parent_stat.st_dev;
+}
+
+bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     if (imageDir.empty()) {
         cerr << "No image dir specified" << endl;
-        return;
+        return false;
     }
+
+    if(!isMountpoint(imageDir)) {
+        cerr << "imageDir not a mountpoint" << endl;
+        return false;
+    }
+
+    // Check if imageDir is a mountpoint
 
     std::time_t time = std::time(nullptr);
 
@@ -538,14 +587,18 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     fullImagePath += filename;
 
 
+
+
+
     cout << "Writing image to:" << fullImagePath << endl;
+
 
     FILE *fp;
 
     fp = fopen(fullImagePath.c_str(), "wb");
     if (fp == nullptr) {
         cerr << "Error opening output file" << endl;
-        return;
+        return false;
     }
 
     fwrite(data, size, 1, fp);
@@ -553,6 +606,8 @@ void BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     fclose(fp);
 
     cout << "File written to: " << fullImagePath << endl;
+
+    return true;
 }
 
 void BoothLogic::stopForUpdate() {
