@@ -39,6 +39,8 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
         else
             sendCommand('?');
         sendCommand('.');
+
+        setLEDOffset(ledOffset);
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
         return false;
@@ -719,7 +721,7 @@ bool BoothLogic::getTemplateEnabled() {
 
 void BoothLogic::setLEDOffset(int8_t offset, bool persist) {
     this->ledOffset = offset;
-
+    
     if(persist) {
         sendCommand('L', offset+8);
         writeSettings();
@@ -735,9 +737,11 @@ int8_t BoothLogic::getLEDOffset() {
 void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
     if (!button_serial_port.is_open())
         return;
+
     std::vector<uint8_t> data;
     data.push_back(command);
     data.push_back(argument);
+
     button_serial_port.write_some(boost::asio::buffer(data.data(), 2));
 }
 
