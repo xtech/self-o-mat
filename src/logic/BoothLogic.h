@@ -88,6 +88,7 @@ namespace selfomat {
             string button_port;
 
             // # BOOTH SETTINGS HERE
+            bool storageEnabled;
             bool printerEnabled;
             bool templateEnabled;
             bool flashEnabled;
@@ -206,6 +207,9 @@ namespace selfomat {
 
             void setPrinterEnabled(bool printerEnabled, bool persist = false);
             bool getPrinterEnabled();
+
+            void setStorageEnabled(bool storageEnabled, bool persist = false);
+            bool getStorageEnabled();
 
             void setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros, uint64_t durationMicros, bool persist = false);
             void getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros, uint64_t *durationMicros);

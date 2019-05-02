@@ -215,6 +215,23 @@ bool BoothApi::start() {
                 res << currentCameraSettings.SerializeAsString();
             });
 
+    mux.handle("/booth_settings/storage/enabled")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setStorageEnabled(update.value(), true);
+
+                cout << "updated storage enabled to: " << update.value() << endl;
+
+                served::response::stock_reply(200, res);
+                return;
+            });
 
     mux.handle("/booth_settings/printer/enabled")
             .post([this](served::response &res, const served::request &req) {
@@ -233,6 +250,7 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
                 return;
             });
+
     mux.handle("/booth_settings/flash/enabled")
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
@@ -413,6 +431,13 @@ bool BoothApi::start() {
                 this->setHeaders(res);
 
                 BoothSettings currentBoothSettings;
+
+                {
+                    auto setting = currentBoothSettings.mutable_storage_enabled();
+                    setting->set_name("USB Storage Enabled?");
+                    setting->set_update_url("/booth_settings/storage/enabled");
+                    setting->set_currentvalue(logic->getStorageEnabled());
+                }
 
                 {
                     auto setting = currentBoothSettings.mutable_printer_enabled();

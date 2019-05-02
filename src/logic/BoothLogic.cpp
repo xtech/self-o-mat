@@ -562,6 +562,18 @@ void BoothLogic::stopForUpdate() {
     stop();
 }
 
+void BoothLogic::setStorageEnabled(bool storageEnabled, bool persist) {
+    this->storageEnabled = storageEnabled;
+    //gui->setPrinterEnabled(printerEnabled);
+    if(persist) {
+        writeSettings();
+    }
+}
+
+bool BoothLogic::getStorageEnabled() {
+    return storageEnabled;
+}
+
 void BoothLogic::setPrinterEnabled(bool printerEnabled, bool persist) {
     this->printerEnabled= printerEnabled;
     gui->setPrinterEnabled(printerEnabled);
@@ -585,6 +597,7 @@ void BoothLogic::readSettings() {
         success = false;
     }
 
+    setStorageEnabled(ptree.get<bool>("storage_enabled", true));
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
     this->showAgreement=ptree.get<bool>("show_agreement", true);
@@ -602,6 +615,7 @@ void BoothLogic::readSettings() {
 void BoothLogic::writeSettings() {
     boost::property_tree::ptree ptree;
     ptree.put("show_agreement", showAgreement);
+    ptree.put("storage_enabled", storageEnabled);
     ptree.put("printer_enabled", printerEnabled);
     ptree.put("template_enabled", templateEnabled);
     ptree.put("flash_enabled", this->flashEnabled);
