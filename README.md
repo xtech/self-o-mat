@@ -1,9 +1,8 @@
 # The self-o-mat Project
+<img src="https://github.com/xtech/self-o-mat/raw/master/images/self-o-mat.gif" height="270" />
 The self-o-mat project started with the desire to build an __inexpensive photobooth__ for personal use which is able to produce __high quality images__ using __DSLR cameras__. Since we wanted to build a solution for personal use, the project needed to run on inexpensive hardware and work with our DSLR cameras. Sadly we did not find a project which is able to deliver this - so the self-o-mat project was born.
 
 Since then, a lot has changed: We have found that many of you share the same view: __Building a photobooth should be easy!__ Therefore we have created a photobooth kit which is now available at: [https://self-o-mat.de](https://self-o-mat.de). You can of course just use the open-source software and build your own full-featured DIY-photobox __for free__.
-
-<img src="https://github.com/xtech/self-o-mat/raw/master/images/self-o-mat.gif" height="270" />
 
 ## Basics
 _"A Raspberry Pi&reg; and a DSLR camera should be all that's necessary to build a high quality photobooth!"_ - This was the basic idea when we started designing the self-o-mat and it hasn't changed since:
