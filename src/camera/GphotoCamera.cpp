@@ -477,8 +477,9 @@ bool GphotoCamera::createCameraControllers() {
     imageFormatController = new ImageFormatController(gp, camera, rootWidget);
     registeredControllers.push_back(imageFormatController);
     isoController = new IsoController(gp, camera, rootWidget);
-    exposureCorrectionController = new ExposureCorrectionController(gp, camera, rootWidget);
     registeredControllers.push_back(isoController);
+    exposureCorrectionController = new ExposureCorrectionController(gp, camera, rootWidget);
+    registeredControllers.push_back(exposureCorrectionController);
     shutterController = new ShutterSpeedController(gp, camera, rootWidget);
     registeredControllers.push_back(shutterController);
 
