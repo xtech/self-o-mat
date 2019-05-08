@@ -208,7 +208,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_exposure_compensation_trigger();
-                    setting->set_name("Exposure Compensation Trigger");
+                    setting->set_name("Exposure Compensation During Image Capture");
                     setting->set_update_url("/camera_settings/exposure_correction_trigger");
                     setting->set_currentindex(camera->getExposureCorrectionTrigger());
                     auto *choices = camera->getExposureCorrectionModeChoices();

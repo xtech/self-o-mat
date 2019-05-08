@@ -20,8 +20,8 @@ namespace selfomat {
             public:
                 ExposureCorrectionController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) :
                         ChoiceRangeController(gp, camera, rootWidget, {"exposurecompensation"}) {
-                    normalChoice = -1;
-                    preTriggerChoice = -1;
+                    normalChoice = ChoiceRangeController::getChoice();
+                    preTriggerChoice = ChoiceRangeController::getChoice();
                     isTriggered = false;
                 }
 
@@ -42,7 +42,7 @@ namespace selfomat {
                     bool success = ChoiceRangeController::pullSettings();
                     if(success && (normalChoice < 0 || preTriggerChoice < 0)) {
                         // we have pulled the choices from the camera and not yet initialized the duplicated
-                        normalChoice = preTriggerChoice = getChoice();
+                        normalChoice = preTriggerChoice = ChoiceRangeController::getChoice();
                     }
                     return success;
                 }
