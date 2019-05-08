@@ -150,6 +150,10 @@ void BoothLogic::triggerFlash() {
     if(!flashEnabled)
         return;
 
+
+    cout << "flashing with " << flashBrightness << ", " << flashFade << ", " << flashDurationMicros << endl;
+     
+
 #ifdef USE_SPI
     digitalWrite(PIN_SS, LOW);
     flash_struct flash;
