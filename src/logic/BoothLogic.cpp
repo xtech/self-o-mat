@@ -694,6 +694,9 @@ void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, 
     this->flashFade = fade;
     this->flashDelayMicros = delayMicros;
     this->flashDurationMicros = durationMicros;
+
+    cout << "New flash parameters: " << enabled << ", " << brightness << ", " << fade << ", " << delayMicros << ", " << durationMicros << endl;
+
     if(persist) {
         writeSettings();
     }
