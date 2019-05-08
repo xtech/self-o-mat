@@ -76,6 +76,7 @@ if(USE_SPI)
     target_link_libraries(self_o_mat wiringPi)
 endif()
 
+add_custom_target(WITH_APP /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/deploy_app.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_custom_target(PACK /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/pack.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 

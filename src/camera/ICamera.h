@@ -114,6 +114,7 @@ namespace selfomat {
             virtual int getAperture() = 0;
             virtual int getShootingMode() = 0;
             virtual int getExposureCorrection() = 0;
+            virtual int getExposureCorrectionTrigger() = 0;
             virtual int getImageFormat() = 0;
 
             virtual const vector<string> * const getIsoChoices() = 0;
@@ -136,6 +137,7 @@ namespace selfomat {
             virtual bool setShutterSpeed(int shutter_speed_choice) = 0;
             virtual bool setAperture(int aperture_choice) = 0;
             virtual bool setExposureCorrection(int exposure_correction_choice) = 0;
+            virtual bool setExposureCorrectionTrigger(int exposure_correction_choice) = 0;
             virtual bool setImageFormat(int image_format_choice) = 0;
 
 

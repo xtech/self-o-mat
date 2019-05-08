@@ -169,6 +169,10 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     // release the trigger if still pressed
                     triggerController->releaseTrigger();
 
+                    // reset exposure
+                    exposureCorrectionController->postTrigger();
+                    pushCameraSettings();
+
                     const char *imageData = nullptr;
                     unsigned long int imageDataSize;
                     // Get the data. This is jpeg
@@ -333,7 +337,9 @@ bool GphotoCamera::triggerCaptureBlocking() {
         return false;
     cameraIoMutex.lock();
 
-
+    // set exposure and trigger
+    exposureCorrectionController->preTrigger();
+    pushCameraSettings();
     bool success = triggerController->trigger();
 
     cameraIoMutex.unlock();
@@ -416,12 +422,20 @@ int GphotoCamera::getExposureCorrection() {
     return exposureCorrectionController->getChoice();
 }
 
+int GphotoCamera::getExposureCorrectionTrigger() {
+    return exposureCorrectionController->getTriggerChoice();
+}
+
 int GphotoCamera::getImageFormat() {
     return imageFormatController->getChoice();
 }
 
 bool GphotoCamera::setExposureCorrection(int exposure_correction_choice) {
     return exposureCorrectionController->setChoice(exposure_correction_choice);
+}
+
+bool GphotoCamera::setExposureCorrectionTrigger(int exposure_correction_choice) {
+    return exposureCorrectionController->setTriggerChoice(exposure_correction_choice);
 }
 
 bool GphotoCamera::setImageFormat(int image_format_choice) {

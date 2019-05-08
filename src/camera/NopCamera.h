@@ -171,6 +171,14 @@ namespace selfomat {
             bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override {
                 return false;
             }
+
+            int getExposureCorrectionTrigger() override {
+                return 0;
+            }
+
+            bool setExposureCorrectionTrigger(int exposure_correction_choice) override {
+                return false;
+            }
         };
     }
 }

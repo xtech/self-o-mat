@@ -81,6 +81,10 @@ namespace selfomat {
             const vector<string> *const getExposureCorrectionModeChoices() override;
 
             const vector<string> *const getImageFormatChoices() override;
+
+            int getExposureCorrectionTrigger() override;
+
+            bool setExposureCorrectionTrigger(int exposure_correction_choice) override;
         };
 
     }

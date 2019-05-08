@@ -139,10 +139,12 @@ namespace selfomat {
                 string getLensName() override;
 
                 int getExposureCorrection() override;
+                int getExposureCorrectionTrigger() override;
 
                 int getImageFormat() override;
 
                 bool setExposureCorrection(int exposure_correction_choice) override;
+                bool setExposureCorrectionTrigger(int exposure_correction_choice) override;
 
                 bool setImageFormat(int image_format_choice) override;
 

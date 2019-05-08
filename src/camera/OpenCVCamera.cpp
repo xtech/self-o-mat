@@ -177,4 +177,12 @@ const vector<string> *const OpenCVCamera::getImageFormatChoices() {
     return nullptr;
 }
 
+int OpenCVCamera::getExposureCorrectionTrigger() {
+    return 0;
+}
+
+bool OpenCVCamera::setExposureCorrectionTrigger(int exposure_correction_choice) {
+    return false;
+}
+
 

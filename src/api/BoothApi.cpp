@@ -100,6 +100,27 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
                 return;
             });
+    mux.handle("/camera_settings/exposure_correction_trigger")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                if (camera->getState() != STATE_WORKING) {
+                    served::response::stock_reply(503, res);
+                    return;
+                }
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                camera->setExposureCorrectionTrigger(update.value());
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
 
     mux.handle("/camera_settings/image_format")
             .post([this](served::response &res, const served::request &req) {
@@ -177,6 +198,19 @@ bool BoothApi::start() {
                     setting->set_name("Exposure Compensation");
                     setting->set_update_url("/camera_settings/exposure_correction");
                     setting->set_currentindex(camera->getExposureCorrection());
+                    auto *choices = camera->getExposureCorrectionModeChoices();
+                    if (choices != nullptr) {
+                        for (int i = 0; i < choices->size(); i++) {
+                            setting->add_values(choices->at(i));
+                        }
+                    }
+                }
+
+                {
+                    auto setting = currentCameraSettings.mutable_exposure_compensation_trigger();
+                    setting->set_name("Exposure Compensation Trigger");
+                    setting->set_update_url("/camera_settings/exposure_correction_trigger");
+                    setting->set_currentindex(camera->getExposureCorrectionTrigger());
                     auto *choices = camera->getExposureCorrectionModeChoices();
                     if (choices != nullptr) {
                         for (int i = 0; i < choices->size(); i++) {
