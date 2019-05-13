@@ -700,7 +700,7 @@ void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, 
     this->flashDelayMicros = delayMicros;
     this->flashDurationMicros = durationMicros;
 
-    auto newDuration = static_cast<uint8_t>(brightness * 255.0f);
+    auto newDuration = static_cast<uint8_t>(durationMicros);
     cout << "new flash duration: " << (int)newDuration << endl;
     sendCommand('$', newDuration);
 

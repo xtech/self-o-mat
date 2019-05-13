@@ -491,32 +491,32 @@ bool BoothApi::start() {
                     setting->set_currentvalue(flashEnabled);
                 }
 
-                {
-                    auto setting = currentBoothSettings.mutable_flash_brightness();
-                    setting->set_update_url("/booth_settings/flash/brightness");
-                    setting->set_name("Flash Brightness");
-                    setting->set_currentvalue(flashBrightness);
-                    setting->set_minvalue(0.0f);
-                    setting->set_maxvalue(1.0f);
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_flash_fade();
-                    setting->set_update_url("/booth_settings/flash/fade");
-                    setting->set_name("Flash Fade");
-                    setting->set_currentvalue(flashFade);
-                    setting->set_minvalue(0.0f);
-                    setting->set_maxvalue(1.0f);
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_flash_delay_micros();
-                    setting->set_update_url("/booth_settings/flash/delay");
-                    setting->set_name("Flash Delay Microseconds");
-                    setting->set_currentvalue(delayMicros);
-                    setting->set_minvalue(0);
-                    setting->set_maxvalue(100000);
-                }
+//                {
+//                    auto setting = currentBoothSettings.mutable_flash_brightness();
+//                    setting->set_update_url("/booth_settings/flash/brightness");
+//                    setting->set_name("Flash Brightness");
+//                    setting->set_currentvalue(flashBrightness);
+//                    setting->set_minvalue(0.0f);
+//                    setting->set_maxvalue(1.0f);
+//                }
+//
+//                {
+//                    auto setting = currentBoothSettings.mutable_flash_fade();
+//                    setting->set_update_url("/booth_settings/flash/fade");
+//                    setting->set_name("Flash Fade");
+//                    setting->set_currentvalue(flashFade);
+//                    setting->set_minvalue(0.0f);
+//                    setting->set_maxvalue(1.0f);
+//                }
+//
+//                {
+//                    auto setting = currentBoothSettings.mutable_flash_delay_micros();
+//                    setting->set_update_url("/booth_settings/flash/delay");
+//                    setting->set_name("Flash Delay Microseconds");
+//                    setting->set_currentvalue(delayMicros);
+//                    setting->set_minvalue(0);
+//                    setting->set_maxvalue(100000);
+//                }
 
                 {
                     auto setting = currentBoothSettings.mutable_flash_duration_micros();
@@ -524,7 +524,7 @@ bool BoothApi::start() {
                     setting->set_name("Flash Duration Microseconds");
                     setting->set_currentvalue(durationMicros);
                     setting->set_minvalue(0);
-                    setting->set_maxvalue(100000);
+                    setting->set_maxvalue(255);
                 }
 
                 {
