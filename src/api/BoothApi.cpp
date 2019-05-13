@@ -563,6 +563,12 @@ bool BoothApi::start() {
                     }
                 }
 
+                {
+                    auto setting = currentBoothSettings.mutable_update_mode();
+                    setting->set_name("Update Mode");
+                    setting->set_post_url("/update");
+                }
+
 
                 res << currentBoothSettings.SerializeAsString();
             });

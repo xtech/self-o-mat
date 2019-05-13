@@ -264,6 +264,7 @@ export namespace xtech {
             flashTest: xtech.selfomat.IPostSetting;
             templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             ledOffset: xtech.selfomat.IListSetting;
+            updateMode: xtech.selfomat.IPostSetting;
         }
 
         class BoothSettings implements IBoothSettings {
@@ -275,6 +276,7 @@ export namespace xtech {
             public flashTest: xtech.selfomat.IPostSetting;
             public templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             public ledOffset: xtech.selfomat.IListSetting;
+            public updateMode: xtech.selfomat.IPostSetting;
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
             public static encode(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;
