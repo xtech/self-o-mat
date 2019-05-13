@@ -33,6 +33,7 @@ export class Tab2Page implements OnInit {
   }
 
   refresh() {
+    if (this.apiService.isUpdating) return;
     this.apiService.getBoothSettings().subscribe(data => this.updateBoothSettings(data));
   }
 

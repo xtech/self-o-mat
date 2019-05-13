@@ -33,6 +33,7 @@ export class Tab1Page implements OnInit {
   }
 
   refresh() {
+    if (this.apiService.isUpdating) return;
     this.apiService.getCameraSettings().subscribe(data => this.updateCameraSettings(data));
   }
 

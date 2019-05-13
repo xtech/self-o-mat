@@ -15,6 +15,8 @@ import * as Long from 'long';
 
 export class XAPIService {
 
+    isUpdating: boolean = false;
+
     constructor(
     	private readonly http: HttpClient,
     	public loadingController: LoadingController
@@ -73,6 +75,10 @@ export class XAPIService {
         return throwError(error || 'Server error');
     }
 
+    startUpdating($event) {
+        this.isUpdating = true;
+    }
+
     updateSetting($event, setting) {
 
         let array;
@@ -95,7 +101,10 @@ export class XAPIService {
         this.http.post(environment.SERVER_URL + setting['updateUrl'],
             array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset),
             {headers: {'Content-Type': 'application/x-www-form-urlencoded'}, responseType: 'arraybuffer'})
-            .subscribe(data => {}, error => {
+            .subscribe(data => {
+		this.isUpdating = false;
+            }, error => {
+		this.isUpdating = false;
                 console.log(error);
             });
 
