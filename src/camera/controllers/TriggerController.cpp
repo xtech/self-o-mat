@@ -13,10 +13,10 @@ TriggerController::TriggerController(GPContext *gp, Camera *camera, CameraWidget
     // Find the widgets we need in order to focus and trigger the camera
     LOG_D(TAG, "Looking for trigger widget");
 
-    if(findWidget("eosremoterelease", &triggerWidget)) {
+    /*if(findWidget("eosremoterelease", &triggerWidget)) {
         mode = TRIGGER_MODE_EOSREMOTERELEASE;
         return;
-    }
+    }*/
 
     mode = TRIGGER_MODE_DEFAULT;
 }
