@@ -2774,7 +2774,7 @@
                  * @property {xtech.selfomat.IBoolSetting} printerEnabled BoothSettings printerEnabled
                  * @property {xtech.selfomat.IBoolSetting} flashEnabled BoothSettings flashEnabled
                  * @property {xtech.selfomat.IIntSetting} flashDurationMicros BoothSettings flashDurationMicros
-                 * @property {xtech.selfomat.IBoolSetting} templateEnabled BoothSettings templateEnabled
+                 * @property {xtech.selfomat.IBoolSetting|null} [templateEnabled] BoothSettings templateEnabled
                  * @property {xtech.selfomat.IListSetting} ledOffset BoothSettings ledOffset
                  */
     
@@ -2827,7 +2827,7 @@
     
                 /**
                  * BoothSettings templateEnabled.
-                 * @member {xtech.selfomat.IBoolSetting} templateEnabled
+                 * @member {xtech.selfomat.IBoolSetting|null|undefined} templateEnabled
                  * @memberof xtech.selfomat.BoothSettings
                  * @instance
                  */
@@ -2869,7 +2869,8 @@
                     $root.xtech.selfomat.BoolSetting.encode(message.printerEnabled, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.flashEnabled, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
                     $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                    $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                    if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
+                        $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.ledOffset, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
                     return writer;
                 };
@@ -2936,8 +2937,6 @@
                         throw $util.ProtocolError("missing required 'flashEnabled'", { instance: message });
                     if (!message.hasOwnProperty("flashDurationMicros"))
                         throw $util.ProtocolError("missing required 'flashDurationMicros'", { instance: message });
-                    if (!message.hasOwnProperty("templateEnabled"))
-                        throw $util.ProtocolError("missing required 'templateEnabled'", { instance: message });
                     if (!message.hasOwnProperty("ledOffset"))
                         throw $util.ProtocolError("missing required 'ledOffset'", { instance: message });
                     return message;
@@ -2990,7 +2989,7 @@
                         if (error)
                             return "flashDurationMicros." + error;
                     }
-                    {
+                    if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled")) {
                         var error = $root.xtech.selfomat.BoolSetting.verify(message.templateEnabled);
                         if (error)
                             return "templateEnabled." + error;

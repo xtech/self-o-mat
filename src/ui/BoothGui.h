@@ -88,6 +88,8 @@ namespace selfomat {
             sf::Texture textureFinalImageOverlay;
             sf::Sprite imageSpriteLiveOverlay;
             sf::Sprite imageSpritePrintOverlay;
+
+            bool templateLoaded = false;
             sf::Sprite imageSpriteFinalOverlay;
 
             sf::Texture textureNoCamera;

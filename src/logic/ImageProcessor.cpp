@@ -13,10 +13,11 @@ const std::string ImageProcessor::TAG = "IMAGE PROCESSOR";
 bool ImageProcessor::start() {
     LOG_D(TAG, "Trying to open template image");
     try {
-        templateImage.read("./assets/template.png");
+        templateImage.read("/opt/assets/template.png");
+        templateLoaded = true;
     } catch (Exception &error_) {
+        templateLoaded = false;
         logger->logError(std::string("Error loading template image: ") + error_.what());
-        return false;
     }
 
     LOG_D(TAG, "Loading Adobe RGB Profile");
@@ -41,16 +42,18 @@ bool ImageProcessor::start() {
     }
 
     // Read properties for the template
-    boost::property_tree::ptree ptree;
-    try {
-        boost::property_tree::read_json("./assets/template_props.json", ptree);
-        offsetTop = ptree.get<int>("offset_top");
-        offsetLeft = ptree.get<int>("offset_left");
-        offsetRight = ptree.get<int>("offset_right");
-        offsetBottom = ptree.get<int>("offset_bottom");
-    } catch (Exception &e) {
-        logger->logError(std::string("Error loading template properties: ") + e.what());
-        return false;
+    if(templateLoaded) {
+        boost::property_tree::ptree ptree;
+        try {
+            boost::property_tree::read_json("/opt/assets/template_props.json", ptree);
+            offsetTop = ptree.get<int>("offset_top");
+            offsetLeft = ptree.get<int>("offset_left");
+            offsetRight = ptree.get<int>("offset_right");
+            offsetBottom = ptree.get<int>("offset_bottom");
+        } catch (Exception &e) {
+            logger->logError(std::string("Error loading template properties: ") + e.what());
+            return false;
+        }
     }
 
 
@@ -71,6 +74,10 @@ ImageProcessor::~ImageProcessor() {
 
 
 Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize) {
+
+    if(!templateLoaded)
+        return decodeImageForPrint(inputImageJpeg, jpegBufferSize);
+
     struct timespec tstart, tend;
 
 

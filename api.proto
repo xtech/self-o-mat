@@ -86,6 +86,6 @@ message BoothSettings {
     required BoolSetting printer_enabled = 2;
     required BoolSetting flash_enabled = 3;
     required IntSetting flash_duration_micros = 7;
-    required BoolSetting template_enabled = 8;
+    optional BoolSetting template_enabled = 8;
     required ListSetting led_offset = 9;
 }

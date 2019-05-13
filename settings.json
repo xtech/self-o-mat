@@ -2,8 +2,8 @@
   "camera_type": "gphoto",
   "has_flash": true,
   "has_button": true,
-  "disable_watchdog": true,
+  "disable_watchdog": false,
   "debug": false,
   "button_port_name": "/dev/ttyS0",
-  "image_dir": "/tmp"
+  "image_dir": "/media/usb"
 }

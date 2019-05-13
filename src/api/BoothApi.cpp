@@ -527,11 +527,13 @@ bool BoothApi::start() {
                     setting->set_maxvalue(255);
                 }
 
-                {
-                    auto setting = currentBoothSettings.mutable_template_enabled();
-                    setting->set_update_url("/booth_settings/template_enabled");
-                    setting->set_name("Template Enabled?");
-                    setting->set_currentvalue(logic->getTemplateEnabled());
+                if(logic->getTemplateLoaded()) {
+                    {
+                        auto setting = currentBoothSettings.mutable_template_enabled();
+                        setting->set_update_url("/booth_settings/template_enabled");
+                        setting->set_name("Template Enabled?");
+                        setting->set_currentvalue(logic->getTemplateEnabled());
+                    }
                 }
 
                 {

@@ -227,6 +227,7 @@ namespace selfomat {
 
             void setTemplateEnabled(bool templateEnabled, bool persist = false);
             bool getTemplateEnabled();
+            bool getTemplateLoaded();
 
             void setLEDOffset(int8_t offset, bool persist = false);
             int8_t getLEDOffset();

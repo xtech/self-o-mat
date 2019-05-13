@@ -50,11 +50,12 @@ bool BoothGui::start() {
     }
     imageSpriteLiveOverlay.setTexture(textureLiveOverlay);
 
-    if (!textureFinalImageOverlay.loadFromFile("./assets/template_screen.png")) {
+    templateLoaded = textureFinalImageOverlay.loadFromFile("/opt/assets/template_screen.png");
+    if (!templateLoaded) {
         cerr << "Could not load screen template asset." << endl;
-        return false;
+    } else {
+        imageSpriteFinalOverlay.setTexture(textureFinalImageOverlay);
     }
-    imageSpriteFinalOverlay.setTexture(textureFinalImageOverlay);
 
     if (!texturePrintOverlay.loadFromFile("./assets/print_overlay.png")) {
         cerr << "Could not load print template asset." << endl;
@@ -75,17 +76,19 @@ bool BoothGui::start() {
     }
 
 
-    // Read properties for the template
-    boost::property_tree::ptree ptree;
-    try {
-        boost::property_tree::read_json("./assets/template_screen_props.json", ptree);
-        finalOverlayOffsetTop = ptree.get<int>("offset_top");
-        finalOverlayOffsetLeft = ptree.get<int>("offset_left");
-        finalOverlayOffsetRight = ptree.get<int>("offset_right");
-        finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
-    } catch (boost::exception &e) {
-        logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
-        return false;
+    if(templateLoaded) {
+        // Read properties for the template
+        boost::property_tree::ptree ptree;
+        try {
+            boost::property_tree::read_json("/opt/assets/template_screen_props.json", ptree);
+            finalOverlayOffsetTop = ptree.get<int>("offset_top");
+            finalOverlayOffsetLeft = ptree.get<int>("offset_left");
+            finalOverlayOffsetRight = ptree.get<int>("offset_right");
+            finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
+        } catch (boost::exception &e) {
+            logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
+            return false;
+        }
     }
 
 
@@ -212,7 +215,7 @@ void BoothGui::renderThread() {
                                         windowCenterY - imageCenterY);
 
 
-                if(templateEnabled) {
+                if(templateEnabled && templateLoaded) {
                     float finalOverlayCenterX =
                             ((float) finalOverlayOffsetLeft + (float) finalOverlayOffsetRight) / 2.0f;
                     float finalOverlayCenterY =
@@ -281,7 +284,7 @@ void BoothGui::renderThread() {
                 auto alpha = uint8_t((1.0f - alpha_float) * 255.0f);
 
                 window.draw(finalImageSprite);
-                if(templateEnabled) {
+                if(templateEnabled && templateLoaded) {
                     window.draw(imageSpriteFinalOverlay);
                 }
 
@@ -296,7 +299,7 @@ void BoothGui::renderThread() {
                 break;
             case STATE_FINAL_IMAGE: {
                 window.draw(finalImageSprite);
-                if(templateEnabled) {
+                if(templateEnabled && templateLoaded) {
                     window.draw(imageSpriteFinalOverlay);
                 }
 
@@ -317,7 +320,7 @@ void BoothGui::renderThread() {
                 float percentage = easeOutSin(linearPercentage, 0.0f, 1.0f, 1.0f);
 
                 window.draw(finalImageSprite);
-                if(templateEnabled) {
+                if(templateEnabled && templateLoaded) {
                     window.draw(imageSpriteFinalOverlay);
                 }
 
@@ -331,7 +334,7 @@ void BoothGui::renderThread() {
                 break;
             case STATE_FINAL_IMAGE_PRINT: {
                 window.draw(finalImageSprite);
-                if(templateEnabled) {
+                if(templateEnabled && templateLoaded) {
                     window.draw(imageSpriteFinalOverlay);
                 }
 
@@ -346,7 +349,7 @@ void BoothGui::renderThread() {
                 float alpha = max(0.0f, min(255.0f, percentage * 255.0f));
 
                 window.draw(finalImageSprite);
-                if(templateEnabled) {
+                if(templateEnabled && templateLoaded) {
                     window.draw(imageSpriteFinalOverlay);
                 }
 
