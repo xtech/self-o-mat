@@ -451,6 +451,16 @@ bool BoothApi::start() {
                 return;
             });
 
+    mux.handle("/flash")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                logic->flashTest();
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
     mux.handle("/update")
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
@@ -528,8 +538,7 @@ bool BoothApi::start() {
                 }
 
                 {
-                    auto setting = currentBoothSettings.mutable_flash_test()
-                    setting->set_update_url("/booth_settings/flash/test");
+                    auto setting = currentBoothSettings.mutable_flash_test();
                     setting->set_name("Flash Test");
                     setting->set_post_url("/flash");
                 }

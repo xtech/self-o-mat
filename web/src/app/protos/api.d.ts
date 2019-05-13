@@ -261,6 +261,7 @@ export namespace xtech {
             printerEnabled: xtech.selfomat.IBoolSetting;
             flashEnabled: xtech.selfomat.IBoolSetting;
             flashDurationMicros: xtech.selfomat.IIntSetting;
+            flashTest: xtech.selfomat.IPostSetting;
             templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             ledOffset: xtech.selfomat.IListSetting;
         }
@@ -271,6 +272,7 @@ export namespace xtech {
             public printerEnabled: xtech.selfomat.IBoolSetting;
             public flashEnabled: xtech.selfomat.IBoolSetting;
             public flashDurationMicros: xtech.selfomat.IIntSetting;
+            public flashTest: xtech.selfomat.IPostSetting;
             public templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             public ledOffset: xtech.selfomat.IListSetting;
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;

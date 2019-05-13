@@ -224,6 +224,7 @@ namespace selfomat {
 
             void setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros, uint64_t durationMicros, bool persist = false);
             void getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros, uint64_t *durationMicros);
+            void flashTest();
 
             void setTemplateEnabled(bool templateEnabled, bool persist = false);
             bool getTemplateEnabled();

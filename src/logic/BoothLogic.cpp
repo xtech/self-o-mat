@@ -700,10 +700,7 @@ void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, 
     this->flashDelayMicros = delayMicros;
     this->flashDurationMicros = durationMicros;
 
-    auto newDuration = static_cast<uint8_t>(durationMicros);
-    cout << "new flash duration: " << (int)newDuration << endl;
-    sendCommand('$', newDuration);
-
+    cout << "new flash duration: " << (int)durationMicros << endl;
     cout << "New flash parameters: " << enabled << ", " << brightness << ", " << fade << ", " << delayMicros << ", " << durationMicros << endl;
 
     if(persist) {
@@ -718,6 +715,11 @@ void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fad
      *fade = this->flashFade;
      *delayMicros = this->flashDelayMicros;
      *durationMicros = this->flashDurationMicros;
+}
+
+void BoothLogic::flashTest() {
+    auto duration = static_cast<uint8_t>(this->flashDurationMicros);
+    sendCommand('$', duration);
 }
 
 void BoothLogic::setTemplateEnabled(bool templateEnabled, bool persist) {
