@@ -227,6 +227,7 @@ export namespace xtech {
             shutterSpeed: xtech.selfomat.IListSetting;
             aperture: xtech.selfomat.IListSetting;
             exposureCompensation: xtech.selfomat.IListSetting;
+            exposureCompensationTrigger: xtech.selfomat.IListSetting;
             imageFormat: xtech.selfomat.IListSetting;
             cameraName: xtech.selfomat.IReadOnlySetting;
             lensName: xtech.selfomat.IReadOnlySetting;
@@ -239,6 +240,7 @@ export namespace xtech {
             public shutterSpeed: xtech.selfomat.IListSetting;
             public aperture: xtech.selfomat.IListSetting;
             public exposureCompensation: xtech.selfomat.IListSetting;
+            public exposureCompensationTrigger: xtech.selfomat.IListSetting;
             public imageFormat: xtech.selfomat.IListSetting;
             public cameraName: xtech.selfomat.IReadOnlySetting;
             public lensName: xtech.selfomat.IReadOnlySetting;
@@ -258,9 +260,6 @@ export namespace xtech {
             storageEnabled: xtech.selfomat.IBoolSetting;
             printerEnabled: xtech.selfomat.IBoolSetting;
             flashEnabled: xtech.selfomat.IBoolSetting;
-            flashBrightness: xtech.selfomat.IFloatSetting;
-            flashFade: xtech.selfomat.IFloatSetting;
-            flashDelayMicros: xtech.selfomat.IIntSetting;
             flashDurationMicros: xtech.selfomat.IIntSetting;
             templateEnabled: xtech.selfomat.IBoolSetting;
             ledOffset: xtech.selfomat.IListSetting;
@@ -271,9 +270,6 @@ export namespace xtech {
             public storageEnabled: xtech.selfomat.IBoolSetting;
             public printerEnabled: xtech.selfomat.IBoolSetting;
             public flashEnabled: xtech.selfomat.IBoolSetting;
-            public flashBrightness: xtech.selfomat.IFloatSetting;
-            public flashFade: xtech.selfomat.IFloatSetting;
-            public flashDelayMicros: xtech.selfomat.IIntSetting;
             public flashDurationMicros: xtech.selfomat.IIntSetting;
             public templateEnabled: xtech.selfomat.IBoolSetting;
             public ledOffset: xtech.selfomat.IListSetting;

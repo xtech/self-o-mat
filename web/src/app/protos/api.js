@@ -2357,6 +2357,7 @@
                  * @property {xtech.selfomat.IListSetting} shutterSpeed CameraSettings shutterSpeed
                  * @property {xtech.selfomat.IListSetting} aperture CameraSettings aperture
                  * @property {xtech.selfomat.IListSetting} exposureCompensation CameraSettings exposureCompensation
+                 * @property {xtech.selfomat.IListSetting} exposureCompensationTrigger CameraSettings exposureCompensationTrigger
                  * @property {xtech.selfomat.IListSetting} imageFormat CameraSettings imageFormat
                  * @property {xtech.selfomat.IReadOnlySetting} cameraName CameraSettings cameraName
                  * @property {xtech.selfomat.IReadOnlySetting} lensName CameraSettings lensName
@@ -2409,6 +2410,14 @@
                  * @instance
                  */
                 CameraSettings.prototype.exposureCompensation = null;
+    
+                /**
+                 * CameraSettings exposureCompensationTrigger.
+                 * @member {xtech.selfomat.IListSetting} exposureCompensationTrigger
+                 * @memberof xtech.selfomat.CameraSettings
+                 * @instance
+                 */
+                CameraSettings.prototype.exposureCompensationTrigger = null;
     
                 /**
                  * CameraSettings imageFormat.
@@ -2470,7 +2479,8 @@
                     $root.xtech.selfomat.ListSetting.encode(message.shutterSpeed, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.aperture, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.exposureCompensation, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                    $root.xtech.selfomat.ListSetting.encode(message.imageFormat, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+                    $root.xtech.selfomat.ListSetting.encode(message.exposureCompensationTrigger, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+                    $root.xtech.selfomat.ListSetting.encode(message.imageFormat, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.cameraName, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.lensName, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
                     if (message.focus != null && message.hasOwnProperty("focus"))
@@ -2522,6 +2532,9 @@
                             message.exposureCompensation = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
                             break;
                         case 5:
+                            message.exposureCompensationTrigger = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
+                            break;
+                        case 6:
                             message.imageFormat = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
                             break;
                         case 7:
@@ -2546,6 +2559,8 @@
                         throw $util.ProtocolError("missing required 'aperture'", { instance: message });
                     if (!message.hasOwnProperty("exposureCompensation"))
                         throw $util.ProtocolError("missing required 'exposureCompensation'", { instance: message });
+                    if (!message.hasOwnProperty("exposureCompensationTrigger"))
+                        throw $util.ProtocolError("missing required 'exposureCompensationTrigger'", { instance: message });
                     if (!message.hasOwnProperty("imageFormat"))
                         throw $util.ProtocolError("missing required 'imageFormat'", { instance: message });
                     if (!message.hasOwnProperty("cameraName"))
@@ -2603,6 +2618,11 @@
                             return "exposureCompensation." + error;
                     }
                     {
+                        var error = $root.xtech.selfomat.ListSetting.verify(message.exposureCompensationTrigger);
+                        if (error)
+                            return "exposureCompensationTrigger." + error;
+                    }
+                    {
                         var error = $root.xtech.selfomat.ListSetting.verify(message.imageFormat);
                         if (error)
                             return "imageFormat." + error;
@@ -2657,6 +2677,11 @@
                             throw TypeError(".xtech.selfomat.CameraSettings.exposureCompensation: object expected");
                         message.exposureCompensation = $root.xtech.selfomat.ListSetting.fromObject(object.exposureCompensation);
                     }
+                    if (object.exposureCompensationTrigger != null) {
+                        if (typeof object.exposureCompensationTrigger !== "object")
+                            throw TypeError(".xtech.selfomat.CameraSettings.exposureCompensationTrigger: object expected");
+                        message.exposureCompensationTrigger = $root.xtech.selfomat.ListSetting.fromObject(object.exposureCompensationTrigger);
+                    }
                     if (object.imageFormat != null) {
                         if (typeof object.imageFormat !== "object")
                             throw TypeError(".xtech.selfomat.CameraSettings.imageFormat: object expected");
@@ -2698,6 +2723,7 @@
                         object.shutterSpeed = null;
                         object.aperture = null;
                         object.exposureCompensation = null;
+                        object.exposureCompensationTrigger = null;
                         object.imageFormat = null;
                         object.cameraName = null;
                         object.lensName = null;
@@ -2711,6 +2737,8 @@
                         object.aperture = $root.xtech.selfomat.ListSetting.toObject(message.aperture, options);
                     if (message.exposureCompensation != null && message.hasOwnProperty("exposureCompensation"))
                         object.exposureCompensation = $root.xtech.selfomat.ListSetting.toObject(message.exposureCompensation, options);
+                    if (message.exposureCompensationTrigger != null && message.hasOwnProperty("exposureCompensationTrigger"))
+                        object.exposureCompensationTrigger = $root.xtech.selfomat.ListSetting.toObject(message.exposureCompensationTrigger, options);
                     if (message.imageFormat != null && message.hasOwnProperty("imageFormat"))
                         object.imageFormat = $root.xtech.selfomat.ListSetting.toObject(message.imageFormat, options);
                     if (message.cameraName != null && message.hasOwnProperty("cameraName"))
@@ -2745,9 +2773,6 @@
                  * @property {xtech.selfomat.IBoolSetting} storageEnabled BoothSettings storageEnabled
                  * @property {xtech.selfomat.IBoolSetting} printerEnabled BoothSettings printerEnabled
                  * @property {xtech.selfomat.IBoolSetting} flashEnabled BoothSettings flashEnabled
-                 * @property {xtech.selfomat.IFloatSetting} flashBrightness BoothSettings flashBrightness
-                 * @property {xtech.selfomat.IFloatSetting} flashFade BoothSettings flashFade
-                 * @property {xtech.selfomat.IIntSetting} flashDelayMicros BoothSettings flashDelayMicros
                  * @property {xtech.selfomat.IIntSetting} flashDurationMicros BoothSettings flashDurationMicros
                  * @property {xtech.selfomat.IBoolSetting} templateEnabled BoothSettings templateEnabled
                  * @property {xtech.selfomat.IListSetting} ledOffset BoothSettings ledOffset
@@ -2791,30 +2816,6 @@
                  * @instance
                  */
                 BoothSettings.prototype.flashEnabled = null;
-    
-                /**
-                 * BoothSettings flashBrightness.
-                 * @member {xtech.selfomat.IFloatSetting} flashBrightness
-                 * @memberof xtech.selfomat.BoothSettings
-                 * @instance
-                 */
-                BoothSettings.prototype.flashBrightness = null;
-    
-                /**
-                 * BoothSettings flashFade.
-                 * @member {xtech.selfomat.IFloatSetting} flashFade
-                 * @memberof xtech.selfomat.BoothSettings
-                 * @instance
-                 */
-                BoothSettings.prototype.flashFade = null;
-    
-                /**
-                 * BoothSettings flashDelayMicros.
-                 * @member {xtech.selfomat.IIntSetting} flashDelayMicros
-                 * @memberof xtech.selfomat.BoothSettings
-                 * @instance
-                 */
-                BoothSettings.prototype.flashDelayMicros = null;
     
                 /**
                  * BoothSettings flashDurationMicros.
@@ -2867,9 +2868,6 @@
                     $root.xtech.selfomat.BoolSetting.encode(message.storageEnabled, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.printerEnabled, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.flashEnabled, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                    $root.xtech.selfomat.FloatSetting.encode(message.flashBrightness, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                    $root.xtech.selfomat.FloatSetting.encode(message.flashFade, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                    $root.xtech.selfomat.IntSetting.encode(message.flashDelayMicros, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
                     $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.ledOffset, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
@@ -2916,15 +2914,6 @@
                         case 3:
                             message.flashEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
-                        case 4:
-                            message.flashBrightness = $root.xtech.selfomat.FloatSetting.decode(reader, reader.uint32());
-                            break;
-                        case 5:
-                            message.flashFade = $root.xtech.selfomat.FloatSetting.decode(reader, reader.uint32());
-                            break;
-                        case 6:
-                            message.flashDelayMicros = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
-                            break;
                         case 7:
                             message.flashDurationMicros = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
                             break;
@@ -2945,12 +2934,6 @@
                         throw $util.ProtocolError("missing required 'printerEnabled'", { instance: message });
                     if (!message.hasOwnProperty("flashEnabled"))
                         throw $util.ProtocolError("missing required 'flashEnabled'", { instance: message });
-                    if (!message.hasOwnProperty("flashBrightness"))
-                        throw $util.ProtocolError("missing required 'flashBrightness'", { instance: message });
-                    if (!message.hasOwnProperty("flashFade"))
-                        throw $util.ProtocolError("missing required 'flashFade'", { instance: message });
-                    if (!message.hasOwnProperty("flashDelayMicros"))
-                        throw $util.ProtocolError("missing required 'flashDelayMicros'", { instance: message });
                     if (!message.hasOwnProperty("flashDurationMicros"))
                         throw $util.ProtocolError("missing required 'flashDurationMicros'", { instance: message });
                     if (!message.hasOwnProperty("templateEnabled"))
@@ -3003,21 +2986,6 @@
                             return "flashEnabled." + error;
                     }
                     {
-                        var error = $root.xtech.selfomat.FloatSetting.verify(message.flashBrightness);
-                        if (error)
-                            return "flashBrightness." + error;
-                    }
-                    {
-                        var error = $root.xtech.selfomat.FloatSetting.verify(message.flashFade);
-                        if (error)
-                            return "flashFade." + error;
-                    }
-                    {
-                        var error = $root.xtech.selfomat.IntSetting.verify(message.flashDelayMicros);
-                        if (error)
-                            return "flashDelayMicros." + error;
-                    }
-                    {
                         var error = $root.xtech.selfomat.IntSetting.verify(message.flashDurationMicros);
                         if (error)
                             return "flashDurationMicros." + error;
@@ -3062,21 +3030,6 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.flashEnabled: object expected");
                         message.flashEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.flashEnabled);
                     }
-                    if (object.flashBrightness != null) {
-                        if (typeof object.flashBrightness !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.flashBrightness: object expected");
-                        message.flashBrightness = $root.xtech.selfomat.FloatSetting.fromObject(object.flashBrightness);
-                    }
-                    if (object.flashFade != null) {
-                        if (typeof object.flashFade !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.flashFade: object expected");
-                        message.flashFade = $root.xtech.selfomat.FloatSetting.fromObject(object.flashFade);
-                    }
-                    if (object.flashDelayMicros != null) {
-                        if (typeof object.flashDelayMicros !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.flashDelayMicros: object expected");
-                        message.flashDelayMicros = $root.xtech.selfomat.IntSetting.fromObject(object.flashDelayMicros);
-                    }
                     if (object.flashDurationMicros != null) {
                         if (typeof object.flashDurationMicros !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.flashDurationMicros: object expected");
@@ -3112,9 +3065,6 @@
                         object.storageEnabled = null;
                         object.printerEnabled = null;
                         object.flashEnabled = null;
-                        object.flashBrightness = null;
-                        object.flashFade = null;
-                        object.flashDelayMicros = null;
                         object.flashDurationMicros = null;
                         object.templateEnabled = null;
                         object.ledOffset = null;
@@ -3125,12 +3075,6 @@
                         object.printerEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.printerEnabled, options);
                     if (message.flashEnabled != null && message.hasOwnProperty("flashEnabled"))
                         object.flashEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.flashEnabled, options);
-                    if (message.flashBrightness != null && message.hasOwnProperty("flashBrightness"))
-                        object.flashBrightness = $root.xtech.selfomat.FloatSetting.toObject(message.flashBrightness, options);
-                    if (message.flashFade != null && message.hasOwnProperty("flashFade"))
-                        object.flashFade = $root.xtech.selfomat.FloatSetting.toObject(message.flashFade, options);
-                    if (message.flashDelayMicros != null && message.hasOwnProperty("flashDelayMicros"))
-                        object.flashDelayMicros = $root.xtech.selfomat.IntSetting.toObject(message.flashDelayMicros, options);
                     if (message.flashDurationMicros != null && message.hasOwnProperty("flashDurationMicros"))
                         object.flashDurationMicros = $root.xtech.selfomat.IntSetting.toObject(message.flashDurationMicros, options);
                     if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
