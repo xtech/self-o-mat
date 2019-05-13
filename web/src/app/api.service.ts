@@ -16,6 +16,7 @@ import * as Long from 'long';
 export class XAPIService {
 
     isUpdating: boolean = false;
+    sentUpdate: boolean = false;
 
     constructor(
     	private readonly http: HttpClient,
@@ -77,9 +78,12 @@ export class XAPIService {
 
     startUpdating($event) {
         this.isUpdating = true;
+	this.sentUpdate = false;
     }
 
     updateSetting($event, setting) {
+
+        if (this.sentUpdate) return;
 
         let array;
 
@@ -97,6 +101,8 @@ export class XAPIService {
             const message = xtech.selfomat.IntUpdate.create({ value: setting['currentIndex'] });
             array =  xtech.selfomat.IntUpdate.encode(message).finish();
         }
+
+	this.sentUpdate = true;
 
         this.http.post(environment.SERVER_URL + setting['updateUrl'],
             array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset),
