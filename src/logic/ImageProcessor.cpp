@@ -42,16 +42,18 @@ bool ImageProcessor::start() {
     }
 
     // Read properties for the template
-    boost::property_tree::ptree ptree;
-    try {
-        boost::property_tree::read_json("./assets/template_props.json", ptree);
-        offsetTop = ptree.get<int>("offset_top");
-        offsetLeft = ptree.get<int>("offset_left");
-        offsetRight = ptree.get<int>("offset_right");
-        offsetBottom = ptree.get<int>("offset_bottom");
-    } catch (Exception &e) {
-        logger->logError(std::string("Error loading template properties: ") + e.what());
-        return false;
+    if(templateLoaded) {
+        boost::property_tree::ptree ptree;
+        try {
+            boost::property_tree::read_json("/opt/assets/template_props.json", ptree);
+            offsetTop = ptree.get<int>("offset_top");
+            offsetLeft = ptree.get<int>("offset_left");
+            offsetRight = ptree.get<int>("offset_right");
+            offsetBottom = ptree.get<int>("offset_bottom");
+        } catch (Exception &e) {
+            logger->logError(std::string("Error loading template properties: ") + e.what());
+            return false;
+        }
     }
 
 

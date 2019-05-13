@@ -76,17 +76,19 @@ bool BoothGui::start() {
     }
 
 
-    // Read properties for the template
-    boost::property_tree::ptree ptree;
-    try {
-        boost::property_tree::read_json("./assets/template_screen_props.json", ptree);
-        finalOverlayOffsetTop = ptree.get<int>("offset_top");
-        finalOverlayOffsetLeft = ptree.get<int>("offset_left");
-        finalOverlayOffsetRight = ptree.get<int>("offset_right");
-        finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
-    } catch (boost::exception &e) {
-        logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
-        return false;
+    if(templateLoaded) {
+        // Read properties for the template
+        boost::property_tree::ptree ptree;
+        try {
+            boost::property_tree::read_json("/opt/assets/template_screen_props.json", ptree);
+            finalOverlayOffsetTop = ptree.get<int>("offset_top");
+            finalOverlayOffsetLeft = ptree.get<int>("offset_left");
+            finalOverlayOffsetRight = ptree.get<int>("offset_right");
+            finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
+        } catch (boost::exception &e) {
+            logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
+            return false;
+        }
     }
 
 
