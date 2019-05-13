@@ -13,10 +13,11 @@ const std::string ImageProcessor::TAG = "IMAGE PROCESSOR";
 bool ImageProcessor::start() {
     LOG_D(TAG, "Trying to open template image");
     try {
-        templateImage.read("./assets/template.png");
+        templateImage.read("/opt/assets/template.png");
+        templateLoaded = true;
     } catch (Exception &error_) {
+        templateLoaded = false;
         logger->logError(std::string("Error loading template image: ") + error_.what());
-        return false;
     }
 
     LOG_D(TAG, "Loading Adobe RGB Profile");
@@ -71,6 +72,10 @@ ImageProcessor::~ImageProcessor() {
 
 
 Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize) {
+
+    if(!templateLoaded)
+        return decodeImageForPrint(inputImageJpeg, jpegBufferSize);
+
     struct timespec tstart, tend;
 
 

@@ -33,6 +33,7 @@ namespace selfomat {
 
             JpegDecoder jpegDecoder;
 
+            bool templateLoaded = false;
             Image templateImage;
             int offsetTop;
             int offsetLeft;
@@ -55,6 +56,10 @@ namespace selfomat {
             bool stop();
 
             virtual ~ImageProcessor();
+
+            bool isTemplateLoaded() {
+                return templateLoaded;
+            }
         };
     }
 }
