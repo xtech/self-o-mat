@@ -527,6 +527,14 @@ bool BoothApi::start() {
                     setting->set_maxvalue(255);
                 }
 
+                {
+                    auto setting = currentBoothSettings.mutable_flash_test()
+                    setting->set_update_url("/booth_settings/flash/test");
+                    setting->set_name("Flash Test");
+                    setting->set_post_url("/flash");
+                }
+
+
                 if(logic->getTemplateLoaded()) {
                     {
                         auto setting = currentBoothSettings.mutable_template_enabled();

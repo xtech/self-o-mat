@@ -16,7 +16,7 @@ import * as Long from 'long';
 export class XAPIService {
 
     isUpdating: boolean = false;
-    sentUpdate: boolean = false;
+    stopUpdating: boolean = false;
 
     constructor(
     	private readonly http: HttpClient,
@@ -76,14 +76,16 @@ export class XAPIService {
         return throwError(error || 'Server error');
     }
 
-    startUpdating($event) {
-        this.isUpdating = true;
-	this.sentUpdate = false;
+    endUpdating($event) {
+        this.stopUpdating = true;
     }
 
     updateSetting($event, setting) {
 
-        if (this.sentUpdate) return;
+	if (!this.isUpdating) {
+            this.isUpdating = true;
+            this.stopUpdating = false;
+        }
 
         let array;
 
@@ -102,15 +104,17 @@ export class XAPIService {
             array =  xtech.selfomat.IntUpdate.encode(message).finish();
         }
 
-	this.sentUpdate = true;
-
         this.http.post(environment.SERVER_URL + setting['updateUrl'],
             array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset),
             {headers: {'Content-Type': 'application/x-www-form-urlencoded'}, responseType: 'arraybuffer'})
             .subscribe(data => {
-		this.isUpdating = false;
+		if (this.stopUpdating) {
+			this.isUpdating = false;
+		}
             }, error => {
-		this.isUpdating = false;
+		if (this.stopUpdating) {
+			this.isUpdating = false;
+		}
                 console.log(error);
             });
 
