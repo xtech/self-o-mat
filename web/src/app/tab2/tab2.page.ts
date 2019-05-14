@@ -19,6 +19,10 @@ export class Tab2Page implements OnInit {
   }
 
   updateBoothSettings(boothSettings: BoothSettings) {
+    if (this.apiService.isUpdating) {
+      return;
+    }
+
     if (this.settings == null) {
       this.settings = boothSettings;
       return;

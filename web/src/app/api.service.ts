@@ -15,8 +15,8 @@ import * as Long from 'long';
 
 export class XAPIService {
 
-    isUpdating: boolean = false;
-    stopUpdating: boolean = false;
+    isUpdating = false;
+    endUpdateingTimerID = null;
 
     constructor(
     	private readonly http: HttpClient,
@@ -76,15 +76,14 @@ export class XAPIService {
         return throwError(error || 'Server error');
     }
 
-    endUpdating($event) {
-        this.stopUpdating = true;
-    }
-
     updateSetting($event, setting) {
 
-	if (!this.isUpdating) {
+	    if (!this.isUpdating) {
             this.isUpdating = true;
-            this.stopUpdating = false;
+            this.endUpdateingTimerID = setTimeout(() => {
+                this.isUpdating = false;
+                this.endUpdateingTimerID = null;
+            }, 5000);
         }
 
         let array;
@@ -107,14 +106,7 @@ export class XAPIService {
         this.http.post(environment.SERVER_URL + setting['updateUrl'],
             array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset),
             {headers: {'Content-Type': 'application/x-www-form-urlencoded'}, responseType: 'arraybuffer'})
-            .subscribe(data => {
-		if (this.stopUpdating) {
-			this.isUpdating = false;
-		}
-            }, error => {
-		if (this.stopUpdating) {
-			this.isUpdating = false;
-		}
+            .subscribe(data => {}, error => {
                 console.log(error);
             });
 

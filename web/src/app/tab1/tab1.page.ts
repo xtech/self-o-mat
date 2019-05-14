@@ -19,6 +19,10 @@ export class Tab1Page implements OnInit {
   }
 
   updateCameraSettings(cameraSettings: CameraSettings) {
+    if (this.apiService.isUpdating) {
+      return;
+    }
+
     if (this.settings == null) {
       this.settings = cameraSettings;
       return;
