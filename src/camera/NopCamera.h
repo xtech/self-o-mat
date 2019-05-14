@@ -8,6 +8,7 @@
 
 #include "ICamera.h"
 #include <opencv2/opencv.hpp>
+#include <SFML/System/Clock.hpp>
 
 
 namespace selfomat {
@@ -15,33 +16,60 @@ namespace selfomat {
         class NopCamera : public ICamera {
 
         private:
-            unsigned int preview_count = 0;
-            unsigned int capture_count = 0;
+            sf::Clock fpsClock;
+            cv::VideoCapture video;
 
         public:
             CameraStartResult start() override {
                 setState(STATE_WORKING);
+
+                // Load assets
+                video = cv::VideoCapture("/opt/assets/nop.mov");
+                if (!video.isOpened()) {
+                    cerr << "Could not load nop video." << endl;
+                } else {
+                    fpsClock.restart();
+                }
+
                 return START_RESULT_SUCCESS;
             }
 
             bool capturePreviewBlocking(void **buffer, size_t *bufferSize, ImageInfo *resultInfo) override {
-                cv::Mat image(480, 640, CV_8UC4, cv::Scalar(30, 0, 0, 255));
+
+                cv::Mat image;
+                if (video.isOpened()) {
+                    if (video.get(CV_CAP_PROP_POS_FRAMES) == video.get(CV_CAP_PROP_FRAME_COUNT)) {
+                        video.set(CV_CAP_PROP_POS_FRAMES, 0);
+                    }
+
+                    video >> image;
+                    cv::resize(image, image, cv::Size(1280,800));
+                } else {
+                    image = cv::Mat(480, 640, CV_8UC4, cv::Scalar(30, 0, 0, 255));
+                }
+
                 resultInfo->width = image.cols;
                 resultInfo->height = image.rows;
-
-                cv::putText(image, "# NOP CAM #", cv::Point(200, 200), CV_FONT_HERSHEY_COMPLEX, 3,
-                            cv::Scalar(0, 255, 0, 255));
-                cv::putText(image, std::to_string(preview_count++), cv::Point(200, 300), CV_FONT_HERSHEY_COMPLEX, 3,
-                            cv::Scalar(0, 255, 0, 255));
-
 
                 auto size = image.cols * image.rows * 4;
                 selfomat::tools::requireBufferWithSize(buffer, bufferSize, size);
 
                 cv::Mat outImage(image.rows, image.cols, CV_8UC4, *buffer);
-                image.copyTo(outImage);
+                if (video.isOpened()) {
+                    cv::cvtColor(image, outImage, CV_RGB2BGRA);
 
-                usleep(50000);
+                    auto vFPS = 1000000 / video.get(CV_CAP_PROP_FPS);
+                    sf::Int32 elapsedTime = fpsClock.getElapsedTime().asMicroseconds();
+                    fpsClock.restart();
+                    auto timeToWait = vFPS - elapsedTime;
+                    if (timeToWait > 0) {
+                        usleep(timeToWait);
+                    }
+                } else {
+                    image.copyTo(outImage);
+                    usleep(50000);
+                }
+
                 return true;
             }
 
@@ -57,26 +85,37 @@ namespace selfomat {
             virtual bool
             readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename,
                               void **previewBuffer, size_t *previewBufferSize, ImageInfo *previewImageInfo) {
-                cv::Mat image(2048, 4096, CV_8UC4, cv::Scalar(0, 255, 0, 255));
 
-                cv::putText(image, "# CAP #", cv::Point(200, 200), CV_FONT_HERSHEY_COMPLEX, 3,
-                            cv::Scalar(255, 0, 0, 255));
-                cv::putText(image, std::to_string(capture_count++), cv::Point(200, 300), CV_FONT_HERSHEY_COMPLEX, 3,
-                            cv::Scalar(255, 0, 0, 255));
+                cv::Mat image;
+                if (video.isOpened()) {
+                    video.retrieve(image);
+                } else {
+                    image = cv::Mat(2048, 4096, CV_8UC4, cv::Scalar(0, 255, 0, 255));
+                }
+
                 vector<uchar> vect;
                 cv::imencode(".jpg", image, vect);
 
                 selfomat::tools::requireBufferWithSize(fullJpegBuffer, fullJpegBufferSize, vect.size());
                 memcpy(*fullJpegBuffer, vect.data(), vect.size());
 
+                cv::Size previewSize;
+                if (video.isOpened()) {
+                    previewSize = cv::Size(image.cols, image.rows);
+                } else {
+                    previewSize = cv::Size(1024, 2048);
+                }
 
-                cv::Size previewSize(1024, 2048);
                 auto size = previewSize.height * previewSize.width * 4;
                 selfomat::tools::requireBufferWithSize(previewBuffer, previewBufferSize, size);
 
                 cv::Mat previewImage(previewSize.height, previewSize.width, CV_8UC4, *previewBuffer);
 
-                cv::resize(image, previewImage, previewSize);
+                if (video.isOpened()) {
+                    cv::cvtColor(image, previewImage, CV_RGB2BGRA);
+                } else {
+                    cv::resize(image, previewImage, previewSize);
+                }
 
                 previewImageInfo->width = previewSize.width;
                 previewImageInfo->height = previewSize.height;
