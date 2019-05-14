@@ -152,6 +152,7 @@ void BoothLogic::triggerFlash() {
 
     sendCommand('#');
 
+    /*
     cout << "flashing with " << flashBrightness << ", " << flashFade << ", " << flashDurationMicros << endl;
 
 
@@ -164,7 +165,7 @@ void BoothLogic::triggerFlash() {
     flash.fade = (int)(255.0f*flashFade);
     wiringPiSPIDataRW(0, (unsigned char*)&flash, 6);
     digitalWrite(PIN_SS, HIGH);
-#endif
+#endif*/
 }
 
 void BoothLogic::stop() {
@@ -345,7 +346,7 @@ void BoothLogic::logicThread() {
 
         // check the printer state
         printerManager.refreshPrinterState();
-        if (printerManager.getCurrentPrinterState() == STATE_STOPPED) {
+        if (printerManager.getCurrentPrinterState() == STATE_STOPPED && printerEnabled) {
             gui->addAlert(ALERT_PRINTER, L"Drucker wurde gestoppt");
         } else {
             gui->removeAlert(ALERT_PRINTER);
@@ -699,9 +700,6 @@ void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, 
     this->flashFade = fade;
     this->flashDelayMicros = delayMicros;
     this->flashDurationMicros = durationMicros;
-
-    cout << "new flash duration: " << (int)durationMicros << endl;
-    cout << "New flash parameters: " << enabled << ", " << brightness << ", " << fade << ", " << delayMicros << ", " << durationMicros << endl;
 
     if(persist) {
         writeSettings();
