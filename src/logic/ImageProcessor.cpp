@@ -184,6 +184,11 @@ bool ImageProcessor::stop() {
 Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize) {
     struct timespec tstart, tend;
 
+
+
+    int targetHeight = 1182;
+    int targetWidth = 1773;
+
     clock_gettime(CLOCK_MONOTONIC, &tstart);
 
     bool srgb = true;
@@ -218,7 +223,7 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
     // Decode using Turbojpeg
     ImageInfo latestImageInfo{};
     jpegDecoder.decodeJpeg((unsigned char*)inputImageJpeg, jpegBufferSize, &latestBuffer, &latestBufferSize,
-                           &latestImageInfo, RGB);
+                           &latestImageInfo, RGB, targetWidth, targetHeight, LARGER_THAN_REQUIRED);
 
 
     Image inputImageMagic(latestImageInfo.width, latestImageInfo.height, "RGB", StorageType::CharPixel, latestBuffer);
