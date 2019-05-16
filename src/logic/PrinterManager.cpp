@@ -240,6 +240,9 @@ bool PrinterManager::prepareImageForPrint(Magick::Image image) {
     sizeOfPreparedImage = blob.length();
     hasImagePrepared = true;
 
+    // Debug: store the blob
+    image.write("/tmp/latest_print.png");
+
     return true;
 }
 
