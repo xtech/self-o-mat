@@ -157,9 +157,11 @@ void BoothLogic::stop() {
     if (button_serial_port.is_open())
         button_serial_port.close();
 
-    if (ioThreadHandle.joinable()) {
-        cout << "waiting for io" << endl;
-        ioThreadHandle.join();
+    if(button_serial_port.is_open()) {
+        if (ioThreadHandle.joinable()) {
+            cout << "waiting for io" << endl;
+            ioThreadHandle.join();
+        }
     }
     if (cameraThreadHandle.joinable()) {
         cout << "waiting for cam" << endl;
@@ -387,6 +389,8 @@ void BoothLogic::ioThread() {
                         break;
                 }
             }
+        } else {
+            break;
         }
     }
 }
