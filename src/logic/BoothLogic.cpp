@@ -555,13 +555,6 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
         return false;
     }
 
-    if(!isMountpoint(imageDir)) {
-        cerr << "imageDir not a mountpoint" << endl;
-        return false;
-    }
-
-    // Check if imageDir is a mountpoint
-
     std::time_t time = std::time(nullptr);
 
     std::string fullImagePath = imageDir;
