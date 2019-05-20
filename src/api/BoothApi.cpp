@@ -437,6 +437,15 @@ bool BoothApi::start() {
                 return;
             });
 
+    mux.handle("/cancel_print")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                logic->cancelPrint();
+                served::response::stock_reply(200, res);
+                return;
+            });
+
     mux.handle("/focus")
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);

@@ -404,6 +404,12 @@ void BoothLogic::trigger() {
     triggerMutex.unlock();
 }
 
+void BoothLogic::cancelPrint() {
+    cancelPrintMutex.lock();
+    printCanceled = true;
+    cancelPrintMutex.unlock();
+}
+
 void BoothLogic::enableStressTest() {
     sendCommand('S');
 }
