@@ -3,7 +3,7 @@
 
 NAME=app
 BINARY=self_o_mat
-FILES="$BINARY settings.json assets/* libs/* firmware.hex version app/*"
+FILES="$BINARY settings.json assets/* libs/* firmware.hex version app/* start.sh"
 TAR=update.tar
 BIN_DIR=$2
 
