@@ -36,13 +36,6 @@
 
 //#define USE_SPI
 
-#ifdef USE_SPI
-#include <wiringPi.h>
-#include <wiringPiSPI.h>
-
-#define PIN_SS 25
-#endif
-
 using namespace selfomat::camera;
 using namespace selfomat::ui;
 

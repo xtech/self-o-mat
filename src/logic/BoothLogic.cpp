@@ -81,16 +81,6 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
 
 bool BoothLogic::start() {
 
-#ifdef USE_SPI
-    cout << "we have SPI!!!" << endl;
-
-    wiringPiSetup();
-    wiringPiSetupGpio();
-    wiringPiSPISetup(0, 5000);
-    pinMode(PIN_SS, OUTPUT);
-
-    digitalWrite(PIN_SS, HIGH);
-#endif
 
     gui->logDebug("Starting Logic");
 
@@ -151,21 +141,6 @@ void BoothLogic::triggerFlash() {
         return;
 
     sendCommand('#');
-
-    /*
-    cout << "flashing with " << flashBrightness << ", " << flashFade << ", " << flashDurationMicros << endl;
-
-
-#ifdef USE_SPI
-    digitalWrite(PIN_SS, LOW);
-    flash_struct flash;
-    flash.delay = flashDelayMicros/100;
-    flash.duration = flashDurationMicros/100;
-    flash.brightness=(int)(255.0f*flashBrightness);
-    flash.fade = (int)(255.0f*flashFade);
-    wiringPiSPIDataRW(0, (unsigned char*)&flash, 6);
-    digitalWrite(PIN_SS, HIGH);
-#endif*/
 }
 
 void BoothLogic::stop() {
