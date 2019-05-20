@@ -28,8 +28,6 @@ namespace selfomat {
         private:
             static const std::string TAG;
 
-            Blob adobeRgbIcc;
-            Blob sRgbIcc;
 
             JpegDecoder jpegDecoder;
 
