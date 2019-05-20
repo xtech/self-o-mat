@@ -20,27 +20,6 @@ bool ImageProcessor::start() {
         logger->logError(std::string("Error loading template image: ") + error_.what());
     }
 
-    LOG_D(TAG, "Loading Adobe RGB Profile");
-    try {
-        Image magick;
-        magick.read("./assets/AdobeRGB1998.icc");
-        magick.write(&adobeRgbIcc);
-        LOG_D(TAG, "Profile loaded. Blob size: " << adobeRgbIcc.length());
-    } catch (Exception &error) {
-        logger->logError(std::string("error loading icc profile: ") + error.what());
-        return false;
-    }
-    LOG_D(TAG, "Loading sRGB Profile");
-    try {
-        Image magick;
-        magick.read("./assets/sRGB2014.icc");
-        magick.write(&sRgbIcc);
-        LOG_D(TAG, "Profile loaded. Blob size: " << sRgbIcc.length());
-    } catch (Exception &error) {
-        logger->logError(std::string("error loading icc profile: ") + error.what());
-        return false;
-    }
-
     // Read properties for the template
     if(templateLoaded) {
         boost::property_tree::ptree ptree;
@@ -126,13 +105,6 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
 
 
-    if(srgb) {
-        LOG_D(TAG, "Decoding image as sRGB");
-        inputImageMagic.iccColorProfile(sRgbIcc);
-    } else {
-        LOG_D(TAG, "Decoding image as Adobe RGB");
-        inputImageMagic.iccColorProfile(adobeRgbIcc);
-    }
 
 
     int imageWidth = inputImageMagic.columns();
@@ -172,7 +144,6 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
            ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
            ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
 
-    result.profile("ICC", sRgbIcc);
 
     return result;
 }
@@ -229,14 +200,7 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
     Image inputImageMagic(latestImageInfo.width, latestImageInfo.height, "RGB", StorageType::CharPixel, latestBuffer);
 
 
-
-    if(srgb) {
-        LOG_D(TAG, "Decoding image as sRGB");
-        inputImageMagic.iccColorProfile(sRgbIcc);
-    } else {
-        LOG_D(TAG, "Decoding image as Adobe RGB");
-        inputImageMagic.iccColorProfile(adobeRgbIcc);
-    }
+    
 
     return inputImageMagic;
 }
