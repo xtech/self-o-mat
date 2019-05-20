@@ -19,6 +19,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <codecvt>
+
 
 #define DEBUG_QUEUE_SIZE 100
 #define DEBUG_LEVEL_DEBUG 1

@@ -9,11 +9,11 @@ using namespace selfomat::ui;
 
 std::wstring readFile(const char* filename)
 {
-    std::wifstream wif(filename);
-    wif.imbue(std::locale("de_DE.UTF-8"));
-    std::wstringstream wss;
-    wss << wif.rdbuf();
-    return wss.str();
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    ifstream f(filename, ios::in);
+    string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
+    std::wstring str = converter.from_bytes(file_contents);
+    return str;
 }
 
 BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
