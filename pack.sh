@@ -34,7 +34,7 @@ clean
 
 cd $2
 rm -f selfomat.update
-
+rm -f selfomat.tar.gz
 
 # get the settings and assets from src dir into the build dir
 cp -r $1/assets .
@@ -53,6 +53,7 @@ ldd $BINARY | grep "=> /" | while read a b c d; do cp "$c" libs/; done
 
 # pack and sign
 tar cfz $NAME.tar.gz $FILES
+cp $NAME.tar.gz selfomat.tar.gz
 gpg --quiet --batch --yes --output $NAME.sig --detach-sig $NAME.tar.gz
 tar cf $TAR $NAME.tar.gz $NAME.sig
 rm $NAME.tar.gz $NAME.sig
