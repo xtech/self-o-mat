@@ -41,6 +41,7 @@ cp -r $1/assets .
 cp $1/settings.json .
 cp $1/firmware.hex .
 cp -r $1/web/www ./app
+cp $1/start.sh .
 
 # write version info
 echo -n "v_`date +'%s'`" > version
