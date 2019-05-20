@@ -162,6 +162,8 @@ namespace selfomat {
             void triggerFlash();
 
 
+
+
             vector<boost::filesystem::path> findArduinos();
 
             int getFreeStorageSpaceMB();
@@ -177,6 +179,7 @@ namespace selfomat {
         public:
             void trigger();
 
+            void cancelPrint();
             bool start();
 
             void stop();
