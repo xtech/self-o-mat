@@ -636,7 +636,7 @@ void BoothLogic::readSettings() {
     setStorageEnabled(ptree.get<bool>("storage_enabled", true));
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
-    this->showAgreement=ptree.get<bool>("show_agreement", true);
+    this->showAgreement=false;
     this->flashEnabled=ptree.get<bool>("flash_enabled", true);
     this->flashDurationMicros=ptree.get<uint64_t>("flash_duration_micros", 100000);
     this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
