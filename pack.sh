@@ -3,7 +3,7 @@
 
 NAME=app
 BINARY=self_o_mat
-FILES="$BINARY settings.json assets/* libs/* firmware.hex version app/*"
+FILES="$BINARY settings.json assets/* libs/* firmware.hex version app/* start.sh"
 TAR=update.tar
 BIN_DIR=$2
 
@@ -41,6 +41,7 @@ cp -r $1/assets .
 cp $1/settings.json .
 cp $1/firmware.hex .
 cp -r $1/web/www ./app
+cp $1/start.sh .
 
 # write version info
 echo -n "v_`date +'%s'`" > version
