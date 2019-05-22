@@ -647,7 +647,7 @@ bool BoothApi::start() {
 
                     int ledCount = logic->getLEDCount() / 2;
                     setting->set_currentindex(ledCount);
-                    
+
                     for (int i = ledCount * -1; i <= ledCount; i++) {
                         if (i == logic->getLEDOffset()) {
                             setting->set_currentindex(i+ledCount);
