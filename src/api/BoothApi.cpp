@@ -416,7 +416,53 @@ bool BoothApi::start() {
                     return;
                 }
 
-                logic->setLEDOffset(update.value()-8, true);
+                int ledCount = logic->getLEDCount() / 2;
+                logic->setLEDOffset(update.value()-ledCount, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/booth_settings/led_mode")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                int i=0;
+                for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
+                    if (i == update.value()) {
+                        logic->setLEDMode(e.first, true);
+                    }
+                    i++;
+                }
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+
+    mux.handle("/booth_settings/led_count")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                int i=0;
+                for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
+                    if (i == update.value()) {
+                        logic->setLEDCount(e.first, true);
+                    }
+                    i++;
+                }
 
                 served::response::stock_reply(200, res);
                 return;
@@ -598,8 +644,14 @@ bool BoothApi::start() {
                     auto setting = currentBoothSettings.mutable_led_offset();
                     setting->set_update_url("/booth_settings/led_offset");
                     setting->set_name("LED Offset");
-                    setting->set_currentindex(logic->getLEDOffset()+8);
-                    for (int i = -8; i <= 8; i++) {
+
+                    int ledCount = logic->getLEDCount() / 2;
+                    setting->set_currentindex(ledCount);
+                    
+                    for (int i = ledCount * -1; i <= ledCount; i++) {
+                        if (i == logic->getLEDOffset()) {
+                            setting->set_currentindex(i+ledCount);
+                        }
                         setting->add_values(std::to_string(i));
                     }
                 }

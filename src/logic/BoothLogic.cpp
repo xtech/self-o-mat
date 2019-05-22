@@ -754,12 +754,14 @@ LED_COUNT BoothLogic::getLEDCount() {
 
 void BoothLogic::setLEDOffset(int8_t offset, bool persist) {
     this->ledOffset = offset;
-    
+
+    int ledCount = getLEDCount() / 2;
+
     if(persist) {
-        sendCommand('L', offset+8);
+        sendCommand('L', offset+ledCount);
         writeSettings();
     } else {
-        sendCommand('l', offset+8);
+        sendCommand('l', offset+ledCount);
     }
 }
 
