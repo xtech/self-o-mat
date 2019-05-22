@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import { XAPIService } from '../api.service';
 import {xtech} from '../protos/api';
 
 import BoothSettings = xtech.selfomat.BoothSettings;
+import IFileUploadSetting = xtech.selfomat.IFileUploadSetting;
 
 @Component({
   selector: 'app-tab2',

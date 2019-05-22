@@ -1250,6 +1250,216 @@
                 return PostSetting;
             })();
     
+            selfomat.FileUploadSetting = (function() {
+    
+                /**
+                 * Properties of a FileUploadSetting.
+                 * @memberof xtech.selfomat
+                 * @interface IFileUploadSetting
+                 * @property {string} name FileUploadSetting name
+                 * @property {string} postUrl FileUploadSetting postUrl
+                 */
+    
+                /**
+                 * Constructs a new FileUploadSetting.
+                 * @memberof xtech.selfomat
+                 * @classdesc Represents a FileUploadSetting.
+                 * @implements IFileUploadSetting
+                 * @constructor
+                 * @param {xtech.selfomat.IFileUploadSetting=} [properties] Properties to set
+                 */
+                function FileUploadSetting(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * FileUploadSetting name.
+                 * @member {string} name
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @instance
+                 */
+                FileUploadSetting.prototype.name = "";
+    
+                /**
+                 * FileUploadSetting postUrl.
+                 * @member {string} postUrl
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @instance
+                 */
+                FileUploadSetting.prototype.postUrl = "";
+    
+                /**
+                 * Creates a new FileUploadSetting instance using the specified properties.
+                 * @function create
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @static
+                 * @param {xtech.selfomat.IFileUploadSetting=} [properties] Properties to set
+                 * @returns {xtech.selfomat.FileUploadSetting} FileUploadSetting instance
+                 */
+                FileUploadSetting.create = function create(properties) {
+                    return new FileUploadSetting(properties);
+                };
+    
+                /**
+                 * Encodes the specified FileUploadSetting message. Does not implicitly {@link xtech.selfomat.FileUploadSetting.verify|verify} messages.
+                 * @function encode
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @static
+                 * @param {xtech.selfomat.IFileUploadSetting} message FileUploadSetting message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                FileUploadSetting.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.postUrl);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified FileUploadSetting message, length delimited. Does not implicitly {@link xtech.selfomat.FileUploadSetting.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @static
+                 * @param {xtech.selfomat.IFileUploadSetting} message FileUploadSetting message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                FileUploadSetting.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a FileUploadSetting message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {xtech.selfomat.FileUploadSetting} FileUploadSetting
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                FileUploadSetting.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.xtech.selfomat.FileUploadSetting();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.name = reader.string();
+                            break;
+                        case 2:
+                            message.postUrl = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    if (!message.hasOwnProperty("name"))
+                        throw $util.ProtocolError("missing required 'name'", { instance: message });
+                    if (!message.hasOwnProperty("postUrl"))
+                        throw $util.ProtocolError("missing required 'postUrl'", { instance: message });
+                    return message;
+                };
+    
+                /**
+                 * Decodes a FileUploadSetting message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {xtech.selfomat.FileUploadSetting} FileUploadSetting
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                FileUploadSetting.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a FileUploadSetting message.
+                 * @function verify
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                FileUploadSetting.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (!$util.isString(message.name))
+                        return "name: string expected";
+                    if (!$util.isString(message.postUrl))
+                        return "postUrl: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a FileUploadSetting message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {xtech.selfomat.FileUploadSetting} FileUploadSetting
+                 */
+                FileUploadSetting.fromObject = function fromObject(object) {
+                    if (object instanceof $root.xtech.selfomat.FileUploadSetting)
+                        return object;
+                    var message = new $root.xtech.selfomat.FileUploadSetting();
+                    if (object.name != null)
+                        message.name = String(object.name);
+                    if (object.postUrl != null)
+                        message.postUrl = String(object.postUrl);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a FileUploadSetting message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @static
+                 * @param {xtech.selfomat.FileUploadSetting} message FileUploadSetting
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                FileUploadSetting.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.name = "";
+                        object.postUrl = "";
+                    }
+                    if (message.name != null && message.hasOwnProperty("name"))
+                        object.name = message.name;
+                    if (message.postUrl != null && message.hasOwnProperty("postUrl"))
+                        object.postUrl = message.postUrl;
+                    return object;
+                };
+    
+                /**
+                 * Converts this FileUploadSetting to JSON.
+                 * @function toJSON
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                FileUploadSetting.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return FileUploadSetting;
+            })();
+    
             selfomat.ListSetting = (function() {
     
                 /**
@@ -2775,6 +2985,7 @@
                  * @property {xtech.selfomat.IBoolSetting} flashEnabled BoothSettings flashEnabled
                  * @property {xtech.selfomat.IIntSetting} flashDurationMicros BoothSettings flashDurationMicros
                  * @property {xtech.selfomat.IPostSetting} flashTest BoothSettings flashTest
+                 * @property {xtech.selfomat.IFileUploadSetting|null} [templateUpload] BoothSettings templateUpload
                  * @property {xtech.selfomat.IBoolSetting|null} [templateEnabled] BoothSettings templateEnabled
                  * @property {xtech.selfomat.IListSetting} ledOffset BoothSettings ledOffset
                  * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
@@ -2836,6 +3047,14 @@
                 BoothSettings.prototype.flashTest = null;
     
                 /**
+                 * BoothSettings templateUpload.
+                 * @member {xtech.selfomat.IFileUploadSetting|null|undefined} templateUpload
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.templateUpload = null;
+    
+                /**
                  * BoothSettings templateEnabled.
                  * @member {xtech.selfomat.IBoolSetting|null|undefined} templateEnabled
                  * @memberof xtech.selfomat.BoothSettings
@@ -2888,6 +3107,8 @@
                     $root.xtech.selfomat.BoolSetting.encode(message.flashEnabled, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
                     $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.flashTest, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+                    if (message.templateUpload != null && message.hasOwnProperty("templateUpload"))
+                        $root.xtech.selfomat.FileUploadSetting.encode(message.templateUpload, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
                     if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
                         $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.ledOffset, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
@@ -2940,6 +3161,9 @@
                             break;
                         case 5:
                             message.flashTest = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
+                            break;
+                        case 7:
+                            message.templateUpload = $root.xtech.selfomat.FileUploadSetting.decode(reader, reader.uint32());
                             break;
                         case 8:
                             message.templateEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
@@ -3024,6 +3248,11 @@
                         if (error)
                             return "flashTest." + error;
                     }
+                    if (message.templateUpload != null && message.hasOwnProperty("templateUpload")) {
+                        var error = $root.xtech.selfomat.FileUploadSetting.verify(message.templateUpload);
+                        if (error)
+                            return "templateUpload." + error;
+                    }
                     if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled")) {
                         var error = $root.xtech.selfomat.BoolSetting.verify(message.templateEnabled);
                         if (error)
@@ -3079,6 +3308,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.flashTest: object expected");
                         message.flashTest = $root.xtech.selfomat.PostSetting.fromObject(object.flashTest);
                     }
+                    if (object.templateUpload != null) {
+                        if (typeof object.templateUpload !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.templateUpload: object expected");
+                        message.templateUpload = $root.xtech.selfomat.FileUploadSetting.fromObject(object.templateUpload);
+                    }
                     if (object.templateEnabled != null) {
                         if (typeof object.templateEnabled !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.templateEnabled: object expected");
@@ -3116,6 +3350,7 @@
                         object.flashEnabled = null;
                         object.flashDurationMicros = null;
                         object.flashTest = null;
+                        object.templateUpload = null;
                         object.templateEnabled = null;
                         object.ledOffset = null;
                         object.updateMode = null;
@@ -3130,6 +3365,8 @@
                         object.flashDurationMicros = $root.xtech.selfomat.IntSetting.toObject(message.flashDurationMicros, options);
                     if (message.flashTest != null && message.hasOwnProperty("flashTest"))
                         object.flashTest = $root.xtech.selfomat.PostSetting.toObject(message.flashTest, options);
+                    if (message.templateUpload != null && message.hasOwnProperty("templateUpload"))
+                        object.templateUpload = $root.xtech.selfomat.FileUploadSetting.toObject(message.templateUpload, options);
                     if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
                         object.templateEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.templateEnabled, options);
                     if (message.ledOffset != null && message.hasOwnProperty("ledOffset"))

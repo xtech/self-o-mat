@@ -37,6 +37,11 @@ message PostSetting {
     required string post_url = 2;
 }
 
+message FileUploadSetting {
+    required string name = 1;
+    required string post_url = 2;
+}
+
 message ListSetting {
     required string name = 1;
     required int32 currentIndex = 2;
@@ -87,6 +92,7 @@ message BoothSettings {
     required BoolSetting flash_enabled = 3;
     required IntSetting flash_duration_micros = 4;
     required PostSetting flash_test = 5;
+    optional FileUploadSetting template_upload = 7;
     optional BoolSetting template_enabled = 8;
     required ListSetting led_offset = 9;
     required PostSetting update_mode = 10;

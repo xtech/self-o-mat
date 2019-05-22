@@ -39,6 +39,7 @@ export class XAPIService {
     isList(val) { return val instanceof xtech.selfomat.ListSetting; }
     isReadOnly(val) { return val instanceof xtech.selfomat.ReadOnlySetting; }
     isPost(val) { return val instanceof xtech.selfomat.PostSetting; }
+    isFileUpload(val) { return val instanceof xtech.selfomat.FileUploadSetting; }
     getList(val): xtech.selfomat.ListSetting {
         if (!this.isList(val)) {
             return null;
@@ -74,6 +75,14 @@ export class XAPIService {
     handleError(error): Observable<any> {
         console.error(error);
         return throwError(error || 'Server error');
+    }
+
+    clickItem($event, setting) {
+        if (this.isFileUpload(setting)) {
+            console.log("IMAGE UPLOAD FILE");
+        } else if (this.isPost(setting)) {
+            this.post($event, setting);
+        }
     }
 
     updateSetting($event, setting) {
@@ -122,10 +131,39 @@ export class XAPIService {
             	null,
             	{responseType: 'text'})
             	.subscribe(data => {
-             	   loading.dismiss();
+            	    loading.dismiss();
             	}, error => {
-             	   console.log(error);
+            	    loading.dismiss();
+            	    console.log(error);
             	});
+        }
+    }
+
+    async fileUpload($event, setting) {
+        if (setting instanceof xtech.selfomat.FileUploadSetting) {
+
+            if ($event.target.files.lengh < 1) {
+                return;
+            }
+
+            const loading = await this.loadingController.create({});
+            await loading.present();
+
+            const file = $event.target.files[0];
+            let body = new FormData();
+            body.append('image', file);
+
+            console.log(file);
+
+            this.http.post(environment.SERVER_URL + setting['postUrl'],
+                body,
+                {responseType: 'text'})
+                .subscribe(data => {
+                    loading.dismiss();
+                }, error => {
+                    loading.dismiss();
+                    console.log(error);
+                });
         }
     }
 

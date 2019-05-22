@@ -124,6 +124,26 @@ export namespace xtech {
             public toJSON(): { [k: string]: any };
         }
 
+        interface IFileUploadSetting {
+            name: string;
+            postUrl: string;
+        }
+
+        class FileUploadSetting implements IFileUploadSetting {
+            constructor(properties?: xtech.selfomat.IFileUploadSetting);
+            public name: string;
+            public postUrl: string;
+            public static create(properties?: xtech.selfomat.IFileUploadSetting): xtech.selfomat.FileUploadSetting;
+            public static encode(message: xtech.selfomat.IFileUploadSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: xtech.selfomat.IFileUploadSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): xtech.selfomat.FileUploadSetting;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): xtech.selfomat.FileUploadSetting;
+            public static verify(message: { [k: string]: any }): (string|null);
+            public static fromObject(object: { [k: string]: any }): xtech.selfomat.FileUploadSetting;
+            public static toObject(message: xtech.selfomat.FileUploadSetting, options?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
         interface IListSetting {
             name: string;
             currentIndex: number;
@@ -262,6 +282,7 @@ export namespace xtech {
             flashEnabled: xtech.selfomat.IBoolSetting;
             flashDurationMicros: xtech.selfomat.IIntSetting;
             flashTest: xtech.selfomat.IPostSetting;
+            templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
             templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             ledOffset: xtech.selfomat.IListSetting;
             updateMode: xtech.selfomat.IPostSetting;
@@ -274,6 +295,7 @@ export namespace xtech {
             public flashEnabled: xtech.selfomat.IBoolSetting;
             public flashDurationMicros: xtech.selfomat.IIntSetting;
             public flashTest: xtech.selfomat.IPostSetting;
+            public templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
             public templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             public ledOffset: xtech.selfomat.IListSetting;
             public updateMode: xtech.selfomat.IPostSetting;
