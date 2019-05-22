@@ -563,6 +563,38 @@ bool BoothApi::start() {
                 }
 
                 {
+                    auto setting = currentBoothSettings.mutable_led_mode();
+                    setting->set_update_url("/booth_settings/led_mode");
+                    setting->set_name("LED Mode");
+                    setting->set_currentindex(0);
+
+                    int i=0;
+                    for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
+                        if (e.first == logic->getLEDMode()) {
+                            setting->set_currentindex(i);
+                        }
+                        setting->add_values(e.second);
+                        i++;
+                    }
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_led_count();
+                    setting->set_update_url("/booth_settings/led_count");
+                    setting->set_name("LED Count");
+                    setting->set_currentindex(0);
+
+                    int i=0;
+                    for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
+                        if (e.first == logic->getLEDCount()) {
+                            setting->set_currentindex(i);
+                        }
+                        setting->add_values(e.second);
+                        i++;
+                    }
+                }
+
+                {
                     auto setting = currentBoothSettings.mutable_led_offset();
                     setting->set_update_url("/booth_settings/led_offset");
                     setting->set_name("LED Offset");

@@ -50,6 +50,26 @@ namespace selfomat {
             uint8_t fade;
         }  __attribute__((packed));
 
+        enum LED_MODE {
+            LED_MODE_RGB = 0,
+            LED_MODE_RGBW = 1
+        };
+        static const map<LED_MODE, string> LED_MODE_ALL = {
+                { LED_MODE_RGB, "RGB" },
+                { LED_MODE_RGBW, "RGBW" }
+        };
+
+        enum LED_COUNT {
+            LED_COUNT_12 = 12,
+            LED_COUNT_16 = 16,
+            LED_COUNT_24 = 24
+        };
+        static const map<LED_COUNT, string> LED_COUNT_ALL = {
+                { LED_COUNT_12, "12" },
+                { LED_COUNT_16, "16" },
+                { LED_COUNT_24, "24" }
+        };
+
         enum PrinterState {
                     // In the idle state, the printer thread is waiting for data
                     // Since nothing else is going on, raw saving is allowed in the background
@@ -96,6 +116,9 @@ namespace selfomat {
             bool showAgreement;
             float flashBrightness, flashFade;
             uint64_t flashDurationMicros, flashDelayMicros;
+
+            LED_MODE ledMode;
+            LED_COUNT ledCount;
             int8_t ledOffset;
 
 
@@ -225,6 +248,12 @@ namespace selfomat {
             void setTemplateEnabled(bool templateEnabled, bool persist = false);
             bool getTemplateEnabled();
             bool getTemplateLoaded();
+
+            void setLEDMode(LED_MODE mode, bool persist = false);
+            LED_MODE getLEDMode();
+
+            void setLEDCount(LED_COUNT count, bool persist = false);
+            LED_COUNT getLEDCount();
 
             void setLEDOffset(int8_t offset, bool persist = false);
             int8_t getLEDOffset();

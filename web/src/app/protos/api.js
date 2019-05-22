@@ -2776,6 +2776,8 @@
                  * @property {xtech.selfomat.IIntSetting} flashDurationMicros BoothSettings flashDurationMicros
                  * @property {xtech.selfomat.IPostSetting} flashTest BoothSettings flashTest
                  * @property {xtech.selfomat.IBoolSetting|null} [templateEnabled] BoothSettings templateEnabled
+                 * @property {xtech.selfomat.IListSetting|null} [ledMode] BoothSettings ledMode
+                 * @property {xtech.selfomat.IListSetting|null} [ledCount] BoothSettings ledCount
                  * @property {xtech.selfomat.IListSetting} ledOffset BoothSettings ledOffset
                  * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
                  */
@@ -2844,6 +2846,22 @@
                 BoothSettings.prototype.templateEnabled = null;
     
                 /**
+                 * BoothSettings ledMode.
+                 * @member {xtech.selfomat.IListSetting|null|undefined} ledMode
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.ledMode = null;
+    
+                /**
+                 * BoothSettings ledCount.
+                 * @member {xtech.selfomat.IListSetting|null|undefined} ledCount
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.ledCount = null;
+    
+                /**
                  * BoothSettings ledOffset.
                  * @member {xtech.selfomat.IListSetting} ledOffset
                  * @memberof xtech.selfomat.BoothSettings
@@ -2889,7 +2907,11 @@
                     $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.flashTest, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
                     if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
-                        $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                        $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                    if (message.ledMode != null && message.hasOwnProperty("ledMode"))
+                        $root.xtech.selfomat.ListSetting.encode(message.ledMode, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
+                    if (message.ledCount != null && message.hasOwnProperty("ledCount"))
+                        $root.xtech.selfomat.ListSetting.encode(message.ledCount, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.ledOffset, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                     return writer;
@@ -2941,8 +2963,14 @@
                         case 5:
                             message.flashTest = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
                             break;
-                        case 8:
+                        case 6:
                             message.templateEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            break;
+                        case 7:
+                            message.ledMode = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
+                            break;
+                        case 8:
+                            message.ledCount = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
                             break;
                         case 9:
                             message.ledOffset = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
@@ -3029,6 +3057,16 @@
                         if (error)
                             return "templateEnabled." + error;
                     }
+                    if (message.ledMode != null && message.hasOwnProperty("ledMode")) {
+                        var error = $root.xtech.selfomat.ListSetting.verify(message.ledMode);
+                        if (error)
+                            return "ledMode." + error;
+                    }
+                    if (message.ledCount != null && message.hasOwnProperty("ledCount")) {
+                        var error = $root.xtech.selfomat.ListSetting.verify(message.ledCount);
+                        if (error)
+                            return "ledCount." + error;
+                    }
                     {
                         var error = $root.xtech.selfomat.ListSetting.verify(message.ledOffset);
                         if (error)
@@ -3084,6 +3122,16 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.templateEnabled: object expected");
                         message.templateEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.templateEnabled);
                     }
+                    if (object.ledMode != null) {
+                        if (typeof object.ledMode !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.ledMode: object expected");
+                        message.ledMode = $root.xtech.selfomat.ListSetting.fromObject(object.ledMode);
+                    }
+                    if (object.ledCount != null) {
+                        if (typeof object.ledCount !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.ledCount: object expected");
+                        message.ledCount = $root.xtech.selfomat.ListSetting.fromObject(object.ledCount);
+                    }
                     if (object.ledOffset != null) {
                         if (typeof object.ledOffset !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.ledOffset: object expected");
@@ -3117,6 +3165,8 @@
                         object.flashDurationMicros = null;
                         object.flashTest = null;
                         object.templateEnabled = null;
+                        object.ledMode = null;
+                        object.ledCount = null;
                         object.ledOffset = null;
                         object.updateMode = null;
                     }
@@ -3132,6 +3182,10 @@
                         object.flashTest = $root.xtech.selfomat.PostSetting.toObject(message.flashTest, options);
                     if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
                         object.templateEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.templateEnabled, options);
+                    if (message.ledMode != null && message.hasOwnProperty("ledMode"))
+                        object.ledMode = $root.xtech.selfomat.ListSetting.toObject(message.ledMode, options);
+                    if (message.ledCount != null && message.hasOwnProperty("ledCount"))
+                        object.ledCount = $root.xtech.selfomat.ListSetting.toObject(message.ledCount, options);
                     if (message.ledOffset != null && message.hasOwnProperty("ledOffset"))
                         object.ledOffset = $root.xtech.selfomat.ListSetting.toObject(message.ledOffset, options);
                     if (message.updateMode != null && message.hasOwnProperty("updateMode"))

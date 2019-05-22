@@ -263,6 +263,8 @@ export namespace xtech {
             flashDurationMicros: xtech.selfomat.IIntSetting;
             flashTest: xtech.selfomat.IPostSetting;
             templateEnabled?: (xtech.selfomat.IBoolSetting|null);
+            ledMode?: (xtech.selfomat.IListSetting|null);
+            ledCount?: (xtech.selfomat.IListSetting|null);
             ledOffset: xtech.selfomat.IListSetting;
             updateMode: xtech.selfomat.IPostSetting;
         }
@@ -275,6 +277,8 @@ export namespace xtech {
             public flashDurationMicros: xtech.selfomat.IIntSetting;
             public flashTest: xtech.selfomat.IPostSetting;
             public templateEnabled?: (xtech.selfomat.IBoolSetting|null);
+            public ledMode?: (xtech.selfomat.IListSetting|null);
+            public ledCount?: (xtech.selfomat.IListSetting|null);
             public ledOffset: xtech.selfomat.IListSetting;
             public updateMode: xtech.selfomat.IPostSetting;
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;

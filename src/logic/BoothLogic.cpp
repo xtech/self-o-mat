@@ -653,6 +653,8 @@ void BoothLogic::readSettings() {
     this->flashBrightness=ptree.get<float>("flash_brightness", 1.0f);
     this->flashFade=ptree.get<float>("flash_fade", 0.0f);
     setLEDOffset(ptree.get<int8_t>("led_offset", 0));
+    setLEDMode(static_cast<selfomat::logic::LED_MODE>(ptree.get<uint8_t>("led_mode", LED_MODE_RGB)));
+    setLEDCount(static_cast<selfomat::logic::LED_COUNT>(ptree.get<uint8_t>("led_count", LED_COUNT_16)));
 
     if(!success)
         writeSettings();
@@ -669,6 +671,8 @@ void BoothLogic::writeSettings() {
     ptree.put("flash_delay_micros", this->flashDelayMicros);
     ptree.put("flash_brightness", this->flashBrightness);
     ptree.put("flash_fade", this->flashFade);
+    ptree.put("led_mode", this->ledMode);
+    ptree.put("led_count", this->ledCount);
     ptree.put("led_offset", this->ledOffset);
 
     try {
@@ -720,7 +724,33 @@ bool BoothLogic::getTemplateLoaded() {
     return imageProcessor.isTemplateLoaded();
 }
 
+void BoothLogic::setLEDMode(LED_MODE mode, bool persist) {
+    this->ledMode = mode;
 
+    sendCommand('t', mode);
+
+    if(persist) {
+        writeSettings();
+    }
+}
+
+LED_MODE BoothLogic::getLEDMode() {
+    return ledMode;
+}
+
+void BoothLogic::setLEDCount(LED_COUNT count, bool persist) {
+    this->ledCount = count;
+
+    sendCommand('c', count);
+
+    if(persist) {
+        writeSettings();
+    }
+}
+
+LED_COUNT BoothLogic::getLEDCount() {
+    return ledCount;
+}
 
 void BoothLogic::setLEDOffset(int8_t offset, bool persist) {
     this->ledOffset = offset;
