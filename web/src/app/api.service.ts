@@ -78,8 +78,9 @@ export class XAPIService {
     }
 
     clickItem($event, setting) {
+        $event.stopPropagation();
         if (this.isFileUpload(setting)) {
-            console.log("IMAGE UPLOAD FILE");
+            console.log($event.target);
         } else if (this.isPost(setting)) {
             this.post($event, setting);
         }

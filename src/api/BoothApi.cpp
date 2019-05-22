@@ -479,6 +479,18 @@ bool BoothApi::start() {
                 return;
             });
 
+    mux.handle("/template_upload")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                cout << "New template with size: " << req.body().size() << endl;
+
+                // TODO: Save, show and use new template
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
     mux.handle("/booth_settings")
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
@@ -550,6 +562,12 @@ bool BoothApi::start() {
                     auto setting = currentBoothSettings.mutable_flash_test();
                     setting->set_name("Flash Test");
                     setting->set_post_url("/flash");
+                }
+
+                {
+                        auto setting = currentBoothSettings.mutable_template_upload();
+                        setting->set_post_url("/template_upload");
+                        setting->set_name("Template Upload");
                 }
 
 
