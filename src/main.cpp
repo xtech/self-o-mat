@@ -7,6 +7,10 @@
 #include "camera/NopCamera.h"
 #include "api/BoothApi.h"
 #include "ui/NopGui.h"
+#include <tools/readfile.h>
+
+#include <sstream>
+#include <iostream>
 
 using namespace std;
 using namespace boost;
@@ -88,10 +92,18 @@ int main(int argc, char *argv[]) {
     string button_port_name;
     string image_dir;
 
+
+
     boost::property_tree::ptree ptree;
 
+    string box_type = "box_kit_v1";
+    readFile("/opt/.selfomat.type", box_type);
+    box_type.erase(std::remove(box_type.begin(), box_type.end(), '\n'), box_type.end());
+
+    cout << "Loading settings file for box: " << box_type << endl;
+
     try {
-        boost::property_tree::read_json("./settings.json", ptree);
+        boost::property_tree::read_json("./settings/" + box_type + ".json", ptree);
         camera_type = ptree.get<string>("camera_type");
         image_dir = ptree.get<string>("image_dir");
         button_port_name = ptree.get<string>("button_port_name");

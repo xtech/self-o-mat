@@ -1,0 +1,9 @@
+{
+  "camera_type": "nop",
+  "has_flash": false,
+  "has_button": false,
+  "disable_watchdog": true,
+  "debug": true,
+  "button_port_name": "/dev/ttyS0",
+  "image_dir": "/tmp"
+}

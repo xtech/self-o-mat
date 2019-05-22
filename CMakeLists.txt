@@ -58,7 +58,7 @@ add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothL
         src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp
         src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h
         src/camera/controllers/ApertureController.h src/camera/controllers/ExposureCorrectionController.h src/camera/controllers/ChoiceRangeController.cpp
-        src/camera/controllers/ChoiceRangeController.h)
+        src/camera/controllers/ChoiceRangeController.h src/tools/readfile.h src/tools/readfile.cpp)
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})
 target_link_libraries(self_o_mat gphoto2)
