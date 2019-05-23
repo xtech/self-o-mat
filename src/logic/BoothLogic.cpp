@@ -806,3 +806,8 @@ void BoothLogic::sendCommand(uint8_t command) {
         return;
     button_serial_port.write_some(boost::asio::buffer(&command, 1));
 }
+
+void BoothLogic::adjustFocus() {
+    camera->autofocusBlocking();
+    gui->addAlert(ALERT_CAMERA_HINT, L"Fokus wird gesucht", true, true);
+}

@@ -237,7 +237,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_focus();
-                    setting->set_name("Adjust Focus");
+                    setting->set_name("Autofocus");
                     setting->set_post_url("/focus");
                 }
 
@@ -520,7 +520,7 @@ bool BoothApi::start() {
                     return;
                 }
 
-                camera->autofocusBlocking();
+                logic->adjustFocus();
                 served::response::stock_reply(200, res);
                 return;
             });
