@@ -22,6 +22,8 @@ namespace selfomat {
             served::multiplexer mux;
             served::net::server server;
 
+            bool show_led_setup;
+
             void setHeaders(served::response &res);
 
             const std::map<std::string, std::string> headers = {
@@ -30,7 +32,7 @@ namespace selfomat {
             };
 
         public:
-            BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera);
+            BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup);
 
             bool start();
 

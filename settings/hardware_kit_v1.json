@@ -5,5 +5,6 @@
   "disable_watchdog": false,
   "debug": false,
   "button_port_name": "/dev/ttyS0",
-  "image_dir": "/media/usb"
+  "image_dir": "/media/usb",
+  "show_led_setup": true
 }

@@ -89,6 +89,7 @@ int main(int argc, char *argv[]) {
     bool disable_watchdog = false;
     bool has_button = false;
     bool has_flash = false;
+    bool show_led_setup = false;
     string button_port_name;
     string image_dir;
 
@@ -111,6 +112,7 @@ int main(int argc, char *argv[]) {
         disable_watchdog = ptree.get<bool>("disable_watchdog");
         has_button = ptree.get<bool>("has_button");
         has_flash = ptree.get<bool>("has_flash");
+        show_led_setup = ptree.get<bool>("show_led_setup");
     } catch (boost::exception &e) {
         cerr << "Error loading properties. Using defaults." << endl;
     }
@@ -145,7 +147,7 @@ int main(int argc, char *argv[]) {
 
     while(true) {
         try {
-            p_api = new api::BoothApi(p_logic, p_cam);
+            p_api = new api::BoothApi(p_logic, p_cam, show_led_setup);
             cout << "Starting API" << endl;
             p_api->start();
             break;

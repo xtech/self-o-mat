@@ -7,8 +7,11 @@
 using namespace selfomat::api;
 using namespace xtech::selfomat;
 
-BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(logic), camera(camera),
-                                                                          server("0.0.0.0", "9080", mux, false) {}
+BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup) : logic(logic), camera(camera),
+                                                                          server("0.0.0.0", "9080", mux, false)
+{
+    this->show_led_setup = show_led_setup;
+}
 
 void BoothApi::setHeaders(served::response &res) {
     for (auto const &h : this->headers)
@@ -608,37 +611,40 @@ bool BoothApi::start() {
                     }
                 }
 
-                {
-                    auto setting = currentBoothSettings.mutable_led_mode();
-                    setting->set_update_url("/booth_settings/led_mode");
-                    setting->set_name("LED Mode");
-                    setting->set_currentindex(0);
+                if (this->show_led_setup) {
+                    {
+                        auto setting = currentBoothSettings.mutable_led_mode();
+                        setting->set_update_url("/booth_settings/led_mode");
+                        setting->set_name("LED Mode");
+                        setting->set_currentindex(0);
 
-                    int i=0;
-                    for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
-                        if (e.first == logic->getLEDMode()) {
-                            setting->set_currentindex(i);
+                        int i=0;
+                        for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
+                            if (e.first == logic->getLEDMode()) {
+                                setting->set_currentindex(i);
+                            }
+                            setting->add_values(e.second);
+                            i++;
                         }
-                        setting->add_values(e.second);
-                        i++;
+                    }
+
+                    {
+                        auto setting = currentBoothSettings.mutable_led_count();
+                        setting->set_update_url("/booth_settings/led_count");
+                        setting->set_name("LED Count");
+                        setting->set_currentindex(0);
+
+                        int i=0;
+                        for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
+                            if (e.first == logic->getLEDCount()) {
+                                setting->set_currentindex(i);
+                            }
+                            setting->add_values(e.second);
+                            i++;
+                        }
                     }
                 }
 
-                {
-                    auto setting = currentBoothSettings.mutable_led_count();
-                    setting->set_update_url("/booth_settings/led_count");
-                    setting->set_name("LED Count");
-                    setting->set_currentindex(0);
-
-                    int i=0;
-                    for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
-                        if (e.first == logic->getLEDCount()) {
-                            setting->set_currentindex(i);
-                        }
-                        setting->add_values(e.second);
-                        i++;
-                    }
-                }
 
                 {
                     auto setting = currentBoothSettings.mutable_led_offset();
