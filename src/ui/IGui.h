@@ -34,7 +34,8 @@ namespace selfomat {
             ALERT_CAMERA,
             ALERT_PRINTER,
             ALERT_STORAGE,
-            ALERT_STORAGE_ERROR
+            ALERT_STORAGE_ERROR,
+            ALERT_CAMERA_HINT
         };
 
         class IGui : public ILogger {
@@ -56,7 +57,7 @@ namespace selfomat {
 
             virtual void notifyPreviewIncoming() = 0;
 
-            virtual void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false) = 0;
+            virtual void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false, bool isHint = false) = 0;
 
             virtual void removeAlert(ALERT_TYPE type) = 0;
 
@@ -71,7 +72,8 @@ namespace selfomat {
                     (ALERT_CAMERA, "C")
                     (ALERT_PRINTER, "P")
                     (ALERT_STORAGE, "U")
-                    (ALERT_STORAGE_ERROR, "U");
+                    (ALERT_STORAGE_ERROR, "U")
+                    (ALERT_CAMERA_HINT, "C");
 
         };
     }

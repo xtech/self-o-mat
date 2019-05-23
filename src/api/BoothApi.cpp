@@ -103,6 +103,7 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
                 return;
             });
+
     mux.handle("/camera_settings/exposure_correction_trigger")
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
@@ -237,7 +238,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_focus();
-                    setting->set_name("Adjust Focus");
+                    setting->set_name("Autofocus");
                     setting->set_post_url("/focus");
                 }
 
@@ -520,7 +521,7 @@ bool BoothApi::start() {
                     return;
                 }
 
-                camera->autofocusBlocking();
+                logic->adjustFocus();
                 served::response::stock_reply(200, res);
                 return;
             });
@@ -605,7 +606,7 @@ bool BoothApi::start() {
                 {
                     auto setting = currentBoothSettings.mutable_flash_duration_micros();
                     setting->set_update_url("/booth_settings/flash/duration");
-                    setting->set_name("Flash Duration");
+                    setting->set_name("Flash Brightness");
                     setting->set_currentvalue(durationMicros);
                     setting->set_minvalue(0);
                     setting->set_maxvalue(255);
@@ -694,6 +695,7 @@ bool BoothApi::start() {
                     auto setting = currentBoothSettings.mutable_update_mode();
                     setting->set_name("Update Mode");
                     setting->set_post_url("/update");
+                    setting->set_alert("Do you really want to start the Update Mode?");
                 }
 
 
@@ -752,26 +754,30 @@ bool BoothApi::start() {
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                std::string filename = "./app/" + req.params["file"];
+                string file = req.params["file"];
 
-                ifstream f(filename, ios::in);
-                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
+                if (file.compare("tabs") == 0) {
+                    res.set_status(301);
+                    res.set_header("Location", "/app/index.html");
+                } else {
+                    ifstream f("./app/" + file, ios::in);
+                    string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
 
-                res.set_status(200);
-                res.set_body(file_contents);
+                    res.set_status(200);
+                    res.set_body(file_contents);
+                }
             });
 
-    mux.handle("/app/")
+    mux.handle("/{file}")
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                std::string filename = "./app/index.html";
+                string file = req.params["file"];
 
-                ifstream f(filename, ios::in);
-                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
-
-                res.set_status(200);
-                res.set_body(file_contents);
+                if (file.compare("app") == 0) {
+                    res.set_status(301);
+                    res.set_header("Location", "/app/index.html");
+                }
             });
 
     // Create the server and run with 2 handler thread.

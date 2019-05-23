@@ -40,7 +40,7 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
             sendCommand('?');
         sendCommand('.');
 
-        setLEDOffset(ledOffset);
+        readSettings();
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
         return false;
@@ -80,7 +80,6 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
 
 
 bool BoothLogic::start() {
-
 
     gui->logDebug("Starting Logic");
 
@@ -649,14 +648,18 @@ void BoothLogic::readSettings() {
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
     this->showAgreement=ptree.get<bool>("show_agreement", true);
-    this->flashEnabled=ptree.get<bool>("flash_enabled", true);
-    this->flashDurationMicros=ptree.get<uint64_t>("flash_duration_micros", 100000);
-    this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
-    this->flashBrightness=ptree.get<float>("flash_brightness", 1.0f);
-    this->flashFade=ptree.get<float>("flash_fade", 0.0f);
-    setLEDOffset(ptree.get<int8_t>("led_offset", 0));
+
+    setFlashParameters(
+            ptree.get<bool>("flash_enabled", true),
+            ptree.get<float>("flash_brightness", 1.0f),
+            ptree.get<float>("flash_fade", 0.0f),
+            ptree.get<uint64_t>("flash_delay_micros", 0),
+            ptree.get<uint64_t>("flash_duration_micros", 100000)
+                    );
+
     setLEDMode(static_cast<selfomat::logic::LED_MODE>(ptree.get<uint8_t>("led_mode", LED_MODE_RGB)));
     setLEDCount(static_cast<selfomat::logic::LED_COUNT>(ptree.get<uint8_t>("led_count", LED_COUNT_16)));
+    setLEDOffset(ptree.get<int8_t>("led_offset", 0));
     setCountdownDuration(ptree.get<uint8_t>("countdown_duration", 3));
 
     if(!success)
@@ -712,7 +715,6 @@ void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fad
 }
 
 void BoothLogic::flashTest() {
-    auto duration = static_cast<uint8_t>(this->flashDurationMicros);
     sendCommand('#');
 }
 
@@ -805,4 +807,9 @@ void BoothLogic::sendCommand(uint8_t command) {
     if (!button_serial_port.is_open())
         return;
     button_serial_port.write_some(boost::asio::buffer(&command, 1));
+}
+
+void BoothLogic::adjustFocus() {
+    camera->autofocusBlocking();
+    gui->addAlert(ALERT_CAMERA_HINT, L"Fokus wird gesucht", true, true);
 }

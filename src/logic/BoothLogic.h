@@ -258,6 +258,8 @@ namespace selfomat {
 
             void setLEDOffset(int8_t offset, bool persist = false);
             int8_t getLEDOffset();
+
+            void adjustFocus();
         };
 
     }

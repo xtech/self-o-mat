@@ -107,12 +107,14 @@ export namespace xtech {
         interface IPostSetting {
             name: string;
             postUrl: string;
+            alert?: (string|null);
         }
 
         class PostSetting implements IPostSetting {
             constructor(properties?: xtech.selfomat.IPostSetting);
             public name: string;
             public postUrl: string;
+            public alert: string;
             public static create(properties?: xtech.selfomat.IPostSetting): xtech.selfomat.PostSetting;
             public static encode(message: xtech.selfomat.IPostSetting, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IPostSetting, writer?: $protobuf.Writer): $protobuf.Writer;

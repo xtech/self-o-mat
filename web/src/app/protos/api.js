@@ -1048,6 +1048,7 @@
                  * @interface IPostSetting
                  * @property {string} name PostSetting name
                  * @property {string} postUrl PostSetting postUrl
+                 * @property {string|null} [alert] PostSetting alert
                  */
     
                 /**
@@ -1082,6 +1083,14 @@
                 PostSetting.prototype.postUrl = "";
     
                 /**
+                 * PostSetting alert.
+                 * @member {string} alert
+                 * @memberof xtech.selfomat.PostSetting
+                 * @instance
+                 */
+                PostSetting.prototype.alert = "";
+    
+                /**
                  * Creates a new PostSetting instance using the specified properties.
                  * @function create
                  * @memberof xtech.selfomat.PostSetting
@@ -1107,6 +1116,8 @@
                         writer = $Writer.create();
                     writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
                     writer.uint32(/* id 2, wireType 2 =*/18).string(message.postUrl);
+                    if (message.alert != null && message.hasOwnProperty("alert"))
+                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.alert);
                     return writer;
                 };
     
@@ -1146,6 +1157,9 @@
                             break;
                         case 2:
                             message.postUrl = reader.string();
+                            break;
+                        case 3:
+                            message.alert = reader.string();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -1190,6 +1204,9 @@
                         return "name: string expected";
                     if (!$util.isString(message.postUrl))
                         return "postUrl: string expected";
+                    if (message.alert != null && message.hasOwnProperty("alert"))
+                        if (!$util.isString(message.alert))
+                            return "alert: string expected";
                     return null;
                 };
     
@@ -1209,6 +1226,8 @@
                         message.name = String(object.name);
                     if (object.postUrl != null)
                         message.postUrl = String(object.postUrl);
+                    if (object.alert != null)
+                        message.alert = String(object.alert);
                     return message;
                 };
     
@@ -1228,11 +1247,14 @@
                     if (options.defaults) {
                         object.name = "";
                         object.postUrl = "";
+                        object.alert = "";
                     }
                     if (message.name != null && message.hasOwnProperty("name"))
                         object.name = message.name;
                     if (message.postUrl != null && message.hasOwnProperty("postUrl"))
                         object.postUrl = message.postUrl;
+                    if (message.alert != null && message.hasOwnProperty("alert"))
+                        object.alert = message.alert;
                     return object;
                 };
     
