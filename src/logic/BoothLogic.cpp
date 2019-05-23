@@ -81,7 +81,6 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
 
 bool BoothLogic::start() {
 
-
     gui->logDebug("Starting Logic");
 
     if (has_button) {

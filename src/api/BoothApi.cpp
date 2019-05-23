@@ -103,6 +103,7 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
                 return;
             });
+
     mux.handle("/camera_settings/exposure_correction_trigger")
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
@@ -605,7 +606,7 @@ bool BoothApi::start() {
                 {
                     auto setting = currentBoothSettings.mutable_flash_duration_micros();
                     setting->set_update_url("/booth_settings/flash/duration");
-                    setting->set_name("Flash Duration");
+                    setting->set_name("Flash Brightness");
                     setting->set_currentvalue(durationMicros);
                     setting->set_minvalue(0);
                     setting->set_maxvalue(255);
