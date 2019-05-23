@@ -18,6 +18,8 @@ export class XAPIService {
 
     isUpdating = false;
     endUpdateingTimerID = null;
+    postTimer = null;
+    postLoadingController = null;
 
     constructor(
     	private readonly http: HttpClient,
@@ -65,11 +67,13 @@ export class XAPIService {
 
     parseCameraSettings(response: ArrayBuffer): xtech.selfomat.CameraSettings {
         const cameraSettings = xtech.selfomat.CameraSettings.decode(new Uint8Array(response));
+        this.checkPostTimer();
         return cameraSettings;
     }
 
     parseBoothSettings(response: ArrayBuffer): xtech.selfomat.BoothSettings {
         const boothSettings = xtech.selfomat.BoothSettings.decode(new Uint8Array(response));
+        this.checkPostTimer();
         return boothSettings;
     }
 
@@ -114,16 +118,34 @@ export class XAPIService {
 
     }
 
+    checkPostTimer() {
+        if (this.postTimer == null || this.postLoadingController == null) {
+            return;
+        }
+
+        if (Date.now() - this.postTimer > 10000) {
+            this.postLoadingController.dismiss();
+            this.postLoadingController = null;
+            this.postTimer = null;
+        }
+    }
+
     async postWithoutHint(setting) {
         if (setting instanceof xtech.selfomat.PostSetting) {
-            const loading = await this.loadingController.create({});
-            await loading.present();
 
+            if (this.postLoadingController == null) {
+                this.postLoadingController = await this.loadingController.create({});
+                await this.postLoadingController.present();
+            }
+
+            this.postTimer = Date.now();
             this.http.post(environment.SERVER_URL + setting['postUrl'],
             	null,
             	{responseType: 'text'})
             	.subscribe(data => {
-             	   loading.dismiss();
+                    this.postLoadingController.dismiss();
+                    this.postLoadingController = null;
+                    this.postTimer = null;
             	}, error => {});
         }
     }
@@ -145,6 +167,7 @@ export class XAPIService {
 	            	handler: () => {}
 	            }]
 	        });
+
             	await actionSheet.present();
             } else {
             	this.postWithoutHint(setting);
