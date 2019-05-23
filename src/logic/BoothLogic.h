@@ -205,7 +205,7 @@ namespace selfomat {
             void cancelPrint();
             bool start();
 
-            void stop();
+            void stop(bool update_mode = false);
 
             void enableStressTest();
             void disableStressTest();

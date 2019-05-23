@@ -143,7 +143,7 @@ void BoothLogic::triggerFlash() {
     sendCommand('#');
 }
 
-void BoothLogic::stop() {
+void BoothLogic::stop(bool update_mode) {
     std::cout << "stopping logic" << std::endl;
     isRunning = false;
 
@@ -153,6 +153,10 @@ void BoothLogic::stop() {
     }
 
     writeSettings();
+
+    if(update_mode) {
+        sendCommand('f');
+    }
 
     if (button_serial_port.is_open())
         button_serial_port.close();
@@ -603,10 +607,8 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 }
 
 void BoothLogic::stopForUpdate() {
-    sendCommand('f');
-
     returnCode = 0x42;
-    stop();
+    stop(true);
 }
 
 void BoothLogic::setStorageEnabled(bool storageEnabled, bool persist) {
