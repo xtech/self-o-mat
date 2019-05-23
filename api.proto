@@ -91,5 +91,6 @@ message BoothSettings {
     optional ListSetting led_mode = 7;
     optional ListSetting led_count = 8;
     required ListSetting led_offset = 9;
-    required PostSetting update_mode =10;
+    required ListSetting countdown_duration = 10;
+    required PostSetting update_mode =11;
 }

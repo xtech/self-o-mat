@@ -266,6 +266,7 @@ export namespace xtech {
             ledMode?: (xtech.selfomat.IListSetting|null);
             ledCount?: (xtech.selfomat.IListSetting|null);
             ledOffset: xtech.selfomat.IListSetting;
+            countdownDuration: xtech.selfomat.IListSetting;
             updateMode: xtech.selfomat.IPostSetting;
         }
 
@@ -280,6 +281,7 @@ export namespace xtech {
             public ledMode?: (xtech.selfomat.IListSetting|null);
             public ledCount?: (xtech.selfomat.IListSetting|null);
             public ledOffset: xtech.selfomat.IListSetting;
+            public countdownDuration: xtech.selfomat.IListSetting;
             public updateMode: xtech.selfomat.IPostSetting;
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
             public static encode(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;

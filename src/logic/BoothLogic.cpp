@@ -657,6 +657,7 @@ void BoothLogic::readSettings() {
     setLEDOffset(ptree.get<int8_t>("led_offset", 0));
     setLEDMode(static_cast<selfomat::logic::LED_MODE>(ptree.get<uint8_t>("led_mode", LED_MODE_RGB)));
     setLEDCount(static_cast<selfomat::logic::LED_COUNT>(ptree.get<uint8_t>("led_count", LED_COUNT_16)));
+    setCountdownDuration(ptree.get<uint8_t>("countdown_duration", 3));
 
     if(!success)
         writeSettings();
@@ -676,6 +677,7 @@ void BoothLogic::writeSettings() {
     ptree.put("led_mode", this->ledMode);
     ptree.put("led_count", this->ledCount);
     ptree.put("led_offset", this->ledOffset);
+    ptree.put("countdown_duration", this->countdownDuration);
 
     try {
         boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
@@ -741,6 +743,20 @@ void BoothLogic::setLEDMode(LED_MODE mode, bool persist) {
 
 LED_MODE BoothLogic::getLEDMode() {
     return ledMode;
+}
+
+void BoothLogic::setCountdownDuration(uint8_t duration, bool persist) {
+    this->countdownDuration = duration;
+
+    sendCommand('>', duration);
+
+    if(persist) {
+        writeSettings();
+    }
+}
+
+uint8_t BoothLogic::getCountdownDuration() {
+    return countdownDuration;
 }
 
 void BoothLogic::setLEDCount(LED_COUNT count, bool persist) {
