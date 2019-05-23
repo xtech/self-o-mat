@@ -40,12 +40,7 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
             sendCommand('?');
         sendCommand('.');
 
-        setLEDMode(ledMode);
-        setLEDCount(ledCount);
-        setLEDOffset(ledOffset);
-        setCountdownDuration(countdownDuration);
-        setFlashParameters(flashEnabled, flashBrightness, flashFade, flashDelayMicros, flashDurationMicros);
-
+        readSettings();
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
         return false;
@@ -654,11 +649,14 @@ void BoothLogic::readSettings() {
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
     this->showAgreement=ptree.get<bool>("show_agreement", true);
-    this->flashEnabled=ptree.get<bool>("flash_enabled", true);
-    this->flashDurationMicros=ptree.get<uint64_t>("flash_duration_micros", 100000);
-    this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
-    this->flashBrightness=ptree.get<float>("flash_brightness", 1.0f);
-    this->flashFade=ptree.get<float>("flash_fade", 0.0f);
+
+    setFlashParameters(
+            ptree.get<bool>("flash_enabled", true),
+            ptree.get<float>("flash_brightness", 1.0f),
+            ptree.get<float>("flash_fade", 0.0f),
+            ptree.get<uint64_t>("flash_delay_micros", 0),
+            ptree.get<uint64_t>("flash_duration_micros", 100000)
+                    );
 
     setLEDMode(static_cast<selfomat::logic::LED_MODE>(ptree.get<uint8_t>("led_mode", LED_MODE_RGB)));
     setLEDCount(static_cast<selfomat::logic::LED_COUNT>(ptree.get<uint8_t>("led_count", LED_COUNT_16)));
