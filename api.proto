@@ -35,6 +35,7 @@ message ReadOnlySetting {
 message PostSetting {
     required string name = 1;
     required string post_url = 2;
+    optional string alert = 3;
 }
 
 message ListSetting {

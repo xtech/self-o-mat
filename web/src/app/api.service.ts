@@ -4,6 +4,7 @@ import {catchError, map} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../environments/environment';
 import {LoadingController} from '@ionic/angular';
+import {ActionSheetController} from '@ionic/angular';
 
 import {xtech} from './protos/api';
 
@@ -20,7 +21,8 @@ export class XAPIService {
 
     constructor(
     	private readonly http: HttpClient,
-    	public loadingController: LoadingController
+    	public loadingController: LoadingController,
+    	public actionSheetController: ActionSheetController
     ) {}
 
     values(obj: Object): any[] {
@@ -112,9 +114,8 @@ export class XAPIService {
 
     }
 
-    async post($event, setting) {
+    async postWithoutHint(setting) {
         if (setting instanceof xtech.selfomat.PostSetting) {
-
             const loading = await this.loadingController.create({});
             await loading.present();
 
@@ -123,9 +124,32 @@ export class XAPIService {
             	{responseType: 'text'})
             	.subscribe(data => {
              	   loading.dismiss();
-            	}, error => {
-             	   console.log(error);
-            	});
+            	}, error => {});
+        }
+    }
+
+    async post($event, setting) {
+        if (setting instanceof xtech.selfomat.PostSetting) {
+
+            if (setting['alert'].length > 0) {
+            	const actionSheet = await this.actionSheetController.create({
+	            header: setting['alert'],
+	            buttons: [{
+	            	text: setting['name'],
+	            	handler: () => {
+	            		this.postWithoutHint(setting);
+	            	}
+	            }, {
+	            	text: 'Cancel',
+	            	role: 'cancel',
+	            	handler: () => {}
+	            }]
+	        });
+            	await actionSheet.present();
+            } else {
+            	this.postWithoutHint(setting);
+            }
+
         }
     }
 
