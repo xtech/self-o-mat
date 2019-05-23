@@ -692,6 +692,9 @@ void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, 
     this->flashDelayMicros = delayMicros;
     this->flashDurationMicros = durationMicros;
 
+    auto duration = static_cast<uint8_t>(this->flashDurationMicros);
+    sendCommand('$', duration);
+
     if(persist) {
         writeSettings();
     }
@@ -708,7 +711,7 @@ void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fad
 
 void BoothLogic::flashTest() {
     auto duration = static_cast<uint8_t>(this->flashDurationMicros);
-    sendCommand('$', duration);
+    sendCommand('#');
 }
 
 void BoothLogic::setTemplateEnabled(bool templateEnabled, bool persist) {
