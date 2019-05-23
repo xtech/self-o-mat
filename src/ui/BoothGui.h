@@ -20,6 +20,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <codecvt>
+#include <tools/readfile.h>
 
 
 #define DEBUG_QUEUE_SIZE 100

@@ -7,15 +7,6 @@
 using namespace std;
 using namespace selfomat::ui;
 
-std::wstring readFile(const char* filename)
-{
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    ifstream f(filename, ios::in);
-    string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
-    std::wstring str = converter.from_bytes(file_contents);
-    return str;
-}
-
 BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
@@ -69,7 +60,7 @@ bool BoothGui::start() {
     }
     imageNoCamera.setTexture(textureNoCamera);
 
-    agreement = readFile("./assets/agreement.txt");
+    readFile("./assets/agreement.txt", agreement);
     if (agreement.length() < 1) {
         cerr << "Could not load agreement text." << endl;
         return false;

@@ -7,8 +7,11 @@
 using namespace selfomat::api;
 using namespace xtech::selfomat;
 
-BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(logic), camera(camera),
-                                                                          server("0.0.0.0", "9080", mux, false) {}
+BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup) : logic(logic), camera(camera),
+                                                                          server("0.0.0.0", "9080", mux, false)
+{
+    this->show_led_setup = show_led_setup;
+}
 
 void BoothApi::setHeaders(served::response &res) {
     for (auto const &h : this->headers)
@@ -416,7 +419,53 @@ bool BoothApi::start() {
                     return;
                 }
 
-                logic->setLEDOffset(update.value()-8, true);
+                int ledCount = logic->getLEDCount() / 2;
+                logic->setLEDOffset(update.value()-ledCount, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/booth_settings/led_mode")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                int i=0;
+                for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
+                    if (i == update.value()) {
+                        logic->setLEDMode(e.first, true);
+                    }
+                    i++;
+                }
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+
+    mux.handle("/booth_settings/led_count")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                int i=0;
+                for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
+                    if (i == update.value()) {
+                        logic->setLEDCount(e.first, true);
+                    }
+                    i++;
+                }
 
                 served::response::stock_reply(200, res);
                 return;
@@ -562,12 +611,53 @@ bool BoothApi::start() {
                     }
                 }
 
+                if (this->show_led_setup) {
+                    {
+                        auto setting = currentBoothSettings.mutable_led_mode();
+                        setting->set_update_url("/booth_settings/led_mode");
+                        setting->set_name("LED Mode");
+                        setting->set_currentindex(0);
+
+                        int i=0;
+                        for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
+                            if (e.first == logic->getLEDMode()) {
+                                setting->set_currentindex(i);
+                            }
+                            setting->add_values(e.second);
+                            i++;
+                        }
+                    }
+
+                    {
+                        auto setting = currentBoothSettings.mutable_led_count();
+                        setting->set_update_url("/booth_settings/led_count");
+                        setting->set_name("LED Count");
+                        setting->set_currentindex(0);
+
+                        int i=0;
+                        for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
+                            if (e.first == logic->getLEDCount()) {
+                                setting->set_currentindex(i);
+                            }
+                            setting->add_values(e.second);
+                            i++;
+                        }
+                    }
+                }
+
+
                 {
                     auto setting = currentBoothSettings.mutable_led_offset();
                     setting->set_update_url("/booth_settings/led_offset");
                     setting->set_name("LED Offset");
-                    setting->set_currentindex(logic->getLEDOffset()+8);
-                    for (int i = -8; i <= 8; i++) {
+
+                    int ledCount = logic->getLEDCount() / 2;
+                    setting->set_currentindex(ledCount);
+
+                    for (int i = ledCount * -1; i <= ledCount; i++) {
+                        if (i == logic->getLEDOffset()) {
+                            setting->set_currentindex(i+ledCount);
+                        }
                         setting->add_values(std::to_string(i));
                     }
                 }
