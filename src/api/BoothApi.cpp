@@ -198,7 +198,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_exposure_compensation();
-                    setting->set_name("Exposure Compensation");
+                    setting->set_name("Live Brightness");
                     setting->set_update_url("/camera_settings/exposure_correction");
                     setting->set_currentindex(camera->getExposureCorrection());
                     auto *choices = camera->getExposureCorrectionModeChoices();
@@ -211,7 +211,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_exposure_compensation_trigger();
-                    setting->set_name("Exposure Compensation During Image Capture");
+                    setting->set_name("Capture Brightness");
                     setting->set_update_url("/camera_settings/exposure_correction_trigger");
                     setting->set_currentindex(camera->getExposureCorrectionTrigger());
                     auto *choices = camera->getExposureCorrectionModeChoices();
@@ -426,6 +426,22 @@ bool BoothApi::start() {
                 return;
             });
 
+    mux.handle("/booth_settings/countdown_duration")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setCountdownDuration(update.value()+1, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
     mux.handle("/booth_settings/led_mode")
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
@@ -589,7 +605,7 @@ bool BoothApi::start() {
                 {
                     auto setting = currentBoothSettings.mutable_flash_duration_micros();
                     setting->set_update_url("/booth_settings/flash/duration");
-                    setting->set_name("Flash Duration Microseconds");
+                    setting->set_name("Flash Duration");
                     setting->set_currentvalue(durationMicros);
                     setting->set_minvalue(0);
                     setting->set_maxvalue(255);
@@ -659,6 +675,18 @@ bool BoothApi::start() {
                             setting->set_currentindex(i+ledCount);
                         }
                         setting->add_values(std::to_string(i));
+                    }
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_countdown_duration();
+                    setting->set_update_url("/booth_settings/countdown_duration");
+                    setting->set_name("Countdown Duration");
+
+                    setting->set_currentindex(logic->getCountdownDuration()-1);
+
+                    for (int i = 1; i <= 5; i++) {
+                        setting->add_values(std::to_string(i)+"s");
                     }
                 }
 

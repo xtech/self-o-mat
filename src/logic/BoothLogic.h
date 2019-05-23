@@ -120,6 +120,7 @@ namespace selfomat {
             LED_MODE ledMode;
             LED_COUNT ledCount;
             int8_t ledOffset;
+            uint8_t countdownDuration;
 
 
             PrinterManager printerManager;
@@ -184,9 +185,6 @@ namespace selfomat {
 
             void triggerFlash();
 
-
-
-
             vector<boost::filesystem::path> findArduinos();
 
             int getFreeStorageSpaceMB();
@@ -248,6 +246,9 @@ namespace selfomat {
             void setTemplateEnabled(bool templateEnabled, bool persist = false);
             bool getTemplateEnabled();
             bool getTemplateLoaded();
+
+            void setCountdownDuration(uint8_t duration, bool persist = false);
+            uint8_t getCountdownDuration();
 
             void setLEDMode(LED_MODE mode, bool persist = false);
             LED_MODE getLEDMode();

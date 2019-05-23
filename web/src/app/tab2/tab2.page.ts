@@ -13,7 +13,7 @@ import BoothSettings = xtech.selfomat.BoothSettings;
 export class Tab2Page implements OnInit {
 
   settings: BoothSettings;
-  pageTitle = 'Self-o-mat Settings';
+  pageTitle = 'self-o-mat Settings';
 
   constructor(readonly apiService: XAPIService) {
   }
