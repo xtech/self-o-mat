@@ -55,7 +55,7 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
     try {
         tmp_serial_port.open(serialPath.string());
         tmp_serial_port.set_option(boost::asio::serial_port_base::baud_rate(38400));
-        tmp_serial_port.write_some(boost::asio::buffer("i ", 2));
+        tmp_serial_port.write_some(boost::asio::buffer("\2i ", 3));
 
         cout << "Waiting for identification" << endl;
         char c;
