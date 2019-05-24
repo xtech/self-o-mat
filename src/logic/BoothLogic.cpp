@@ -365,10 +365,6 @@ void BoothLogic::logicThread() {
 }
 
 void BoothLogic::ioThread() {
-    while(isRunning) {
-        io_service.run();
-    }
-    /*
     cout << "IO Thread Started" << endl;
     while (isRunning) {
         if (button_serial_port.is_open()) {
@@ -402,7 +398,7 @@ void BoothLogic::ioThread() {
         } else {
             break;
         }
-    }*/
+    }
 }
 
 BoothLogic::~BoothLogic() {
