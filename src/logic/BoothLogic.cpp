@@ -803,7 +803,7 @@ void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
     data.push_back(command);
     data.push_back(argument);
 
-    button_serial_port.write_some(boost::asio::buffer(data.data(), 2));
+    boost::asio::write(button_serial_port, boost::asio::buffer(data.data(), 2));
 }
 
 void BoothLogic::sendCommand(uint8_t command) {
@@ -811,7 +811,7 @@ void BoothLogic::sendCommand(uint8_t command) {
     boost::unique_lock<boost::mutex> lk(button_serial_mutex);
     if (!button_serial_port.is_open())
         return;
-    button_serial_port.write_some(boost::asio::buffer(&command, 1));
+    boost::asio::write(button_serial_port, boost::asio::buffer(&command, 1));
 }
 
 void BoothLogic::adjustFocus() {
