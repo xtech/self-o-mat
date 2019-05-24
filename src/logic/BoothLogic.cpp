@@ -64,6 +64,7 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
             cout << "Got a " << c << endl;
             if (c == 'b') {
                 cout << "Found the button" << endl;
+                tmp_serial_port.close();
                 return connectButton(serialPath);
             }
             cout << "Unknown identification: " << c << endl;
