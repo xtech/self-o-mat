@@ -303,6 +303,7 @@ void BoothLogic::logicThread() {
     while (isRunning) {
         // Send the heartbeat
         sendCommand('.');
+        readSettings();
         //flash_serial_port.write_some(asio::buffer("i", 1));
         boost::this_thread::sleep(boost::posix_time::seconds(1));
 
