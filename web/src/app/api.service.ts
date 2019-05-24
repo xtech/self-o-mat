@@ -204,7 +204,6 @@ export class XAPIService {
 
             reader.addEventListener('load', (function () {
                 const body = reader.result;
-                console.log(body);
 
                 this.http.post(environment.SERVER_URL + setting['postUrl'],
                     body,
