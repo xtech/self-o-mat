@@ -634,6 +634,7 @@ bool BoothApi::start() {
                         auto setting = currentBoothSettings.mutable_template_upload();
                         setting->set_post_url("/template_upload");
                         setting->set_name("Template Upload");
+                        setting->set_input_accept("image/x-png,image/png");
                 }
 
 

@@ -129,12 +129,14 @@ export namespace xtech {
         interface IFileUploadSetting {
             name: string;
             postUrl: string;
+            inputAccept?: (string|null);
         }
 
         class FileUploadSetting implements IFileUploadSetting {
             constructor(properties?: xtech.selfomat.IFileUploadSetting);
             public name: string;
             public postUrl: string;
+            public inputAccept: string;
             public static create(properties?: xtech.selfomat.IFileUploadSetting): xtech.selfomat.FileUploadSetting;
             public static encode(message: xtech.selfomat.IFileUploadSetting, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IFileUploadSetting, writer?: $protobuf.Writer): $protobuf.Writer;

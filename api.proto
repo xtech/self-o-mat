@@ -41,6 +41,7 @@ message PostSetting {
 message FileUploadSetting {
     required string name = 1;
     required string post_url = 2;
+    optional string input_accept = 3;
 }
 
 message ListSetting {

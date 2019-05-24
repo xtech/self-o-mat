@@ -83,10 +83,11 @@ export class XAPIService {
         return throwError(error || 'Server error');
     }
 
-    clickItem($event, setting) {
+    clickItem($event, setting, index) {
         $event.stopPropagation();
         if (this.isFileUpload(setting)) {
-            console.log($event.target);
+            const input = document.getElementById('input_' + index);
+            input.click();
         } else if (this.isPost(setting)) {
             this.post($event, setting);
         }
@@ -202,15 +203,15 @@ export class XAPIService {
             let body = new FormData();
             body.append('image', file);
 
-            console.log(file);
-
             this.http.post(environment.SERVER_URL + setting['postUrl'],
                 body,
                 {responseType: 'text'})
                 .subscribe(data => {
                     this.postLoadingController.dismiss();
+                    this.postLoadingController = null;
                 }, error => {
                     this.postLoadingController.dismiss();
+                    this.postLoadingController = null;
                     console.log(error);
                 });
         }

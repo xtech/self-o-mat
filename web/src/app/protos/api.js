@@ -1280,6 +1280,7 @@
                  * @interface IFileUploadSetting
                  * @property {string} name FileUploadSetting name
                  * @property {string} postUrl FileUploadSetting postUrl
+                 * @property {string|null} [inputAccept] FileUploadSetting inputAccept
                  */
     
                 /**
@@ -1314,6 +1315,14 @@
                 FileUploadSetting.prototype.postUrl = "";
     
                 /**
+                 * FileUploadSetting inputAccept.
+                 * @member {string} inputAccept
+                 * @memberof xtech.selfomat.FileUploadSetting
+                 * @instance
+                 */
+                FileUploadSetting.prototype.inputAccept = "";
+    
+                /**
                  * Creates a new FileUploadSetting instance using the specified properties.
                  * @function create
                  * @memberof xtech.selfomat.FileUploadSetting
@@ -1339,6 +1348,8 @@
                         writer = $Writer.create();
                     writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
                     writer.uint32(/* id 2, wireType 2 =*/18).string(message.postUrl);
+                    if (message.inputAccept != null && message.hasOwnProperty("inputAccept"))
+                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.inputAccept);
                     return writer;
                 };
     
@@ -1378,6 +1389,9 @@
                             break;
                         case 2:
                             message.postUrl = reader.string();
+                            break;
+                        case 3:
+                            message.inputAccept = reader.string();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -1422,6 +1436,9 @@
                         return "name: string expected";
                     if (!$util.isString(message.postUrl))
                         return "postUrl: string expected";
+                    if (message.inputAccept != null && message.hasOwnProperty("inputAccept"))
+                        if (!$util.isString(message.inputAccept))
+                            return "inputAccept: string expected";
                     return null;
                 };
     
@@ -1441,6 +1458,8 @@
                         message.name = String(object.name);
                     if (object.postUrl != null)
                         message.postUrl = String(object.postUrl);
+                    if (object.inputAccept != null)
+                        message.inputAccept = String(object.inputAccept);
                     return message;
                 };
     
@@ -1460,11 +1479,14 @@
                     if (options.defaults) {
                         object.name = "";
                         object.postUrl = "";
+                        object.inputAccept = "";
                     }
                     if (message.name != null && message.hasOwnProperty("name"))
                         object.name = message.name;
                     if (message.postUrl != null && message.hasOwnProperty("postUrl"))
                         object.postUrl = message.postUrl;
+                    if (message.inputAccept != null && message.hasOwnProperty("inputAccept"))
+                        object.inputAccept = message.inputAccept;
                     return object;
                 };
     
