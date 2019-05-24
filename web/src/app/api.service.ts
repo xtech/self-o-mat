@@ -199,21 +199,27 @@ export class XAPIService {
                 await this.postLoadingController.present();
             }
 
-            const file = $event.target.files[0];
-            let body = new FormData();
-            body.append('image', file);
+            const fileName = $event.target.files[0];
+            const reader = new FileReader();
 
-            this.http.post(environment.SERVER_URL + setting['postUrl'],
-                body,
-                {responseType: 'text'})
-                .subscribe(data => {
-                    this.postLoadingController.dismiss();
-                    this.postLoadingController = null;
-                }, error => {
-                    this.postLoadingController.dismiss();
-                    this.postLoadingController = null;
-                    console.log(error);
-                });
+            reader.addEventListener('load', (function () {
+                const body = reader.result;
+                console.log(body);
+
+                this.http.post(environment.SERVER_URL + setting['postUrl'],
+                    body,
+                    {responseType: 'text'})
+                    .subscribe(data => {
+                        this.postLoadingController.dismiss();
+                        this.postLoadingController = null;
+                    }, error => {
+                        this.postLoadingController.dismiss();
+                        this.postLoadingController = null;
+                        console.log(error);
+                    });
+            }).bind(this), false);
+
+            reader.readAsBinaryString(fileName);
         }
     }
 

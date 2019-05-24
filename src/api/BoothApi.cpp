@@ -549,7 +549,9 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                cout << "New template with size: " << req.body().size() << endl;
+                std::string body = req.body();
+
+                cout << body << endl;
 
                 // TODO: Save, show and use new template
 

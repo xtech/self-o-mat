@@ -9,6 +9,7 @@
 #include "../logic/BoothLogic.h"
 
 #include <served/served.hpp>
+#include <tools/multipart_parser.h>
 
 using namespace selfomat;
 namespace selfomat {
