@@ -1,8 +1,6 @@
 //
 // Created by clemens on 21.01.19.
 //
-
-#include <tools/cobs.h>
 #include "BoothLogic.h"
 
 using namespace std;
@@ -138,7 +136,7 @@ bool BoothLogic::start() {
 }
 
 void BoothLogic::triggerFlash() {
-    if(!flashEnabled)
+    if (!flashEnabled)
         return;
 
     sendCommand('#');
@@ -155,14 +153,14 @@ void BoothLogic::stop(bool update_mode) {
 
     writeSettings();
 
-    if(update_mode) {
+    if (update_mode) {
         sendCommand('f');
     }
 
     if (button_serial_port.is_open())
         button_serial_port.close();
 
-    if(button_serial_port.is_open()) {
+    if (button_serial_port.is_open()) {
         if (ioThreadHandle.joinable()) {
             cout << "waiting for io" << endl;
             ioThreadHandle.join();
@@ -357,46 +355,59 @@ void BoothLogic::logicThread() {
     // Sync to disk
     cout << "Syncing changes to disk" << endl;
     boost::thread syncThreadHandle(sync);
-    while(!syncThreadHandle.try_join_for(boost::chrono::milliseconds(1000))) {
+    while (!syncThreadHandle.try_join_for(boost::chrono::milliseconds(1000))) {
         cout << "Still syncing..." << endl;
         sendCommand('.');
     }
     cout << "Syncing done" << endl;
 }
 
+void BoothLogic::handleCommand(cobs::ByteSequence &command) {
+    if (command.empty())
+        return;
+    uint8_t commandType = command[0];
+    switch (commandType) {
+        case 'a':
+            if (showAgreement) {
+                gui->hideAgreement();
+                showAgreement = false;
+                writeSettings();
+            }
+            break;
+        case 'c':
+            cancelPrintMutex.lock();
+            printCanceled = true;
+            cancelPrintMutex.unlock();
+            break;
+        case 't':
+            trigger();
+            break;
+        case 'd':
+            returnCode = -1;
+            isRunning = false;
+            break;
+        default:
+            cout << "got unknown command from button. Type was: " << ((char)commandType) << endl;
+            break;
+    }
+}
+
 void BoothLogic::ioThread() {
     cout << "IO Thread Started" << endl;
-    while (isRunning) {
-        if (button_serial_port.is_open()) {
-            blocking_reader reader(button_serial_port, 500);
-            while (reader.read_char(c) && c != '\n') {
-                cout << "Got char: " << c << endl;
-                switch (c) {
-                    case 'a':
-                        if (showAgreement) {
-                            gui->hideAgreement();
-                            showAgreement = false;
-                            writeSettings();
-                        }
-                        break;
-                    case 'c':
-                        cancelPrintMutex.lock();
-                        printCanceled = true;
-                        cancelPrintMutex.unlock();
-                        break;
-                    case 't':
-                        trigger();
-                        break;
-                    case 'd':
-                        returnCode = -1;
-                        isRunning = false;
-                        break;
-                    default:
-                        break;
-                }
+    if (!button_serial_port.is_open())
+        return;
+    blocking_reader reader(button_serial_port, 500);
+    cobs::ByteSequence sequence;
+    while (isRunning && button_serial_port.is_open()) {
+        while (reader.read_char(c)) {
+            if (c == ' ') {
+                // Our sequence is complete. Decode and handle
+                cobs::ByteSequence decoded = cobs::cobs_decode(sequence);
+                sequence.clear();
+                handleCommand(decoded);
+            } else {
+                sequence.push_back(c);
             }
-        } else {
-            break;
         }
     }
 }
@@ -454,7 +465,7 @@ void BoothLogic::printerThread() {
                 saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, true);
 
                 Magick::Image toPrepare;
-                if(templateEnabled) {
+                if (templateEnabled) {
                     toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
                 } else {
                     toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize);
@@ -525,25 +536,25 @@ bool BoothLogic::isMountpoint(std::string folder) {
     /* get the parent directory  of the file */
 
     std::string folder_cpy(folder.c_str());
-    std::string parent_name = dirname((char*)folder_cpy.c_str());
+    std::string parent_name = dirname((char *) folder_cpy.c_str());
 
     /* get the file's stat info */
     struct stat file_stat{};
-    if( -1 == stat(folder.c_str(), &file_stat) ) {
+    if (-1 == stat(folder.c_str(), &file_stat)) {
         cerr << "stat error" << endl;
         return false;
     }
 
     /* determine whether the supplied file is a directory
       if it isn't, then it can't be a mountpoint. */
-    if( !(file_stat.st_mode & S_IFDIR) ) {
+    if (!(file_stat.st_mode & S_IFDIR)) {
         cerr << "image dir is not a directory" << endl;
         return false;
     }
 
     /* get the parent's stat info */
     struct stat parent_stat{};
-    if( -1 == stat(parent_name.c_str(), &parent_stat) ) {
+    if (-1 == stat(parent_name.c_str(), &parent_stat)) {
         cout << "parent stat fail" << endl;
         return false;
     }
@@ -554,7 +565,7 @@ bool BoothLogic::isMountpoint(std::string folder) {
 
 bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool showAlert) {
     auto success = saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
-    if(!success && showAlert) {
+    if (!success && showAlert) {
         gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
     }
 
@@ -571,7 +582,7 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
         return false;
     }
 
-    if(!isMountpoint(imageDir)) {
+    if (!isMountpoint(imageDir)) {
         cerr << "imageDir not a mountpoint" << endl;
         return false;
     }
@@ -615,7 +626,7 @@ void BoothLogic::stopForUpdate() {
 
 void BoothLogic::setStorageEnabled(bool storageEnabled, bool persist) {
     this->storageEnabled = storageEnabled;
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
@@ -625,9 +636,9 @@ bool BoothLogic::getStorageEnabled() {
 }
 
 void BoothLogic::setPrinterEnabled(bool printerEnabled, bool persist) {
-    this->printerEnabled= printerEnabled;
+    this->printerEnabled = printerEnabled;
     gui->setPrinterEnabled(printerEnabled);
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
@@ -643,14 +654,15 @@ void BoothLogic::readSettings() {
     try {
         boost::property_tree::read_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
     } catch (boost::exception &e) {
-        cerr << "Error loading settings settings. Writing defaults. Error was: " << boost::diagnostic_information(e) << endl;
+        cerr << "Error loading settings settings. Writing defaults. Error was: " << boost::diagnostic_information(e)
+             << endl;
         success = false;
     }
 
     setStorageEnabled(ptree.get<bool>("storage_enabled", true));
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
-    this->showAgreement=ptree.get<bool>("show_agreement", true);
+    this->showAgreement = ptree.get<bool>("show_agreement", true);
 
     setFlashParameters(
             ptree.get<bool>("flash_enabled", true),
@@ -658,14 +670,14 @@ void BoothLogic::readSettings() {
             ptree.get<float>("flash_fade", 0.0f),
             ptree.get<uint64_t>("flash_delay_micros", 0),
             ptree.get<uint64_t>("flash_duration_micros", 100000)
-                    );
+    );
 
     setLEDMode(static_cast<selfomat::logic::LED_MODE>(ptree.get<uint8_t>("led_mode", LED_MODE_RGB)));
     setLEDCount(static_cast<selfomat::logic::LED_COUNT>(ptree.get<uint8_t>("led_count", LED_COUNT_16)));
     setLEDOffset(ptree.get<int8_t>("led_offset", 0));
     setCountdownDuration(ptree.get<uint8_t>("countdown_duration", 3));
 
-    if(!success)
+    if (!success)
         writeSettings();
 }
 
@@ -703,18 +715,18 @@ void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, 
     auto duration = static_cast<uint8_t>(this->flashDurationMicros);
     sendCommand('$', duration);
 
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
 
 void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros,
                                     uint64_t *durationMicros) {
-     *enabled = this->flashEnabled;
-     *brightness = this->flashBrightness;
-     *fade = this->flashFade;
-     *delayMicros = this->flashDelayMicros;
-     *durationMicros = this->flashDurationMicros;
+    *enabled = this->flashEnabled;
+    *brightness = this->flashBrightness;
+    *fade = this->flashFade;
+    *delayMicros = this->flashDelayMicros;
+    *durationMicros = this->flashDurationMicros;
 }
 
 void BoothLogic::flashTest() {
@@ -724,7 +736,7 @@ void BoothLogic::flashTest() {
 void BoothLogic::setTemplateEnabled(bool templateEnabled, bool persist) {
     this->templateEnabled = templateEnabled;
     gui->setTemplateEnabled(templateEnabled);
-    if(persist)
+    if (persist)
         writeSettings();
 }
 
@@ -741,7 +753,7 @@ void BoothLogic::setLEDMode(LED_MODE mode, bool persist) {
 
     sendCommand('t', mode);
 
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
@@ -755,7 +767,7 @@ void BoothLogic::setCountdownDuration(uint8_t duration, bool persist) {
 
     sendCommand('>', duration);
 
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
@@ -769,7 +781,7 @@ void BoothLogic::setLEDCount(LED_COUNT count, bool persist) {
 
     sendCommand('c', count);
 
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
@@ -783,11 +795,11 @@ void BoothLogic::setLEDOffset(int8_t offset, bool persist) {
 
     int ledCount = getLEDCount() / 2;
 
-    if(persist) {
-        sendCommand('L', offset+ledCount);
+    if (persist) {
+        sendCommand('L', offset + ledCount);
         writeSettings();
     } else {
-        sendCommand('l', offset+ledCount);
+        sendCommand('l', offset + ledCount);
     }
 }
 
@@ -796,7 +808,7 @@ int8_t BoothLogic::getLEDOffset() {
 }
 
 void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
-    cout << "sending command " << ((char)command) << " with argument: " << ((int)argument) << endl;
+    cout << "sending command " << ((char) command) << " with argument: " << ((int) argument) << endl;
     boost::unique_lock<boost::mutex> lk(button_serial_mutex);
     if (!button_serial_port.is_open())
         return;
@@ -811,7 +823,7 @@ void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
 }
 
 void BoothLogic::sendCommand(uint8_t command) {
-    cout << "sending command " << ((char)command) << endl;
+    cout << "sending command " << ((char) command) << endl;
     boost::unique_lock<boost::mutex> lk(button_serial_mutex);
     if (!button_serial_port.is_open())
         return;

@@ -32,6 +32,7 @@
 
 #include <sys/stat.h>
 #include <tools/blocking_reader.h>
+#include <tools/cobs.h>
 
 
 //#define USE_SPI
@@ -181,6 +182,8 @@ namespace selfomat {
             void logicThread();
 
             void ioThread();
+
+            void handleCommand(cobs::ByteSequence &command);
 
             void printerThread();
 
