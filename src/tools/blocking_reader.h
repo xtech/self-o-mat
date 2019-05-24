@@ -79,7 +79,7 @@ public:
 
         // After a timeout & cancel it seems we need
         // to do a reset for subsequent reads to work.
-        port.get_io_service().reset();
+        //port.get_io_service().reset();
 
         // Asynchronously read 1 character.
         boost::asio::async_read(port, boost::asio::buffer(&c, 1),
