@@ -7,8 +7,11 @@
 using namespace selfomat::api;
 using namespace xtech::selfomat;
 
-BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera) : logic(logic), camera(camera),
-                                                                          server("0.0.0.0", "9080", mux, false) {}
+BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup) : logic(logic), camera(camera),
+                                                                          server("0.0.0.0", "9080", mux, false)
+{
+    this->show_led_setup = show_led_setup;
+}
 
 void BoothApi::setHeaders(served::response &res) {
     for (auto const &h : this->headers)
@@ -100,6 +103,7 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
                 return;
             });
+
     mux.handle("/camera_settings/exposure_correction_trigger")
             .post([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
@@ -195,7 +199,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_exposure_compensation();
-                    setting->set_name("Exposure Compensation");
+                    setting->set_name("Live Brightness");
                     setting->set_update_url("/camera_settings/exposure_correction");
                     setting->set_currentindex(camera->getExposureCorrection());
                     auto *choices = camera->getExposureCorrectionModeChoices();
@@ -208,7 +212,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_exposure_compensation_trigger();
-                    setting->set_name("Exposure Compensation During Image Capture");
+                    setting->set_name("Capture Brightness");
                     setting->set_update_url("/camera_settings/exposure_correction_trigger");
                     setting->set_currentindex(camera->getExposureCorrectionTrigger());
                     auto *choices = camera->getExposureCorrectionModeChoices();
@@ -234,7 +238,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_focus();
-                    setting->set_name("Adjust Focus");
+                    setting->set_name("Autofocus");
                     setting->set_post_url("/focus");
                 }
 
@@ -416,7 +420,69 @@ bool BoothApi::start() {
                     return;
                 }
 
-                logic->setLEDOffset(update.value()-8, true);
+                int ledCount = logic->getLEDCount() / 2;
+                logic->setLEDOffset(update.value()-ledCount, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/booth_settings/countdown_duration")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setCountdownDuration(update.value()+1, true);
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+    mux.handle("/booth_settings/led_mode")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                int i=0;
+                for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
+                    if (i == update.value()) {
+                        logic->setLEDMode(e.first, true);
+                    }
+                    i++;
+                }
+
+                served::response::stock_reply(200, res);
+                return;
+            });
+
+
+    mux.handle("/booth_settings/led_count")
+            .post([this](served::response &res, const served::request &req) {
+                this->setHeaders(res);
+
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                int i=0;
+                for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
+                    if (i == update.value()) {
+                        logic->setLEDCount(e.first, true);
+                    }
+                    i++;
+                }
 
                 served::response::stock_reply(200, res);
                 return;
@@ -455,7 +521,7 @@ bool BoothApi::start() {
                     return;
                 }
 
-                camera->autofocusBlocking();
+                logic->adjustFocus();
                 served::response::stock_reply(200, res);
                 return;
             });
@@ -552,7 +618,7 @@ bool BoothApi::start() {
                 {
                     auto setting = currentBoothSettings.mutable_flash_duration_micros();
                     setting->set_update_url("/booth_settings/flash/duration");
-                    setting->set_name("Flash Duration Microseconds");
+                    setting->set_name("Flash Brightness");
                     setting->set_currentvalue(durationMicros);
                     setting->set_minvalue(0);
                     setting->set_maxvalue(255);
@@ -580,13 +646,66 @@ bool BoothApi::start() {
                     }
                 }
 
+                if (this->show_led_setup) {
+                    {
+                        auto setting = currentBoothSettings.mutable_led_mode();
+                        setting->set_update_url("/booth_settings/led_mode");
+                        setting->set_name("LED Mode");
+                        setting->set_currentindex(0);
+
+                        int i=0;
+                        for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
+                            if (e.first == logic->getLEDMode()) {
+                                setting->set_currentindex(i);
+                            }
+                            setting->add_values(e.second);
+                            i++;
+                        }
+                    }
+
+                    {
+                        auto setting = currentBoothSettings.mutable_led_count();
+                        setting->set_update_url("/booth_settings/led_count");
+                        setting->set_name("LED Count");
+                        setting->set_currentindex(0);
+
+                        int i=0;
+                        for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
+                            if (e.first == logic->getLEDCount()) {
+                                setting->set_currentindex(i);
+                            }
+                            setting->add_values(e.second);
+                            i++;
+                        }
+                    }
+                }
+
+
                 {
                     auto setting = currentBoothSettings.mutable_led_offset();
                     setting->set_update_url("/booth_settings/led_offset");
                     setting->set_name("LED Offset");
-                    setting->set_currentindex(logic->getLEDOffset()+8);
-                    for (int i = -8; i <= 8; i++) {
+
+                    int ledCount = logic->getLEDCount() / 2;
+                    setting->set_currentindex(ledCount);
+
+                    for (int i = ledCount * -1; i <= ledCount; i++) {
+                        if (i == logic->getLEDOffset()) {
+                            setting->set_currentindex(i+ledCount);
+                        }
                         setting->add_values(std::to_string(i));
+                    }
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_countdown_duration();
+                    setting->set_update_url("/booth_settings/countdown_duration");
+                    setting->set_name("Countdown Duration");
+
+                    setting->set_currentindex(logic->getCountdownDuration()-1);
+
+                    for (int i = 1; i <= 5; i++) {
+                        setting->add_values(std::to_string(i)+"s");
                     }
                 }
 
@@ -594,6 +713,7 @@ bool BoothApi::start() {
                     auto setting = currentBoothSettings.mutable_update_mode();
                     setting->set_name("Update Mode");
                     setting->set_post_url("/update");
+                    setting->set_alert("Do you really want to start the Update Mode?");
                 }
 
 
@@ -652,26 +772,30 @@ bool BoothApi::start() {
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                std::string filename = "./app/" + req.params["file"];
+                string file = req.params["file"];
 
-                ifstream f(filename, ios::in);
-                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
+                if (file.compare("tabs") == 0) {
+                    res.set_status(301);
+                    res.set_header("Location", "/app/index.html");
+                } else {
+                    ifstream f("./app/" + file, ios::in);
+                    string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
 
-                res.set_status(200);
-                res.set_body(file_contents);
+                    res.set_status(200);
+                    res.set_body(file_contents);
+                }
             });
 
-    mux.handle("/app/")
+    mux.handle("/{file}")
             .get([this](served::response &res, const served::request &req) {
                 this->setHeaders(res);
 
-                std::string filename = "./app/index.html";
+                string file = req.params["file"];
 
-                ifstream f(filename, ios::in);
-                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
-
-                res.set_status(200);
-                res.set_body(file_contents);
+                if (file.compare("app") == 0) {
+                    res.set_status(301);
+                    res.set_header("Location", "/app/index.html");
+                }
             });
 
     // Create the server and run with 2 handler thread.

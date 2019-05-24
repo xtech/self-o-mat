@@ -20,6 +20,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <codecvt>
+#include <tools/readfile.h>
 
 
 #define DEBUG_QUEUE_SIZE 100
@@ -39,6 +40,7 @@ namespace selfomat {
             sf::Int32 startTime;
             sf::Int32 endTime;
             std::wstring text;
+            bool hint;
         };
 
         class BoothGui : public IGui {
@@ -188,7 +190,7 @@ namespace selfomat {
             void showAgreement() override;
             void hideAgreement() override;
 
-            void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false) override;
+            void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false, bool isHint = false) override;
             void removeAlert(ALERT_TYPE type) override;
 
             void setPrinterEnabled(bool printerEnabled) override;

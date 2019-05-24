@@ -67,7 +67,7 @@ void NopGui::logError(const char *s) {
     std::cout << "error: " << s << std::endl;
 }
 
-void NopGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) {
+void NopGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, bool isHint) {
 
 }
 

@@ -7,15 +7,6 @@
 using namespace std;
 using namespace selfomat::ui;
 
-std::wstring readFile(const char* filename)
-{
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    ifstream f(filename, ios::in);
-    string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
-    std::wstring str = converter.from_bytes(file_contents);
-    return str;
-}
-
 BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
@@ -69,7 +60,7 @@ bool BoothGui::start() {
     }
     imageNoCamera.setTexture(textureNoCamera);
 
-    agreement = readFile("./assets/agreement.txt");
+    readFile("./assets/agreement.txt", agreement);
     if (agreement.length() < 1) {
         cerr << "Could not load agreement text." << endl;
         return false;
@@ -605,7 +596,13 @@ void BoothGui::drawAlerts() {
     // Draw the alerts
     for (auto &alert : alerts) {
         int y = row_height * row;
-        sf::Color color = COLOR_ALERT;
+        sf::Color color;
+
+        if (alert.second.hint) {
+            color = sf::Color(75, 75, 75);
+        } else {
+            color = COLOR_ALERT;
+        }
 
         color.a = (uint8_t) (255 * alpha);
 
@@ -678,8 +675,7 @@ void BoothGui::hideAgreement()  {
     setState(STATE_TRANS_AGREEMENT);
 }
 
-void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) {
-
+void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, bool isHint) {
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
     if (alerts.empty())
@@ -691,14 +687,17 @@ void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) {
     sf::Int32 endTime = 0;
 
     if (autoRemove) {
-        endTime = startTime + 10000;
+        if (isHint) {
+            endTime = startTime + 5000;
+        } else  {
+            endTime = startTime + 10000;
+        }
     }
 
-    alerts.insert(std::make_pair(type, (Alert){startTime, endTime, std::move(text)}));
+    alerts.insert(std::make_pair(type, (Alert){startTime, endTime, std::move(text), isHint}));
 }
 
 void BoothGui::removeAlert(ALERT_TYPE type, bool forced) {
-
     auto alert = alerts.find(type);
 
     if (alert == alerts.end())

@@ -35,6 +35,7 @@ message ReadOnlySetting {
 message PostSetting {
     required string name = 1;
     required string post_url = 2;
+    optional string alert = 3;
 }
 
 message FileUploadSetting {
@@ -85,15 +86,17 @@ message CameraSettings {
     optional PostSetting focus = 9;
 }
 
-
 message BoothSettings {
     required BoolSetting storage_enabled = 1;
     required BoolSetting printer_enabled = 2;
     required BoolSetting flash_enabled = 3;
     required IntSetting flash_duration_micros = 4;
     required PostSetting flash_test = 5;
-    optional FileUploadSetting template_upload = 7;
-    optional BoolSetting template_enabled = 8;
-    required ListSetting led_offset = 9;
-    required PostSetting update_mode = 10;
+    optional FileUploadSetting template_upload = 6;
+    optional BoolSetting template_enabled = 7;
+    optional ListSetting led_mode = 8;
+    optional ListSetting led_count = 9;
+    required ListSetting led_offset = 10;
+    required ListSetting countdown_duration = 11;
+    required PostSetting update_mode = 12;
 }

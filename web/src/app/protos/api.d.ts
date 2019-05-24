@@ -107,12 +107,14 @@ export namespace xtech {
         interface IPostSetting {
             name: string;
             postUrl: string;
+            alert?: (string|null);
         }
 
         class PostSetting implements IPostSetting {
             constructor(properties?: xtech.selfomat.IPostSetting);
             public name: string;
             public postUrl: string;
+            public alert: string;
             public static create(properties?: xtech.selfomat.IPostSetting): xtech.selfomat.PostSetting;
             public static encode(message: xtech.selfomat.IPostSetting, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IPostSetting, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -284,7 +286,10 @@ export namespace xtech {
             flashTest: xtech.selfomat.IPostSetting;
             templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
             templateEnabled?: (xtech.selfomat.IBoolSetting|null);
+            ledMode?: (xtech.selfomat.IListSetting|null);
+            ledCount?: (xtech.selfomat.IListSetting|null);
             ledOffset: xtech.selfomat.IListSetting;
+            countdownDuration: xtech.selfomat.IListSetting;
             updateMode: xtech.selfomat.IPostSetting;
         }
 
@@ -297,7 +302,10 @@ export namespace xtech {
             public flashTest: xtech.selfomat.IPostSetting;
             public templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
             public templateEnabled?: (xtech.selfomat.IBoolSetting|null);
+            public ledMode?: (xtech.selfomat.IListSetting|null);
+            public ledCount?: (xtech.selfomat.IListSetting|null);
             public ledOffset: xtech.selfomat.IListSetting;
+            public countdownDuration: xtech.selfomat.IListSetting;
             public updateMode: xtech.selfomat.IPostSetting;
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
             public static encode(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;

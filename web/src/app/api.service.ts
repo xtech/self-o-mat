@@ -4,6 +4,7 @@ import {catchError, map} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '../environments/environment';
 import {LoadingController} from '@ionic/angular';
+import {ActionSheetController} from '@ionic/angular';
 
 import {xtech} from './protos/api';
 
@@ -17,10 +18,13 @@ export class XAPIService {
 
     isUpdating = false;
     endUpdateingTimerID = null;
+    postTimer = null;
+    postLoadingController = null;
 
     constructor(
     	private readonly http: HttpClient,
-    	public loadingController: LoadingController
+    	public loadingController: LoadingController,
+    	public actionSheetController: ActionSheetController
     ) {}
 
     values(obj: Object): any[] {
@@ -64,11 +68,13 @@ export class XAPIService {
 
     parseCameraSettings(response: ArrayBuffer): xtech.selfomat.CameraSettings {
         const cameraSettings = xtech.selfomat.CameraSettings.decode(new Uint8Array(response));
+        this.checkPostTimer();
         return cameraSettings;
     }
 
     parseBoothSettings(response: ArrayBuffer): xtech.selfomat.BoothSettings {
         const boothSettings = xtech.selfomat.BoothSettings.decode(new Uint8Array(response));
+        this.checkPostTimer();
         return boothSettings;
     }
 
@@ -122,21 +128,61 @@ export class XAPIService {
 
     }
 
-    async post($event, setting) {
+    checkPostTimer() {
+        if (this.postTimer == null || this.postLoadingController == null) {
+            return;
+        }
+
+        if (Date.now() - this.postTimer > 10000) {
+            this.postLoadingController.dismiss();
+            this.postLoadingController = null;
+            this.postTimer = null;
+        }
+    }
+
+    async postWithoutHint(setting) {
         if (setting instanceof xtech.selfomat.PostSetting) {
 
-            const loading = await this.loadingController.create({});
-            await loading.present();
+            if (this.postLoadingController == null) {
+                this.postLoadingController = await this.loadingController.create({});
+                await this.postLoadingController.present();
+            }
 
+            this.postTimer = Date.now();
             this.http.post(environment.SERVER_URL + setting['postUrl'],
             	null,
             	{responseType: 'text'})
             	.subscribe(data => {
-            	    loading.dismiss();
-            	}, error => {
-            	    loading.dismiss();
-            	    console.log(error);
-            	});
+                    this.postLoadingController.dismiss();
+                    this.postLoadingController = null;
+                    this.postTimer = null;
+            	}, error => {});
+        }
+    }
+
+    async post($event, setting) {
+        if (setting instanceof xtech.selfomat.PostSetting) {
+
+            if (setting['alert'].length > 0) {
+            	const actionSheet = await this.actionSheetController.create({
+	            header: setting['alert'],
+	            buttons: [{
+	            	text: setting['name'],
+	            	handler: () => {
+	            		this.postWithoutHint(setting);
+	            	}
+	            }, {
+	            	text: 'Cancel',
+	            	role: 'cancel',
+	            	handler: () => {}
+	            }]
+	        });
+
+            	await actionSheet.present();
+            } else {
+            	this.postWithoutHint(setting);
+            }
+
         }
     }
 
@@ -147,8 +193,10 @@ export class XAPIService {
                 return;
             }
 
-            const loading = await this.loadingController.create({});
-            await loading.present();
+            if (this.postLoadingController == null) {
+                this.postLoadingController = await this.loadingController.create({});
+                await this.postLoadingController.present();
+            }
 
             const file = $event.target.files[0];
             let body = new FormData();
@@ -160,9 +208,9 @@ export class XAPIService {
                 body,
                 {responseType: 'text'})
                 .subscribe(data => {
-                    loading.dismiss();
+                    this.postLoadingController.dismiss();
                 }, error => {
-                    loading.dismiss();
+                    this.postLoadingController.dismiss();
                     console.log(error);
                 });
         }

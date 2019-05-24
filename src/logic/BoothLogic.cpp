@@ -40,7 +40,7 @@ bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
             sendCommand('?');
         sendCommand('.');
 
-        setLEDOffset(ledOffset);
+        readSettings();
     } catch (std::exception const &e) {
         cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
         return false;
@@ -80,7 +80,6 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
 
 
 bool BoothLogic::start() {
-
 
     gui->logDebug("Starting Logic");
 
@@ -143,7 +142,7 @@ void BoothLogic::triggerFlash() {
     sendCommand('#');
 }
 
-void BoothLogic::stop() {
+void BoothLogic::stop(bool update_mode) {
     std::cout << "stopping logic" << std::endl;
     isRunning = false;
 
@@ -153,6 +152,10 @@ void BoothLogic::stop() {
     }
 
     writeSettings();
+
+    if(update_mode) {
+        sendCommand('f');
+    }
 
     if (button_serial_port.is_open())
         button_serial_port.close();
@@ -603,10 +606,8 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 }
 
 void BoothLogic::stopForUpdate() {
-    sendCommand('f');
-
     returnCode = 0x42;
-    stop();
+    stop(true);
 }
 
 void BoothLogic::setStorageEnabled(bool storageEnabled, bool persist) {
@@ -647,12 +648,19 @@ void BoothLogic::readSettings() {
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
     this->showAgreement=ptree.get<bool>("show_agreement", true);
-    this->flashEnabled=ptree.get<bool>("flash_enabled", true);
-    this->flashDurationMicros=ptree.get<uint64_t>("flash_duration_micros", 100000);
-    this->flashDelayMicros=ptree.get<uint64_t>("flash_delay_micros", 0);
-    this->flashBrightness=ptree.get<float>("flash_brightness", 1.0f);
-    this->flashFade=ptree.get<float>("flash_fade", 0.0f);
+
+    setFlashParameters(
+            ptree.get<bool>("flash_enabled", true),
+            ptree.get<float>("flash_brightness", 1.0f),
+            ptree.get<float>("flash_fade", 0.0f),
+            ptree.get<uint64_t>("flash_delay_micros", 0),
+            ptree.get<uint64_t>("flash_duration_micros", 100000)
+                    );
+
+    setLEDMode(static_cast<selfomat::logic::LED_MODE>(ptree.get<uint8_t>("led_mode", LED_MODE_RGB)));
+    setLEDCount(static_cast<selfomat::logic::LED_COUNT>(ptree.get<uint8_t>("led_count", LED_COUNT_16)));
     setLEDOffset(ptree.get<int8_t>("led_offset", 0));
+    setCountdownDuration(ptree.get<uint8_t>("countdown_duration", 3));
 
     if(!success)
         writeSettings();
@@ -669,7 +677,10 @@ void BoothLogic::writeSettings() {
     ptree.put("flash_delay_micros", this->flashDelayMicros);
     ptree.put("flash_brightness", this->flashBrightness);
     ptree.put("flash_fade", this->flashFade);
+    ptree.put("led_mode", this->ledMode);
+    ptree.put("led_count", this->ledCount);
     ptree.put("led_offset", this->ledOffset);
+    ptree.put("countdown_duration", this->countdownDuration);
 
     try {
         boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
@@ -686,6 +697,9 @@ void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, 
     this->flashDelayMicros = delayMicros;
     this->flashDurationMicros = durationMicros;
 
+    auto duration = static_cast<uint8_t>(this->flashDurationMicros);
+    sendCommand('$', duration);
+
     if(persist) {
         writeSettings();
     }
@@ -701,8 +715,7 @@ void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fad
 }
 
 void BoothLogic::flashTest() {
-    auto duration = static_cast<uint8_t>(this->flashDurationMicros);
-    sendCommand('$', duration);
+    sendCommand('#');
 }
 
 void BoothLogic::setTemplateEnabled(bool templateEnabled, bool persist) {
@@ -720,16 +733,58 @@ bool BoothLogic::getTemplateLoaded() {
     return imageProcessor.isTemplateLoaded();
 }
 
+void BoothLogic::setLEDMode(LED_MODE mode, bool persist) {
+    this->ledMode = mode;
 
+    sendCommand('t', mode);
+
+    if(persist) {
+        writeSettings();
+    }
+}
+
+LED_MODE BoothLogic::getLEDMode() {
+    return ledMode;
+}
+
+void BoothLogic::setCountdownDuration(uint8_t duration, bool persist) {
+    this->countdownDuration = duration;
+
+    sendCommand('>', duration);
+
+    if(persist) {
+        writeSettings();
+    }
+}
+
+uint8_t BoothLogic::getCountdownDuration() {
+    return countdownDuration;
+}
+
+void BoothLogic::setLEDCount(LED_COUNT count, bool persist) {
+    this->ledCount = count;
+
+    sendCommand('c', count);
+
+    if(persist) {
+        writeSettings();
+    }
+}
+
+LED_COUNT BoothLogic::getLEDCount() {
+    return ledCount;
+}
 
 void BoothLogic::setLEDOffset(int8_t offset, bool persist) {
     this->ledOffset = offset;
-    
+
+    int ledCount = getLEDCount() / 2;
+
     if(persist) {
-        sendCommand('L', offset+8);
+        sendCommand('L', offset+ledCount);
         writeSettings();
     } else {
-        sendCommand('l', offset+8);
+        sendCommand('l', offset+ledCount);
     }
 }
 
@@ -752,4 +807,9 @@ void BoothLogic::sendCommand(uint8_t command) {
     if (!button_serial_port.is_open())
         return;
     button_serial_port.write_some(boost::asio::buffer(&command, 1));
+}
+
+void BoothLogic::adjustFocus() {
+    camera->autofocusBlocking();
+    gui->addAlert(ALERT_CAMERA_HINT, L"Fokus wird gesucht", true, true);
 }
