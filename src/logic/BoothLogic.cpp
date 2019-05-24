@@ -2,6 +2,7 @@
 // Created by clemens on 21.01.19.
 //
 
+#include <tools/cobs.h>
 #include "BoothLogic.h"
 
 using namespace std;
@@ -54,7 +55,7 @@ bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
     try {
         tmp_serial_port.open(serialPath.string());
         tmp_serial_port.set_option(boost::asio::serial_port_base::baud_rate(38400));
-        tmp_serial_port.write_some(boost::asio::buffer("i", 1));
+        tmp_serial_port.write_some(boost::asio::buffer("i ", 2));
 
         cout << "Waiting for identification" << endl;
         char c;
@@ -800,11 +801,13 @@ void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
     if (!button_serial_port.is_open())
         return;
 
-    std::vector<uint8_t> data;
+    cobs::ByteSequence data;
     data.push_back(command);
     data.push_back(argument);
+    cobs::ByteSequence cobs_encoded = cobs::cobs_encode(data);
+    cobs_encoded.push_back(' ');
 
-    boost::asio::write(button_serial_port, boost::asio::buffer(data.data(), 2));
+    boost::asio::write(button_serial_port, boost::asio::buffer(cobs_encoded, cobs_encoded.size()));
 }
 
 void BoothLogic::sendCommand(uint8_t command) {
@@ -812,7 +815,13 @@ void BoothLogic::sendCommand(uint8_t command) {
     boost::unique_lock<boost::mutex> lk(button_serial_mutex);
     if (!button_serial_port.is_open())
         return;
-    boost::asio::write(button_serial_port, boost::asio::buffer(&command, 1));
+
+    cobs::ByteSequence data;
+    data.push_back(command);
+    cobs::ByteSequence cobs_encoded = cobs::cobs_encode(data);
+    cobs_encoded.push_back(' ');
+
+    boost::asio::write(button_serial_port, boost::asio::buffer(cobs_encoded, cobs_encoded.size()));
 }
 
 void BoothLogic::adjustFocus() {
