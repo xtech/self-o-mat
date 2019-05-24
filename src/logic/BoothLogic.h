@@ -141,6 +141,7 @@ namespace selfomat {
             bool printCanceled = false;
 
 
+            boost::mutex button_serial_mutex;
             boost::asio::io_service io_service;
             boost::asio::serial_port button_serial_port;
             boost::asio::serial_port tmp_serial_port;

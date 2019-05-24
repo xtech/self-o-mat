@@ -388,6 +388,7 @@ void BoothLogic::ioThread() {
                     case 'd':
                         returnCode = -1;
                         isRunning = false;
+                        break;
                     default:
                         break;
                 }
@@ -793,6 +794,8 @@ int8_t BoothLogic::getLEDOffset() {
 }
 
 void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
+    cout << "sending command " << ((char)command) << " with argument: " << ((int)argument) << endl;
+    boost::unique_lock<boost::mutex> lk(button_serial_mutex);
     if (!button_serial_port.is_open())
         return;
 
@@ -804,6 +807,8 @@ void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
 }
 
 void BoothLogic::sendCommand(uint8_t command) {
+    cout << "sending command " << ((char)command) << endl;
+    boost::unique_lock<boost::mutex> lk(button_serial_mutex);
     if (!button_serial_port.is_open())
         return;
     button_serial_port.write_some(boost::asio::buffer(&command, 1));
