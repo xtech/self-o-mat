@@ -86,7 +86,16 @@ export class XAPIService {
     clickItem($event, setting, index) {
         $event.stopPropagation();
         if (this.isFileUpload(setting)) {
-            const input = document.getElementById('input_' + index);
+            const input = <HTMLInputElement>document.getElementById('input_' + index);
+            if (input.value) {
+                try {
+                    input.value = '';
+                    if (input.value) {
+                        input.type = 'text';
+                        input.type = 'file';
+                    }
+                } catch (e) {}
+            }
             input.click();
         } else if (this.isPost(setting)) {
             this.post($event, setting);
@@ -202,23 +211,27 @@ export class XAPIService {
             const fileName = $event.target.files[0];
             const reader = new FileReader();
 
-            reader.addEventListener('load', (function () {
-                const body = reader.result;
+            reader.onload = function () {
+                const buffer = new Uint8Array(<ArrayBuffer>reader.result);
 
-                this.http.post(environment.SERVER_URL + setting['postUrl'],
-                    body,
-                    {responseType: 'text'})
-                    .subscribe(data => {
-                        this.postLoadingController.dismiss();
-                        this.postLoadingController = null;
-                    }, error => {
-                        this.postLoadingController.dismiss();
-                        this.postLoadingController = null;
-                        console.log(error);
-                    });
-            }).bind(this), false);
+                const req = new XMLHttpRequest();
+                req.open('POST', environment.SERVER_URL + setting['postUrl'], true);
+                req.setRequestHeader('content-type', 'blob');
+                req.onload = function () {
+                    this.postLoadingController.dismiss();
+                    this.postLoadingController = null;
+                }.bind(this);
+                req.onerror = req.onload;
+                req.send(buffer);
 
-            reader.readAsBinaryString(fileName);
+            }.bind(this);
+
+            reader.onerror = function () {
+                this.postLoadingController.dismiss();
+                this.postLoadingController = null;
+            }.bind(this);
+
+            reader.readAsArrayBuffer(fileName);
         }
     }
 

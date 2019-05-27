@@ -260,6 +260,8 @@ namespace selfomat {
             int8_t getLEDOffset();
 
             void adjustFocus();
+
+            void updateTemplate(void *data, size_t size);
         };
 
     }

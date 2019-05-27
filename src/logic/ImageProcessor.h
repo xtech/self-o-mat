@@ -18,6 +18,7 @@
 #include <tools/verbose.h>
 #include <tools/JpegDecoder.h>
 #include <easyexif/exif.h>
+#include <opencv2/opencv.hpp>
 
 using namespace Magick;
 using namespace selfomat::tools;
@@ -60,6 +61,8 @@ namespace selfomat {
             bool isTemplateLoaded() {
                 return templateLoaded;
             }
+
+            void updateTemplate(void *data, size_t size);
         };
     }
 }

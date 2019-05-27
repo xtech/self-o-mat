@@ -13,17 +13,25 @@ BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool sho
     this->show_led_setup = show_led_setup;
 }
 
-void BoothApi::setHeaders(served::response &res) {
-    for (auto const &h : this->headers)
-        res.set_header(h.first, h.second);
-}
-
 bool BoothApi::start() {
+
+    // Use wrapper to set needed headers
+    mux.use_wrapper([this](served::response &res, const served::request &req, std::function<void()> old) {
+        for (auto const &h : this->headers)
+            res.set_header(h.first, h.second);
+
+        if (req.method() == served::OPTIONS) {
+            served::response::stock_reply(200, res);
+        } else {
+            old();
+        }
+
+        return;
+    });
+
 
     mux.handle("/camera_settings/aperture")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -43,8 +51,6 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/iso")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -64,8 +70,6 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/shutter_speed")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -85,8 +89,6 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/exposure_correction")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -106,8 +108,6 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/exposure_correction_trigger")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -128,8 +128,6 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings/image_format")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -149,8 +147,6 @@ bool BoothApi::start() {
 
     mux.handle("/camera_settings")
             .get([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -255,8 +251,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/storage/enabled")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 BoolUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -273,8 +267,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/printer/enabled")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 BoolUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -291,8 +283,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/flash/enabled")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 BoolUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -312,8 +302,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/flash/brightness")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 FloatUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -332,8 +320,6 @@ bool BoothApi::start() {
             });
     mux.handle("/booth_settings/flash/fade")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 FloatUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -354,8 +340,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/flash/delay")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -375,8 +359,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/flash/duration")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -396,8 +378,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/template_enabled")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 BoolUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -412,8 +392,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/led_offset")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -429,8 +407,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/countdown_duration")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -445,8 +421,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/led_mode")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -468,8 +442,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings/led_count")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
@@ -491,8 +463,6 @@ bool BoothApi::start() {
 
     mux.handle("/trigger")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -505,8 +475,6 @@ bool BoothApi::start() {
 
     mux.handle("/cancel_print")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 logic->cancelPrint();
                 served::response::stock_reply(200, res);
                 return;
@@ -514,8 +482,6 @@ bool BoothApi::start() {
 
     mux.handle("/focus")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 if (camera->getState() != STATE_WORKING) {
                     served::response::stock_reply(503, res);
                     return;
@@ -528,8 +494,6 @@ bool BoothApi::start() {
 
     mux.handle("/flash")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 logic->flashTest();
 
                 served::response::stock_reply(200, res);
@@ -538,8 +502,6 @@ bool BoothApi::start() {
 
     mux.handle("/update")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 logic->stopForUpdate();
                 served::response::stock_reply(200, res);
                 return;
@@ -547,13 +509,10 @@ bool BoothApi::start() {
 
     mux.handle("/template_upload")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
 
-                std::string body = req.body();
+                string body =  req.body();
 
-                cout << body << endl;
-
-                // TODO: Save, show and use new template
+                logic->updateTemplate((void *)body.c_str(), body.size());
 
                 served::response::stock_reply(200, res);
                 return;
@@ -561,8 +520,6 @@ bool BoothApi::start() {
 
     mux.handle("/booth_settings")
             .get([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 BoothSettings currentBoothSettings;
 
                 {
@@ -726,8 +683,6 @@ bool BoothApi::start() {
 
     mux.handle("/stress")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 logic->enableStressTest();
                 served::response::stock_reply(200, res);
                 return;
@@ -735,8 +690,6 @@ bool BoothApi::start() {
 
     mux.handle("/unstress")
             .post([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 logic->disableStressTest();
                 served::response::stock_reply(200, res);
                 return;
@@ -744,8 +697,6 @@ bool BoothApi::start() {
 
     mux.handle("/version")
             .get([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 std::string filename = "./version";
 
                 ifstream f(filename, ios::in);
@@ -758,8 +709,6 @@ bool BoothApi::start() {
 
     mux.handle("/app/svg/{file}")
             .get([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 std::string filename = "./app/svg/" + req.params["file"];
 
                 res.set_header("Content-Type", "image/svg+xml");
@@ -773,8 +722,6 @@ bool BoothApi::start() {
 
     mux.handle("/app/{file}")
             .get([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 string file = req.params["file"];
 
                 if (file.compare("tabs") == 0) {
@@ -791,8 +738,6 @@ bool BoothApi::start() {
 
     mux.handle("/{file}")
             .get([this](served::response &res, const served::request &req) {
-                this->setHeaders(res);
-
                 string file = req.params["file"];
 
                 if (file.compare("app") == 0) {

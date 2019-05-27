@@ -242,3 +242,30 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
 }
 
 
+void ImageProcessor::updateTemplate(void *data, size_t size) {
+    
+    // TODO: Resize amd store template
+
+    FILE *f;
+    f = fopen("/tmp/test.png", "wb");
+    if (f)
+    {
+        fwrite(data, size, 1, f);
+        fclose(f);
+
+        std::cout << "Wrote bytes: " << size << std::endl;
+    }
+
+    /*
+    std::vector<char> rawData(data, data + size);
+    cv::Mat decodedImage  =  imdecode( rawData, cv::IMREAD_UNCHANGED);
+
+    if ( decodedImage.data == NULL )
+    {
+        std::cout << "Error decoding the template image" << std::endl;
+    } else {
+        std::cout << "All right" << std::endl;
+    }
+     */
+
+}
