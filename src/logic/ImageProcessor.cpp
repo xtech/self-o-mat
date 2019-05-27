@@ -243,7 +243,7 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
 
 
 void ImageProcessor::updateTemplate(void *data, size_t size) {
-    
+
     // TODO: Resize amd store template
 
     FILE *f;

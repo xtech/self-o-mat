@@ -203,12 +203,20 @@ export class XAPIService {
                 return;
             }
 
+            const file = $event.target.files[0];
+            if (setting['inputAccept'].length > 0) {
+                const types = setting['inputAccept'].split(',');
+                if (!types.includes(file.type.toLowerCase())) {
+                    alert('Unsupported file!');
+                    return;
+                }
+            }
+
             if (this.postLoadingController == null) {
                 this.postLoadingController = await this.loadingController.create({});
                 await this.postLoadingController.present();
             }
 
-            const fileName = $event.target.files[0];
             const reader = new FileReader();
 
             reader.onload = function () {
@@ -231,7 +239,7 @@ export class XAPIService {
                 this.postLoadingController = null;
             }.bind(this);
 
-            reader.readAsArrayBuffer(fileName);
+            reader.readAsArrayBuffer(file);
         }
     }
 
