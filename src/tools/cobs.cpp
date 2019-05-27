@@ -52,29 +52,34 @@ namespace cobs
     {
         ByteSequence output;
 
-        auto next_code_byte = input.begin();
-        auto previous_code_byte = input.begin();
+        size_t read_index = 0;
+        uint8_t code;
 
-        while(next_code_byte != input.end() )
+        size_t length = input.size();
+        while(read_index < length)
         {
+            code = input[read_index];
 
-            std::advance(next_code_byte,*next_code_byte);
-
-            output.insert(output.end(),previous_code_byte+1,next_code_byte);
-
-            if(    *previous_code_byte != 0xFF
-                   && next_code_byte != input.end())
+            if(read_index + code > length && code != 1)
             {
-                output.push_back(' '); //restore zero byte only in case if code byte was not 0xFF
+                return output;
             }
 
-            previous_code_byte = next_code_byte;
+            read_index++;
 
+            for(uint8_t i = 1; i < code; i++)
+            {
+                output.push_back(input[read_index++]);
+            }
 
-
+            if(code != 0xFF && read_index != length)
+            {
+                output.push_back(' ');
+            }
         }
 
-        return(output);
+
+        return output;
     }
 
 

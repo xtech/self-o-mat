@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
 
     cout << "Started Camera" << endl;
 
-    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, disable_watchdog);
+    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, disable_watchdog, show_led_setup);
 
     cout << "Started Logic" << endl;
 

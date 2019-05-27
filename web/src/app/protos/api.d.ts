@@ -267,7 +267,8 @@ export namespace xtech {
             templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             ledMode?: (xtech.selfomat.IListSetting|null);
             ledCount?: (xtech.selfomat.IListSetting|null);
-            ledOffset: xtech.selfomat.IListSetting;
+            ledOffsetClockwise: xtech.selfomat.IPostSetting;
+            ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             countdownDuration: xtech.selfomat.IListSetting;
             updateMode: xtech.selfomat.IPostSetting;
         }
@@ -282,7 +283,8 @@ export namespace xtech {
             public templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             public ledMode?: (xtech.selfomat.IListSetting|null);
             public ledCount?: (xtech.selfomat.IListSetting|null);
-            public ledOffset: xtech.selfomat.IListSetting;
+            public ledOffsetClockwise: xtech.selfomat.IPostSetting;
+            public ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             public countdownDuration: xtech.selfomat.IListSetting;
             public updateMode: xtech.selfomat.IPostSetting;
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
