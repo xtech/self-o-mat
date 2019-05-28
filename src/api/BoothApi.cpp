@@ -546,7 +546,7 @@ bool BoothApi::start() {
                     setting->set_name("Flash Brightness");
                     setting->set_currentvalue(controller->getFlashDurationMicros());
                     setting->set_minvalue(0);
-                    setting->set_maxvalue(255);
+                    setting->set_maxvalue(100000);
                 }
 
                 {
