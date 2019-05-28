@@ -2,7 +2,7 @@
   "camera_type": "nop",
   "has_flash": false,
   "has_button": true,
-  "disable_watchdog": true,
+  "disable_watchdog": false,
   "debug": false,
   "button_port_name": "/dev/ttyUSB",
   "image_dir": "/tmp",
