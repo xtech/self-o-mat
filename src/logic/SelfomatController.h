@@ -129,8 +129,6 @@ namespace selfomat {
 
             void sendPictureTaken();
 
-            void showCenterLed(uint16_t timeMillis);
-
             void triggerFlash();
 
             void setLedType(uint8_t ledType);
@@ -140,10 +138,6 @@ namespace selfomat {
             void setLedCount(uint8_t ledCount);
 
             uint8_t getLedCount();
-
-            void setLedOffset(int8_t ledOffset);
-
-            int8_t getLedOffset();
 
             void setCountDownMillis(uint16_t countDownMillis);
 

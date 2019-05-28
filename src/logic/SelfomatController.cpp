@@ -169,24 +169,19 @@ void SelfomatController::sendHeartbeat() {
 
 
 void SelfomatController::setWatchdogEnabled(bool enabled) {
-
-}
-
-void SelfomatController::sendPictureTaken() {
-    sendCommand('k');
-}
-
-void SelfomatController::showCenterLed(uint16_t timeMillis) {
     if(!isConnected)
         return;
     cobs::ByteSequence command;
-    command.push_back('L');
-    command.push_back(timeMillis&0xFF);
-    command.push_back((timeMillis>>8)&0xFF);
+    command.push_back('!');
+    command.push_back(enabled);
 
     cobs::ByteSequence encoded = cobs::cobs_encode(command);
     encoded.push_back(' ');
     button_serial_port.write_some(boost::asio::buffer(encoded, encoded.size()));
+}
+
+void SelfomatController::sendPictureTaken() {
+    sendCommand('k');
 }
 
 void SelfomatController::triggerFlash() {
@@ -201,10 +196,6 @@ void SelfomatController::setLedCount(uint8_t ledCount) {
     if(ledCount < 12)
         ledCount = 12;
     settings.ledCount = ledCount;
-}
-
-void SelfomatController::setLedOffset(int8_t ledOffset) {
-    settings.ledOffset = ledOffset % getLedCount();
 }
 
 void SelfomatController::setCountDownMillis(uint16_t countDownMillis) {
@@ -341,10 +332,6 @@ uint8_t SelfomatController::getLedCount() {
     return settings.ledCount;
 }
 
-int8_t SelfomatController::getLedOffset() {
-    return settings.ledOffset;
-}
-
 uint16_t SelfomatController::getCountDownMillis() {
     return settings.countDownMillis;
 }
@@ -413,11 +400,9 @@ void SelfomatController::commit() {
 
 void SelfomatController::moveOffsetRight() {
     sendCommand('>');
-    loadSettingsFromBoard();
 }
 
 void SelfomatController::moveOffsetLeft() {
     sendCommand('<');
-    loadSettingsFromBoard();
 }
 

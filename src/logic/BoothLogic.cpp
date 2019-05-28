@@ -23,6 +23,7 @@ bool BoothLogic::start() {
             selfomatController.setLedCount(16);
             selfomatController.commit();
         }
+        selfomatController.setWatchdogEnabled(!disable_watchdog);
     }
 
     if (showAgreement) {
