@@ -41,13 +41,6 @@ bool BoothGui::start() {
     }
     imageSpriteLiveOverlay.setTexture(textureLiveOverlay);
 
-    templateLoaded = textureFinalImageOverlay.loadFromFile("/opt/assets/template_screen.png");
-    if (!templateLoaded) {
-        cerr << "Could not load screen template asset." << endl;
-    } else {
-        imageSpriteFinalOverlay.setTexture(textureFinalImageOverlay);
-    }
-
     if (!texturePrintOverlay.loadFromFile("./assets/print_overlay.png")) {
         cerr << "Could not load print template asset." << endl;
         return false;
@@ -66,22 +59,7 @@ bool BoothGui::start() {
         return false;
     }
 
-
-    if(templateLoaded) {
-        // Read properties for the template
-        boost::property_tree::ptree ptree;
-        try {
-            boost::property_tree::read_json("/opt/assets/template_screen_props.json", ptree);
-            finalOverlayOffsetTop = ptree.get<int>("offset_top");
-            finalOverlayOffsetLeft = ptree.get<int>("offset_left");
-            finalOverlayOffsetRight = ptree.get<int>("offset_right");
-            finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
-        } catch (boost::exception &e) {
-            logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
-            return false;
-        }
-    }
-
+    reloadTemplate();
 
     rect_overlay = sf::RectangleShape(sf::Vector2f(videoMode.width, videoMode.height));
     count_down_circle = sf::CircleShape(19.0f);
@@ -96,6 +74,30 @@ void BoothGui::stop() {
     if (renderThreadHandle.joinable()) {
         std::cout << "Waiting for gui to stop" << std::endl;
         renderThreadHandle.join();
+    }
+}
+
+void BoothGui::reloadTemplate() {
+
+    templateLoaded = textureFinalImageOverlay.loadFromFile(std::string(getenv("HOME")) + "/.template_screen.png");
+    if (!templateLoaded) {
+        cerr << "Could not load screen template asset." << endl;
+    } else {
+        imageSpriteFinalOverlay.setTexture(textureFinalImageOverlay);
+    }
+
+    if(templateLoaded) {
+        // Read properties for the template
+        boost::property_tree::ptree ptree;
+        try {
+            boost::property_tree::read_json(std::string(getenv("HOME")) + "/.template_screen_props.json", ptree);
+            finalOverlayOffsetTop = ptree.get<int>("offset_top");
+            finalOverlayOffsetLeft = ptree.get<int>("offset_left");
+            finalOverlayOffsetRight = ptree.get<int>("offset_right");
+            finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
+        } catch (boost::exception &e) {
+            logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
+        }
     }
 }
 

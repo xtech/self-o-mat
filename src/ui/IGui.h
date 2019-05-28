@@ -49,6 +49,8 @@ namespace selfomat {
 
             virtual void stop() = 0;
 
+            virtual void reloadTemplate() = 0;
+
             virtual void updatePreviewImage(void *data, uint32_t width, uint32_t height) = 0;
 
             virtual void hidePreviewImage() = 0;

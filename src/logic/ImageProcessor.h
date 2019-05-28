@@ -27,6 +27,13 @@ namespace selfomat {
     namespace logic {
         class ImageProcessor {
         private:
+            struct Rect {
+                int top;
+                int right;
+                int bottom;
+                int left;
+            };
+
             static const std::string TAG;
 
             Blob adobeRgbIcc;
@@ -36,15 +43,21 @@ namespace selfomat {
 
             bool templateLoaded = false;
             Image templateImage;
+            Rect offset;
+
+            /*
             int offsetTop;
             int offsetLeft;
             int offsetBottom;
             int offsetRight;
+            */
 
             ILogger *logger;
 
             void *latestBuffer = nullptr;
             size_t latestBufferSize = 0;
+
+            Rect getOffset(Image image, bool isScreen);
 
         public:
             explicit ImageProcessor(ILogger *logger);

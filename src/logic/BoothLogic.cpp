@@ -816,4 +816,5 @@ void BoothLogic::adjustFocus() {
 
 void BoothLogic::updateTemplate(void *data, size_t size) {
     imageProcessor.updateTemplate(data, size);
+    gui->reloadTemplate();
 }

@@ -170,6 +170,8 @@ namespace selfomat {
 
             void initialized() override;
 
+            void reloadTemplate() override;
+
             void updatePreviewImage(void *data, uint32_t width, uint32_t height) override;
 
             void hidePreviewImage() override {
