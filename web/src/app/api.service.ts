@@ -43,6 +43,7 @@ export class XAPIService {
     isList(val) { return val instanceof xtech.selfomat.ListSetting; }
     isReadOnly(val) { return val instanceof xtech.selfomat.ReadOnlySetting; }
     isPost(val) { return val instanceof xtech.selfomat.PostSetting; }
+    isLink(val) { return val instanceof xtech.selfomat.LinkSetting; }
     getList(val): xtech.selfomat.ListSetting {
         if (!this.isList(val)) {
             return null;
@@ -173,6 +174,8 @@ export class XAPIService {
             	this.postWithoutHint(setting);
             }
 
+        } else if (setting instanceof xtech.selfomat.LinkSetting) {
+            window.location.href = setting['url'];
         }
     }
 

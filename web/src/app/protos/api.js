@@ -1272,6 +1272,216 @@
                 return PostSetting;
             })();
     
+            selfomat.LinkSetting = (function() {
+    
+                /**
+                 * Properties of a LinkSetting.
+                 * @memberof xtech.selfomat
+                 * @interface ILinkSetting
+                 * @property {string} name LinkSetting name
+                 * @property {string} url LinkSetting url
+                 */
+    
+                /**
+                 * Constructs a new LinkSetting.
+                 * @memberof xtech.selfomat
+                 * @classdesc Represents a LinkSetting.
+                 * @implements ILinkSetting
+                 * @constructor
+                 * @param {xtech.selfomat.ILinkSetting=} [properties] Properties to set
+                 */
+                function LinkSetting(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * LinkSetting name.
+                 * @member {string} name
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @instance
+                 */
+                LinkSetting.prototype.name = "";
+    
+                /**
+                 * LinkSetting url.
+                 * @member {string} url
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @instance
+                 */
+                LinkSetting.prototype.url = "";
+    
+                /**
+                 * Creates a new LinkSetting instance using the specified properties.
+                 * @function create
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @static
+                 * @param {xtech.selfomat.ILinkSetting=} [properties] Properties to set
+                 * @returns {xtech.selfomat.LinkSetting} LinkSetting instance
+                 */
+                LinkSetting.create = function create(properties) {
+                    return new LinkSetting(properties);
+                };
+    
+                /**
+                 * Encodes the specified LinkSetting message. Does not implicitly {@link xtech.selfomat.LinkSetting.verify|verify} messages.
+                 * @function encode
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @static
+                 * @param {xtech.selfomat.ILinkSetting} message LinkSetting message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                LinkSetting.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.url);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified LinkSetting message, length delimited. Does not implicitly {@link xtech.selfomat.LinkSetting.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @static
+                 * @param {xtech.selfomat.ILinkSetting} message LinkSetting message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                LinkSetting.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a LinkSetting message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {xtech.selfomat.LinkSetting} LinkSetting
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                LinkSetting.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.xtech.selfomat.LinkSetting();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.name = reader.string();
+                            break;
+                        case 2:
+                            message.url = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    if (!message.hasOwnProperty("name"))
+                        throw $util.ProtocolError("missing required 'name'", { instance: message });
+                    if (!message.hasOwnProperty("url"))
+                        throw $util.ProtocolError("missing required 'url'", { instance: message });
+                    return message;
+                };
+    
+                /**
+                 * Decodes a LinkSetting message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {xtech.selfomat.LinkSetting} LinkSetting
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                LinkSetting.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a LinkSetting message.
+                 * @function verify
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                LinkSetting.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (!$util.isString(message.name))
+                        return "name: string expected";
+                    if (!$util.isString(message.url))
+                        return "url: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a LinkSetting message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {xtech.selfomat.LinkSetting} LinkSetting
+                 */
+                LinkSetting.fromObject = function fromObject(object) {
+                    if (object instanceof $root.xtech.selfomat.LinkSetting)
+                        return object;
+                    var message = new $root.xtech.selfomat.LinkSetting();
+                    if (object.name != null)
+                        message.name = String(object.name);
+                    if (object.url != null)
+                        message.url = String(object.url);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a LinkSetting message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @static
+                 * @param {xtech.selfomat.LinkSetting} message LinkSetting
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                LinkSetting.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.name = "";
+                        object.url = "";
+                    }
+                    if (message.name != null && message.hasOwnProperty("name"))
+                        object.name = message.name;
+                    if (message.url != null && message.hasOwnProperty("url"))
+                        object.url = message.url;
+                    return object;
+                };
+    
+                /**
+                 * Converts this LinkSetting to JSON.
+                 * @function toJSON
+                 * @memberof xtech.selfomat.LinkSetting
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                LinkSetting.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return LinkSetting;
+            })();
+    
             selfomat.ListSetting = (function() {
     
                 /**
@@ -2804,6 +3014,7 @@
                  * @property {xtech.selfomat.IPostSetting} ledOffsetCounterClockwise BoothSettings ledOffsetCounterClockwise
                  * @property {xtech.selfomat.IListSetting} countdownDuration BoothSettings countdownDuration
                  * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
+                 * @property {xtech.selfomat.ILinkSetting|null} [cupsLink] BoothSettings cupsLink
                  */
     
                 /**
@@ -2918,6 +3129,14 @@
                 BoothSettings.prototype.updateMode = null;
     
                 /**
+                 * BoothSettings cupsLink.
+                 * @member {xtech.selfomat.ILinkSetting|null|undefined} cupsLink
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.cupsLink = null;
+    
+                /**
                  * Creates a new BoothSettings instance using the specified properties.
                  * @function create
                  * @memberof xtech.selfomat.BoothSettings
@@ -2956,6 +3175,8 @@
                     $root.xtech.selfomat.PostSetting.encode(message.ledOffsetCounterClockwise, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.countdownDuration, writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
+                    if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
+                        $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
                     return writer;
                 };
     
@@ -3025,6 +3246,9 @@
                             break;
                         case 12:
                             message.updateMode = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
+                            break;
+                        case 20:
+                            message.cupsLink = $root.xtech.selfomat.LinkSetting.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -3139,6 +3363,11 @@
                         if (error)
                             return "updateMode." + error;
                     }
+                    if (message.cupsLink != null && message.hasOwnProperty("cupsLink")) {
+                        var error = $root.xtech.selfomat.LinkSetting.verify(message.cupsLink);
+                        if (error)
+                            return "cupsLink." + error;
+                    }
                     return null;
                 };
     
@@ -3214,6 +3443,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.updateMode: object expected");
                         message.updateMode = $root.xtech.selfomat.PostSetting.fromObject(object.updateMode);
                     }
+                    if (object.cupsLink != null) {
+                        if (typeof object.cupsLink !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.cupsLink: object expected");
+                        message.cupsLink = $root.xtech.selfomat.LinkSetting.fromObject(object.cupsLink);
+                    }
                     return message;
                 };
     
@@ -3243,6 +3477,7 @@
                         object.ledOffsetCounterClockwise = null;
                         object.countdownDuration = null;
                         object.updateMode = null;
+                        object.cupsLink = null;
                     }
                     if (message.storageEnabled != null && message.hasOwnProperty("storageEnabled"))
                         object.storageEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.storageEnabled, options);
@@ -3268,6 +3503,8 @@
                         object.countdownDuration = $root.xtech.selfomat.ListSetting.toObject(message.countdownDuration, options);
                     if (message.updateMode != null && message.hasOwnProperty("updateMode"))
                         object.updateMode = $root.xtech.selfomat.PostSetting.toObject(message.updateMode, options);
+                    if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
+                        object.cupsLink = $root.xtech.selfomat.LinkSetting.toObject(message.cupsLink, options);
                     return object;
                 };
     
