@@ -103,7 +103,8 @@ message BoothSettings {
     optional BoolSetting template_enabled = 7;
     optional ListSetting led_mode = 8;
     optional ListSetting led_count = 9;
-    required ListSetting led_offset = 10;
-    required ListSetting countdown_duration = 11;
-    required PostSetting update_mode = 12;
+    required PostSetting led_offset_clockwise = 10;
+    required PostSetting led_offset_counter_clockwise = 11;
+    required ListSetting countdown_duration = 12;
+    required PostSetting update_mode = 13;
 }

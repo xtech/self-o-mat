@@ -10,11 +10,7 @@
 #include "ImageProcessor.h"
 #include "PrinterManager.h"
 #include <iostream>
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/serial_port.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/range/iterator_range.hpp>
-#include <boost/algorithm/string/predicate.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
@@ -32,9 +28,13 @@
 
 #include <sys/stat.h>
 #include <tools/blocking_reader.h>
+#include <tools/cobs.h>
+
+#include "SelfomatController.h"
+#include "ILogicController.h"
 
 
-//#define USE_SPI
+
 
 using namespace selfomat::camera;
 using namespace selfomat::ui;
@@ -42,33 +42,6 @@ using namespace selfomat::ui;
 namespace selfomat {
     namespace logic {
 
-        // 2 bytes delay in 100 μs, 2 bytes duration in 100 μs, 1 byte brightness, 1 byte fading in μs
-        struct flash_struct {
-            uint16_t delay;
-            uint16_t duration;
-            uint8_t brightness;
-            uint8_t fade;
-        }  __attribute__((packed));
-
-        enum LED_MODE {
-            LED_MODE_RGB = 0,
-            LED_MODE_RGBW = 1
-        };
-        static const map<LED_MODE, string> LED_MODE_ALL = {
-                { LED_MODE_RGB, "RGB" },
-                { LED_MODE_RGBW, "RGBW" }
-        };
-
-        enum LED_COUNT {
-            LED_COUNT_12 = 12,
-            LED_COUNT_16 = 16,
-            LED_COUNT_24 = 24
-        };
-        static const map<LED_COUNT, string> LED_COUNT_ALL = {
-                { LED_COUNT_12, "12" },
-                { LED_COUNT_16, "16" },
-                { LED_COUNT_24, "24" }
-        };
 
         enum PrinterState {
                     // In the idle state, the printer thread is waiting for data
@@ -83,17 +56,19 @@ namespace selfomat {
                     PRINTER_STATE_WORKING = 3
         };
 
-        class BoothLogic {
+        class BoothLogic : public ILogicController {
         public:
             explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash,
-                                string imageDir, bool disable_watchdog) : camera(camera), gui(gui), io_service(),
-                                                                        tmp_serial_port(io_service),
-                                                                        button_serial_port(io_service),
+                                string imageDir, bool disable_watchdog, bool show_led_setup) : camera(camera), gui(gui),
                                                                         imageProcessor(gui),
                                                                         printerManager(gui),
                                                                         has_button(has_button),
-                                                                        button_port(button_port), has_flash(has_flash),
-                                                                        imageDir(imageDir) {
+                                                                        has_flash(has_flash),
+                                                                        imageDir(imageDir),
+                                                                        controllerBoardPrefix(button_port),
+                                                                        selfomatController(),
+                                                                        show_led_setup(show_led_setup){
+                selfomatController.setLogic(this);
                 this->triggered = false;
                 this->disable_watchdog = disable_watchdog;
 
@@ -102,11 +77,15 @@ namespace selfomat {
 
 
         private:
+            SelfomatController selfomatController;
+            bool show_led_setup;
+
             int returnCode = 0;
             string imageDir;
 
             bool has_button, has_flash, disable_watchdog;
-            string button_port;
+            // hint to how the controller port might be called
+            string controllerBoardPrefix;
 
             // # BOOTH SETTINGS HERE
             bool storageEnabled;
@@ -114,13 +93,6 @@ namespace selfomat {
             bool templateEnabled;
             bool flashEnabled;
             bool showAgreement;
-            float flashBrightness, flashFade;
-            uint64_t flashDurationMicros, flashDelayMicros;
-
-            LED_MODE ledMode;
-            LED_COUNT ledCount;
-            int8_t ledOffset;
-            uint8_t countdownDuration;
 
 
             PrinterManager printerManager;
@@ -140,12 +112,6 @@ namespace selfomat {
             boost::mutex cancelPrintMutex;
             bool printCanceled = false;
 
-
-            boost::asio::io_service io_service;
-            boost::asio::serial_port button_serial_port;
-            boost::asio::serial_port tmp_serial_port;
-            char c{};
-
             ICamera *camera;
             IGui *gui;
 
@@ -164,28 +130,22 @@ namespace selfomat {
             PrinterState printerState = PRINTER_STATE_IDLE;
 
             boost::thread logicThreadHandle;
-            boost::thread ioThreadHandle;
             boost::thread cameraThreadHandle;
             boost::thread printThreadHandle;
 
             void readSettings();
             void writeSettings();
 
-            bool connectButton(boost::filesystem::path serialPath);
-
-            bool connectToSerial(boost::filesystem::path serialPath);
-
             void cameraThread();
 
             void logicThread();
 
-            void ioThread();
+
+
 
             void printerThread();
 
             void triggerFlash();
-
-            vector<boost::filesystem::path> findArduinos();
 
             int getFreeStorageSpaceMB();
 
@@ -194,26 +154,24 @@ namespace selfomat {
 
             bool isMountpoint(std::string folder);
 
-            void sendCommand(uint8_t command);
-            void sendCommand(uint8_t command, uint8_t argument);
 
         public:
             void trigger();
 
+            void acceptAgreement();
             void cancelPrint();
             bool start();
 
-            void stop(bool update_mode = false);
+            void stop(bool update_mode);
 
-            void enableStressTest();
-            void disableStressTest();
+            void stop() override;
+
+            void setFlashEnabled(bool enabled, bool persist = false);
+            bool getFlashEnabled();
 
             int join() {
                 if (logicThreadHandle.joinable()) {
                     logicThreadHandle.join();
-                }
-                if (ioThreadHandle.joinable()) {
-                    ioThreadHandle.join();
                 }
                 if (cameraThreadHandle.joinable()) {
                     cameraThreadHandle.join();
@@ -239,25 +197,11 @@ namespace selfomat {
             void setStorageEnabled(bool storageEnabled, bool persist = false);
             bool getStorageEnabled();
 
-            void setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros, uint64_t durationMicros, bool persist = false);
-            void getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros, uint64_t *durationMicros);
-            void flashTest();
-
             void setTemplateEnabled(bool templateEnabled, bool persist = false);
             bool getTemplateEnabled();
             bool getTemplateLoaded();
 
-            void setCountdownDuration(uint8_t duration, bool persist = false);
-            uint8_t getCountdownDuration();
-
-            void setLEDMode(LED_MODE mode, bool persist = false);
-            LED_MODE getLEDMode();
-
-            void setLEDCount(LED_COUNT count, bool persist = false);
-            LED_COUNT getLEDCount();
-
-            void setLEDOffset(int8_t offset, bool persist = false);
-            int8_t getLEDOffset();
+            SelfomatController* getSelfomatController();
 
             void adjustFocus();
 

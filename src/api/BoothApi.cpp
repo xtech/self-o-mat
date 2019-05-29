@@ -6,10 +6,12 @@
 
 using namespace selfomat::api;
 using namespace xtech::selfomat;
+using namespace selfomat::logic;
 
-BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup) : logic(logic), camera(camera),
-                                                                          server("0.0.0.0", "9080", mux, false)
-{
+BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup) : logic(logic),
+                                                                                               camera(camera),
+                                                                                               server("0.0.0.0", "9080",
+                                                                                                      mux, false) {
     this->show_led_setup = show_led_setup;
 }
 
@@ -279,69 +281,11 @@ bool BoothApi::start() {
                     return;
                 }
 
-                bool flashEnabled;
-                float flashBrightness, flashFade;
-                uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
-                flashEnabled = update.value();
-                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+                logic->setFlashEnabled(update.value(), true);
 
                 served::response::stock_reply(200, res);
             });
 
-    mux.handle("/booth_settings/flash/brightness")
-            .post([this](served::response &res, const served::request &req) {
-                FloatUpdate update;
-                if (!update.ParseFromString(req.body())) {
-                    served::response::stock_reply(400, res);
-                    return;
-                }
-
-                bool flashEnabled;
-                float flashBrightness, flashFade;
-                uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
-                flashBrightness = update.value();
-                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
-
-                served::response::stock_reply(200, res);
-            });
-    mux.handle("/booth_settings/flash/fade")
-            .post([this](served::response &res, const served::request &req) {
-                FloatUpdate update;
-                if (!update.ParseFromString(req.body())) {
-                    served::response::stock_reply(400, res);
-                    return;
-                }
-
-                bool flashEnabled;
-                float flashBrightness, flashFade;
-                uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
-                flashFade = update.value();
-                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
-
-                served::response::stock_reply(200, res);
-            });
-
-
-    mux.handle("/booth_settings/flash/delay")
-            .post([this](served::response &res, const served::request &req) {
-                IntUpdate update;
-                if (!update.ParseFromString(req.body())) {
-                    served::response::stock_reply(400, res);
-                    return;
-                }
-
-                bool flashEnabled;
-                float flashBrightness, flashFade;
-                uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
-                delayMicros = update.value();
-                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
-
-                served::response::stock_reply(200, res);
-            });
 
     mux.handle("/booth_settings/flash/duration")
             .post([this](served::response &res, const served::request &req) {
@@ -351,15 +295,13 @@ bool BoothApi::start() {
                     return;
                 }
 
-                bool flashEnabled;
-                float flashBrightness, flashFade;
-                uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
-                durationMicros = update.value();
-                logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
+                SelfomatController *controller = logic->getSelfomatController();
+                controller->setFlashDurationMicros(update.value());
+                controller->commit();
 
                 served::response::stock_reply(200, res);
             });
+
 
     mux.handle("/booth_settings/template_enabled")
             .post([this](served::response &res, const served::request &req) {
@@ -374,19 +316,25 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
-    mux.handle("/booth_settings/led_offset")
+
+    mux.handle("/booth_settings/led_offset_cw")
             .post([this](served::response &res, const served::request &req) {
-                IntUpdate update;
-                if (!update.ParseFromString(req.body())) {
-                    served::response::stock_reply(400, res);
-                    return;
-                }
 
-                int ledCount = logic->getLEDCount() / 2;
-                logic->setLEDOffset(update.value()-ledCount, true);
-
+                SelfomatController *controller = logic->getSelfomatController();
+                controller->moveOffsetRight();
                 served::response::stock_reply(200, res);
             });
+
+
+    mux.handle("/booth_settings/led_offset_ccw")
+            .post([this](served::response &res, const served::request &req) {
+
+                SelfomatController *controller = logic->getSelfomatController();
+                controller->moveOffsetLeft();
+                served::response::stock_reply(200, res);
+            });
+
+
 
     mux.handle("/booth_settings/countdown_duration")
             .post([this](served::response &res, const served::request &req) {
@@ -396,7 +344,9 @@ bool BoothApi::start() {
                     return;
                 }
 
-                logic->setCountdownDuration(update.value()+1, true);
+                SelfomatController *controller = logic->getSelfomatController();
+                controller->setCountDownMillis((update.value() + 1) * 1000);
+                controller->commit();
 
                 served::response::stock_reply(200, res);
             });
@@ -409,13 +359,20 @@ bool BoothApi::start() {
                     return;
                 }
 
-                int i=0;
-                for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
-                    if (i == update.value()) {
-                        logic->setLEDMode(e.first, true);
-                    }
-                    i++;
+
+                SelfomatController *controller = logic->getSelfomatController();
+                switch (update.value()) {
+                    case 0:
+                        controller->setLedType(SelfomatController::LED_TYPE::RGB.controllerValue);
+                        break;
+                    case 1:
+                        controller->setLedType(SelfomatController::LED_TYPE::RGBW.controllerValue);
+                        break;
+                    default:
+                        served::response::stock_reply(400, res);
+                        return;
                 }
+                controller->commit();
 
                 served::response::stock_reply(200, res);
             });
@@ -429,13 +386,25 @@ bool BoothApi::start() {
                     return;
                 }
 
-                int i=0;
-                for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
-                    if (i == update.value()) {
-                        logic->setLEDCount(e.first, true);
-                    }
-                    i++;
+                SelfomatController *controller = logic->getSelfomatController();
+                switch (update.value()) {
+                    case 0:
+                        controller->setLedCount(SelfomatController::LED_COUNT::COUNT_12.controllerValue);
+                        break;
+                    case 1:
+                        controller->setLedCount(SelfomatController::LED_COUNT::COUNT_16.controllerValue);
+                        break;
+                    case 2:
+                        controller->setLedCount(SelfomatController::LED_COUNT::COUNT_24.controllerValue);
+                        break;
+                    case 3:
+                        controller->setLedCount(SelfomatController::LED_COUNT::COUNT_32.controllerValue);
+                        break;
+                    default:
+                        served::response::stock_reply(400, res);
+                        return;
                 }
+                controller->commit();
 
                 served::response::stock_reply(200, res);
             });
@@ -471,7 +440,9 @@ bool BoothApi::start() {
 
     mux.handle("/flash")
             .post([this](served::response &res, const served::request &req) {
-                logic->flashTest();
+
+                SelfomatController *controller = logic->getSelfomatController();
+                controller->triggerFlash();
 
                 served::response::stock_reply(200, res);
             });
@@ -506,6 +477,7 @@ bool BoothApi::start() {
             .get([this](served::response &res, const served::request &req) {
                 BoothSettings currentBoothSettings;
 
+                auto controller = logic->getSelfomatController();
                 {
                     auto setting = currentBoothSettings.mutable_storage_enabled();
                     setting->set_name("USB Storage Enabled?");
@@ -520,10 +492,7 @@ bool BoothApi::start() {
                     setting->set_currentvalue(logic->getPrinterEnabled());
                 }
 
-                bool flashEnabled;
-                float flashBrightness, flashFade;
-                uint64_t delayMicros, durationMicros;
-                logic->getFlashParameters(&flashEnabled, &flashBrightness, &flashFade, &delayMicros, &durationMicros);
+                bool flashEnabled = logic->getFlashEnabled();
                 {
                     auto setting = currentBoothSettings.mutable_flash_enabled();
                     setting->set_update_url("/booth_settings/flash/enabled");
@@ -531,40 +500,13 @@ bool BoothApi::start() {
                     setting->set_currentvalue(flashEnabled);
                 }
 
-//                {
-//                    auto setting = currentBoothSettings.mutable_flash_brightness();
-//                    setting->set_update_url("/booth_settings/flash/brightness");
-//                    setting->set_name("Flash Brightness");
-//                    setting->set_currentvalue(flashBrightness);
-//                    setting->set_minvalue(0.0f);
-//                    setting->set_maxvalue(1.0f);
-//                }
-//
-//                {
-//                    auto setting = currentBoothSettings.mutable_flash_fade();
-//                    setting->set_update_url("/booth_settings/flash/fade");
-//                    setting->set_name("Flash Fade");
-//                    setting->set_currentvalue(flashFade);
-//                    setting->set_minvalue(0.0f);
-//                    setting->set_maxvalue(1.0f);
-//                }
-//
-//                {
-//                    auto setting = currentBoothSettings.mutable_flash_delay_micros();
-//                    setting->set_update_url("/booth_settings/flash/delay");
-//                    setting->set_name("Flash Delay Microseconds");
-//                    setting->set_currentvalue(delayMicros);
-//                    setting->set_minvalue(0);
-//                    setting->set_maxvalue(100000);
-//                }
-
                 {
                     auto setting = currentBoothSettings.mutable_flash_duration_micros();
                     setting->set_update_url("/booth_settings/flash/duration");
                     setting->set_name("Flash Brightness");
-                    setting->set_currentvalue(durationMicros);
+                    setting->set_currentvalue(controller->getFlashDurationMicros());
                     setting->set_minvalue(0);
-                    setting->set_maxvalue(255);
+                    setting->set_maxvalue(100000);
                 }
 
                 {
@@ -581,7 +523,7 @@ bool BoothApi::start() {
                 }
 
 
-                if(logic->getTemplateLoaded()) {
+                if (logic->getTemplateLoaded()) {
                     {
                         auto setting = currentBoothSettings.mutable_template_enabled();
                         setting->set_update_url("/booth_settings/template_enabled");
@@ -595,61 +537,66 @@ bool BoothApi::start() {
                         auto setting = currentBoothSettings.mutable_led_mode();
                         setting->set_update_url("/booth_settings/led_mode");
                         setting->set_name("LED Mode");
-                        setting->set_currentindex(0);
+                        setting->set_currentindex(controller->getLedType());
 
-                        int i=0;
-                        for ( const auto e : selfomat::logic::LED_MODE_ALL ) {
-                            if (e.first == logic->getLEDMode()) {
-                                setting->set_currentindex(i);
-                            }
-                            setting->add_values(e.second);
-                            i++;
-                        }
+                        setting->add_values(SelfomatController::LED_TYPE::RGB.humanName);
+                        setting->add_values(SelfomatController::LED_TYPE::RGBW.humanName);
                     }
 
                     {
                         auto setting = currentBoothSettings.mutable_led_count();
                         setting->set_update_url("/booth_settings/led_count");
                         setting->set_name("LED Count");
-                        setting->set_currentindex(0);
 
-                        int i=0;
-                        for ( const auto e : selfomat::logic::LED_COUNT_ALL ) {
-                            if (e.first == logic->getLEDCount()) {
-                                setting->set_currentindex(i);
-                            }
-                            setting->add_values(e.second);
-                            i++;
+
+                        switch (controller->getLedCount()) {
+                            case 12:
+                                setting->set_currentindex(0);
+                                break;
+                            case 16:
+                                setting->set_currentindex(1);
+                                break;
+                            case 24:
+                                setting->set_currentindex(2);
+                                break;
+                            case 32:
+                                setting->set_currentindex(3);
+                                break;
+                            default:
+                                setting->set_currentindex(0);
+                                break;
                         }
+
+                        setting->add_values(SelfomatController::LED_COUNT::COUNT_12.humanName);
+                        setting->add_values(SelfomatController::LED_COUNT::COUNT_16.humanName);
+                        setting->add_values(SelfomatController::LED_COUNT::COUNT_24.humanName);
+                        setting->add_values(SelfomatController::LED_COUNT::COUNT_32.humanName);
                     }
                 }
 
 
                 {
-                    auto setting = currentBoothSettings.mutable_led_offset();
-                    setting->set_update_url("/booth_settings/led_offset");
-                    setting->set_name("LED Offset");
-
-                    int ledCount = logic->getLEDCount() / 2;
-                    setting->set_currentindex(ledCount);
-
-                    for (int i = ledCount * -1; i <= ledCount; i++) {
-                        if (i == logic->getLEDOffset()) {
-                            setting->set_currentindex(i+ledCount);
-                        }
-                        setting->add_values(std::to_string(i));
-                    }
+                    auto setting = currentBoothSettings.mutable_led_offset_clockwise();
+                    setting->set_post_url("/booth_settings/led_offset_cw");
+                    setting->set_name("LED Offset +");
                 }
+
+                {
+                    auto setting = currentBoothSettings.mutable_led_offset_counter_clockwise();
+                    setting->set_post_url("/booth_settings/led_offset_ccw");
+                    setting->set_name("LED Offset -");
+                }
+
 
                 {
                     auto setting = currentBoothSettings.mutable_countdown_duration();
                     setting->set_update_url("/booth_settings/countdown_duration");
                     setting->set_name("Countdown Duration");
 
-                    setting->set_currentindex(logic->getCountdownDuration()-1);
+                    setting->set_currentindex(controller->getCountDownMillis() / 1000 - 1);
 
                     for (int i = 1; i <= 5; i++) {
-                        setting->add_values(std::to_string(i)+"s");
+                        setting->add_values(std::to_string(i) + "s");
                     }
                 }
 
@@ -667,13 +614,15 @@ bool BoothApi::start() {
 
     mux.handle("/stress")
             .post([this](served::response &res, const served::request &req) {
-                logic->enableStressTest();
+                auto controller = logic->getSelfomatController();
+                controller->setStressTestEnabled(true);
                 served::response::stock_reply(200, res);
             });
 
     mux.handle("/unstress")
             .post([this](served::response &res, const served::request &req) {
-                logic->disableStressTest();
+                auto controller = logic->getSelfomatController();
+                controller->setStressTestEnabled(false);
                 served::response::stock_reply(200, res);
             });
 

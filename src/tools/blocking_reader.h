@@ -24,6 +24,7 @@
 #include <boost/asio/placeholders.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/bind.hpp>
+#include <boost/asio/deadline_timer.hpp>
 
 class blocking_reader
 {
@@ -36,7 +37,6 @@ class blocking_reader
     // Called when an async read completes or has been cancelled
     void read_complete(const boost::system::error_code& error,
                        size_t bytes_transferred) {
-
         read_error = (error || bytes_transferred == 0);
 
         // Read has finished, so cancel the
@@ -46,7 +46,6 @@ class blocking_reader
 
     // Called when the timer's deadline expires.
     void time_out(const boost::system::error_code& error) {
-
         // Was the timeout was cancelled?
         if (error) {
             // yes

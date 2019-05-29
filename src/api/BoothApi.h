@@ -7,7 +7,6 @@
 
 #include "../protobuf/api.pb.h"
 #include "../logic/BoothLogic.h"
-#include <tools/base64.h>
 
 #include <served/served.hpp>
 

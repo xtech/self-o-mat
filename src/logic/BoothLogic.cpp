@@ -1,7 +1,6 @@
 //
 // Created by clemens on 21.01.19.
 //
-
 #include "BoothLogic.h"
 
 using namespace std;
@@ -9,112 +8,27 @@ using namespace selfomat::logic;
 using namespace selfomat::camera;
 using namespace selfomat::ui;
 
-/**
- * Looks for arduinos in /dev and returns all found ones
- * @return
- */
-vector<boost::filesystem::path> BoothLogic::findArduinos() {
-    boost::filesystem::path devPath("/dev/");
-
-    vector<boost::filesystem::path> foundArduinos;
-    for (auto &e : boost::make_iterator_range(boost::filesystem::directory_iterator(devPath))) {
-        if (boost::starts_with(e.path().string(), button_port))
-            foundArduinos.push_back(e.path());
-    }
-    return foundArduinos;
-}
-
-/**
- * Connects the button arduino
- * @param serialPath
- * @return true on success
- */
-bool BoothLogic::connectButton(boost::filesystem::path serialPath) {
-    // TODO: Check if we really connected to the button and not some other serial device and return a status
-    try {
-        button_serial_port.open(serialPath.string());
-        button_serial_port.set_option(boost::asio::serial_port_base::baud_rate(38400));
-        if (disable_watchdog)
-            sendCommand('!');
-        else
-            sendCommand('?');
-        sendCommand('.');
-
-        readSettings();
-    } catch (std::exception const &e) {
-        cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
-        return false;
-    }
-    return true;
-}
-
-
-bool BoothLogic::connectToSerial(boost::filesystem::path serialPath) {
-    // TODO: Check if we really connected to the button and not some other serial device and return a status
-    try {
-        tmp_serial_port.open(serialPath.string());
-        tmp_serial_port.set_option(boost::asio::serial_port_base::baud_rate(38400));
-        tmp_serial_port.write_some(boost::asio::buffer("i", 1));
-
-        cout << "Waiting for identification" << endl;
-        char c;
-
-        blocking_reader reader(tmp_serial_port, 3000);
-        if (reader.read_char(c)) {
-            cout << "Got a " << c << endl;
-            if (c == 'b') {
-                cout << "Found the button" << endl;
-                return connectButton(serialPath);
-            }
-            cout << "Unknown identification: " << c << endl;
-        } else {
-            cout << "No identification received" << endl;
-        }
-        tmp_serial_port.close();
-    } catch (std::exception const &e) {
-        cerr << "Error opening button on port " << serialPath << ". Reason was: " << e.what() << endl;
-        return false;
-    }
-    return true;
-}
-
 
 bool BoothLogic::start() {
 
     gui->logDebug("Starting Logic");
 
     if (has_button) {
-        gui->logInfo("Seraching for connected Arduinos");
+        gui->logInfo("Seraching for connected Controller");
+        selfomatController.autoconnect(controllerBoardPrefix);
 
-
-        auto foundArduinos = findArduinos();
-        if (foundArduinos.empty()) {
-            gui->logError("Error: No arduinos found :-(");
+        if(!show_led_setup) {
+            // Set the default LEDs.
+            selfomatController.setLedType(SelfomatController::LED_TYPE::RGB.controllerValue);
+            selfomatController.setLedCount(16);
+            selfomatController.commit();
         }
-
-        for (auto path : foundArduinos) {
-            std::stringstream sstr;
-            sstr << "Connecting arduino at: " << path << endl;
-            gui->logInfo(sstr.str());
-
-            auto success = connectToSerial(path);
-            if (success) {
-                gui->logInfo("Arduino connected successfully!");
-            } else {
-                gui->logError("Error connecting Arduino");
-            }
-        }
-
-        if (button_serial_port.is_open()) {
-            cout << "Found button" << endl;
-        } else {
-            cout << "Did not find a button" << endl;
-        }
+        selfomatController.setWatchdogEnabled(!disable_watchdog);
     }
 
     if (showAgreement) {
         gui->showAgreement();
-        sendCommand('a');
+        selfomatController.showAgreement();
     }
 
     gui->logDebug("Initializing Image Processor");
@@ -127,7 +41,6 @@ bool BoothLogic::start() {
 
     // Start the threads
     isRunning = true;
-    ioThreadHandle = boost::thread(boost::bind(&BoothLogic::ioThread, this));
     logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
     cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
     printThreadHandle = boost::thread(boost::bind(&BoothLogic::printerThread, this));
@@ -136,13 +49,19 @@ bool BoothLogic::start() {
 }
 
 void BoothLogic::triggerFlash() {
-    if(!flashEnabled)
+    if (!flashEnabled)
         return;
-
-    sendCommand('#');
+    selfomatController.triggerFlash();
 }
 
 void BoothLogic::stop(bool update_mode) {
+
+    if(update_mode) {
+        returnCode = 0x42;
+    } else {
+        returnCode = -1;
+    }
+
     std::cout << "stopping logic" << std::endl;
     isRunning = false;
 
@@ -153,19 +72,12 @@ void BoothLogic::stop(bool update_mode) {
 
     writeSettings();
 
-    if(update_mode) {
-        sendCommand('f');
+    if (update_mode) {
+        selfomatController.enterUpdateMode();
     }
 
-    if (button_serial_port.is_open())
-        button_serial_port.close();
+    selfomatController.stopBlocking();
 
-    if(button_serial_port.is_open()) {
-        if (ioThreadHandle.joinable()) {
-            cout << "waiting for io" << endl;
-            ioThreadHandle.join();
-        }
-    }
     if (cameraThreadHandle.joinable()) {
         cout << "waiting for cam" << endl;
         cameraThreadHandle.join();
@@ -263,8 +175,7 @@ void BoothLogic::cameraThread() {
                 if (success) {
                     gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
                     gui->notifyFinalImageSent();
-                    if (printerEnabled && button_serial_port.is_open())
-                        sendCommand('p');
+                    selfomatController.showPrinting();
 
                     // 4500ms from here for the user to decide
                     boost::this_thread::sleep(boost::posix_time::milliseconds(4500));
@@ -279,7 +190,7 @@ void BoothLogic::cameraThread() {
                     gui->logError("Got an error");
                 }
 
-                sendCommand('k');
+                selfomatController.sendPictureTaken();
 
                 gui->notifyPreviewIncoming();
             } else {
@@ -297,12 +208,15 @@ void BoothLogic::cameraThread() {
     camera->stop();
 }
 
+int i = 1;
+
 void BoothLogic::logicThread() {
     gui->logDebug("Starting Logic Thread");
 
     while (isRunning) {
         // Send the heartbeat
-        sendCommand('.');
+        selfomatController.sendHeartbeat();
+
         //flash_serial_port.write_some(asio::buffer("i", 1));
         boost::this_thread::sleep(boost::posix_time::seconds(1));
 
@@ -355,47 +269,11 @@ void BoothLogic::logicThread() {
     // Sync to disk
     cout << "Syncing changes to disk" << endl;
     boost::thread syncThreadHandle(sync);
-    while(!syncThreadHandle.try_join_for(boost::chrono::milliseconds(1000))) {
+    while (!syncThreadHandle.try_join_for(boost::chrono::milliseconds(1000))) {
         cout << "Still syncing..." << endl;
-        sendCommand('.');
+        selfomatController.sendHeartbeat();
     }
     cout << "Syncing done" << endl;
-}
-
-void BoothLogic::ioThread() {
-    cout << "IO Thread Started" << endl;
-    while (isRunning) {
-        if (button_serial_port.is_open()) {
-            blocking_reader reader(button_serial_port, 500);
-            while (reader.read_char(c) && c != '\n') {
-                cout << "Got char: " << c << endl;
-                switch (c) {
-                    case 'a':
-                        if (showAgreement) {
-                            gui->hideAgreement();
-                            showAgreement = false;
-                            writeSettings();
-                        }
-                        break;
-                    case 'c':
-                        cancelPrintMutex.lock();
-                        printCanceled = true;
-                        cancelPrintMutex.unlock();
-                        break;
-                    case 't':
-                        trigger();
-                        break;
-                    case 'd':
-                        returnCode = -1;
-                        isRunning = false;
-                    default:
-                        break;
-                }
-            }
-        } else {
-            break;
-        }
-    }
 }
 
 BoothLogic::~BoothLogic() {
@@ -415,14 +293,6 @@ void BoothLogic::cancelPrint() {
     cancelPrintMutex.lock();
     printCanceled = true;
     cancelPrintMutex.unlock();
-}
-
-void BoothLogic::enableStressTest() {
-    sendCommand('S');
-}
-
-void BoothLogic::disableStressTest() {
-    sendCommand('s');
 }
 
 void BoothLogic::printerThread() {
@@ -451,7 +321,7 @@ void BoothLogic::printerThread() {
                 saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, true);
 
                 Magick::Image toPrepare;
-                if(templateEnabled) {
+                if (templateEnabled) {
                     toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
                 } else {
                     toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize);
@@ -522,25 +392,25 @@ bool BoothLogic::isMountpoint(std::string folder) {
     /* get the parent directory  of the file */
 
     std::string folder_cpy(folder.c_str());
-    std::string parent_name = dirname((char*)folder_cpy.c_str());
+    std::string parent_name = dirname((char *) folder_cpy.c_str());
 
     /* get the file's stat info */
     struct stat file_stat{};
-    if( -1 == stat(folder.c_str(), &file_stat) ) {
+    if (-1 == stat(folder.c_str(), &file_stat)) {
         cerr << "stat error" << endl;
         return false;
     }
 
     /* determine whether the supplied file is a directory
       if it isn't, then it can't be a mountpoint. */
-    if( !(file_stat.st_mode & S_IFDIR) ) {
+    if (!(file_stat.st_mode & S_IFDIR)) {
         cerr << "image dir is not a directory" << endl;
         return false;
     }
 
     /* get the parent's stat info */
     struct stat parent_stat{};
-    if( -1 == stat(parent_name.c_str(), &parent_stat) ) {
+    if (-1 == stat(parent_name.c_str(), &parent_stat)) {
         cout << "parent stat fail" << endl;
         return false;
     }
@@ -551,7 +421,7 @@ bool BoothLogic::isMountpoint(std::string folder) {
 
 bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool showAlert) {
     auto success = saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
-    if(!success && showAlert) {
+    if (!success && showAlert) {
         gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
     }
 
@@ -568,7 +438,7 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
         return false;
     }
 
-    if(!isMountpoint(imageDir)) {
+    if (!isMountpoint(imageDir)) {
         cerr << "imageDir not a mountpoint" << endl;
         return false;
     }
@@ -606,13 +476,12 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 }
 
 void BoothLogic::stopForUpdate() {
-    returnCode = 0x42;
     stop(true);
 }
 
 void BoothLogic::setStorageEnabled(bool storageEnabled, bool persist) {
     this->storageEnabled = storageEnabled;
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
@@ -622,9 +491,9 @@ bool BoothLogic::getStorageEnabled() {
 }
 
 void BoothLogic::setPrinterEnabled(bool printerEnabled, bool persist) {
-    this->printerEnabled= printerEnabled;
+    this->printerEnabled = printerEnabled;
     gui->setPrinterEnabled(printerEnabled);
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
@@ -640,29 +509,18 @@ void BoothLogic::readSettings() {
     try {
         boost::property_tree::read_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
     } catch (boost::exception &e) {
-        cerr << "Error loading settings settings. Writing defaults. Error was: " << boost::diagnostic_information(e) << endl;
+        cerr << "Error loading settings settings. Writing defaults. Error was: " << boost::diagnostic_information(e)
+             << endl;
         success = false;
     }
 
     setStorageEnabled(ptree.get<bool>("storage_enabled", true));
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
-    this->showAgreement=ptree.get<bool>("show_agreement", true);
+    setFlashEnabled(ptree.get<bool>("flash_enabled", false));
+    this->showAgreement = ptree.get<bool>("show_agreement", true);
 
-    setFlashParameters(
-            ptree.get<bool>("flash_enabled", true),
-            ptree.get<float>("flash_brightness", 1.0f),
-            ptree.get<float>("flash_fade", 0.0f),
-            ptree.get<uint64_t>("flash_delay_micros", 0),
-            ptree.get<uint64_t>("flash_duration_micros", 100000)
-                    );
-
-    setLEDMode(static_cast<selfomat::logic::LED_MODE>(ptree.get<uint8_t>("led_mode", LED_MODE_RGB)));
-    setLEDCount(static_cast<selfomat::logic::LED_COUNT>(ptree.get<uint8_t>("led_count", LED_COUNT_16)));
-    setLEDOffset(ptree.get<int8_t>("led_offset", 0));
-    setCountdownDuration(ptree.get<uint8_t>("countdown_duration", 3));
-
-    if(!success)
+    if (!success)
         writeSettings();
 }
 
@@ -673,14 +531,6 @@ void BoothLogic::writeSettings() {
     ptree.put("printer_enabled", printerEnabled);
     ptree.put("template_enabled", templateEnabled);
     ptree.put("flash_enabled", this->flashEnabled);
-    ptree.put("flash_duration_micros", this->flashDurationMicros);
-    ptree.put("flash_delay_micros", this->flashDelayMicros);
-    ptree.put("flash_brightness", this->flashBrightness);
-    ptree.put("flash_fade", this->flashFade);
-    ptree.put("led_mode", this->ledMode);
-    ptree.put("led_count", this->ledCount);
-    ptree.put("led_offset", this->ledOffset);
-    ptree.put("countdown_duration", this->countdownDuration);
 
     try {
         boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
@@ -689,39 +539,23 @@ void BoothLogic::writeSettings() {
     }
 }
 
-void BoothLogic::setFlashParameters(bool enabled, float brightness, float fade, uint64_t delayMicros,
-                                    uint64_t durationMicros, bool persist) {
+void BoothLogic::setFlashEnabled(bool enabled, bool persist) {
     this->flashEnabled = enabled;
-    this->flashBrightness = brightness;
-    this->flashFade = fade;
-    this->flashDelayMicros = delayMicros;
-    this->flashDurationMicros = durationMicros;
 
-    auto duration = static_cast<uint8_t>(this->flashDurationMicros);
-    sendCommand('$', duration);
-
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
 
-void BoothLogic::getFlashParameters(bool *enabled, float *brightness, float *fade, uint64_t *delayMicros,
-                                    uint64_t *durationMicros) {
-     *enabled = this->flashEnabled;
-     *brightness = this->flashBrightness;
-     *fade = this->flashFade;
-     *delayMicros = this->flashDelayMicros;
-     *durationMicros = this->flashDurationMicros;
+bool BoothLogic::getFlashEnabled() {
+    return flashEnabled;
 }
 
-void BoothLogic::flashTest() {
-    sendCommand('#');
-}
 
 void BoothLogic::setTemplateEnabled(bool templateEnabled, bool persist) {
     this->templateEnabled = templateEnabled;
     gui->setTemplateEnabled(templateEnabled);
-    if(persist)
+    if (persist)
         writeSettings();
 }
 
@@ -733,85 +567,24 @@ bool BoothLogic::getTemplateLoaded() {
     return imageProcessor.isTemplateLoaded();
 }
 
-void BoothLogic::setLEDMode(LED_MODE mode, bool persist) {
-    this->ledMode = mode;
-
-    sendCommand('t', mode);
-
-    if(persist) {
-        writeSettings();
-    }
-}
-
-LED_MODE BoothLogic::getLEDMode() {
-    return ledMode;
-}
-
-void BoothLogic::setCountdownDuration(uint8_t duration, bool persist) {
-    this->countdownDuration = duration;
-
-    sendCommand('>', duration);
-
-    if(persist) {
-        writeSettings();
-    }
-}
-
-uint8_t BoothLogic::getCountdownDuration() {
-    return countdownDuration;
-}
-
-void BoothLogic::setLEDCount(LED_COUNT count, bool persist) {
-    this->ledCount = count;
-
-    sendCommand('c', count);
-
-    if(persist) {
-        writeSettings();
-    }
-}
-
-LED_COUNT BoothLogic::getLEDCount() {
-    return ledCount;
-}
-
-void BoothLogic::setLEDOffset(int8_t offset, bool persist) {
-    this->ledOffset = offset;
-
-    int ledCount = getLEDCount() / 2;
-
-    if(persist) {
-        sendCommand('L', offset+ledCount);
-        writeSettings();
-    } else {
-        sendCommand('l', offset+ledCount);
-    }
-}
-
-int8_t BoothLogic::getLEDOffset() {
-    return ledOffset;
-}
-
-void BoothLogic::sendCommand(uint8_t command, uint8_t argument) {
-    if (!button_serial_port.is_open())
-        return;
-
-    std::vector<uint8_t> data;
-    data.push_back(command);
-    data.push_back(argument);
-
-    button_serial_port.write_some(boost::asio::buffer(data.data(), 2));
-}
-
-void BoothLogic::sendCommand(uint8_t command) {
-    if (!button_serial_port.is_open())
-        return;
-    button_serial_port.write_some(boost::asio::buffer(&command, 1));
-}
 
 void BoothLogic::adjustFocus() {
     camera->autofocusBlocking();
     gui->addAlert(ALERT_CAMERA_HINT, L"Fokus wird gesucht", true, true);
+}
+
+SelfomatController *BoothLogic::getSelfomatController() {
+    return &selfomatController;
+}
+
+void BoothLogic::acceptAgreement() {
+    gui->hideAgreement();
+    showAgreement = false;
+    writeSettings();
+}
+
+void BoothLogic::stop() {
+    stop(false);
 }
 
 bool BoothLogic::updateTemplate(void *data, size_t size) {
