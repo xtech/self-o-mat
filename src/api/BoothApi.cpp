@@ -641,6 +641,12 @@ bool BoothApi::start() {
                     setting->set_alert("Do you really want to start the Update Mode?");
                 }
 
+                {
+                    auto setting = currentBoothSettings.mutable_cups_link();
+                    setting->set_name("CUPS Printer Setup");
+                    setting->set_url("http://192.168.4.1:631");
+                }
+
 
                 res << currentBoothSettings.SerializeAsString();
             });
