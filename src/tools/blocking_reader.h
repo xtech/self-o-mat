@@ -87,8 +87,6 @@ public:
         // to do a reset for subsequent reads to work.
         port.get_io_service().reset();
 
-        // send the request
-        port.write_some(boost::asio::buffer(request, request_size));
 
         // Asynchronously read 1 character.
         boost::asio::async_read(port, boost::asio::buffer(&c, 1),
@@ -97,6 +95,8 @@ public:
                                             boost::asio::placeholders::error,
                                             boost::asio::placeholders::bytes_transferred));
 
+        // send the request
+        port.write_some(boost::asio::buffer(request, request_size));
 
         // Setup a deadline time to implement our timeout.
         timer.expires_from_now(boost::posix_time::milliseconds(timeout));

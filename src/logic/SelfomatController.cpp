@@ -52,19 +52,24 @@ bool SelfomatController::autoconnect(std::string searchPrefix) {
             std::cout << "[selfomat controller] Waiting for identification" << std::endl;
 
             blocking_reader reader(tmpSerialPort, 3000);
-            if (reader.get_response("\2i ", 3, c)) {
-                std::cout << "[selfomat controller] Got a " << c << std::endl;
-                if (c == 'b') {
-                    std::cout << "[selfomat controller] Found the selfomat controller!" << std::endl;
-                    tmpSerialPort.close();
-                    foundController = true;
-                    controllerPath = path;
-                    break;
+            bool success = false;
+            for(int i = 0; i < 10; i++) {
+                if (reader.get_response("\2i ", 3, c)) {
+                    std::cout << "[selfomat controller] Got a " << c << std::endl;
+                    if (c == 'b') {
+                        std::cout << "[selfomat controller] Found the selfomat controller!" << std::endl;
+                        tmpSerialPort.close();
+                        foundController = true;
+                        controllerPath = path;
+                        break;
+                    }
+                    std::cout << "[selfomat controller] Unknown identification: " << c << std::endl;
+                } else {
+                    std::cout << "[selfomat controller] No identification received" << std::endl;
                 }
-                std::cout << "[selfomat controller] Unknown identification: " << c << std::endl;
-            } else {
-                std::cout << "[selfomat controller] No identification received" << std::endl;
             }
+            if(foundController)
+                break;
             tmpSerialPort.close();
         } catch (std::exception const &e) {
             std::cerr << "[selfomat controller] Error opening button on port " << path << ". Reason was: " << e.what() << std::endl;
