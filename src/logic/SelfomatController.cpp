@@ -105,7 +105,7 @@ bool SelfomatController::loadSettingsFromBoard() {
                 std::cout << "[selfomat controller] setting loading timed out. retrying.." << std::endl;
             }
 
-        } while (!settingsLoaded);
+        } while (!settingsLoaded && isStarted);
     }
     return true;
 }
@@ -136,7 +136,7 @@ bool SelfomatController::writeSettingsToBoard() {
                 std::cout << "[selfomat controller] setting writing timed out. retrying.." << std::endl;
             }
 
-        } while (!settingsWritten);
+        } while (!settingsWritten && isStarted);
     }
     return true;
 }
@@ -311,7 +311,7 @@ void SelfomatController::showAgreement() {
                 std::cout << "agreement timed out. retrying.." << std::endl;
             }
 
-        } while (!aggreementStateEntered);
+        } while (!aggreementStateEntered && isStarted);
     }
 }
 
