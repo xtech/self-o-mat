@@ -208,7 +208,6 @@ void BoothLogic::cameraThread() {
     camera->stop();
 }
 
-int i = 1;
 
 void BoothLogic::logicThread() {
     gui->logDebug("Starting Logic Thread");
@@ -590,6 +589,8 @@ void BoothLogic::stop() {
 bool BoothLogic::updateTemplate(void *data, size_t size) {
     bool result = imageProcessor.updateTemplate(data, size);
     gui->reloadTemplate();
-    //gui->addAlert(ALERT_STORAGE, L"Template wurde gespeichert", true);
+    if (result) {
+        gui->addAlert(ALERT_TEMPLATE, L"Template wurde gespeichert", true, true);
+    }
     return result;
 }

@@ -119,6 +119,8 @@ namespace selfomat {
 
             void showAgreement();
 
+            void remoteTrigger();
+
             void sendHeartbeat();
 
             void moveOffsetRight();

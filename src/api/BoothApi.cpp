@@ -417,7 +417,8 @@ bool BoothApi::start() {
                     return;
                 }
 
-                logic->trigger();
+                auto controller = logic->getSelfomatController();
+                controller->remoteTrigger();
                 served::response::stock_reply(200, res);
             });
 
@@ -605,6 +606,12 @@ bool BoothApi::start() {
                     setting->set_name("Update Mode");
                     setting->set_post_url("/update");
                     setting->set_alert("Do you really want to start the Update Mode?");
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_cups_link();
+                    setting->set_name("CUPS Printer Setup");
+                    setting->set_url("http://192.168.4.1:631");
                 }
 
 

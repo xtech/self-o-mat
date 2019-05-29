@@ -170,6 +170,26 @@ export namespace xtech {
             public toJSON(): { [k: string]: any };
         }
 
+        interface ILinkSetting {
+            name: string;
+            url: string;
+        }
+
+        class LinkSetting implements ILinkSetting {
+            constructor(properties?: xtech.selfomat.ILinkSetting);
+            public name: string;
+            public url: string;
+            public static create(properties?: xtech.selfomat.ILinkSetting): xtech.selfomat.LinkSetting;
+            public static encode(message: xtech.selfomat.ILinkSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: xtech.selfomat.ILinkSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): xtech.selfomat.LinkSetting;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): xtech.selfomat.LinkSetting;
+            public static verify(message: { [k: string]: any }): (string|null);
+            public static fromObject(object: { [k: string]: any }): xtech.selfomat.LinkSetting;
+            public static toObject(message: xtech.selfomat.LinkSetting, options?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
         interface IListSetting {
             name: string;
             currentIndex: number;
@@ -316,6 +336,7 @@ export namespace xtech {
             ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             countdownDuration: xtech.selfomat.IListSetting;
             updateMode: xtech.selfomat.IPostSetting;
+            cupsLink?: (xtech.selfomat.ILinkSetting|null);
         }
 
         class BoothSettings implements IBoothSettings {
@@ -333,6 +354,7 @@ export namespace xtech {
             public ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             public countdownDuration: xtech.selfomat.IListSetting;
             public updateMode: xtech.selfomat.IPostSetting;
+            public cupsLink?: (xtech.selfomat.ILinkSetting|null);
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
             public static encode(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;

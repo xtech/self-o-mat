@@ -50,6 +50,11 @@ message FileUploadSetting {
     optional string input_accept = 3;
 }
 
+message LinkSetting {
+    required string name = 1;
+    required string url = 2;
+}
+
 message ListSetting {
     required string name = 1;
     required int32 currentIndex = 2;
@@ -107,4 +112,5 @@ message BoothSettings {
     required PostSetting led_offset_counter_clockwise = 11;
     required ListSetting countdown_duration = 12;
     required PostSetting update_mode = 13;
+    optional LinkSetting cups_link = 20;
 }

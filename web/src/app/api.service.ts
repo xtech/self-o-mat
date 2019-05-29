@@ -47,6 +47,8 @@ export class XAPIService {
     isReadOnly(val) { return val instanceof xtech.selfomat.ReadOnlySetting; }
     isPost(val) { return val instanceof xtech.selfomat.PostSetting; }
     isFileUpload(val) { return val instanceof xtech.selfomat.FileUploadSetting; }
+    isLink(val) { return val instanceof xtech.selfomat.LinkSetting; }
+
     getList(val): xtech.selfomat.ListSetting {
         if (!this.isList(val)) {
             return null;
@@ -119,6 +121,8 @@ export class XAPIService {
             input.click();
         } else if (this.isPost(setting)) {
             this.post($event, setting);
+        } else if (this.isLink(setting)) {
+            window.location.href = setting['url'];
         }
     }
 
@@ -191,7 +195,7 @@ export class XAPIService {
     }
 
     async post($event, setting) {
-        if (setting instanceof xtech.selfomat.PostSetting) {
+        if (this.isPost(setting)) {
 
             if (setting['alert'].length > 0) {
             	const actionSheet = await this.actionSheetController.create({

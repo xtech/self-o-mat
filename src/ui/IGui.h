@@ -35,7 +35,10 @@ namespace selfomat {
             ALERT_PRINTER,
             ALERT_STORAGE,
             ALERT_STORAGE_ERROR,
-            ALERT_CAMERA_HINT
+            ALERT_CAMERA_HINT,
+            ALERT_INFO,
+            ALERT_WARNING,
+            ALERT_TEMPLATE
         };
 
         class IGui : public ILogger {
@@ -75,7 +78,10 @@ namespace selfomat {
                     (ALERT_PRINTER, "P")
                     (ALERT_STORAGE, "U")
                     (ALERT_STORAGE_ERROR, "U")
-                    (ALERT_CAMERA_HINT, "C");
+                    (ALERT_CAMERA_HINT, "C")
+                    (ALERT_INFO, "I")
+                    (ALERT_WARNING, "A")
+                    (ALERT_TEMPLATE, "T");
 
         };
     }
