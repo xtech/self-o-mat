@@ -158,8 +158,6 @@ void BoothLogic::cameraThread() {
 
                 camera->triggerCaptureBlocking();
 
-                triggerFlash();
-
                 gui->logDebug("Successfully triggered");
                 boost::this_thread::sleep(boost::posix_time::milliseconds(100));
                 auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize, &latestJpegFileName,
