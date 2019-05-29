@@ -25,6 +25,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/deadline_timer.hpp>
+#include <iostream>
 
 class blocking_reader
 {
@@ -40,7 +41,7 @@ class blocking_reader
         read_error = (error || bytes_transferred == 0);
 
         if(read_error) {
-            cout << "blocking reader had read error: " << error.message() << endl;
+            std::cout << "blocking reader had read error: " << error.message() << std::endl;
         }
 
         // Read has finished, so cancel the
@@ -56,7 +57,7 @@ class blocking_reader
             return;
         }
 
-        cout << "blocking reader timed out" << endl;
+        std::cout << "blocking reader timed out" << std::endl;
 
         // no, we have timed out, so kill
         // the read operation
