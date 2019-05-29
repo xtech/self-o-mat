@@ -30,6 +30,28 @@ export namespace xtech {
             }
         }
 
+        interface IBoothError {
+            code: number;
+            title: string;
+            message: string;
+        }
+
+        class BoothError implements IBoothError {
+            constructor(properties?: xtech.selfomat.IBoothError);
+            public code: number;
+            public title: string;
+            public message: string;
+            public static create(properties?: xtech.selfomat.IBoothError): xtech.selfomat.BoothError;
+            public static encode(message: xtech.selfomat.IBoothError, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: xtech.selfomat.IBoothError, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): xtech.selfomat.BoothError;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): xtech.selfomat.BoothError;
+            public static verify(message: { [k: string]: any }): (string|null);
+            public static fromObject(object: { [k: string]: any }): xtech.selfomat.BoothError;
+            public static toObject(message: xtech.selfomat.BoothError, options?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
         interface IIntUpdate {
             value: (number|Long);
         }

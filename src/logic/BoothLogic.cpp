@@ -814,7 +814,9 @@ void BoothLogic::adjustFocus() {
     gui->addAlert(ALERT_CAMERA_HINT, L"Fokus wird gesucht", true, true);
 }
 
-void BoothLogic::updateTemplate(void *data, size_t size) {
-    imageProcessor.updateTemplate(data, size);
+bool BoothLogic::updateTemplate(void *data, size_t size) {
+    bool result = imageProcessor.updateTemplate(data, size);
     gui->reloadTemplate();
+
+    return result;
 }

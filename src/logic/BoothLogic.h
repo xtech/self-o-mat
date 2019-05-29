@@ -261,7 +261,7 @@ namespace selfomat {
 
             void adjustFocus();
 
-            void updateTemplate(void *data, size_t size);
+            bool updateTemplate(void *data, size_t size);
         };
 
     }

@@ -244,7 +244,7 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
     return inputImageMagic;
 }
 
-ImageProcessor::Rect ImageProcessor::getOffset(Image image, bool isScreen) {
+ImageProcessor::Rect ImageProcessor::getOffset(Image image, int accuracy) {
 
     int width = (int) image.columns();
     int height = (int) image.rows();
@@ -258,7 +258,7 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image image, bool isScreen) {
 
     while (offset.top < offset.bottom && offset.left < offset.right) {
 
-        for (int x=offset.left; x<offset.right; x++) {
+        for (int x=offset.left; x<=offset.right-accuracy; x+=accuracy) {
 
             if (foundTop || image.getConstPixels(x, offset.top, 1, 1)->opacity == 0) {
                 foundTop = true;
@@ -271,7 +271,7 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image image, bool isScreen) {
             }
         }
 
-        for (int y=offset.top; y<offset.bottom; y++) {
+        for (int y=offset.top; y<=offset.bottom-accuracy; y+=accuracy) {
 
             if (foundLeft || image.getConstPixels(offset.left, y, 1, 1)->opacity == 0) {
                 foundLeft = true;
@@ -284,10 +284,10 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image image, bool isScreen) {
             }
         }
 
-        if (!foundTop) offset.top++;
-        if (!foundBottom) offset.bottom--;
-        if (!foundLeft) offset.left++;
-        if (!foundRight) offset.right--;
+        if (!foundTop) offset.top+=accuracy;
+        if (!foundBottom) offset.bottom-=accuracy;
+        if (!foundLeft) offset.left+=accuracy;
+        if (!foundRight) offset.right-=accuracy;
 
         if (foundTop && foundBottom && foundLeft && foundRight) {
             break;
@@ -295,42 +295,33 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image image, bool isScreen) {
     }
 
     if (!foundTop || !foundBottom || !foundLeft || !foundRight) {
-        offset = (Rect){0, width, height, 0};
+        return (Rect){-1, -1, -1, -1};
     } else {
         // Ensure that the area between template and image is 100% filled  with either template or the image, so zoom the image a little bit bigger.
         offset = (Rect){
-            (int)fmax(0, offset.top-2),
-            (int)fmin(width, offset.right+2),
-            (int)fmin(height, offset.bottom+2),
-            (int)fmax(0, offset.left-2)
+            (int)fmax(0, offset.top-accuracy),
+            (int)fmin(width, offset.right+accuracy),
+            (int)fmin(height, offset.bottom+accuracy),
+            (int)fmax(0, offset.left-accuracy)
         };
     }
 
     std::cout << "Top: " << offset.top << ", Right: " << offset.right << ", Bottom: " << offset.bottom << ", Left: " << offset.left << std::endl;
 
+    return offset;
+}
+
+void ImageProcessor::writeOffset(Rect offset, std::string filename) {
     boost::property_tree::ptree ptree;
     ptree.put("offset_top", offset.top);
     ptree.put("offset_right", offset.right);
     ptree.put("offset_bottom", offset.bottom);
     ptree.put("offset_left", offset.left);
 
-    std::string filename;
-    if (isScreen) {
-        filename = "/.template_screen_props.json";
-    } else {
-        filename = "/.template_props.json";
-    }
+    boost::property_tree::write_json(filename, ptree);
+   }
 
-    try {
-        boost::property_tree::write_json(std::string(getenv("HOME")) + filename, ptree);
-    } catch (boost::exception &e) {
-        std::cerr << "Error writing template props." << std::endl;
-    }
-
-    return offset;
-}
-
-void ImageProcessor::updateTemplate(void *data, size_t size) {
+bool ImageProcessor::updateTemplate(void *data, size_t size) {
     Magick::Blob blob = Blob(data, size);
     Image image = Image(blob);
 
@@ -339,21 +330,51 @@ void ImageProcessor::updateTemplate(void *data, size_t size) {
 
     image.backgroundColor(Color());
 
-    image.resize(Geometry("1864x1228^"));
+    image.scale(Geometry("1864x1228^"));
     image.extent(Geometry("1864x1228"), CenterGravity);
 
-    image.write(std::string(getenv("HOME")) + "/.template.png");
+    Rect offset = getOffset(image, 2);
 
-    this->offset = getOffset(image, false);
+    // No alpha found, so the image isn't a proper template
+    if (offset.top == -1) {
+        return false;
+    }
+
+    Image imageScreen = Image(image);
+    imageScreen.scale(Geometry("1280x800^"));
+    imageScreen.extent(Geometry("1280x800"), CenterGravity);
+
+    Rect offsetScreen = getOffset(imageScreen, 2);
+
+    if (offsetScreen.top == -1) {
+        return false;
+    }
+
+    std::string home = std::string(getenv("HOME"));
+    std::string imageFilename = home + "/.template.png";
+    std::string imageScreenFilename = home + "/.template_screen.png";
+    std::string offsetFilename = home + "/.template_props.json";
+    std::string offsetScreenFilename = home + "/.template_screen_props.json";
+
+    try {
+        image.write(imageFilename);
+        imageScreen.write(imageScreenFilename);
+        writeOffset(offset, offsetFilename);
+        writeOffset(offsetScreen, offsetScreenFilename);
+    } catch (boost::exception &e) {
+        // Clean up if there was an error
+        std::remove(imageFilename.c_str());
+        std::remove(imageScreenFilename.c_str());
+        std::remove(offsetFilename.c_str());
+        std::remove(offsetScreenFilename.c_str());
+        this->templateImage = nullptr;
+        this->templateLoaded = false;
+        return false;
+    }
+
+    this->offset = offset;
     this->templateImage = image;
     this->templateLoaded = true;
 
-    Image imageScreen = Image(image);
-
-    imageScreen.thumbnail(Geometry("1280x800^"));
-    imageScreen.extent(Geometry("1280x800"), CenterGravity);
-
-    imageScreen.write(std::string(getenv("HOME")) + "/.template_screen.png");
-
-    getOffset(imageScreen, true);
+    return true;
 }

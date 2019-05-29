@@ -45,19 +45,13 @@ namespace selfomat {
             Image templateImage;
             Rect offset;
 
-            /*
-            int offsetTop;
-            int offsetLeft;
-            int offsetBottom;
-            int offsetRight;
-            */
-
             ILogger *logger;
 
             void *latestBuffer = nullptr;
             size_t latestBufferSize = 0;
 
-            Rect getOffset(Image image, bool isScreen);
+            Rect getOffset(Image image, int accuracy = 1);
+            void writeOffset(Rect offset, std::string filename);
 
         public:
             explicit ImageProcessor(ILogger *logger);
@@ -75,7 +69,7 @@ namespace selfomat {
                 return templateLoaded;
             }
 
-            void updateTemplate(void *data, size_t size);
+            bool updateTemplate(void *data, size_t size);
         };
     }
 }

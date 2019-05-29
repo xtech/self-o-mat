@@ -255,6 +255,238 @@
                 return Status;
             })();
     
+            selfomat.BoothError = (function() {
+    
+                /**
+                 * Properties of a BoothError.
+                 * @memberof xtech.selfomat
+                 * @interface IBoothError
+                 * @property {number} code BoothError code
+                 * @property {string} title BoothError title
+                 * @property {string} message BoothError message
+                 */
+    
+                /**
+                 * Constructs a new BoothError.
+                 * @memberof xtech.selfomat
+                 * @classdesc Represents a BoothError.
+                 * @implements IBoothError
+                 * @constructor
+                 * @param {xtech.selfomat.IBoothError=} [properties] Properties to set
+                 */
+                function BoothError(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * BoothError code.
+                 * @member {number} code
+                 * @memberof xtech.selfomat.BoothError
+                 * @instance
+                 */
+                BoothError.prototype.code = 0;
+    
+                /**
+                 * BoothError title.
+                 * @member {string} title
+                 * @memberof xtech.selfomat.BoothError
+                 * @instance
+                 */
+                BoothError.prototype.title = "";
+    
+                /**
+                 * BoothError message.
+                 * @member {string} message
+                 * @memberof xtech.selfomat.BoothError
+                 * @instance
+                 */
+                BoothError.prototype.message = "";
+    
+                /**
+                 * Creates a new BoothError instance using the specified properties.
+                 * @function create
+                 * @memberof xtech.selfomat.BoothError
+                 * @static
+                 * @param {xtech.selfomat.IBoothError=} [properties] Properties to set
+                 * @returns {xtech.selfomat.BoothError} BoothError instance
+                 */
+                BoothError.create = function create(properties) {
+                    return new BoothError(properties);
+                };
+    
+                /**
+                 * Encodes the specified BoothError message. Does not implicitly {@link xtech.selfomat.BoothError.verify|verify} messages.
+                 * @function encode
+                 * @memberof xtech.selfomat.BoothError
+                 * @static
+                 * @param {xtech.selfomat.IBoothError} message BoothError message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                BoothError.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.code);
+                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.title);
+                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.message);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified BoothError message, length delimited. Does not implicitly {@link xtech.selfomat.BoothError.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof xtech.selfomat.BoothError
+                 * @static
+                 * @param {xtech.selfomat.IBoothError} message BoothError message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                BoothError.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a BoothError message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof xtech.selfomat.BoothError
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {xtech.selfomat.BoothError} BoothError
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                BoothError.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.xtech.selfomat.BoothError();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.code = reader.int32();
+                            break;
+                        case 2:
+                            message.title = reader.string();
+                            break;
+                        case 3:
+                            message.message = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    if (!message.hasOwnProperty("code"))
+                        throw $util.ProtocolError("missing required 'code'", { instance: message });
+                    if (!message.hasOwnProperty("title"))
+                        throw $util.ProtocolError("missing required 'title'", { instance: message });
+                    if (!message.hasOwnProperty("message"))
+                        throw $util.ProtocolError("missing required 'message'", { instance: message });
+                    return message;
+                };
+    
+                /**
+                 * Decodes a BoothError message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof xtech.selfomat.BoothError
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {xtech.selfomat.BoothError} BoothError
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                BoothError.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a BoothError message.
+                 * @function verify
+                 * @memberof xtech.selfomat.BoothError
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                BoothError.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (!$util.isInteger(message.code))
+                        return "code: integer expected";
+                    if (!$util.isString(message.title))
+                        return "title: string expected";
+                    if (!$util.isString(message.message))
+                        return "message: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a BoothError message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof xtech.selfomat.BoothError
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {xtech.selfomat.BoothError} BoothError
+                 */
+                BoothError.fromObject = function fromObject(object) {
+                    if (object instanceof $root.xtech.selfomat.BoothError)
+                        return object;
+                    var message = new $root.xtech.selfomat.BoothError();
+                    if (object.code != null)
+                        message.code = object.code | 0;
+                    if (object.title != null)
+                        message.title = String(object.title);
+                    if (object.message != null)
+                        message.message = String(object.message);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a BoothError message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof xtech.selfomat.BoothError
+                 * @static
+                 * @param {xtech.selfomat.BoothError} message BoothError
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                BoothError.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.code = 0;
+                        object.title = "";
+                        object.message = "";
+                    }
+                    if (message.code != null && message.hasOwnProperty("code"))
+                        object.code = message.code;
+                    if (message.title != null && message.hasOwnProperty("title"))
+                        object.title = message.title;
+                    if (message.message != null && message.hasOwnProperty("message"))
+                        object.message = message.message;
+                    return object;
+                };
+    
+                /**
+                 * Converts this BoothError to JSON.
+                 * @function toJSON
+                 * @memberof xtech.selfomat.BoothError
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                BoothError.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return BoothError;
+            })();
+    
             selfomat.IntUpdate = (function() {
     
                 /**

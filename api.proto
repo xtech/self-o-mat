@@ -14,6 +14,12 @@ message Status {
     required State current_state = 1;
 }
 
+message BoothError {
+    required int32 code = 1;
+    required string title = 2;
+    required string message = 3;
+}
+
 message IntUpdate {
     required int64 value = 1;
 }

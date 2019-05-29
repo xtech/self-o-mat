@@ -25,8 +25,6 @@ bool BoothApi::start() {
         } else {
             old();
         }
-
-        return;
     });
 
 
@@ -46,7 +44,6 @@ bool BoothApi::start() {
                 camera->setAperture(update.value());
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/camera_settings/iso")
@@ -65,7 +62,6 @@ bool BoothApi::start() {
                 camera->setIso(update.value());
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/camera_settings/shutter_speed")
@@ -84,7 +80,6 @@ bool BoothApi::start() {
                 camera->setShutterSpeed(update.value());
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/camera_settings/exposure_correction")
@@ -103,7 +98,6 @@ bool BoothApi::start() {
                 camera->setExposureCorrection(update.value());
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/camera_settings/exposure_correction_trigger")
@@ -122,7 +116,6 @@ bool BoothApi::start() {
                 camera->setExposureCorrectionTrigger(update.value());
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
 
@@ -142,7 +135,6 @@ bool BoothApi::start() {
                 camera->setImageFormat(update.value());
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/camera_settings")
@@ -262,7 +254,6 @@ bool BoothApi::start() {
                 cout << "updated storage enabled to: " << update.value() << endl;
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings/printer/enabled")
@@ -278,7 +269,6 @@ bool BoothApi::start() {
                 cout << "updated printer enabled to: " << update.value() << endl;
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings/flash/enabled")
@@ -297,7 +287,6 @@ bool BoothApi::start() {
                 logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings/flash/brightness")
@@ -316,7 +305,6 @@ bool BoothApi::start() {
                 logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
 
                 served::response::stock_reply(200, res);
-                return;
             });
     mux.handle("/booth_settings/flash/fade")
             .post([this](served::response &res, const served::request &req) {
@@ -334,7 +322,6 @@ bool BoothApi::start() {
                 logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
 
@@ -354,7 +341,6 @@ bool BoothApi::start() {
                 logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings/flash/duration")
@@ -373,7 +359,6 @@ bool BoothApi::start() {
                 logic->setFlashParameters(flashEnabled, flashBrightness, flashFade, delayMicros, durationMicros, true);
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings/template_enabled")
@@ -387,7 +372,6 @@ bool BoothApi::start() {
                 logic->setTemplateEnabled(update.value(), true);
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings/led_offset")
@@ -402,7 +386,6 @@ bool BoothApi::start() {
                 logic->setLEDOffset(update.value()-ledCount, true);
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings/countdown_duration")
@@ -416,7 +399,6 @@ bool BoothApi::start() {
                 logic->setCountdownDuration(update.value()+1, true);
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings/led_mode")
@@ -436,7 +418,6 @@ bool BoothApi::start() {
                 }
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
 
@@ -457,7 +438,6 @@ bool BoothApi::start() {
                 }
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
 
@@ -470,14 +450,12 @@ bool BoothApi::start() {
 
                 logic->trigger();
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/cancel_print")
             .post([this](served::response &res, const served::request &req) {
                 logic->cancelPrint();
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/focus")
@@ -489,7 +467,6 @@ bool BoothApi::start() {
 
                 logic->adjustFocus();
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/flash")
@@ -497,14 +474,12 @@ bool BoothApi::start() {
                 logic->flashTest();
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/update")
             .post([this](served::response &res, const served::request &req) {
                 logic->stopForUpdate();
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/template_upload")
@@ -512,10 +487,19 @@ bool BoothApi::start() {
 
                 string body =  req.body();
 
-                logic->updateTemplate((void *)body.c_str(), body.size());
+                if (!logic->updateTemplate((void *)body.c_str(), body.size())) {
+
+                    BoothError error;
+                    error.set_title("Template");
+                    error.set_message("Keine Transparenz gefunden! Nur an transparenten Stellen im Template wird das Foto sichtbar.");
+                    error.set_code(400);
+
+                    res << error.SerializeAsString();
+
+                    return;
+                }
 
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/booth_settings")
@@ -685,14 +669,12 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
                 logic->enableStressTest();
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/unstress")
             .post([this](served::response &res, const served::request &req) {
                 logic->disableStressTest();
                 served::response::stock_reply(200, res);
-                return;
             });
 
     mux.handle("/version")

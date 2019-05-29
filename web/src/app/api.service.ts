@@ -5,10 +5,12 @@ import {HttpClient} from '@angular/common/http';
 import {environment} from '../environments/environment';
 import {LoadingController} from '@ionic/angular';
 import {ActionSheetController} from '@ionic/angular';
+import {AlertController} from '@ionic/angular';
 
 import {xtech} from './protos/api';
 
 import * as Long from 'long';
+import BoothError = xtech.selfomat.BoothError;
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +26,8 @@ export class XAPIService {
     constructor(
     	private readonly http: HttpClient,
     	public loadingController: LoadingController,
-    	public actionSheetController: ActionSheetController
+    	public actionSheetController: ActionSheetController,
+    	public alertController: AlertController
     ) {}
 
     values(obj: Object): any[] {
@@ -78,9 +81,26 @@ export class XAPIService {
         return boothSettings;
     }
 
+    parseBoothError(response: ArrayBuffer): xtech.selfomat.BoothError {
+        const boothError = xtech.selfomat.BoothError.decode(new Uint8Array(response));
+        return boothError;
+    }
+
+
     handleError(error): Observable<any> {
         console.error(error);
         return throwError(error || 'Server error');
+    }
+
+    async presentAlert(title, message) {
+        const alert = await this.alertController.create({
+            header: title,
+            subHeader: null,
+            message: message,
+            buttons: ['OK']
+        });
+
+        await alert.present();
     }
 
     clickItem($event, setting, index) {
@@ -207,7 +227,7 @@ export class XAPIService {
             if (setting['inputAccept'].length > 0) {
                 const types = setting['inputAccept'].split(',');
                 if (!types.includes(file.type.toLowerCase())) {
-                    alert('Unsupported file!');
+                    this.presentAlert('Error', 'Unsupported file!');
                     return;
                 }
             }
@@ -225,11 +245,22 @@ export class XAPIService {
                 const req = new XMLHttpRequest();
                 req.open('POST', environment.SERVER_URL + setting['postUrl'], true);
                 req.setRequestHeader('content-type', 'blob');
-                req.onload = function () {
-                    this.postLoadingController.dismiss();
-                    this.postLoadingController = null;
+                req.responseType = 'arraybuffer';
+                req.onreadystatechange = function() {
+                    if (req.readyState === XMLHttpRequest.DONE) {
+                        this.postLoadingController.dismiss();
+                        this.postLoadingController = null;
+
+                        try {
+                            const error = this.parseBoothError(req.response);
+                            if (error.code > 0) {
+                                this.presentAlert(error.title, error.message);
+                            }
+                        } catch (e) {}
+                    }
                 }.bind(this);
-                req.onerror = req.onload;
+
+                req.onerror = req.onreadystatechange;
                 req.send(buffer);
 
             }.bind(this);
