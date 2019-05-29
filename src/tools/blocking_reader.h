@@ -25,6 +25,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/deadline_timer.hpp>
+#include <iostream>
 
 class blocking_reader
 {
@@ -39,6 +40,10 @@ class blocking_reader
                        size_t bytes_transferred) {
         read_error = (error || bytes_transferred == 0);
 
+        if(read_error) {
+            std::cout << "blocking reader had read error: " << error.message() << std::endl;
+        }
+
         // Read has finished, so cancel the
         // timer.
         timer.cancel();
@@ -51,6 +56,8 @@ class blocking_reader
             // yes
             return;
         }
+
+        std::cout << "blocking reader timed out" << std::endl;
 
         // no, we have timed out, so kill
         // the read operation
@@ -72,7 +79,7 @@ public:
 
     // Reads a character or times out
     // returns false if the read times out
-    bool read_char(char& val) {
+    bool get_response(const char* request, size_t request_size, char& val) {
 
         val = c = '\0';
 
@@ -80,12 +87,16 @@ public:
         // to do a reset for subsequent reads to work.
         port.get_io_service().reset();
 
+
         // Asynchronously read 1 character.
         boost::asio::async_read(port, boost::asio::buffer(&c, 1),
                                 boost::bind(&blocking_reader::read_complete,
                                             this,
                                             boost::asio::placeholders::error,
                                             boost::asio::placeholders::bytes_transferred));
+
+        // send the request
+        port.write_some(boost::asio::buffer(request, request_size));
 
         // Setup a deadline time to implement our timeout.
         timer.expires_from_now(boost::posix_time::milliseconds(timeout));

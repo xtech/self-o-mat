@@ -208,7 +208,6 @@ void BoothLogic::cameraThread() {
     camera->stop();
 }
 
-int i = 1;
 
 void BoothLogic::logicThread() {
     gui->logDebug("Starting Logic Thread");

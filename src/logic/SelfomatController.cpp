@@ -48,24 +48,28 @@ bool SelfomatController::autoconnect(std::string searchPrefix) {
         try {
             tmpSerialPort.open(path.string());
             tmpSerialPort.set_option(boost::asio::serial_port_base::baud_rate(38400));
-            tmpSerialPort.write_some(boost::asio::buffer("\2i ", 3));
 
             std::cout << "[selfomat controller] Waiting for identification" << std::endl;
 
             blocking_reader reader(tmpSerialPort, 3000);
-            if (reader.read_char(c)) {
-                std::cout << "[selfomat controller] Got a " << c << std::endl;
-                if (c == 'b') {
-                    std::cout << "[selfomat controller] Found the selfomat controller!" << std::endl;
-                    tmpSerialPort.close();
-                    foundController = true;
-                    controllerPath = path;
-                    break;
+            bool success = false;
+            for(int i = 0; i < 10; i++) {
+                if (reader.get_response("\2i ", 3, c)) {
+                    std::cout << "[selfomat controller] Got a " << c << std::endl;
+                    if (c == 'b') {
+                        std::cout << "[selfomat controller] Found the selfomat controller!" << std::endl;
+                        tmpSerialPort.close();
+                        foundController = true;
+                        controllerPath = path;
+                        break;
+                    }
+                    std::cout << "[selfomat controller] Unknown identification: " << c << std::endl;
+                } else {
+                    std::cout << "[selfomat controller] No identification received" << std::endl;
                 }
-                std::cout << "[selfomat controller] Unknown identification: " << c << std::endl;
-            } else {
-                std::cout << "[selfomat controller] No identification received" << std::endl;
             }
+            if(foundController)
+                break;
             tmpSerialPort.close();
         } catch (std::exception const &e) {
             std::cerr << "[selfomat controller] Error opening button on port " << path << ". Reason was: " << e.what() << std::endl;
@@ -101,7 +105,7 @@ bool SelfomatController::loadSettingsFromBoard() {
                 std::cout << "[selfomat controller] setting loading timed out. retrying.." << std::endl;
             }
 
-        } while (!settingsLoaded);
+        } while (!settingsLoaded && isStarted);
     }
     return true;
 }
@@ -132,7 +136,7 @@ bool SelfomatController::writeSettingsToBoard() {
                 std::cout << "[selfomat controller] setting writing timed out. retrying.." << std::endl;
             }
 
-        } while (!settingsWritten);
+        } while (!settingsWritten && isStarted);
     }
     return true;
 }
@@ -307,7 +311,7 @@ void SelfomatController::showAgreement() {
                 std::cout << "agreement timed out. retrying.." << std::endl;
             }
 
-        } while (!aggreementStateEntered);
+        } while (!aggreementStateEntered && isStarted);
     }
 }
 
@@ -321,6 +325,10 @@ void SelfomatController::setStressTestEnabled(bool enabled) {
     } else {
         sendCommand('s');
     }
+}
+
+void SelfomatController::remoteTrigger() {
+    sendCommand('t');
 }
 
 uint8_t SelfomatController::getLedType() {
