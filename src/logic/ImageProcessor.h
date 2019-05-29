@@ -50,7 +50,7 @@ namespace selfomat {
             void *latestBuffer = nullptr;
             size_t latestBufferSize = 0;
 
-            Rect getOffset(Image image, int accuracy = 1);
+            Rect getOffset(Image *image, int accuracy = 1);
             void writeOffset(Rect offset, std::string filename);
 
         public:

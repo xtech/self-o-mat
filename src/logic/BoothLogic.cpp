@@ -590,6 +590,5 @@ void BoothLogic::stop() {
 bool BoothLogic::updateTemplate(void *data, size_t size) {
     bool result = imageProcessor.updateTemplate(data, size);
     gui->reloadTemplate();
-
     return result;
 }

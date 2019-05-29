@@ -79,6 +79,8 @@ void BoothGui::stop() {
 
 void BoothGui::reloadTemplate() {
 
+    imageMutex.lock();
+
     templateLoaded = textureFinalImageOverlay.loadFromFile(std::string(getenv("HOME")) + "/.template_screen.png");
     if (!templateLoaded) {
         cerr << "Could not load screen template asset." << endl;
@@ -99,6 +101,8 @@ void BoothGui::reloadTemplate() {
             logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
         }
     }
+
+    imageMutex.unlock();
 }
 
 void BoothGui::updatePreviewImage(void *data, uint32_t width, uint32_t height) {

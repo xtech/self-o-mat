@@ -244,10 +244,10 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
     return inputImageMagic;
 }
 
-ImageProcessor::Rect ImageProcessor::getOffset(Image image, int accuracy) {
+ImageProcessor::Rect ImageProcessor::getOffset(Image *image, int accuracy) {
 
-    int width = (int) image.columns();
-    int height = (int) image.rows();
+    int width = (int) image->columns();
+    int height = (int) image->rows();
 
     Rect offset = (Rect){0, width, height, 0};
 
@@ -256,14 +256,16 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image image, int accuracy) {
     bool foundBottom = false;
     bool foundRight = false;
 
+    std::cout << "Looking for transparent area with accuracy: " <<  accuracy << std::endl;
+
     while (offset.top < offset.bottom && offset.left < offset.right) {
 
         for (int x=offset.left; x<=offset.right-accuracy; x+=accuracy) {
 
-            if (foundTop || image.getConstPixels(x, offset.top, 1, 1)->opacity == 0) {
+            if (foundTop || image->getConstPixels(x, offset.top, 1, 1)->opacity == 0) {
                 foundTop = true;
             }
-            if (foundBottom || image.getConstPixels(x, offset.bottom, 1, 1)->opacity == 0) {
+            if (foundBottom || image->getConstPixels(x, offset.bottom, 1, 1)->opacity == 0) {
                 foundBottom = true;
             }
             if (foundBottom && foundTop) {
@@ -273,10 +275,10 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image image, int accuracy) {
 
         for (int y=offset.top; y<=offset.bottom-accuracy; y+=accuracy) {
 
-            if (foundLeft || image.getConstPixels(offset.left, y, 1, 1)->opacity == 0) {
+            if (foundLeft || image->getConstPixels(offset.left, y, 1, 1)->opacity == 0) {
                 foundLeft = true;
             }
-            if (foundRight || image.getConstPixels(offset.right, y, 1, 1)->opacity == 0) {
+            if (foundRight || image->getConstPixels(offset.right, y, 1, 1)->opacity == 0) {
                 foundRight = true;
             }
             if (foundLeft && foundRight) {
@@ -295,14 +297,17 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image image, int accuracy) {
     }
 
     if (!foundTop || !foundBottom || !foundLeft || !foundRight) {
+        if (accuracy > 1) {
+            return getOffset(image, --accuracy);
+        }
         return (Rect){-1, -1, -1, -1};
     } else {
         // Ensure that the area between template and image is 100% filled  with either template or the image, so zoom the image a little bit bigger.
         offset = (Rect){
-            (int)fmax(0, offset.top-accuracy),
-            (int)fmin(width, offset.right+accuracy),
-            (int)fmin(height, offset.bottom+accuracy),
-            (int)fmax(0, offset.left-accuracy)
+            (int)fmax(0, offset.top-accuracy-1),
+            (int)fmin(width, offset.right+accuracy+1),
+            (int)fmin(height, offset.bottom+accuracy+1),
+            (int)fmax(0, offset.left-accuracy-1)
         };
     }
 
@@ -325,26 +330,29 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
     Magick::Blob blob = Blob(data, size);
     Image image = Image(blob);
 
+    image.strip();
     image.channel(DefaultChannels);
     image.alphaChannel(ActivateAlphaChannel);
 
     image.backgroundColor(Color());
 
+    // TODO: Remove hard coded resolution!
     image.scale(Geometry("1864x1228^"));
     image.extent(Geometry("1864x1228"), CenterGravity);
 
-    Rect offset = getOffset(image, 2);
+    Rect offsetPrint = getOffset(&image, 2);
 
     // No alpha found, so the image isn't a proper template
-    if (offset.top == -1) {
+    if (offsetPrint.top == -1) {
         return false;
     }
 
     Image imageScreen = Image(image);
+    // TODO: Remove hard coded resolution!
     imageScreen.scale(Geometry("1280x800^"));
     imageScreen.extent(Geometry("1280x800"), CenterGravity);
 
-    Rect offsetScreen = getOffset(imageScreen, 2);
+    Rect offsetScreen = getOffset(&imageScreen, 2);
 
     if (offsetScreen.top == -1) {
         return false;
@@ -359,9 +367,9 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
     try {
         image.write(imageFilename);
         imageScreen.write(imageScreenFilename);
-        writeOffset(offset, offsetFilename);
+        writeOffset(offsetPrint, offsetFilename);
         writeOffset(offsetScreen, offsetScreenFilename);
-    } catch (boost::exception &e) {
+    } catch (std::exception & error) {
         // Clean up if there was an error
         std::remove(imageFilename.c_str());
         std::remove(imageScreenFilename.c_str());
@@ -372,7 +380,7 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
         return false;
     }
 
-    this->offset = offset;
+    this->offset = offsetPrint;
     this->templateImage = image;
     this->templateLoaded = true;
 
