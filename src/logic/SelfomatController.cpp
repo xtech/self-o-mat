@@ -48,12 +48,11 @@ bool SelfomatController::autoconnect(std::string searchPrefix) {
         try {
             tmpSerialPort.open(path.string());
             tmpSerialPort.set_option(boost::asio::serial_port_base::baud_rate(38400));
-            tmpSerialPort.write_some(boost::asio::buffer("\2i ", 3));
 
             std::cout << "[selfomat controller] Waiting for identification" << std::endl;
 
             blocking_reader reader(tmpSerialPort, 3000);
-            if (reader.read_char(c)) {
+            if (reader.get_response("\2i ", 3, c)) {
                 std::cout << "[selfomat controller] Got a " << c << std::endl;
                 if (c == 'b') {
                     std::cout << "[selfomat controller] Found the selfomat controller!" << std::endl;
@@ -321,6 +320,10 @@ void SelfomatController::setStressTestEnabled(bool enabled) {
     } else {
         sendCommand('s');
     }
+}
+
+void SelfomatController::remoteTrigger() {
+    sendCommand('t');
 }
 
 uint8_t SelfomatController::getLedType() {

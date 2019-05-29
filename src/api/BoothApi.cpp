@@ -463,7 +463,8 @@ bool BoothApi::start() {
                     return;
                 }
 
-                logic->trigger();
+                auto controller = logic->getSelfomatController();
+                controller->remoteTrigger();
                 served::response::stock_reply(200, res);
                 return;
             });
