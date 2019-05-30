@@ -9,7 +9,7 @@
 <ion-content>
 
   <ion-list>
-    <ion-item *ngFor="let setting of apiService.values(settings)" lines="none" [detail]="(apiService.isPost(setting) || apiService.isLink(setting))" (click)='apiService.post($event, setting)'>
+    <ion-item *ngFor="let setting of apiService.values(settings); index as s" lines="none" [detail]="(apiService.isPost(setting) || apiService.isFileUpload(setting) || apiService.isLink(setting))" (click)='apiService.clickItem($event, setting, s)'>
       <ion-label *ngIf="!apiService.isNumber(setting['minValue'])">{{setting['name']}}</ion-label>
       <ion-label slot="start" *ngIf="apiService.isNumber(setting['minValue'])">{{setting['name']}}</ion-label>
       <ion-toggle slot="end" *ngIf="apiService.isBoolean(setting['currentValue'])" [(ngModel)]="setting['currentValue']" (ionChange)="apiService.updateSetting($event, setting)"></ion-toggle>
@@ -18,6 +18,7 @@
         <ion-select-option *ngFor="let value of apiService.getList(setting).values; index as i" [value]="i">{{value}}</ion-select-option>
       </ion-select>
       <ion-note slot="end" *ngIf="apiService.isReadOnly(setting)">{{setting['value']}}</ion-note>
+      <input id="input_{{s}}" type="file" (change)="apiService.fileUpload($event, setting)" *ngIf="apiService.isFileUpload(setting)" accept="{{setting['inputAccept']}}" />
     </ion-item>
   </ion-list>
 

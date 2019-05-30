@@ -204,6 +204,8 @@ namespace selfomat {
             SelfomatController* getSelfomatController();
 
             void adjustFocus();
+
+            bool updateTemplate(void *data, size_t size);
         };
 
     }

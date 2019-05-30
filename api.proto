@@ -14,6 +14,12 @@ message Status {
     required State current_state = 1;
 }
 
+message BoothError {
+    required int32 code = 1;
+    required string title = 2;
+    required string message = 3;
+}
+
 message IntUpdate {
     required int64 value = 1;
 }
@@ -36,6 +42,12 @@ message PostSetting {
     required string name = 1;
     required string post_url = 2;
     optional string alert = 3;
+}
+
+message FileUploadSetting {
+    required string name = 1;
+    required string post_url = 2;
+    optional string input_accept = 3;
 }
 
 message LinkSetting {
@@ -86,19 +98,19 @@ message CameraSettings {
     optional PostSetting focus = 9;
 }
 
-
 message BoothSettings {
     required BoolSetting storage_enabled = 1;
     required BoolSetting printer_enabled = 2;
     required BoolSetting flash_enabled = 3;
     required IntSetting flash_duration_micros = 4;
     required PostSetting flash_test = 5;
-    optional BoolSetting template_enabled = 6;
-    optional ListSetting led_mode = 7;
-    optional ListSetting led_count = 8;
-    required PostSetting led_offset_clockwise = 9;
-    required PostSetting led_offset_counter_clockwise = 10;
-    required ListSetting countdown_duration = 11;
-    required PostSetting update_mode = 12;
+    optional FileUploadSetting template_upload = 6;
+    optional BoolSetting template_enabled = 7;
+    optional ListSetting led_mode = 8;
+    optional ListSetting led_count = 9;
+    required PostSetting led_offset_clockwise = 10;
+    required PostSetting led_offset_counter_clockwise = 11;
+    required ListSetting countdown_duration = 12;
+    required PostSetting update_mode = 13;
     optional LinkSetting cups_link = 20;
 }

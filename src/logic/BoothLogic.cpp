@@ -583,3 +583,12 @@ void BoothLogic::acceptAgreement() {
 void BoothLogic::stop() {
     stop(false);
 }
+
+bool BoothLogic::updateTemplate(void *data, size_t size) {
+    bool result = imageProcessor.updateTemplate(data, size);
+    gui->reloadTemplate();
+    if (result) {
+        gui->addAlert(ALERT_TEMPLATE, L"Template wurde gespeichert", true, true);
+    }
+    return result;
+}
