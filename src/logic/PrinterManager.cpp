@@ -94,6 +94,7 @@ bool PrinterManager::refreshPrinterState() {
     currentStateReasons.clear();
 
     if (printer_name.empty()) {
+        currentPrinterState = STATE_UNKNOWN;
         return false;
     }
 
@@ -221,7 +222,9 @@ bool PrinterManager::printImage() {
     return false;
 }
 
-PrinterManager::PrinterManager(ILogger *logger) : logger(logger) {}
+PrinterManager::PrinterManager(ILogger *logger) : logger(logger) {
+    currentPrinterState = STATE_UNKNOWN;
+}
 
 bool PrinterManager::prepareImageForPrint(Magick::Image image) {
     // Write image to blob
@@ -236,6 +239,7 @@ bool PrinterManager::prepareImageForPrint(Magick::Image image) {
 
     sizeOfPreparedImage = blob.length();
     hasImagePrepared = true;
+
 
     return true;
 }

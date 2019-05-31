@@ -7,6 +7,10 @@
 #include "camera/NopCamera.h"
 #include "api/BoothApi.h"
 #include "ui/NopGui.h"
+#include <tools/readfile.h>
+
+#include <sstream>
+#include <iostream>
 
 using namespace std;
 using namespace boost;
@@ -85,13 +89,22 @@ int main(int argc, char *argv[]) {
     bool disable_watchdog = false;
     bool has_button = false;
     bool has_flash = false;
+    bool show_led_setup = false;
     string button_port_name;
     string image_dir;
 
+
+
     boost::property_tree::ptree ptree;
 
+    string box_type = "box_kit_v1";
+    readFile("/opt/.selfomat.type", box_type);
+    box_type.erase(std::remove(box_type.begin(), box_type.end(), '\n'), box_type.end());
+
+    cout << "Loading settings file for box: " << box_type << endl;
+
     try {
-        boost::property_tree::read_json("./settings.json", ptree);
+        boost::property_tree::read_json("./settings/" + box_type + ".json", ptree);
         camera_type = ptree.get<string>("camera_type");
         image_dir = ptree.get<string>("image_dir");
         button_port_name = ptree.get<string>("button_port_name");
@@ -99,6 +112,7 @@ int main(int argc, char *argv[]) {
         disable_watchdog = ptree.get<bool>("disable_watchdog");
         has_button = ptree.get<bool>("has_button");
         has_flash = ptree.get<bool>("has_flash");
+        show_led_setup = ptree.get<bool>("show_led_setup");
     } catch (boost::exception &e) {
         cerr << "Error loading properties. Using defaults." << endl;
     }
@@ -127,13 +141,13 @@ int main(int argc, char *argv[]) {
 
     cout << "Started Camera" << endl;
 
-    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, disable_watchdog);
+    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, disable_watchdog, show_led_setup);
 
     cout << "Started Logic" << endl;
 
     while(true) {
         try {
-            p_api = new api::BoothApi(p_logic, p_cam);
+            p_api = new api::BoothApi(p_logic, p_cam, show_led_setup);
             cout << "Starting API" << endl;
             p_api->start();
             break;

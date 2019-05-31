@@ -30,6 +30,28 @@ export namespace xtech {
             }
         }
 
+        interface IBoothError {
+            code: number;
+            title: string;
+            message: string;
+        }
+
+        class BoothError implements IBoothError {
+            constructor(properties?: xtech.selfomat.IBoothError);
+            public code: number;
+            public title: string;
+            public message: string;
+            public static create(properties?: xtech.selfomat.IBoothError): xtech.selfomat.BoothError;
+            public static encode(message: xtech.selfomat.IBoothError, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: xtech.selfomat.IBoothError, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): xtech.selfomat.BoothError;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): xtech.selfomat.BoothError;
+            public static verify(message: { [k: string]: any }): (string|null);
+            public static fromObject(object: { [k: string]: any }): xtech.selfomat.BoothError;
+            public static toObject(message: xtech.selfomat.BoothError, options?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
         interface IIntUpdate {
             value: (number|Long);
         }
@@ -107,12 +129,14 @@ export namespace xtech {
         interface IPostSetting {
             name: string;
             postUrl: string;
+            alert?: (string|null);
         }
 
         class PostSetting implements IPostSetting {
             constructor(properties?: xtech.selfomat.IPostSetting);
             public name: string;
             public postUrl: string;
+            public alert: string;
             public static create(properties?: xtech.selfomat.IPostSetting): xtech.selfomat.PostSetting;
             public static encode(message: xtech.selfomat.IPostSetting, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IPostSetting, writer?: $protobuf.Writer): $protobuf.Writer;
@@ -121,6 +145,48 @@ export namespace xtech {
             public static verify(message: { [k: string]: any }): (string|null);
             public static fromObject(object: { [k: string]: any }): xtech.selfomat.PostSetting;
             public static toObject(message: xtech.selfomat.PostSetting, options?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
+        interface IFileUploadSetting {
+            name: string;
+            postUrl: string;
+            inputAccept?: (string|null);
+        }
+
+        class FileUploadSetting implements IFileUploadSetting {
+            constructor(properties?: xtech.selfomat.IFileUploadSetting);
+            public name: string;
+            public postUrl: string;
+            public inputAccept: string;
+            public static create(properties?: xtech.selfomat.IFileUploadSetting): xtech.selfomat.FileUploadSetting;
+            public static encode(message: xtech.selfomat.IFileUploadSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: xtech.selfomat.IFileUploadSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): xtech.selfomat.FileUploadSetting;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): xtech.selfomat.FileUploadSetting;
+            public static verify(message: { [k: string]: any }): (string|null);
+            public static fromObject(object: { [k: string]: any }): xtech.selfomat.FileUploadSetting;
+            public static toObject(message: xtech.selfomat.FileUploadSetting, options?: $protobuf.IConversionOptions): { [k: string]: any };
+            public toJSON(): { [k: string]: any };
+        }
+
+        interface ILinkSetting {
+            name: string;
+            url: string;
+        }
+
+        class LinkSetting implements ILinkSetting {
+            constructor(properties?: xtech.selfomat.ILinkSetting);
+            public name: string;
+            public url: string;
+            public static create(properties?: xtech.selfomat.ILinkSetting): xtech.selfomat.LinkSetting;
+            public static encode(message: xtech.selfomat.ILinkSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static encodeDelimited(message: xtech.selfomat.ILinkSetting, writer?: $protobuf.Writer): $protobuf.Writer;
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): xtech.selfomat.LinkSetting;
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): xtech.selfomat.LinkSetting;
+            public static verify(message: { [k: string]: any }): (string|null);
+            public static fromObject(object: { [k: string]: any }): xtech.selfomat.LinkSetting;
+            public static toObject(message: xtech.selfomat.LinkSetting, options?: $protobuf.IConversionOptions): { [k: string]: any };
             public toJSON(): { [k: string]: any };
         }
 
@@ -262,9 +328,15 @@ export namespace xtech {
             flashEnabled: xtech.selfomat.IBoolSetting;
             flashDurationMicros: xtech.selfomat.IIntSetting;
             flashTest: xtech.selfomat.IPostSetting;
+            templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
             templateEnabled?: (xtech.selfomat.IBoolSetting|null);
-            ledOffset: xtech.selfomat.IListSetting;
+            ledMode?: (xtech.selfomat.IListSetting|null);
+            ledCount?: (xtech.selfomat.IListSetting|null);
+            ledOffsetClockwise: xtech.selfomat.IPostSetting;
+            ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
+            countdownDuration: xtech.selfomat.IListSetting;
             updateMode: xtech.selfomat.IPostSetting;
+            cupsLink?: (xtech.selfomat.ILinkSetting|null);
         }
 
         class BoothSettings implements IBoothSettings {
@@ -274,9 +346,15 @@ export namespace xtech {
             public flashEnabled: xtech.selfomat.IBoolSetting;
             public flashDurationMicros: xtech.selfomat.IIntSetting;
             public flashTest: xtech.selfomat.IPostSetting;
+            public templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
             public templateEnabled?: (xtech.selfomat.IBoolSetting|null);
-            public ledOffset: xtech.selfomat.IListSetting;
+            public ledMode?: (xtech.selfomat.IListSetting|null);
+            public ledCount?: (xtech.selfomat.IListSetting|null);
+            public ledOffsetClockwise: xtech.selfomat.IPostSetting;
+            public ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
+            public countdownDuration: xtech.selfomat.IListSetting;
             public updateMode: xtech.selfomat.IPostSetting;
+            public cupsLink?: (xtech.selfomat.ILinkSetting|null);
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
             public static encode(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;

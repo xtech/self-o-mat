@@ -7,15 +7,6 @@
 using namespace std;
 using namespace selfomat::ui;
 
-std::wstring readFile(const char* filename)
-{
-    std::wifstream wif(filename);
-    wif.imbue(std::locale("de_DE.UTF-8"));
-    std::wstringstream wss;
-    wss << wif.rdbuf();
-    return wss.str();
-}
-
 BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
@@ -50,13 +41,6 @@ bool BoothGui::start() {
     }
     imageSpriteLiveOverlay.setTexture(textureLiveOverlay);
 
-    templateLoaded = textureFinalImageOverlay.loadFromFile("/opt/assets/template_screen.png");
-    if (!templateLoaded) {
-        cerr << "Could not load screen template asset." << endl;
-    } else {
-        imageSpriteFinalOverlay.setTexture(textureFinalImageOverlay);
-    }
-
     if (!texturePrintOverlay.loadFromFile("./assets/print_overlay.png")) {
         cerr << "Could not load print template asset." << endl;
         return false;
@@ -69,28 +53,13 @@ bool BoothGui::start() {
     }
     imageNoCamera.setTexture(textureNoCamera);
 
-    agreement = readFile("./assets/agreement.txt");
+    readFile("./assets/agreement.txt", agreement);
     if (agreement.length() < 1) {
         cerr << "Could not load agreement text." << endl;
         return false;
     }
 
-
-    if(templateLoaded) {
-        // Read properties for the template
-        boost::property_tree::ptree ptree;
-        try {
-            boost::property_tree::read_json("/opt/assets/template_screen_props.json", ptree);
-            finalOverlayOffsetTop = ptree.get<int>("offset_top");
-            finalOverlayOffsetLeft = ptree.get<int>("offset_left");
-            finalOverlayOffsetRight = ptree.get<int>("offset_right");
-            finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
-        } catch (boost::exception &e) {
-            logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
-            return false;
-        }
-    }
-
+    reloadTemplate();
 
     rect_overlay = sf::RectangleShape(sf::Vector2f(videoMode.width, videoMode.height));
     count_down_circle = sf::CircleShape(19.0f);
@@ -106,6 +75,34 @@ void BoothGui::stop() {
         std::cout << "Waiting for gui to stop" << std::endl;
         renderThreadHandle.join();
     }
+}
+
+void BoothGui::reloadTemplate() {
+
+    imageMutex.lock();
+
+    templateLoaded = textureFinalImageOverlay.loadFromFile(std::string(getenv("HOME")) + "/.template_screen.png");
+    if (!templateLoaded) {
+        cerr << "Could not load screen template asset." << endl;
+    } else {
+        imageSpriteFinalOverlay.setTexture(textureFinalImageOverlay);
+    }
+
+    if(templateLoaded) {
+        // Read properties for the template
+        boost::property_tree::ptree ptree;
+        try {
+            boost::property_tree::read_json(std::string(getenv("HOME")) + "/.template_screen_props.json", ptree);
+            finalOverlayOffsetTop = ptree.get<int>("offset_top");
+            finalOverlayOffsetLeft = ptree.get<int>("offset_left");
+            finalOverlayOffsetRight = ptree.get<int>("offset_right");
+            finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
+        } catch (boost::exception &e) {
+            logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
+        }
+    }
+
+    imageMutex.unlock();
 }
 
 void BoothGui::updatePreviewImage(void *data, uint32_t width, uint32_t height) {
@@ -130,7 +127,7 @@ void BoothGui::renderThread() {
     cout << "Render thread started!" << endl;
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
-    window.create(videoMode, "self-o-mat", sf::Style::Default, settings);
+    window.create(videoMode, "self-o-mat", sf::Style::None, settings);
 
     window.setVerticalSyncEnabled(true);
 
@@ -605,7 +602,13 @@ void BoothGui::drawAlerts() {
     // Draw the alerts
     for (auto &alert : alerts) {
         int y = row_height * row;
-        sf::Color color = COLOR_ALERT;
+        sf::Color color;
+
+        if (alert.second.hint) {
+            color = sf::Color(75, 75, 75);
+        } else {
+            color = COLOR_ALERT;
+        }
 
         color.a = (uint8_t) (255 * alpha);
 
@@ -678,8 +681,7 @@ void BoothGui::hideAgreement()  {
     setState(STATE_TRANS_AGREEMENT);
 }
 
-void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) {
-
+void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, bool isHint) {
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
     if (alerts.empty())
@@ -691,14 +693,17 @@ void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) {
     sf::Int32 endTime = 0;
 
     if (autoRemove) {
-        endTime = startTime + 10000;
+        if (isHint) {
+            endTime = startTime + 5000;
+        } else  {
+            endTime = startTime + 10000;
+        }
     }
 
-    alerts.insert(std::make_pair(type, (Alert){startTime, endTime, std::move(text)}));
+    alerts.insert(std::make_pair(type, (Alert){startTime, endTime, std::move(text), isHint}));
 }
 
 void BoothGui::removeAlert(ALERT_TYPE type, bool forced) {
-
     auto alert = alerts.find(type);
 
     if (alert == alerts.end())

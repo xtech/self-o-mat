@@ -15,7 +15,7 @@ namespace selfomat {
             class ImageFormatController : public ChoiceRangeController {
             public:
                 ImageFormatController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) :
-                    ChoiceRangeController(gp, camera, rootWidget, {"imageformat"}) {
+                    ChoiceRangeController(gp, camera, rootWidget, {"imageformat", "imagequality"}) {
                 }
             };
         }

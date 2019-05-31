@@ -18,6 +18,7 @@ namespace selfomat {
         private:
             sf::Clock fpsClock;
             cv::VideoCapture video;
+            boost::mutex cameraMutex;
 
         public:
             CameraStartResult start() override {
@@ -35,6 +36,8 @@ namespace selfomat {
             }
 
             bool capturePreviewBlocking(void **buffer, size_t *bufferSize, ImageInfo *resultInfo) override {
+
+                cameraMutex.lock();
 
                 cv::Mat image;
                 if (video.isOpened()) {
@@ -62,14 +65,16 @@ namespace selfomat {
                     sf::Int32 elapsedTime = fpsClock.getElapsedTime().asMicroseconds();
                     fpsClock.restart();
                     auto timeToWait = vFPS - elapsedTime;
+                    cameraMutex.unlock();
                     if (timeToWait > 0) {
                         usleep(timeToWait);
                     }
                 } else {
                     image.copyTo(outImage);
+                    cameraMutex.unlock();
                     usleep(50000);
                 }
-
+                
                 return true;
             }
 
@@ -85,6 +90,8 @@ namespace selfomat {
             virtual bool
             readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBufferSize, std::string *fullJpegFilename,
                               void **previewBuffer, size_t *previewBufferSize, ImageInfo *previewImageInfo) {
+
+                cameraMutex.lock();
 
                 cv::Mat image;
                 if (video.isOpened()) {
@@ -121,6 +128,7 @@ namespace selfomat {
                 previewImageInfo->height = previewSize.height;
 
                 *fullJpegFilename = "nop.jpg";
+                cameraMutex.unlock();
                 usleep(50000);
                 return true;
             }

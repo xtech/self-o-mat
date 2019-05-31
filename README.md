@@ -24,6 +24,18 @@ Currently the self-o-mat software is a basic but stable and reliable software wi
 - __Live Template Overlay__ - Want to use self-o-mat commerially? Brand your images with your own logo!
 - __App Inclusive__ - update camera settings on the go. Just connect your smartphone and change settings live!
 
+## Supported Cameras
+- Cameras
+  - Canon EOS 450D (no autofocus)
+  - Canon EOS 5D Mark III
+  - Canon EOS 600D
+  - Nikon D7500
+  - Nikon D7200
+- Printers
+  - Canon Selphy CP 1200
+  - Canon Selphy CP 1300
+  - Mitsubishi CP-D70DW
+
 # How to get started?
 Getting started with self-o-mat is simple. You just need to clone the git repository, install the dependencies, build the software and run it.
 __If you're not sure how to do this, we provide a hardware kit which includes the precompiled software fully installed. Just plug and play: [Get it here!](https://shop.self-o-mat.de/fotobox-bausatz/37-hardware-kit.html)__

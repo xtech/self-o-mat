@@ -18,6 +18,7 @@
 #include <tools/verbose.h>
 #include <tools/JpegDecoder.h>
 #include <easyexif/exif.h>
+#include <opencv2/opencv.hpp>
 
 using namespace Magick;
 using namespace selfomat::tools;
@@ -26,6 +27,13 @@ namespace selfomat {
     namespace logic {
         class ImageProcessor {
         private:
+            struct Rect {
+                int top;
+                int right;
+                int bottom;
+                int left;
+            };
+
             static const std::string TAG;
 
             Blob adobeRgbIcc;
@@ -35,15 +43,15 @@ namespace selfomat {
 
             bool templateLoaded = false;
             Image templateImage;
-            int offsetTop;
-            int offsetLeft;
-            int offsetBottom;
-            int offsetRight;
+            Rect offset;
 
             ILogger *logger;
 
             void *latestBuffer = nullptr;
             size_t latestBufferSize = 0;
+
+            Rect getOffset(Image *image, int accuracy = 1);
+            void writeOffset(Rect offset, std::string filename);
 
         public:
             explicit ImageProcessor(ILogger *logger);
@@ -60,6 +68,8 @@ namespace selfomat {
             bool isTemplateLoaded() {
                 return templateLoaded;
             }
+
+            bool updateTemplate(void *data, size_t size);
         };
     }
 }

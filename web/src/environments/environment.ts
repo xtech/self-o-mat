@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  SERVER_URL: 'http://192.168.178.119:9080'
+  SERVER_URL: 'http://localhost:9080'
+
 };
 
 /*

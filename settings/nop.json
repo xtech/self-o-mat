@@ -4,6 +4,7 @@
   "has_button": false,
   "disable_watchdog": false,
   "debug": false,
-  "button_port_name": "/dev/ttyS0",
-  "image_dir": "/home/daniel/Bilder"
+  "button_port_name": "/dev/ttyUSB",
+  "image_dir": "/tmp",
+  "show_led_setup": false
 }

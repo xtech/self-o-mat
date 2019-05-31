@@ -3,7 +3,7 @@
 
 NAME=app
 BINARY=self_o_mat
-FILES="$BINARY settings.json assets/* libs/* firmware.hex version app/*"
+FILES="$BINARY settings/* assets/* libs/* firmware.hex version app/* start.sh"
 TAR=update.tar
 BIN_DIR=$2
 
@@ -18,7 +18,7 @@ clean() {
 
     # clean settings and assets
     rm -rf ./assets
-    rm -rf ./settings.json
+    rm -rf ./settings
     rm -rf ./firmware.hex
     rm -rf ./version
     rm -rf ./app
@@ -34,13 +34,14 @@ clean
 
 cd $2
 rm -f selfomat.update
-
+rm -f selfomat.tar.gz
 
 # get the settings and assets from src dir into the build dir
 cp -r $1/assets .
-cp $1/settings.json .
+cp -r $1/settings .
 cp $1/firmware.hex .
 cp -r $1/web/www ./app
+cp $1/start.sh .
 
 # write version info
 echo -n "v_`date +'%s'`" > version
@@ -53,6 +54,7 @@ ldd $BINARY | grep "=> /" | while read a b c d; do cp "$c" libs/; done
 
 # pack and sign
 tar cfz $NAME.tar.gz $FILES
+cp $NAME.tar.gz selfomat.tar.gz
 gpg --quiet --batch --yes --output $NAME.sig --detach-sig $NAME.tar.gz
 tar cf $TAR $NAME.tar.gz $NAME.sig
 rm $NAME.tar.gz $NAME.sig

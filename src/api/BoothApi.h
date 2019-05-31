@@ -22,15 +22,18 @@ namespace selfomat {
             served::multiplexer mux;
             served::net::server server;
 
-            void setHeaders(served::response &res);
+            bool show_led_setup;
 
             const std::map<std::string, std::string> headers = {
                     {"Access-Control-Allow-Origin", "*"},
-                    {"Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT"}
+                    {"Access-Control-Allow-Credentials", "true"},
+                    {"Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT"},
+                    {"Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"},
+
             };
 
         public:
-            BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera);
+            BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup);
 
             bool start();
 

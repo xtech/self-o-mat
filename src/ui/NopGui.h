@@ -42,7 +42,7 @@ namespace selfomat {
 
             void logError(const char *s) override;
 
-            void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove) override;
+            void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, bool isHint) override;
 
             void removeAlert(ALERT_TYPE type) override;
 
