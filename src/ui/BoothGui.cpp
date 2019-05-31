@@ -338,11 +338,15 @@ void BoothGui::renderThread() {
                 }
 
                 drawPrintOverlay();
+
+                if (timeInState >= 2500) {
+                    setState(STATE_FINAL_IMAGE_PRINT_CANCELED);
+                }
             }
                 break;
             case STATE_FINAL_IMAGE_PRINT_CANCELED: {
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
-                float duration = 250.0f;
+                float duration = 200.0f;
                 float percentage = 1 - min(1.0f, timeInState / duration);
 
                 window.draw(finalImageSprite);
@@ -479,7 +483,7 @@ void BoothGui::drawPrintOverlay(float percentage) {
 
     for(int i = 0; i < 6; i++) {
         count_down_circle.setPosition(340.0f + i*(113.0f),templateY + 149.0f - 19.0f);
-        if(percentage == -1 || (percentage >= 1 && timeInState >= 500.0 * (i+1))) {
+        if(percentage == -1 || (percentage >= 1 && timeInState >= 500.0 * i)) {
             count_down_circle.setFillColor(COLOR_MAIN);
         } else {
             count_down_circle.setFillColor(COLOR_MAIN_LIGHT);
