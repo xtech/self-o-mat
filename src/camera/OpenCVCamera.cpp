@@ -36,7 +36,6 @@ bool OpenCVCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     cv::resize(image, image, cv::Size(1280,800));
     Mat target(image.rows, image.cols, CV_8UC4, *buffer);
 
-
     cv::cvtColor(image, target, CV_RGB2BGRA);
 
     resultInfo->width = target.cols;

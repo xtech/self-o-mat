@@ -127,7 +127,7 @@ void BoothGui::renderThread() {
     cout << "Render thread started!" << endl;
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
-    window.create(videoMode, "self-o-mat", sf::Style::Default, settings);
+    window.create(videoMode, "self-o-mat", sf::Style::None, settings);
 
     window.setVerticalSyncEnabled(true);
 

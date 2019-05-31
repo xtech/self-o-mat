@@ -59,7 +59,6 @@ bool ImageProcessor::start() {
         }
     }
 
-
     return true;
 }
 
