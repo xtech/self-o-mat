@@ -46,7 +46,7 @@ bool ImageProcessor::start() {
         boost::property_tree::ptree ptree;
         try {
             boost::property_tree::read_json(std::string(getenv("HOME")) + "/.template_props.json", ptree);
-            Rect offset = (Rect){
+            offset = (Rect){
                     ptree.get<int>("offset_top"),
                     ptree.get<int>("offset_right"),
                     ptree.get<int>("offset_bottom"),
