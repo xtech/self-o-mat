@@ -330,6 +330,8 @@ void BoothGui::renderThread() {
             }
                 break;
             case STATE_FINAL_IMAGE_PRINT: {
+                float timeInState = stateTimer.getElapsedTime().asMilliseconds();
+
                 window.draw(finalImageSprite);
                 if(templateEnabled && templateLoaded) {
                     window.draw(imageSpriteFinalOverlay);
@@ -338,19 +340,30 @@ void BoothGui::renderThread() {
                 drawPrintOverlay();
             }
                 break;
-            case STATE_TRANS_PRINT_PREV1: {
-                float duration = 250.0f;
+            case STATE_FINAL_IMAGE_PRINT_CANCELED: {
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
-                float percentage = timeInState / duration;
-
-                float alpha = max(0.0f, min(255.0f, percentage * 255.0f));
+                float duration = 250.0f;
+                float percentage = 1 - min(1.0f, timeInState / duration);
 
                 window.draw(finalImageSprite);
                 if(templateEnabled && templateLoaded) {
                     window.draw(imageSpriteFinalOverlay);
                 }
 
-                drawPrintOverlay(-1);
+                drawPrintOverlay(percentage);
+            }
+                break;
+            case STATE_TRANS_PRINT_PREV1: {
+                float duration = 250.0f;
+                float timeInState = stateTimer.getElapsedTime().asMilliseconds();
+                float linearPercentage = timeInState / duration;
+
+                float alpha = max(0.0f, min(255.0f, linearPercentage * 255.0f));
+
+                window.draw(finalImageSprite);
+                if(templateEnabled && templateLoaded) {
+                    window.draw(imageSpriteFinalOverlay);
+                }
 
                 rect_overlay.setFillColor(sf::Color(0, 0, 0, alpha));
                 window.draw(rect_overlay);
@@ -681,6 +694,17 @@ void BoothGui::hideAgreement()  {
     setState(STATE_TRANS_AGREEMENT);
 }
 
+bool BoothGui::hasAlert(ALERT_TYPE type) {
+    boost::unique_lock<boost::mutex> lk(alertMutex);
+
+    if (alerts.empty())
+        return false;
+
+    auto alert = alerts.find(type);
+
+    return alert != alerts.end();
+}
+
 void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, bool isHint) {
     boost::unique_lock<boost::mutex> lk(alertMutex);
 
@@ -694,7 +718,7 @@ void BoothGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, boo
 
     if (autoRemove) {
         if (isHint) {
-            endTime = startTime + 5000;
+            endTime = startTime + 3000;
         } else  {
             endTime = startTime + 10000;
         }
@@ -729,4 +753,10 @@ void BoothGui::setPrinterEnabled(bool printerEnabled) {
 
 void BoothGui::setTemplateEnabled(bool templateEnabled) {
     this->templateEnabled = templateEnabled;
+}
+
+void BoothGui::cancelPrint() {
+    if (getCurrentGuiState() == STATE_FINAL_IMAGE_PRINT) {
+        setState(STATE_FINAL_IMAGE_PRINT_CANCELED);
+    }
 }

@@ -184,6 +184,10 @@ void BoothLogic::cameraThread() {
                         printerState = PRINTER_STATE_WORKING;
                         printerStateCV.notify_all();
                     }
+
+                    if (printerEnabled && !printCanceled && printerManager.getCurrentPrinterState() != STATE_STOPPED) {
+                        gui->addAlert(ALERT_PRINTER_HINT, L"Foto wird gedruckt...", true, true);
+                    }
                 } else {
                     gui->logError("Got an error");
                 }
@@ -289,6 +293,7 @@ void BoothLogic::trigger() {
 void BoothLogic::cancelPrint() {
     cancelPrintMutex.lock();
     printCanceled = true;
+    gui->cancelPrint();
     cancelPrintMutex.unlock();
 }
 

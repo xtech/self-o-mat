@@ -25,6 +25,7 @@ namespace selfomat {
             STATE_FINAL_IMAGE,
             STATE_TRANS_FINAL_IMAGE_PRINT,
             STATE_FINAL_IMAGE_PRINT,
+            STATE_FINAL_IMAGE_PRINT_CANCELED,
             STATE_TRANS_PRINT_PREV1,
             STATE_TRANS_PREV1_PREV2,
             STATE_TRANS_PREV2_PREV3
@@ -33,6 +34,7 @@ namespace selfomat {
         enum ALERT_TYPE {
             ALERT_CAMERA,
             ALERT_PRINTER,
+            ALERT_PRINTER_HINT,
             ALERT_STORAGE,
             ALERT_STORAGE_ERROR,
             ALERT_CAMERA_HINT,
@@ -62,8 +64,8 @@ namespace selfomat {
 
             virtual void notifyPreviewIncoming() = 0;
 
+            virtual bool hasAlert(ALERT_TYPE type) = 0;
             virtual void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false, bool isHint = false) = 0;
-
             virtual void removeAlert(ALERT_TYPE type) = 0;
 
             virtual void showAgreement() = 0;
@@ -73,9 +75,12 @@ namespace selfomat {
 
             virtual void setTemplateEnabled(bool templateEnabled) = 0;
 
+            virtual void cancelPrint() = 0;
+
             const boost::unordered_map<ALERT_TYPE,const char*> alertTypeToString = boost::assign::map_list_of
                     (ALERT_CAMERA, "C")
                     (ALERT_PRINTER, "P")
+                    (ALERT_PRINTER_HINT, "P")
                     (ALERT_STORAGE, "U")
                     (ALERT_STORAGE_ERROR, "U")
                     (ALERT_CAMERA_HINT, "C")
