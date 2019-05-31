@@ -149,7 +149,7 @@ namespace selfomat {
 
                 *fullJpegFilename = "nop.jpg";
                 cameraMutex.unlock();
-                usleep(50000);
+                usleep(30000);
                 return true;
             }
 
