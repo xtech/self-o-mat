@@ -61,10 +61,9 @@ namespace selfomat {
                 if (video.isOpened()) {
                     cv::cvtColor(image, outImage, CV_RGB2BGRA);
 
-                    auto vFPS = 1000000 / video.get(CV_CAP_PROP_FPS);
                     sf::Int32 elapsedTime = fpsClock.getElapsedTime().asMicroseconds();
                     fpsClock.restart();
-                    auto timeToWait = vFPS - elapsedTime;
+                    auto timeToWait = (1000000 / video.get(CV_CAP_PROP_FPS)) - elapsedTime;
                     cameraMutex.unlock();
                     if (timeToWait > 0) {
                         usleep(timeToWait);
