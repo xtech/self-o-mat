@@ -59,8 +59,6 @@ bool ImageProcessor::start() {
         }
     }
 
-    std::cout << "TEMPLATE " <<  templateLoaded << " offset: " << offset.right << std::endl;
-
     return true;
 }
 
