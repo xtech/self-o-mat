@@ -19,12 +19,25 @@ namespace selfomat {
             sf::Clock fpsClock;
             cv::VideoCapture video;
             boost::mutex cameraMutex;
+
             const vector<string> isoChoices { "Auto", "100", "125", "160", "200", "250", "320", "400", "500", "640", "800", "1000" };
             const vector<string> shutterSpeedChoices { "Auto" };
             const vector<string> apertureChoices { "1.8", "2", "2.2", "2.5", "2.8", "3.2", "3.5", "4", "4.5", "5", "5.6", "6.3", "7.1", "8", "9", "10", "11", "13", "14", "16", "18", "20", "22" };
             const vector<string> shootingModeChoices { "P", "TV", "AV", "Manual", "Bulb" };
             const vector<string> exposureCorrectionModeChoices { "-5", "-4.6", "-4.3", "-4", "-3.6", "-3.3", "-3", "-2.6", "-2.3", "-2", "-1.6", "-1.3", "-1", "-0.6", "-0.3", "0", "0.3", "0.6", "1", "1.3", "1.6", "2", "2.3", "2.6", "3", "3.3", "3.6", "4", "4.3", "4.6", "5" };
             const vector<string> imageFormatChoices { "RAW + Tiny JPEG", "RAW + Medium Fine JPEG", "RAW + Large Fine JPEG" };
+
+            const std::string cameraName = "Canon EOS 5D Mark III";
+            const std::string lensName = "EF24-70mm f/4L IS USM";
+
+            int iso = 4;
+            int shutterSpeed = 0;
+            int aperture = 2;
+            int shootingMode = 2;
+            int exposureCorrectionTrigger = 12;
+            int exposureCorrection = 14;
+            int imageFormat = 2;
+
 
         public:
             CameraStartResult start() override {
@@ -51,7 +64,9 @@ namespace selfomat {
                         video.set(CV_CAP_PROP_POS_FRAMES, 0);
                     }
 
-                    video >> image;
+                    cv::Mat flipped;
+                    video >> flipped;
+                    cv::flip(flipped, image, 1);
                     cv::resize(image, image, cv::Size(1280,800));
                 } else {
                     image = cv::Mat(480, 640, CV_8UC4, cv::Scalar(30, 0, 0, 255));
@@ -139,19 +154,19 @@ namespace selfomat {
             }
 
             int getIso() override {
-                return 4;
+                return iso;
             }
 
             int getShutterSpeed() override {
-                return 0;
+                return shutterSpeed;
             }
 
             int getAperture() override {
-                return 2;
+                return aperture;
             }
 
             int getShootingMode() override {
-                return 2;
+                return shootingMode;
             }
 
             const vector<string> * const getIsoChoices() override {
@@ -171,20 +186,23 @@ namespace selfomat {
             }
 
             bool setIso(int iso_choice) override {
-                return false;
+                iso = iso_choice;
+                return true;
             }
 
             bool setShutterSpeed(int shutter_speed_choice) override {
-                return false;
+                shutterSpeed = shutter_speed_choice;
+                return true;
             }
 
             bool setAperture(int aperture_choice) override {
-                return false;
+                aperture = aperture_choice;
+                return true;
             }
 
 
             bool autofocusBlocking() override {
-                return false;
+                return true;
             }
 
             const vector<string> * const getExposureCorrectionModeChoices() override {
@@ -197,27 +215,29 @@ namespace selfomat {
 
 
             string getCameraName() override {
-                return "Canon EOS 5D Mark III";
+                return cameraName;
             }
 
             string getLensName() override {
-                return "EF24-70mm f/4L IS USM";
+                return lensName;
             }
 
             int getExposureCorrection() override {
-                return 14;
+                return exposureCorrection;
             }
 
             int getImageFormat() override {
-                return 2;
+                return imageFormat;
             }
 
             bool setExposureCorrection(int exposure_correction_choice) override {
-                return false;
+                exposureCorrection = exposure_correction_choice;
+                return true;
             }
 
             bool setImageFormat(int image_format_choice) override {
-                return false;
+                imageFormat = image_format_choice;
+                return true;
             }
 
             bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override {
@@ -225,11 +245,12 @@ namespace selfomat {
             }
 
             int getExposureCorrectionTrigger() override {
-                return 12;
+                return exposureCorrectionTrigger;
             }
 
             bool setExposureCorrectionTrigger(int exposure_correction_choice) override {
-                return false;
+                exposureCorrectionTrigger = exposure_correction_choice;
+                return true;
             }
         };
     }
