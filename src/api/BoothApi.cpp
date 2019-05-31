@@ -321,7 +321,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
 
                 SelfomatController *controller = logic->getSelfomatController();
-                controller->moveOffsetRight();
+                controller->moveOffsetLeft();
                 served::response::stock_reply(200, res);
             });
 
@@ -330,7 +330,7 @@ bool BoothApi::start() {
             .post([this](served::response &res, const served::request &req) {
 
                 SelfomatController *controller = logic->getSelfomatController();
-                controller->moveOffsetLeft();
+                controller->moveOffsetRight();
                 served::response::stock_reply(200, res);
             });
 
