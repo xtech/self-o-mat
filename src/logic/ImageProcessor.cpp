@@ -245,8 +245,11 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
 
 ImageProcessor::Rect ImageProcessor::getOffset(Image *image, int accuracy) {
 
-    int width = (int) image->columns();
-    int height = (int) image->rows();
+    Image alphaImage = Image(*image);
+    alphaImage.channel(TrueAlphaChannel);
+
+    int width = (int) alphaImage.columns();
+    int height = (int) alphaImage.rows();
 
     Rect offset = (Rect){0, width, height, 0};
 
@@ -261,10 +264,10 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image *image, int accuracy) {
 
         for (int x=offset.left; x<=offset.right-accuracy; x+=accuracy) {
 
-            if (foundTop || image->getConstPixels(x, offset.top, 1, 1)->opacity < 255) {
+            if (foundTop || alphaImage.getConstPixels(x, offset.top, 1, 1)->opacity < QuantumRange) {
                 foundTop = true;
             }
-            if (foundBottom || image->getConstPixels(x, offset.bottom, 1, 1)->opacity < 255) {
+            if (foundBottom || alphaImage.getConstPixels(x, offset.bottom, 1, 1)->opacity < QuantumRange) {
                 foundBottom = true;
             }
             if (foundBottom && foundTop) {
@@ -274,10 +277,10 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image *image, int accuracy) {
 
         for (int y=offset.top; y<=offset.bottom-accuracy; y+=accuracy) {
 
-            if (foundLeft || image->getConstPixels(offset.left, y, 1, 1)->opacity < 255) {
+            if (foundLeft || alphaImage.getConstPixels(offset.left, y, 1, 1)->opacity < QuantumRange) {
                 foundLeft = true;
             }
-            if (foundRight || image->getConstPixels(offset.right, y, 1, 1)->opacity < 255) {
+            if (foundRight || alphaImage.getConstPixels(offset.right, y, 1, 1)->opacity < QuantumRange) {
                 foundRight = true;
             }
             if (foundLeft && foundRight) {
@@ -330,7 +333,6 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
     Image image = Image(blob);
 
     image.strip();
-    image.channel(DefaultChannels);
     image.alphaChannel(ActivateAlphaChannel);
 
     image.backgroundColor(Color());
