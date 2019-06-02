@@ -261,10 +261,10 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image *image, int accuracy) {
 
         for (int x=offset.left; x<=offset.right-accuracy; x+=accuracy) {
 
-            if (foundTop || image->getConstPixels(x, offset.top, 1, 1)->opacity == 0) {
+            if (foundTop || image->getConstPixels(x, offset.top, 1, 1)->opacity < 255) {
                 foundTop = true;
             }
-            if (foundBottom || image->getConstPixels(x, offset.bottom, 1, 1)->opacity == 0) {
+            if (foundBottom || image->getConstPixels(x, offset.bottom, 1, 1)->opacity < 255) {
                 foundBottom = true;
             }
             if (foundBottom && foundTop) {
@@ -274,10 +274,10 @@ ImageProcessor::Rect ImageProcessor::getOffset(Image *image, int accuracy) {
 
         for (int y=offset.top; y<=offset.bottom-accuracy; y+=accuracy) {
 
-            if (foundLeft || image->getConstPixels(offset.left, y, 1, 1)->opacity == 0) {
+            if (foundLeft || image->getConstPixels(offset.left, y, 1, 1)->opacity < 255) {
                 foundLeft = true;
             }
-            if (foundRight || image->getConstPixels(offset.right, y, 1, 1)->opacity == 0) {
+            if (foundRight || image->getConstPixels(offset.right, y, 1, 1)->opacity < 255) {
                 foundRight = true;
             }
             if (foundLeft && foundRight) {
