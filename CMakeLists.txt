@@ -10,6 +10,7 @@ if(VERBOSE)
     message("Verbose is set, adding definition")
     add_definitions(-DVERBOSE)
 endif()
+add_definitions(-DVERBOSE)
 
 # Generate protobuf files on file change
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/protobuf/api.pb.cc ${CMAKE_CURRENT_SOURCE_DIR}/src/protobuf/api.pb.h
