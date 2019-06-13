@@ -113,4 +113,5 @@ message BoothSettings {
     required ListSetting countdown_duration = 12;
     required PostSetting update_mode = 13;
     optional LinkSetting cups_link = 20;
+    optional BoolSetting flashMode = 21;
 }

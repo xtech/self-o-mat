@@ -3480,6 +3480,7 @@
                  * @property {xtech.selfomat.IListSetting} countdownDuration BoothSettings countdownDuration
                  * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
                  * @property {xtech.selfomat.ILinkSetting|null} [cupsLink] BoothSettings cupsLink
+                 * @property {xtech.selfomat.IBoolSetting|null} [flashMode] BoothSettings flashMode
                  */
     
                 /**
@@ -3610,6 +3611,14 @@
                 BoothSettings.prototype.cupsLink = null;
     
                 /**
+                 * BoothSettings flashMode.
+                 * @member {xtech.selfomat.IBoolSetting|null|undefined} flashMode
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.flashMode = null;
+    
+                /**
                  * Creates a new BoothSettings instance using the specified properties.
                  * @function create
                  * @memberof xtech.selfomat.BoothSettings
@@ -3652,6 +3661,8 @@
                     $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 13, wireType 2 =*/106).fork()).ldelim();
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
                         $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
+                    if (message.flashMode != null && message.hasOwnProperty("flashMode"))
+                        $root.xtech.selfomat.BoolSetting.encode(message.flashMode, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
                     return writer;
                 };
     
@@ -3727,6 +3738,9 @@
                             break;
                         case 20:
                             message.cupsLink = $root.xtech.selfomat.LinkSetting.decode(reader, reader.uint32());
+                            break;
+                        case 21:
+                            message.flashMode = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -3851,6 +3865,11 @@
                         if (error)
                             return "cupsLink." + error;
                     }
+                    if (message.flashMode != null && message.hasOwnProperty("flashMode")) {
+                        var error = $root.xtech.selfomat.BoolSetting.verify(message.flashMode);
+                        if (error)
+                            return "flashMode." + error;
+                    }
                     return null;
                 };
     
@@ -3936,6 +3955,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.cupsLink: object expected");
                         message.cupsLink = $root.xtech.selfomat.LinkSetting.fromObject(object.cupsLink);
                     }
+                    if (object.flashMode != null) {
+                        if (typeof object.flashMode !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.flashMode: object expected");
+                        message.flashMode = $root.xtech.selfomat.BoolSetting.fromObject(object.flashMode);
+                    }
                     return message;
                 };
     
@@ -3967,6 +3991,7 @@
                         object.countdownDuration = null;
                         object.updateMode = null;
                         object.cupsLink = null;
+                        object.flashMode = null;
                     }
                     if (message.storageEnabled != null && message.hasOwnProperty("storageEnabled"))
                         object.storageEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.storageEnabled, options);
@@ -3996,6 +4021,8 @@
                         object.updateMode = $root.xtech.selfomat.PostSetting.toObject(message.updateMode, options);
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
                         object.cupsLink = $root.xtech.selfomat.LinkSetting.toObject(message.cupsLink, options);
+                    if (message.flashMode != null && message.hasOwnProperty("flashMode"))
+                        object.flashMode = $root.xtech.selfomat.BoolSetting.toObject(message.flashMode, options);
                     return object;
                 };
     

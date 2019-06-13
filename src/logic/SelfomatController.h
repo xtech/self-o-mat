@@ -37,6 +37,7 @@ namespace selfomat {
                 uint8_t ledOffset;
                 uint16_t countDownMillis;
                 uint32_t flashDurationMicros;
+                uint8_t flashMode;
                 uint16_t crcChecksum;
             } __attribute__((packed)) settings;
 #pragma pack(pop)
@@ -150,6 +151,10 @@ namespace selfomat {
             uint32_t getFlashDurationMicros();
 
             void stopBlocking();
+
+            void setFlashMode(bool ttlEnabled);
+
+            bool getFlashMode();
 
             void commit();
 

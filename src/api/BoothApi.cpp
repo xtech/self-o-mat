@@ -258,6 +258,22 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
+    mux.handle("/booth_settings/flash/ittlEnabled")
+            .post([this](served::response &res, const served::request &req) {
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->getSelfomatController()->setFlashMode(update.value());
+                logic->getSelfomatController()->commit();
+
+                cout << "updated flash mode to: " << update.value() << endl;
+
+                served::response::stock_reply(200, res);
+            });
+
     mux.handle("/booth_settings/printer/enabled")
             .post([this](served::response &res, const served::request &req) {
                 BoolUpdate update;
@@ -612,6 +628,13 @@ bool BoothApi::start() {
                     auto setting = currentBoothSettings.mutable_cups_link();
                     setting->set_name("CUPS Printer Setup");
                     setting->set_url("http://192.168.4.1:631");
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_flashmode();
+                    setting->set_name("iTTL enabled?");
+                    setting->set_update_url("/booth_settings/flash/ittlEnabled");
+                    setting->set_currentvalue(logic->getSelfomatController()->getFlashMode());
                 }
 
 

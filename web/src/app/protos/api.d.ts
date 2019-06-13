@@ -337,6 +337,7 @@ export namespace xtech {
             countdownDuration: xtech.selfomat.IListSetting;
             updateMode: xtech.selfomat.IPostSetting;
             cupsLink?: (xtech.selfomat.ILinkSetting|null);
+            flashMode?: (xtech.selfomat.IBoolSetting|null);
         }
 
         class BoothSettings implements IBoothSettings {
@@ -355,6 +356,7 @@ export namespace xtech {
             public countdownDuration: xtech.selfomat.IListSetting;
             public updateMode: xtech.selfomat.IPostSetting;
             public cupsLink?: (xtech.selfomat.ILinkSetting|null);
+            public flashMode?: (xtech.selfomat.IBoolSetting|null);
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
             public static encode(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;

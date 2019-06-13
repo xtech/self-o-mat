@@ -414,3 +414,11 @@ void SelfomatController::moveOffsetLeft() {
     sendCommand('<');
 }
 
+bool SelfomatController::getFlashMode() {
+    return settings.flashMode > 0;
+}
+
+void SelfomatController::setFlashMode(bool ttlEnabled) {
+    settings.flashMode = ttlEnabled;
+}
+
