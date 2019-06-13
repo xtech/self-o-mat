@@ -17,6 +17,9 @@ namespace selfomat {
             uint32_t frameCounter = 0;
         public:
             float fps;
+            uint32_t frames = {
+                frameCounter
+            };
 
             void nextFrame() {
                 // Called once per frame so we increment the frame counter here

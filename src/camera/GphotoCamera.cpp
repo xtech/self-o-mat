@@ -312,7 +312,7 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     if (focus_active) {
         auto now = boost::posix_time::microsec_clock::local_time();
         auto focusActiveTime = (now - focusStartedTime).total_milliseconds();
-        if (focusActiveTime > 5000) {
+        if (focusActiveTime > 3000) {
             focusController->stopFocus();
             focus_active = false;
         }

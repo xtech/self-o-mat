@@ -192,11 +192,14 @@ namespace selfomat {
             void showAgreement() override;
             void hideAgreement() override;
 
+            bool hasAlert(ALERT_TYPE type) override;
             void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false, bool isHint = false) override;
             void removeAlert(ALERT_TYPE type) override;
 
             void setPrinterEnabled(bool printerEnabled) override;
             void setTemplateEnabled(bool templateEnabled) override;
+
+            void cancelPrint() override;
 
             ~BoothGui() override;
 
