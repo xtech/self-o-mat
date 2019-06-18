@@ -42,6 +42,7 @@ namespace selfomat {
 
             int getShootingMode() override;
 
+            CameraState getState() override;
 
             bool setIso(int iso_choice) override;
 

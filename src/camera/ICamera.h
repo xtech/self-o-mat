@@ -51,7 +51,7 @@ namespace selfomat {
 
             virtual void stop() = 0;
 
-            /**
+            virtual /**
              * Returns the current state of the camera
              * @return
              */

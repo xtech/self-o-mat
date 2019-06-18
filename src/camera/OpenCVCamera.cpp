@@ -8,6 +8,7 @@ using namespace selfomat::camera;
 
 CameraStartResult OpenCVCamera::start() {
 
+
     if (!cap.open(0)) {
         cout << "CVCamera: Error opening camera" << endl;
         return START_RESULT_ERROR;
@@ -182,6 +183,13 @@ int OpenCVCamera::getExposureCorrectionTrigger() {
 
 bool OpenCVCamera::setExposureCorrectionTrigger(int exposure_correction_choice) {
     return false;
+}
+
+CameraState OpenCVCamera::getState() {
+    if(cap.isOpened()) {
+        return CameraState::STATE_WORKING;
+    }
+    return CameraState::STATE_ERROR;
 }
 
 

@@ -59,7 +59,9 @@ add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothL
         src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp
         src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h
         src/camera/controllers/ApertureController.h src/camera/controllers/ExposureCorrectionController.h src/camera/controllers/ChoiceRangeController.cpp
-        src/camera/controllers/ChoiceRangeController.h src/tools/readfile.h src/tools/readfile.cpp src/tools/cobs.h src/tools/cobs.cpp src/logic/SelfomatController.cpp src/logic/SelfomatController.h)
+        src/camera/controllers/ChoiceRangeController.h src/tools/readfile.h src/tools/readfile.cpp src/tools/cobs.h src/tools/cobs.cpp src/logic/SelfomatController.cpp src/logic/SelfomatController.h src/logic/IImageFilter.h src/logic/BasicImageFilter.cpp src/logic/BasicImageFilter.h src/logic/IImageFilter.cpp)
+
+
 
 target_link_libraries(self_o_mat ${Boost_LIBRARIES})
 target_link_libraries(self_o_mat gphoto2)
@@ -72,6 +74,11 @@ target_link_libraries(self_o_mat ${ImageMagick_LIBRARIES})
 target_link_libraries(self_o_mat ${CUPS_LIBRARIES})
 target_link_libraries(self_o_mat served)
 target_link_libraries(self_o_mat protobuf)
+
+add_executable(filter_test src/main_filter.cpp src/logic/IImageFilter.h src/logic/BasicImageFilter.cpp src/logic/BasicImageFilter.h  src/logic/IImageFilter.cpp)
+target_link_libraries(filter_test ${Boost_LIBRARIES})
+target_link_libraries(filter_test ${ImageMagick_LIBRARIES})
+
 
 if(USE_SPI)
     target_link_libraries(self_o_mat wiringPi)

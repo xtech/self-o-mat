@@ -324,9 +324,9 @@ void BoothLogic::printerThread() {
 
                 Magick::Image toPrepare;
                 if (templateEnabled) {
-                    toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize);
+                    toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, BASIC_FILTER);
                 } else {
-                    toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize);
+                    toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize, BASIC_FILTER);
                 }
                 cout << "[Printer Thread] " << "Framed" << endl;
                 printerManager.prepareImageForPrint(toPrepare);

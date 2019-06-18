@@ -75,10 +75,10 @@ ImageProcessor::~ImageProcessor() {
 }
 
 
-Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize) {
+Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter) {
 
     if(!templateLoaded)
-        return decodeImageForPrint(inputImageJpeg, jpegBufferSize);
+        return decodeImageForPrint(inputImageJpeg, jpegBufferSize, filter);
 
     struct timespec tstart, tend;
 
@@ -176,6 +176,8 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
     result.profile("ICC", sRgbIcc);
 
+    applyFilter(result, filter);
+
     return result;
 }
 
@@ -183,7 +185,7 @@ bool ImageProcessor::stop() {
     return true;
 }
 
-Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize) {
+Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter) {
     struct timespec tstart, tend;
 
 
@@ -239,6 +241,8 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
         LOG_D(TAG, "Decoding image as Adobe RGB");
         inputImageMagic.iccColorProfile(adobeRgbIcc);
     }
+
+    applyFilter(inputImageMagic, filter);
 
     return inputImageMagic;
 }
@@ -386,4 +390,17 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
     this->templateLoaded = true;
 
     return true;
+}
+
+void ImageProcessor::applyFilter(Image image, FILTER filter) {
+    image.write("before_filter.jpg");
+    switch(filter) {
+        case BASIC_FILTER:
+            std::cout << "basic filter" << std::endl;
+            basicFilter.processImage(image);
+            break;
+        default:
+            break;
+    }
+    image.write("after_filter.jpg");
 }

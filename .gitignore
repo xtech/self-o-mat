@@ -52,3 +52,5 @@ src/protobuf/**
 ehthumbs.db
 Thumbs.db
 
+filter_test_input
+filter_test_output

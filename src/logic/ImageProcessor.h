@@ -19,12 +19,20 @@
 #include <tools/JpegDecoder.h>
 #include <easyexif/exif.h>
 #include <opencv2/opencv.hpp>
+#include "BasicImageFilter.h"
+
 
 using namespace Magick;
 using namespace selfomat::tools;
 
 namespace selfomat {
     namespace logic {
+
+        enum FILTER {
+            NO_FILTER = 0,
+            BASIC_FILTER = 1
+        };
+
         class ImageProcessor {
         private:
             struct Rect {
@@ -53,11 +61,15 @@ namespace selfomat {
             Rect getOffset(Image *image, int accuracy = 1);
             void writeOffset(Rect offset, std::string filename);
 
+            BasicImageFilter basicFilter;
+
+            void applyFilter(Image image, FILTER filter);
+
         public:
             explicit ImageProcessor(ILogger *logger);
 
-            Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize);
-            Image decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize);
+            Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER);
+            Image decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER);
 
             bool start();
 
@@ -70,6 +82,9 @@ namespace selfomat {
             }
 
             bool updateTemplate(void *data, size_t size);
+
+
+
         };
     }
 }
