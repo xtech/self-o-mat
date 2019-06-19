@@ -28,3 +28,6 @@ void BasicImageFilter::processImage(Magick::Image &image, double gain) {
 std::string BasicImageFilter::getName() {
     return "basic_image_filter";
 }
+
+
+

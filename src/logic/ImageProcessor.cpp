@@ -240,6 +240,12 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
 
     Image inputImageMagic(latestImageInfo.width, latestImageInfo.height, "RGB", StorageType::CharPixel, latestBuffer);
 
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+    inputImageMagic.scale(Magick::Geometry(targetWidth, targetHeight));
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("scaling took %.5f s\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
 
 
     if(srgb) {
