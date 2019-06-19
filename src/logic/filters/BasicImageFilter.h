@@ -7,6 +7,7 @@
 
 
 #include "IImageFilter.h"
+#include <iostream>
 
 namespace selfomat {
     namespace logic {

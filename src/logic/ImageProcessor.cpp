@@ -166,6 +166,14 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
            ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
            ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
     clock_gettime(CLOCK_MONOTONIC, &tstart);
+    applyFilter(inputImageMagic, filter, filterGain);
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("filtering took %.5f s\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+
 
     result.composite(inputImageMagic, targetCenterX - centerX, targetCenterY - centerY, DstOverCompositeOp);
 
@@ -176,7 +184,7 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
     result.profile("ICC", sRgbIcc);
 
-    applyFilter(result, filter, filterGain);
+
 
     return result;
 }
@@ -242,7 +250,13 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
         inputImageMagic.iccColorProfile(adobeRgbIcc);
     }
 
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
     applyFilter(inputImageMagic, filter, filterGain);
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("filtering took %.5f s\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+
 
     return inputImageMagic;
 }
