@@ -324,9 +324,9 @@ void BoothLogic::printerThread() {
 
                 Magick::Image toPrepare;
                 if (templateEnabled) {
-                    toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, BASIC_FILTER);
+                    toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(), filterGain);
                 } else {
-                    toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize, BASIC_FILTER);
+                    toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(), filterGain);
                 }
                 cout << "[Printer Thread] " << "Framed" << endl;
                 printerManager.prepareImageForPrint(toPrepare);
@@ -521,7 +521,8 @@ void BoothLogic::readSettings() {
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
     setFlashEnabled(ptree.get<bool>("flash_enabled", false));
     this->showAgreement = ptree.get<bool>("show_agreement", true);
-
+    setFilterChoice(ptree.get<int>("filter_choice", BASIC_FILTER));
+    setFilterGain(ptree.get<double>("filter_gain", 1.0));
     if (!success)
         writeSettings();
 }
@@ -533,7 +534,8 @@ void BoothLogic::writeSettings() {
     ptree.put("printer_enabled", printerEnabled);
     ptree.put("template_enabled", templateEnabled);
     ptree.put("flash_enabled", this->flashEnabled);
-
+    ptree.put("filter_gain", filterGain);
+    ptree.put("filter_choice", filterChoice);
     try {
         boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
     } catch (boost::exception &e) {
@@ -596,4 +598,41 @@ bool BoothLogic::updateTemplate(void *data, size_t size) {
         gui->addAlert(ALERT_TEMPLATE, L"Template wurde gespeichert", true, true);
     }
     return result;
+}
+
+const std::vector<std::string> *BoothLogic::getFilterChoices() {
+    return imageProcessor.getFilterNames();
+}
+
+int BoothLogic::getFilterChoice() {
+    return filterChoice;
+}
+
+void BoothLogic::setFilterChoice(int choice, bool persist) {
+    filterChoice = choice;
+    if(persist) {
+        writeSettings();
+    }
+}
+
+double BoothLogic::getFilterGain() {
+    return filterGain;
+}
+
+void BoothLogic::setFilterGain(double gain, bool persist) {
+    filterGain = gain;
+    if(persist)
+        writeSettings();
+}
+
+FILTER BoothLogic::getFilter() {
+    if(filterChoice < 0 || filterChoice >= imageProcessor.getFilterNames()->size())
+        return NO_FILTER;
+
+    switch(filterChoice) {
+        case 0:
+            return NO_FILTER;
+        case 1:
+            return BASIC_FILTER;
+    }
 }

@@ -19,7 +19,7 @@
 #include <tools/JpegDecoder.h>
 #include <easyexif/exif.h>
 #include <opencv2/opencv.hpp>
-#include "BasicImageFilter.h"
+#include "logic/filters/BasicImageFilter.h"
 
 
 using namespace Magick;
@@ -32,6 +32,8 @@ namespace selfomat {
             NO_FILTER = 0,
             BASIC_FILTER = 1
         };
+
+        const std::vector<std::string> filterNames { "No Filter", "Basic Filter" };
 
         class ImageProcessor {
         private:
@@ -63,13 +65,15 @@ namespace selfomat {
 
             BasicImageFilter basicFilter;
 
-            void applyFilter(Image image, FILTER filter);
+            void applyFilter(Image image, FILTER filter, double gain);
+
+
 
         public:
             explicit ImageProcessor(ILogger *logger);
 
-            Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER);
-            Image decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER);
+            Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
+            Image decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
 
             bool start();
 
@@ -83,8 +87,7 @@ namespace selfomat {
 
             bool updateTemplate(void *data, size_t size);
 
-
-
+            const std::vector<std::string> * getFilterNames();
         };
     }
 }

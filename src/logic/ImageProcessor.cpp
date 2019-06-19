@@ -75,10 +75,10 @@ ImageProcessor::~ImageProcessor() {
 }
 
 
-Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter) {
+Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter, double filterGain) {
 
     if(!templateLoaded)
-        return decodeImageForPrint(inputImageJpeg, jpegBufferSize, filter);
+        return decodeImageForPrint(inputImageJpeg, jpegBufferSize, filter, filterGain);
 
     struct timespec tstart, tend;
 
@@ -176,7 +176,7 @@ Image ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBuffer
 
     result.profile("ICC", sRgbIcc);
 
-    applyFilter(result, filter);
+    applyFilter(result, filter, filterGain);
 
     return result;
 }
@@ -185,7 +185,7 @@ bool ImageProcessor::stop() {
     return true;
 }
 
-Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter) {
+Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter, double filterGain) {
     struct timespec tstart, tend;
 
 
@@ -242,7 +242,7 @@ Image ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBuffe
         inputImageMagic.iccColorProfile(adobeRgbIcc);
     }
 
-    applyFilter(inputImageMagic, filter);
+    applyFilter(inputImageMagic, filter, filterGain);
 
     return inputImageMagic;
 }
@@ -392,15 +392,20 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
     return true;
 }
 
-void ImageProcessor::applyFilter(Image image, FILTER filter) {
+void ImageProcessor::applyFilter(Image image, FILTER filter, double gain) {
     image.write("before_filter.jpg");
     switch(filter) {
         case BASIC_FILTER:
-            std::cout << "basic filter" << std::endl;
-            basicFilter.processImage(image);
+            LOG_D(TAG, "basic filter with gain: " << gain);
+            basicFilter.processImage(image, gain);
             break;
         default:
+            LOG_D(TAG, "No Filter");
             break;
     }
     image.write("after_filter.jpg");
+}
+
+const std::vector<std::string> *ImageProcessor::getFilterNames() {
+    return &filterNames;
 }

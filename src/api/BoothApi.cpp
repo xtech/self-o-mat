@@ -490,6 +490,33 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
+
+    mux.handle("/booth_settings/filter/which")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setFilterChoice(update.value(), true);
+
+                served::response::stock_reply(200, res);
+            });
+
+    mux.handle("/booth_settings/filter/gain")
+            .post([this](served::response &res, const served::request &req) {
+                FloatUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setFilterGain(update.value(), true);
+
+                served::response::stock_reply(200, res);
+            });
+
     mux.handle("/booth_settings")
             .get([this](served::response &res, const served::request &req) {
                 BoothSettings currentBoothSettings;
@@ -637,9 +664,34 @@ bool BoothApi::start() {
                     setting->set_currentvalue(logic->getSelfomatController()->getFlashMode());
                 }
 
+                {
+                    auto setting = currentBoothSettings.mutable_filter_choice();
+                    setting->set_name("Filter");
+                    setting->set_update_url("/booth_settings/filter/which");
+                    setting->set_currentindex(logic->getFilterChoice());
+                    for(auto &choice : *logic->getFilterChoices())
+                        setting->add_values(choice);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_filter_gain();
+                    setting->set_name("Filter Gain");
+                    setting->set_update_url("/booth_settings/filter/gain");
+                    setting->set_currentvalue(logic->getFilterGain());
+                    setting->set_minvalue(0.0);
+                    setting->set_maxvalue(1.0);
+                }
+
+
+
+
+
 
                 res << currentBoothSettings.SerializeAsString();
             });
+
+
+
 
 
     mux.handle("/stress")

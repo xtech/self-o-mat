@@ -335,6 +335,8 @@ export namespace xtech {
             ledOffsetClockwise: xtech.selfomat.IPostSetting;
             ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             countdownDuration: xtech.selfomat.IListSetting;
+            filterChoice: xtech.selfomat.IListSetting;
+            filterGain: xtech.selfomat.IFloatSetting;
             updateMode: xtech.selfomat.IPostSetting;
             cupsLink?: (xtech.selfomat.ILinkSetting|null);
             flashMode?: (xtech.selfomat.IBoolSetting|null);
@@ -354,6 +356,8 @@ export namespace xtech {
             public ledOffsetClockwise: xtech.selfomat.IPostSetting;
             public ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             public countdownDuration: xtech.selfomat.IListSetting;
+            public filterChoice: xtech.selfomat.IListSetting;
+            public filterGain: xtech.selfomat.IFloatSetting;
             public updateMode: xtech.selfomat.IPostSetting;
             public cupsLink?: (xtech.selfomat.ILinkSetting|null);
             public flashMode?: (xtech.selfomat.IBoolSetting|null);

@@ -1,6 +1,6 @@
 #include <vector>
-#include <logic/IImageFilter.h>
-#include <logic/BasicImageFilter.h>
+#include <logic/filters/IImageFilter.h>
+#include <logic/filters/BasicImageFilter.h>
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <string>
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
             for(auto &filter : filters) {
                 for(double d = 0.0; d <= 1.0; d+=0.25) {
                     image.read(current_file);
-                    image.resize(Magick::Geometry(1000, 1000));
+                    image.resize(Magick::Geometry(500, 500));
                     image.write("scaled.jpg");
                     filter->processImage(image, d);
                     image.write("filtered.jpg");

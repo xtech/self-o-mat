@@ -132,6 +132,9 @@ namespace selfomat {
             boost::thread cameraThreadHandle;
             boost::thread printThreadHandle;
 
+            int filterChoice = 0;
+            double filterGain = 1.0;
+
             void readSettings();
             void writeSettings();
 
@@ -153,7 +156,7 @@ namespace selfomat {
 
             bool isMountpoint(std::string folder);
 
-
+            FILTER getFilter();
         public:
             void trigger();
 
@@ -205,6 +208,15 @@ namespace selfomat {
             void adjustFocus();
 
             bool updateTemplate(void *data, size_t size);
+
+            const std::vector<std::string> * getFilterChoices();
+            int getFilterChoice();
+            void setFilterChoice(int choice, bool persist = false);
+
+            double getFilterGain();
+            void setFilterGain(double gain, bool persist = false);
+
+
         };
 
     }

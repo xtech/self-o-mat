@@ -3478,6 +3478,8 @@
                  * @property {xtech.selfomat.IPostSetting} ledOffsetClockwise BoothSettings ledOffsetClockwise
                  * @property {xtech.selfomat.IPostSetting} ledOffsetCounterClockwise BoothSettings ledOffsetCounterClockwise
                  * @property {xtech.selfomat.IListSetting} countdownDuration BoothSettings countdownDuration
+                 * @property {xtech.selfomat.IListSetting} filterChoice BoothSettings filterChoice
+                 * @property {xtech.selfomat.IFloatSetting} filterGain BoothSettings filterGain
                  * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
                  * @property {xtech.selfomat.ILinkSetting|null} [cupsLink] BoothSettings cupsLink
                  * @property {xtech.selfomat.IBoolSetting|null} [flashMode] BoothSettings flashMode
@@ -3595,6 +3597,22 @@
                 BoothSettings.prototype.countdownDuration = null;
     
                 /**
+                 * BoothSettings filterChoice.
+                 * @member {xtech.selfomat.IListSetting} filterChoice
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.filterChoice = null;
+    
+                /**
+                 * BoothSettings filterGain.
+                 * @member {xtech.selfomat.IFloatSetting} filterGain
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.filterGain = null;
+    
+                /**
                  * BoothSettings updateMode.
                  * @member {xtech.selfomat.IPostSetting} updateMode
                  * @memberof xtech.selfomat.BoothSettings
@@ -3658,11 +3676,13 @@
                     $root.xtech.selfomat.PostSetting.encode(message.ledOffsetClockwise, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.ledOffsetCounterClockwise, writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.countdownDuration, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
-                    $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 13, wireType 2 =*/106).fork()).ldelim();
+                    $root.xtech.selfomat.ListSetting.encode(message.filterChoice, writer.uint32(/* id 13, wireType 2 =*/106).fork()).ldelim();
+                    $root.xtech.selfomat.FloatSetting.encode(message.filterGain, writer.uint32(/* id 14, wireType 2 =*/114).fork()).ldelim();
+                    $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 253, wireType 2 =*/2026).fork()).ldelim();
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
-                        $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
+                        $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 254, wireType 2 =*/2034).fork()).ldelim();
                     if (message.flashMode != null && message.hasOwnProperty("flashMode"))
-                        $root.xtech.selfomat.BoolSetting.encode(message.flashMode, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
+                        $root.xtech.selfomat.BoolSetting.encode(message.flashMode, writer.uint32(/* id 255, wireType 2 =*/2042).fork()).ldelim();
                     return writer;
                 };
     
@@ -3734,12 +3754,18 @@
                             message.countdownDuration = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
                             break;
                         case 13:
+                            message.filterChoice = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
+                            break;
+                        case 14:
+                            message.filterGain = $root.xtech.selfomat.FloatSetting.decode(reader, reader.uint32());
+                            break;
+                        case 253:
                             message.updateMode = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
                             break;
-                        case 20:
+                        case 254:
                             message.cupsLink = $root.xtech.selfomat.LinkSetting.decode(reader, reader.uint32());
                             break;
-                        case 21:
+                        case 255:
                             message.flashMode = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
                         default:
@@ -3763,6 +3789,10 @@
                         throw $util.ProtocolError("missing required 'ledOffsetCounterClockwise'", { instance: message });
                     if (!message.hasOwnProperty("countdownDuration"))
                         throw $util.ProtocolError("missing required 'countdownDuration'", { instance: message });
+                    if (!message.hasOwnProperty("filterChoice"))
+                        throw $util.ProtocolError("missing required 'filterChoice'", { instance: message });
+                    if (!message.hasOwnProperty("filterGain"))
+                        throw $util.ProtocolError("missing required 'filterGain'", { instance: message });
                     if (!message.hasOwnProperty("updateMode"))
                         throw $util.ProtocolError("missing required 'updateMode'", { instance: message });
                     return message;
@@ -3856,6 +3886,16 @@
                             return "countdownDuration." + error;
                     }
                     {
+                        var error = $root.xtech.selfomat.ListSetting.verify(message.filterChoice);
+                        if (error)
+                            return "filterChoice." + error;
+                    }
+                    {
+                        var error = $root.xtech.selfomat.FloatSetting.verify(message.filterGain);
+                        if (error)
+                            return "filterGain." + error;
+                    }
+                    {
                         var error = $root.xtech.selfomat.PostSetting.verify(message.updateMode);
                         if (error)
                             return "updateMode." + error;
@@ -3945,6 +3985,16 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.countdownDuration: object expected");
                         message.countdownDuration = $root.xtech.selfomat.ListSetting.fromObject(object.countdownDuration);
                     }
+                    if (object.filterChoice != null) {
+                        if (typeof object.filterChoice !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.filterChoice: object expected");
+                        message.filterChoice = $root.xtech.selfomat.ListSetting.fromObject(object.filterChoice);
+                    }
+                    if (object.filterGain != null) {
+                        if (typeof object.filterGain !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.filterGain: object expected");
+                        message.filterGain = $root.xtech.selfomat.FloatSetting.fromObject(object.filterGain);
+                    }
                     if (object.updateMode != null) {
                         if (typeof object.updateMode !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.updateMode: object expected");
@@ -3989,6 +4039,8 @@
                         object.ledOffsetClockwise = null;
                         object.ledOffsetCounterClockwise = null;
                         object.countdownDuration = null;
+                        object.filterChoice = null;
+                        object.filterGain = null;
                         object.updateMode = null;
                         object.cupsLink = null;
                         object.flashMode = null;
@@ -4017,6 +4069,10 @@
                         object.ledOffsetCounterClockwise = $root.xtech.selfomat.PostSetting.toObject(message.ledOffsetCounterClockwise, options);
                     if (message.countdownDuration != null && message.hasOwnProperty("countdownDuration"))
                         object.countdownDuration = $root.xtech.selfomat.ListSetting.toObject(message.countdownDuration, options);
+                    if (message.filterChoice != null && message.hasOwnProperty("filterChoice"))
+                        object.filterChoice = $root.xtech.selfomat.ListSetting.toObject(message.filterChoice, options);
+                    if (message.filterGain != null && message.hasOwnProperty("filterGain"))
+                        object.filterGain = $root.xtech.selfomat.FloatSetting.toObject(message.filterGain, options);
                     if (message.updateMode != null && message.hasOwnProperty("updateMode"))
                         object.updateMode = $root.xtech.selfomat.PostSetting.toObject(message.updateMode, options);
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))

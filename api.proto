@@ -111,7 +111,9 @@ message BoothSettings {
     required PostSetting led_offset_clockwise = 10;
     required PostSetting led_offset_counter_clockwise = 11;
     required ListSetting countdown_duration = 12;
-    required PostSetting update_mode = 13;
-    optional LinkSetting cups_link = 20;
-    optional BoolSetting flashMode = 21;
+    required ListSetting filter_choice = 13;
+    required FloatSetting filter_gain = 14;
+    required PostSetting update_mode = 253;
+    optional LinkSetting cups_link = 254;
+    optional BoolSetting flashMode = 255;
 }
