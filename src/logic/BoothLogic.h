@@ -14,7 +14,6 @@
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
-#include <Magick++.h>
 
 #include <unistd.h>
 #include <linux/reboot.h>

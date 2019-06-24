@@ -28,8 +28,10 @@ namespace selfomat {
         };
 
         enum JPEG_DECODE_COLORS {
+            BGR,
             RGB,
-            RGBA
+            RGBA,
+            BGRA
         };
 
         class JpegDecoder {

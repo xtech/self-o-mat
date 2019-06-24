@@ -11,7 +11,7 @@
 #include <cups/adminutil.h>
 #include <iostream>
 #include "tools/ILogger.h"
-#include <Magick++.h>
+#include <opencv2/opencv.hpp>
 #include "../tools/buffers.h"
 
 #include <boost/thread.hpp>
@@ -67,7 +67,7 @@ namespace selfomat {
 
             PrinterManager(ILogger *logger);
 
-            bool prepareImageForPrint(Magick::Image image);
+            bool prepareImageForPrint(cv::Mat image);
 
             bool start();
 

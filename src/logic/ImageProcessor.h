@@ -6,8 +6,6 @@
 #define SELF_O_MAT_IMAGEPROCESSOR_H
 
 
-#include <Magick++.h>
-#include <magick/profile.h>
 #include <iostream>
 #include <tools/ILogger.h>
 #include <tools/imageinfo.h>
@@ -17,12 +15,10 @@
 #include <tools/buffers.h>
 #include <tools/verbose.h>
 #include <tools/JpegDecoder.h>
-#include <easyexif/exif.h>
 #include <opencv2/opencv.hpp>
 #include "logic/filters/BasicImageFilter.h"
 
 
-using namespace Magick;
 using namespace selfomat::tools;
 
 namespace selfomat {
@@ -37,43 +33,36 @@ namespace selfomat {
 
         class ImageProcessor {
         private:
-            struct Rect {
-                int top;
-                int right;
-                int bottom;
-                int left;
-            };
 
             static const std::string TAG;
 
-            Blob adobeRgbIcc;
-            Blob sRgbIcc;
-
             JpegDecoder jpegDecoder;
 
-            bool templateLoaded = false;
-            Image templateImage;
-            Rect offset;
+            cv::Rect offset;
 
             ILogger *logger;
 
             void *latestBuffer = nullptr;
             size_t latestBufferSize = 0;
 
-            Rect getOffset(Image *image, int accuracy = 1);
-            void writeOffset(Rect offset, std::string filename);
+            bool getOffset(cv::Mat image, cv::Rect &out);
+            void writeOffset(cv::Rect offset, std::string filename);
 
             BasicImageFilter basicFilter;
 
-            void applyFilter(Image image, FILTER filter, double gain);
+            void applyFilter(cv::Mat &image, FILTER filter, double gain);
 
+            cv::Mat alphaChannel;
+            cv::Mat templateWithoutAlpha;
+            cv::Mat inverseAlphaChannel;
 
+            void loadTemplateImage();
 
         public:
             explicit ImageProcessor(ILogger *logger);
 
-            Image frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
-            Image decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
+            cv::Mat frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
+            cv::Mat decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
 
             bool start();
 
@@ -82,7 +71,7 @@ namespace selfomat {
             virtual ~ImageProcessor();
 
             bool isTemplateLoaded() {
-                return templateLoaded;
+                return templateWithoutAlpha.cols > 0 && templateWithoutAlpha.rows > 0;
             }
 
             bool updateTemplate(void *data, size_t size);

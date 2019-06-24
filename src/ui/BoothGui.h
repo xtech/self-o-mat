@@ -101,10 +101,7 @@ namespace selfomat {
 
             std::wstring agreement;
 
-            int finalOverlayOffsetTop;
-            int finalOverlayOffsetLeft;
-            int finalOverlayOffsetBottom;
-            int finalOverlayOffsetRight;
+            int finalOverlayOffsetX, finalOverlayOffsetY, finalOverlayOffsetW, finalOverlayOffsetH;
 
 
             void *imageBuffer = nullptr;

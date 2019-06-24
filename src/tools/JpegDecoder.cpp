@@ -82,6 +82,10 @@ bool JpegDecoder::decodeJpeg(unsigned char *jpegData, size_t jpegSize, void **ou
     tjDecompressHeader(tj, jpegData, jpegSize, &jpegWidth, &jpegHeight);
 
     switch (colors) {
+        case BGR:
+            depth = 3;
+            pixel_format = TJPF_BGR;
+            break;
         case RGB:
             depth = 3;
             pixel_format = TJPF_RGB;
@@ -89,6 +93,10 @@ bool JpegDecoder::decodeJpeg(unsigned char *jpegData, size_t jpegSize, void **ou
         case RGBA:
             depth = 4;
             pixel_format = TJPF_RGBA;
+            break;
+        case BGRA:
+            depth = 4;
+            pixel_format = TJPF_BGRA;
             break;
         default:
             LOG_E(TAG, "Unknown color format.");

@@ -5,9 +5,7 @@
 #ifndef SELF_O_MAT_IIMAGEFILTER_H
 #define SELF_O_MAT_IIMAGEFILTER_H
 
-#include <Magick++.h>
-#include <Magick++/Image.h>
-
+#include <opencv/cv.hpp>
 
 namespace selfomat {
     namespace logic {
@@ -16,7 +14,7 @@ namespace selfomat {
             double interpolate(double min, double max, double percentage);
         public:
             virtual std::string getName() = 0;
-            virtual void processImage(Magick::Image &image, double gain) = 0;
+            virtual void processImage(cv::Mat &image, double gain) = 0;
         };
     }
 }

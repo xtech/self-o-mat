@@ -322,7 +322,7 @@ void BoothLogic::printerThread() {
                 // first we save the image
                 saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, true);
 
-                Magick::Image toPrepare;
+                cv::Mat toPrepare;
                 if (templateEnabled) {
                     toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(), filterGain);
                 } else {

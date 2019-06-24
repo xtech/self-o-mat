@@ -1,6 +1,3 @@
-[submodule "dependencies/easyexif"]
-	path = dependencies/easyexif
-	url = https://github.com/xtech/easyexif.git
 [submodule "dependencies/served"]
 	path = dependencies/served
 	url = https://github.com/meltwater/served.git

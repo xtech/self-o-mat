@@ -15,7 +15,7 @@ namespace selfomat {
         public:
             std::string getName() override;
 
-            void processImage(Magick::Image &image, double gain) override;
+            void processImage(cv::Mat &image, double gain) override;
         };
 
     }

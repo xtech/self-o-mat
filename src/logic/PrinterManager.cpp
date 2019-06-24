@@ -226,18 +226,18 @@ PrinterManager::PrinterManager(ILogger *logger) : logger(logger) {
     currentPrinterState = STATE_UNKNOWN;
 }
 
-bool PrinterManager::prepareImageForPrint(Magick::Image image) {
+bool PrinterManager::prepareImageForPrint(cv::Mat image) {
     // Write image to blob
-    image.magick("png");
-    Magick::Blob blob;
-    image.write(&blob);
+    std::vector<uchar> pngdata;
+
+    cv::imencode(".png", image, pngdata);
 
     // copy the blob to our buffer for later use
-    selfomat::tools::requireBufferWithSize(&imageTmpBuffer, &imageTmpBufferSize, blob.length());
+    selfomat::tools::requireBufferWithSize(&imageTmpBuffer, &imageTmpBufferSize, pngdata.size());
 
-    memcpy(imageTmpBuffer, blob.data(), blob.length());
+    memcpy(imageTmpBuffer, pngdata.data(), pngdata.size());
 
-    sizeOfPreparedImage = blob.length();
+    sizeOfPreparedImage = pngdata.size();
     hasImagePrepared = true;
 
 

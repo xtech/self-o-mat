@@ -3,9 +3,6 @@ project(self_o_mat)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=8)
-add_definitions(-DMAGICKCORE_HDRI_ENABLE=0)
-
 if(VERBOSE)
     message("Verbose is set, adding definition")
     add_definitions(-DVERBOSE)
@@ -24,14 +21,12 @@ find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 find_package(Cups REQUIRED)
 find_package(Protobuf REQUIRED)
-find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 
 include_directories(src)
 include_directories(dependencies)
 include_directories(/usr/local/include/gphoto2)
 include_directories(/opt/libjpeg-turbo/include)
 include_directories(${Boost_INCLUDE_DIR})
-include_directories(${ImageMagick_INCLUDE_DIRS})
 include_directories(${CUPS_INCLUDE_DIR})
 include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${Protobuf_INCLUDE_DIR})
@@ -55,7 +50,7 @@ add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothL
         src/tools/ConsoleLogger.cpp src/tools/ConsoleLogger.h src/tools/buffers.h src/tools/buffers.cpp src/tools/imageinfo.h src/logic/PrinterManager.cpp
         src/logic/PrinterManager.h src/api/BoothApi.h src/api/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/ui/NopGui.cpp
         src/ui/NopGui.h src/tools/JpegDecoder.cpp src/tools/JpegDecoder.h src/tools/verbose.h src/tools/blocking_reader.h
-        src/camera/controllers/BaseController.h dependencies/easyexif/exif.h dependencies/easyexif/exif.cpp src/camera/controllers/TriggerController.cpp
+        src/camera/controllers/BaseController.h src/camera/controllers/TriggerController.cpp
         src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp
         src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h
         src/camera/controllers/ApertureController.h src/camera/controllers/ExposureCorrectionController.h src/camera/controllers/ChoiceRangeController.cpp
@@ -70,14 +65,12 @@ target_link_libraries(self_o_mat sfml-system)
 target_link_libraries(self_o_mat sfml-graphics)
 target_link_libraries(self_o_mat sfml-window)
 target_link_libraries(self_o_mat ${OpenCV_LIBS})
-target_link_libraries(self_o_mat ${ImageMagick_LIBRARIES})
 target_link_libraries(self_o_mat ${CUPS_LIBRARIES})
 target_link_libraries(self_o_mat served)
 target_link_libraries(self_o_mat protobuf)
 
 add_executable(filter_test src/main_filter.cpp src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp)
 target_link_libraries(filter_test ${Boost_LIBRARIES})
-target_link_libraries(filter_test ${ImageMagick_LIBRARIES})
 
 
 if(USE_SPI)

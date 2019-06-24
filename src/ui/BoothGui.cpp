@@ -93,10 +93,10 @@ void BoothGui::reloadTemplate() {
         boost::property_tree::ptree ptree;
         try {
             boost::property_tree::read_json(std::string(getenv("HOME")) + "/.template_screen_props.json", ptree);
-            finalOverlayOffsetTop = ptree.get<int>("offset_top");
-            finalOverlayOffsetLeft = ptree.get<int>("offset_left");
-            finalOverlayOffsetRight = ptree.get<int>("offset_right");
-            finalOverlayOffsetBottom = ptree.get<int>("offset_bottom");
+            finalOverlayOffsetX = ptree.get<int>("offset_x");
+            finalOverlayOffsetY = ptree.get<int>("offset_y");
+            finalOverlayOffsetW = ptree.get<int>("offset_w");
+            finalOverlayOffsetH = ptree.get<int>("offset_h");
         } catch (boost::exception &e) {
             logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
         }
@@ -214,18 +214,18 @@ void BoothGui::renderThread() {
 
                 if(templateEnabled && templateLoaded) {
                     float finalOverlayCenterX =
-                            ((float) finalOverlayOffsetLeft + (float) finalOverlayOffsetRight) / 2.0f;
+                            (float) finalOverlayOffsetX + (float) finalOverlayOffsetW / 2.0f;
                     float finalOverlayCenterY =
-                            ((float) finalOverlayOffsetTop + (float) finalOverlayOffsetBottom) / 2.0f;
+                            (float) finalOverlayOffsetY + (float) finalOverlayOffsetH / 2.0f;
 
 
                     finalImageSprite.setTexture(imageTexture, true);
                     finalImageSprite.setTextureRect(sf::IntRect(0, 0, imageWidth, imageHeight));
 
                     // Same for the final sprite
-                    float finalScaleX = (float) (finalOverlayOffsetRight - finalOverlayOffsetLeft) / (float) imageWidth;
+                    float finalScaleX = (float) finalOverlayOffsetW / (float) imageWidth;
                     float finalScaleY =
-                            (float) (finalOverlayOffsetBottom - finalOverlayOffsetTop) / (float) imageHeight;
+                            (float) finalOverlayOffsetH / (float) imageHeight;
                     float finalScale = max(finalScaleX, finalScaleY);
                     finalImageSprite.setScale(finalScale, finalScale);
 
