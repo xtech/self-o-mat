@@ -6,7 +6,6 @@
 #define SELF_O_MAT_OPENCVCAMERA_H
 
 
-#include <cv.hpp>
 #include "ICamera.h"
 #include <opencv2/opencv.hpp>
 #include "../tools/buffers.h"

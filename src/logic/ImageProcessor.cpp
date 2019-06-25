@@ -32,7 +32,7 @@ void ImageProcessor::loadTemplateImage() {
     alphaChannel.convertTo(alphaChannel, CV_32FC1);
     alphaChannel /= 255.0f;
     inverseAlphaChannel = 1.0f - alphaChannel;
-    cv::cvtColor(templateImage, templateWithoutAlpha, CV_BGRA2BGR);
+    cv::cvtColor(templateImage, templateWithoutAlpha, cv::COLOR_BGRA2BGR);
 
 
     // Read properties for the template

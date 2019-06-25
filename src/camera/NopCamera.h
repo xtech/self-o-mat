@@ -60,8 +60,8 @@ namespace selfomat {
 
                 cv::Mat image;
                 if (video.isOpened()) {
-                    if (video.get(CV_CAP_PROP_POS_FRAMES) == video.get(CV_CAP_PROP_FRAME_COUNT)) {
-                        video.set(CV_CAP_PROP_POS_FRAMES, 0);
+                    if (video.get(cv::CAP_PROP_POS_FRAMES) == video.get(cv::CAP_PROP_FRAME_COUNT)) {
+                        video.set(cv::CAP_PROP_POS_FRAMES, 0);
                     }
 
                     cv::Mat flipped;
@@ -80,11 +80,11 @@ namespace selfomat {
 
                 cv::Mat outImage(image.rows, image.cols, CV_8UC4, *buffer);
                 if (video.isOpened()) {
-                    cv::cvtColor(image, outImage, CV_RGB2BGRA);
+                    cv::cvtColor(image, outImage, cv::COLOR_RGB2BGRA);
 
                     sf::Int32 elapsedTime = fpsClock.getElapsedTime().asMicroseconds();
                     fpsClock.restart();
-                    auto timeToWait = (1000000 / video.get(CV_CAP_PROP_FPS)) - elapsedTime;
+                    auto timeToWait = (1000000 / video.get(cv::CAP_PROP_FPS)) - elapsedTime;
                     cameraMutex.unlock();
                     if (timeToWait > 0) {
                         usleep(timeToWait);
@@ -139,7 +139,7 @@ namespace selfomat {
                 cv::Mat previewImage(previewSize.height, previewSize.width, CV_8UC4, *previewBuffer);
 
                 if (video.isOpened()) {
-                    cv::cvtColor(image, previewImage, CV_RGB2BGRA);
+                    cv::cvtColor(image, previewImage, cv::COLOR_RGB2BGRA);
                 } else {
                     cv::resize(image, previewImage, previewSize);
                 }

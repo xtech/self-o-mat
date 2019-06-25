@@ -17,7 +17,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/protobuf/api.pb.cc ${C
 
 
 
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 4 REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread filesystem)
 find_package(Cups REQUIRED)
 find_package(Protobuf REQUIRED)
@@ -71,6 +71,7 @@ target_link_libraries(self_o_mat protobuf)
 
 add_executable(filter_test src/main_filter.cpp src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp)
 target_link_libraries(filter_test ${Boost_LIBRARIES})
+target_link_libraries(filter_test ${OpenCV_LIBS})
 
 add_executable(opencv_info src/main_opencv_info.cpp)
 target_link_libraries(opencv_info ${OpenCV_LIBS})

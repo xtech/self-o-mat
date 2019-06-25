@@ -14,8 +14,9 @@ CameraStartResult OpenCVCamera::start() {
         return START_RESULT_ERROR;
     }
 
-    cap.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
-    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
+
 
     return START_RESULT_SUCCESS;
 }
@@ -37,7 +38,7 @@ bool OpenCVCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     cv::resize(image, image, cv::Size(1280,800));
     Mat target(image.rows, image.cols, CV_8UC4, *buffer);
 
-    cv::cvtColor(image, target, CV_RGB2BGRA);
+    cv::cvtColor(image, target, cv::COLOR_RGB2BGRA);
 
     resultInfo->width = target.cols;
     resultInfo->height = target.rows;
@@ -78,7 +79,7 @@ bool OpenCVCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
     cv::resize(image, resized, previewSize);
 
     cv::Mat previewImage(previewSize.height, previewSize.width, CV_8UC4, *previewBuffer);
-    cvtColor(resized, previewImage, CV_RGB2BGRA);
+    cvtColor(resized, previewImage, cv::COLOR_RGB2BGRA);
 
 
     previewImageInfo->width = previewSize.width;

@@ -5,7 +5,8 @@
 #ifndef SELF_O_MAT_IIMAGEFILTER_H
 #define SELF_O_MAT_IIMAGEFILTER_H
 
-#include <opencv/cv.hpp>
+#include <string>
+#include <opencv2/opencv.hpp>
 
 namespace selfomat {
     namespace logic {
