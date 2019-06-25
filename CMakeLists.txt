@@ -72,6 +72,8 @@ target_link_libraries(self_o_mat protobuf)
 add_executable(filter_test src/main_filter.cpp src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp)
 target_link_libraries(filter_test ${Boost_LIBRARIES})
 
+add_executable(opencv_info src/main_opencv_info.cpp)
+target_link_libraries(opencv_info ${OpenCV_LIBS})
 
 if(USE_SPI)
     target_link_libraries(self_o_mat wiringPi)
