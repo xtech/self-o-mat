@@ -184,9 +184,10 @@ ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize,
     clock_gettime(CLOCK_MONOTONIC, &tstart);
 
     {
-        float widthFactor = targetWidth / decodedImage.cols;
-        float heightFactor = targetHeight / decodedImage.rows;
+        float widthFactor = (float)targetWidth / (float)decodedImage.cols;
+        float heightFactor = (float)targetHeight / (float)decodedImage.rows;
         float scalingFactor = std::max(widthFactor, heightFactor);
+        LOG_D(TAG, "scaling with: " << widthFactor << ", " << heightFactor << ", " << scalingFactor);
         cv::resize(decodedImage, decodedImage,
                    cv::Size(decodedImage.cols * scalingFactor, decodedImage.rows * scalingFactor));
     }
