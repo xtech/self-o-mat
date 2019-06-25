@@ -136,9 +136,18 @@ ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, 
 
     clock_gettime(CLOCK_MONOTONIC, &tstart);
 
+    auto alphaPtr = reinterpret_cast<float *>(alphaChannel.data);
+    auto imagePtr = reinterpret_cast<cv::Vec3b *>(result.data);
+    auto templatePtr = reinterpret_cast<cv::Vec3b *>(templateWithoutAlpha.data);
 
-    cv::blendLinear(result, templateWithoutAlpha, inverseAlphaChannel, alphaChannel, result);
+    unsigned int amountPixels = result.rows * result.cols;
 
+    while(amountPixels-->0) {
+        *imagePtr = (1.0f-*alphaPtr) * *imagePtr + *alphaPtr * *templatePtr;
+        templatePtr++;
+        alphaPtr++;
+        imagePtr++;
+    }
 
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
