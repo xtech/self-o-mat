@@ -21,7 +21,6 @@ void ImageProcessor::loadTemplateImage() {
 
     if(templateImage.cols == 0 || templateImage.rows == 0 || templateImage.channels() != 4) {
         alphaChannel = cv::Mat();
-        inverseAlphaChannel = cv::Mat();
         templateWithoutAlpha = cv::Mat();
         return;
     }
@@ -31,7 +30,6 @@ void ImageProcessor::loadTemplateImage() {
     cv::extractChannel(templateImage, alphaChannel, 3);
     alphaChannel.convertTo(alphaChannel, CV_32FC1);
     alphaChannel /= 255.0f;
-    inverseAlphaChannel = 1.0f - alphaChannel;
     cv::cvtColor(templateImage, templateWithoutAlpha, cv::COLOR_BGRA2BGR);
 
 
@@ -45,7 +43,6 @@ void ImageProcessor::loadTemplateImage() {
         } catch (boost::exception &e) {
             logger->logError(std::string("Error loading template properties"));
             alphaChannel = cv::Mat();
-            inverseAlphaChannel = cv::Mat();
             templateWithoutAlpha = cv::Mat();
         }
     }
@@ -317,7 +314,6 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
         std::remove(offsetFilename.c_str());
         std::remove(offsetScreenFilename.c_str());
         alphaChannel = cv::Mat();
-        inverseAlphaChannel = cv::Mat();
         templateWithoutAlpha = cv::Mat();
         return false;
     }

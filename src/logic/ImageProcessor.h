@@ -54,7 +54,6 @@ namespace selfomat {
 
             cv::Mat alphaChannel;
             cv::Mat templateWithoutAlpha;
-            cv::Mat inverseAlphaChannel;
 
             void loadTemplateImage();
 

@@ -14,8 +14,8 @@ CameraStartResult OpenCVCamera::start() {
         return START_RESULT_ERROR;
     }
 
-    cap.set(cv::CAP_PROP_FRAME_WIDTH, 1920);
-    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
+    cap.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
+    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
 
 
     return START_RESULT_SUCCESS;

@@ -60,8 +60,8 @@ namespace selfomat {
 
                 cv::Mat image;
                 if (video.isOpened()) {
-                    if (video.get(cv::CAP_PROP_POS_FRAMES) == video.get(cv::CAP_PROP_FRAME_COUNT)) {
-                        video.set(cv::CAP_PROP_POS_FRAMES, 0);
+                    if (video.get(CV_CAP_PROP_POS_FRAMES) == video.get(CV_CAP_PROP_FRAME_COUNT)) {
+                        video.set(CV_CAP_PROP_POS_FRAMES, 0);
                     }
 
                     cv::Mat flipped;
@@ -84,7 +84,7 @@ namespace selfomat {
 
                     sf::Int32 elapsedTime = fpsClock.getElapsedTime().asMicroseconds();
                     fpsClock.restart();
-                    auto timeToWait = (1000000 / video.get(cv::CAP_PROP_FPS)) - elapsedTime;
+                    auto timeToWait = (1000000 / video.get(CV_CAP_PROP_FPS)) - elapsedTime;
                     cameraMutex.unlock();
                     if (timeToWait > 0) {
                         usleep(timeToWait);
