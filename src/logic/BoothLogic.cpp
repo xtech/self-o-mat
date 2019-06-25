@@ -171,6 +171,8 @@ void BoothLogic::cameraThread() {
                 }
 
                 if (success) {
+                    cv::Mat imageAsMat(imageInfo.height, imageInfo.width, CV_8UC4, imageBuffer);
+                    imageProcessor.applyFilter(imageAsMat, getFilter(), filterGain);
                     gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
                     gui->notifyFinalImageSent();
                     selfomatController.showPrinting();

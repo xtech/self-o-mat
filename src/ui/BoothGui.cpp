@@ -238,8 +238,8 @@ void BoothGui::renderThread() {
                 } else {
                     finalImageSprite.setTexture(imageTexture, true);
                     finalImageSprite.setTextureRect(sf::IntRect(0, 0, imageWidth, imageHeight));
-                    finalImageSprite.setScale(-scale, scale);
-                    finalImageSprite.setPosition(videoMode.width - (windowCenterX - imageCenterX),
+                    finalImageSprite.setScale(scale, scale);
+                    finalImageSprite.setPosition(windowCenterX - imageCenterX,
                                             windowCenterY - imageCenterY);
                 }
 
