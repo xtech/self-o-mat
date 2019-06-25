@@ -50,7 +50,7 @@ namespace selfomat {
 
             BasicImageFilter basicFilter;
 
-
+            void applyFilter(cv::Mat &image, FILTER filter, double gain);
 
             cv::Mat alphaChannel;
             cv::Mat templateWithoutAlpha;
@@ -62,8 +62,6 @@ namespace selfomat {
 
             cv::Mat frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
             cv::Mat decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
-
-            void applyFilter(cv::Mat &image, FILTER filter, double gain);
 
             bool start();
 
