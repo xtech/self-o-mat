@@ -325,7 +325,6 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
 }
 
 void ImageProcessor::applyFilter(cv::Mat &image, FILTER filter, double gain) {
-    cv::imwrite("before_filter.jpg", image);
     switch (filter) {
         case BASIC_FILTER:
             LOG_D(TAG, "basic filter with gain: " << gain);
@@ -335,7 +334,6 @@ void ImageProcessor::applyFilter(cv::Mat &image, FILTER filter, double gain) {
             LOG_D(TAG, "No Filter");
             break;
     }
-    cv::imwrite("after_filter.jpg", image);
 }
 
 const std::vector<std::string> *ImageProcessor::getFilterNames() {
