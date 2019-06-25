@@ -171,8 +171,15 @@ void BoothLogic::cameraThread() {
                 }
 
                 if (success) {
+                    struct timespec tstart, tend;
+                    clock_gettime(CLOCK_MONOTONIC, &tstart);
                     cv::Mat imageAsMat(imageInfo.height, imageInfo.width, CV_8UC4, imageBuffer);
                     imageProcessor.applyFilter(imageAsMat, getFilter(), filterGain);
+                    clock_gettime(CLOCK_MONOTONIC, &tend);
+                    printf("preview filtering took %.5f s\n",
+                           ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                           ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec));
+
                     gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
                     gui->notifyFinalImageSent();
                     selfomatController.showPrinting();
