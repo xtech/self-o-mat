@@ -153,6 +153,23 @@ bool BaseController::setProperty(CameraWidget *widget, std::vector<std::string> 
     }
 }
 
+bool BaseController::setPropertyToggle(CameraWidget *widget, bool value) {
+    CameraWidgetType type;
+    if(GP_OK != gp_widget_get_type(widget, &type)) {
+        LOG_E(TAG, "Error getting type for widget");
+        return false;
+    }
+
+
+    if(type != GP_WIDGET_TOGGLE)
+        return false;
+
+    if(GP_OK != gp_widget_set_value(widget, &value))
+        return false;
+    dirty = true;
+    return true;
+}
+
 bool BaseController::isDirty() {
     return dirty;
 }

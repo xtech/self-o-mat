@@ -21,7 +21,7 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <codecvt>
 #include <tools/readfile.h>
-
+#include <logic/ILogicController.h>
 
 #define DEBUG_QUEUE_SIZE 100
 #define DEBUG_LEVEL_DEBUG 1
@@ -45,9 +45,12 @@ namespace selfomat {
 
         class BoothGui : public IGui {
         public:
-            explicit BoothGui(bool debug);
+            explicit BoothGui(bool debug, logic::ILogicController *logicController);
 
         private:
+
+            logic::ILogicController *logicController;
+
             bool isRunning;
 
             bool debug;
@@ -133,9 +136,14 @@ namespace selfomat {
         public:
             BoothGui();
 
+
             const GUI_STATE getCurrentGuiState() override {
                 boost::unique_lock<boost::mutex> lk(guiStateMutex);
                 return currentState;
+            }
+
+            void setLogicController(logic::ILogicController *logicController) {
+                this->logicController = logicController;
             }
 
             void log(int level, std::string s);

@@ -70,6 +70,14 @@ namespace selfomat {
                  */
                 bool setProperty(CameraWidget *widget, std::vector<std::string> &choices, int choice);
 
+                /**
+                 * Sets the property of a toggle widget.
+                 *
+                 * @param widget the widget
+                 * @param value the value
+                 */
+                bool setPropertyToggle(CameraWidget *widget, bool value);
+
             public:
                 BaseController(GPContext *gp, Camera *camera, CameraWidget *rootWidget) : gp(gp), camera(camera),
                                                                                                 rootWidget(

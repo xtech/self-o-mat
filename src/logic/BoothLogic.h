@@ -156,6 +156,8 @@ namespace selfomat {
             bool isMountpoint(std::string folder);
 
             FILTER getFilter();
+
+            timespec triggerStart;
         public:
             void trigger();
 

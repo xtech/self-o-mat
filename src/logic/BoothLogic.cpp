@@ -55,6 +55,8 @@ void BoothLogic::triggerFlash() {
 }
 
 void BoothLogic::stop(bool update_mode) {
+    if(!isRunning)
+        return;
 
     if(update_mode) {
         returnCode = 0x42;
@@ -155,9 +157,18 @@ void BoothLogic::cameraThread() {
                 // Get the mutex for the last jpeg image. We should have no problem doing this
                 jpegImageMutex.lock();
 
+                timespec tend;
+                clock_gettime(CLOCK_MONOTONIC, &tend);
+                printf("time before trigger %.5f s\n",
+                       ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                       ((double) triggerStart.tv_sec + 1.0e-9 * triggerStart.tv_nsec));
+                clock_gettime(CLOCK_MONOTONIC, &triggerStart);
 
                 camera->triggerCaptureBlocking();
-
+                clock_gettime(CLOCK_MONOTONIC, &tend);
+                printf("time needed to trigger %.5f s\n",
+                       ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                       ((double) triggerStart.tv_sec + 1.0e-9 * triggerStart.tv_nsec));
                 gui->logDebug("Successfully triggered");
                 boost::this_thread::sleep(boost::posix_time::milliseconds(100));
                 auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize, &latestJpegFileName,
@@ -284,6 +295,8 @@ BoothLogic::~BoothLogic() {
 void BoothLogic::trigger() {
     if (showAgreement)
         return;
+
+    clock_gettime(CLOCK_MONOTONIC, &triggerStart);
 
     triggerMutex.lock();
     triggered = true;

@@ -123,7 +123,9 @@ int main(int argc, char *argv[]) {
     cout << "Has Flash: " << has_flash << endl;
 
 
-    p_gui = new BoothGui(debug);
+    // We'll set the controller later when logic is initialized
+    BoothGui *boothGuiPtr = new BoothGui(debug, nullptr);
+    p_gui = boothGuiPtr;
     if (!p_gui->start()) {
         cerr << "Error starting gui - Exiting." << endl;
         return 1;
@@ -144,6 +146,8 @@ int main(int argc, char *argv[]) {
     p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, disable_watchdog, show_led_setup);
 
     cout << "Started Logic" << endl;
+
+    boothGuiPtr->setLogicController(p_logic);
 
     while(true) {
         try {

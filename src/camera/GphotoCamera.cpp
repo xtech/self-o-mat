@@ -53,7 +53,6 @@ CameraStartResult GphotoCamera::start() {
     }
 
 
-
     // HACK set it to center
     //current_exposure_correction_choice = exposurecompensationChoices.size() / 2;
 
@@ -335,6 +334,7 @@ bool GphotoCamera::pushCameraSettings() {
 bool GphotoCamera::triggerCaptureBlocking() {
     if (getState() != STATE_WORKING)
         return false;
+
     cameraIoMutex.lock();
 
     // set exposure and trigger

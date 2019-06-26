@@ -7,12 +7,13 @@
 using namespace std;
 using namespace selfomat::ui;
 
-BoothGui::BoothGui(bool debug) : debugLogQueue(), stateTimer(), alertTimer() {
+BoothGui::BoothGui(bool debug, logic::ILogicController *logicController) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
     this->currentState = STATE_INIT;
     this->shouldShowAgreement = false;
     this->debug = debug;
+    this->logicController = logicController;
 }
 
 BoothGui::~BoothGui() {
@@ -171,6 +172,10 @@ void BoothGui::renderThread() {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
+            } else if(logicController != nullptr && event.type == sf::Event::MouseButtonPressed) {
+                if(event.mouseButton.button == sf::Mouse::Button::Left) {
+                    logicController->trigger();
+                }
             }
         }
 

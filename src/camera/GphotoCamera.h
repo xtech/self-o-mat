@@ -20,6 +20,7 @@
 #include <camera/controllers/ImageFormatController.h>
 #include <camera/controllers/TriggerController.h>
 #include <camera/controllers/ApertureController.h>
+#include <camera/controllers/NikonViewfinderController.h>
 #include <mutex>
 
 extern "C" {
