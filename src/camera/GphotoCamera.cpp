@@ -20,6 +20,14 @@ CameraStartResult GphotoCamera::start() {
     const char **gphotoVersion = gp_library_version(GP_VERSION_VERBOSE);
     LOG_D(TAG, "GPhoto Version: " << (*gphotoVersion));
 
+    char * camlibsenv = getenv("CAMLIBS");
+    if(camlibsenv != nullptr) {
+        LOG_D(TAG, "Camlibspath is: " << camlibsenv);
+    } else {
+        LOG_D(TAG, "Camlibspath is null");
+    }
+
+
     gp = gp_context_new();
 
     CameraList *list;
