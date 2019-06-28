@@ -166,7 +166,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     cerr << "Error obtaining camera file handle: " << gp_result_as_string(retval) << endl;
                     free(data);
                     gp_file_free(cameraFile);
-                    return;
+                    continue;
                 }
 
                 if (boost::ends_with(path->name, ".jpg")) {
@@ -190,7 +190,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                         free(data);
                         gp_file_free(cameraFile);
                         cerr << "Error fetching image data: " << gp_result_as_string(retval) << endl;
-                        return;
+                        continue;
                     }
 
                     // Copy the data into our latest buffer
@@ -206,7 +206,8 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
 
                         free(data);
 
-                        return;
+                        waitForPhoto = false;
+                        continue;
                     }
                 } else {
                     cout << "Some other file. name was: " << path->name << endl;
@@ -220,7 +221,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                         free(data);
                         gp_file_free(cameraFile);
                         cerr << "Error fetching image data: " << gp_result_as_string(retval) << endl;
-                        return;
+                        continue;
                     }
 
                     // Copy the data into our latest buffer
