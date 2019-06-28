@@ -1,11 +1,14 @@
 #!/bin/sh
 
+# $1 = src dir
+# $2 = binary dir
 
 NAME=app
-BINARY=self_o_mat
-FILES="$BINARY settings/* assets/* libs/* firmware.hex version app/* start.sh"
+BINARY=self_o_mat.app
+FILES="$BINARY settings/* assets/* libs/* camlibs/* firmware.hex version app/* self_o_mat"
 TAR=update.tar
 BIN_DIR=$2
+CAMLIBS_DIR="/usr/local/lib/libgphoto2/2.5.23"
 
 clean() {
     echo "Cleaning in $BIN_DIR"
@@ -15,6 +18,7 @@ clean() {
 
     # clean libs
     rm -rf ./libs
+    rm -rf ./camlibs
 
     # clean settings and assets
     rm -rf ./assets
@@ -41,7 +45,10 @@ cp -r $1/assets .
 cp -r $1/settings .
 cp $1/firmware.hex .
 cp -r $1/web/www ./app
-cp $1/start.sh .
+cp $1/start.sh ./self_o_mat
+
+#get the camlibs
+cp -r $CAMLIBS_DIR ./camlibs
 
 # write version info
 echo -n "v_`date +'%s'`" > version

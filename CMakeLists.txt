@@ -44,7 +44,7 @@ else()
     message("We don't have wiring pi!")
 endif()
 
-add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothLogic.h src/ui/BoothGui.cpp src/ui/BoothGui.h
+add_executable(self_o_mat.app src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothLogic.h src/ui/BoothGui.cpp src/ui/BoothGui.h
         src/camera/ICamera.h src/camera/OpenCVCamera.cpp src/camera/OpenCVCamera.h src/camera/GphotoCamera.cpp src/camera/GphotoCamera.h
         src/ui/FPSCounter.h src/camera/NopCamera.h src/logic/ImageProcessor.cpp src/logic/ImageProcessor.h src/ui/IGui.h src/tools/ILogger.h
         src/tools/ConsoleLogger.cpp src/tools/ConsoleLogger.h src/tools/buffers.h src/tools/buffers.cpp src/tools/imageinfo.h src/logic/PrinterManager.cpp
@@ -58,16 +58,16 @@ add_executable(self_o_mat src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothL
 
 
 
-target_link_libraries(self_o_mat ${Boost_LIBRARIES})
-target_link_libraries(self_o_mat gphoto2)
-target_link_libraries(self_o_mat turbojpeg)
-target_link_libraries(self_o_mat sfml-system)
-target_link_libraries(self_o_mat sfml-graphics)
-target_link_libraries(self_o_mat sfml-window)
-target_link_libraries(self_o_mat ${OpenCV_LIBS})
-target_link_libraries(self_o_mat ${CUPS_LIBRARIES})
-target_link_libraries(self_o_mat served)
-target_link_libraries(self_o_mat protobuf)
+target_link_libraries(self_o_mat.app ${Boost_LIBRARIES})
+target_link_libraries(self_o_mat.app gphoto2)
+target_link_libraries(self_o_mat.app turbojpeg)
+target_link_libraries(self_o_mat.app sfml-system)
+target_link_libraries(self_o_mat.app sfml-graphics)
+target_link_libraries(self_o_mat.app sfml-window)
+target_link_libraries(self_o_mat.app ${OpenCV_LIBS})
+target_link_libraries(self_o_mat.app ${CUPS_LIBRARIES})
+target_link_libraries(self_o_mat.app served)
+target_link_libraries(self_o_mat.app protobuf)
 
 add_executable(filter_test src/main_filter.cpp src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp)
 target_link_libraries(filter_test ${Boost_LIBRARIES})
@@ -77,11 +77,11 @@ add_executable(opencv_info src/main_opencv_info.cpp)
 target_link_libraries(opencv_info ${OpenCV_LIBS})
 
 if(USE_SPI)
-    target_link_libraries(self_o_mat wiringPi)
+    target_link_libraries(self_o_mat.app wiringPi)
 endif()
 
 add_custom_target(WITH_APP /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/deploy_app.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_custom_target(PACK /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/pack.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-add_dependencies(PACK self_o_mat)
+add_dependencies(PACK self_o_mat.app)
