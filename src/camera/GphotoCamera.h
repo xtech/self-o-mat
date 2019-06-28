@@ -75,6 +75,9 @@ namespace selfomat {
 
                 CameraWidget *rootWidget;
 
+                // Fix for nikon cameras: We must make sure that the mirror is
+                // positioned correctly in order to allow the camera to work
+                CameraWidget *viewfinderWidget;
 
                 bool trigger_focus = false;
                 bool focus_active = false;
@@ -92,6 +95,8 @@ namespace selfomat {
                 bool getLastRawImage(void **targetBuffer, size_t *targetSize, std::string *filename) override;
 
                 bool settingsDirty();
+
+                bool findWidget(std::string widgetName, CameraWidget **target);
 
             public:
                 CameraStartResult start() override;

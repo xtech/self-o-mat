@@ -61,30 +61,23 @@ CameraStartResult GphotoCamera::start() {
     }
 
 
-    // HACK set it to center
-    //current_exposure_correction_choice = exposurecompensationChoices.size() / 2;
-
     setState(STATE_WORKING);
-
-    /*if (!CHECK(gp_widget_get_child_by_name(rootWidget, "exposurecompensation", &exposureCorrectionWidget))) {
-        cerr << "error getting exposure correction widget" << endl;
-        return START_RESULT_ERROR;
-    }*/
 
     drainEventQueue(false);
 
 
-    // Get shutter speed, iso and apterture
-
     cout << "We're running with a " << getCameraName() << " with " << getLensName() << " attached. yeah!" << endl;
 
-//    setCameraProperty("shutterspeed", "1/4000");
 
-
-//    drainEventQueue(true);
-
-//    stop();
-
+    // For nikon cameras we try to find the viewfinder widget. if we have it, we make sure that the mirror is positioned correctly
+    findWidget("viewfinder", &viewfinderWidget);
+    if(viewfinderWidget != nullptr) {
+        int value = 1;
+        gp_widget_set_value(viewfinderWidget, &value);
+        // push the config
+        gp_camera_set_config(camera, rootWidget, gp);
+        drainEventQueue(false);
+    }
 
     return START_RESULT_SUCCESS;
 }
@@ -98,6 +91,14 @@ void GphotoCamera::stop() {
     // drain the queue
     cameraIoMutex.lock();
     drainEventQueue(false);
+    // For nikon cameras we make sure that the mirror is in the correct position
+    if(viewfinderWidget != nullptr) {
+        int value = 0;
+        gp_widget_set_value(viewfinderWidget, &value);
+        // push the config
+        gp_camera_set_config(camera, rootWidget, gp);
+        drainEventQueue(false);
+    }
     cameraIoMutex.unlock();
 
     // free the widgets
@@ -535,6 +536,16 @@ bool GphotoCamera::settingsDirty() {
     for(auto *p_controller: registeredControllers)
         if(p_controller->isDirty())
             return true;
+    return false;
+}
+
+bool GphotoCamera::findWidget(std::string widgetName, CameraWidget **target) {
+    if (GP_OK == gp_widget_get_child_by_name(rootWidget, widgetName.c_str(), target)) {
+        cout << "Found widget: " << widgetName << endl;
+        return true;
+    }
+    cout << "Did not find widget: " << widgetName << endl;
+    *target = nullptr;
     return false;
 }
 
