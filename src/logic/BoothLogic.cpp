@@ -40,7 +40,7 @@ bool BoothLogic::start() {
         return false;
 
     // Start the threads
-    isRunning = true;
+    isLogicThreadRunning = isCameraThreadRunning = isPrinterThreadRunning = true;
     logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
     cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
     printThreadHandle = boost::thread(boost::bind(&BoothLogic::printerThread, this));
@@ -55,12 +55,12 @@ void BoothLogic::triggerFlash() {
 }
 
 void BoothLogic::stop(bool update_mode) {
-    if(!isRunning)
+    if(!isLogicThreadRunning)
         return;
 
 
     std::cout << "stopping logic. Update mode was: " << update_mode << std::endl;
-    isRunning = false;
+    isLogicThreadRunning = false;
 
     if (logicThreadHandle.joinable()) {
         cout << "waiting for logic" << endl;
@@ -79,10 +79,12 @@ void BoothLogic::stop(bool update_mode) {
 
     selfomatController.stopBlocking();
 
+    isCameraThreadRunning = false;
     if (cameraThreadHandle.joinable()) {
         cout << "waiting for cam" << endl;
         cameraThreadHandle.join();
     }
+    isPrinterThreadRunning = false;
     if (printThreadHandle.joinable()) {
         cout << "waiting for print" << endl;
         printThreadHandle.join();
@@ -99,7 +101,7 @@ void BoothLogic::stop(bool update_mode) {
 void BoothLogic::cameraThread() {
     gui->logDebug("Starting Camera Thread");
     gui->initialized();
-    while (isRunning) {
+    while (isCameraThreadRunning) {
         if (camera->getState() != CameraState::STATE_WORKING) {
             // Camera is not working, try to get it working
             gui->logDebug("Starting Camera");
@@ -224,7 +226,7 @@ void BoothLogic::cameraThread() {
 void BoothLogic::logicThread() {
     gui->logDebug("Starting Logic Thread");
 
-    while (isRunning) {
+    while (isLogicThreadRunning) {
         // Send the heartbeat
         selfomatController.sendHeartbeat();
 
@@ -310,7 +312,7 @@ void BoothLogic::cancelPrint() {
 }
 
 void BoothLogic::printerThread() {
-    while (isRunning) {
+    while (isPrinterThreadRunning) {
         bool do_print;
         {
             cout << "[Printer Thread] Waiting for an image to process" << endl;
@@ -318,7 +320,7 @@ void BoothLogic::printerThread() {
             while (printerState == PRINTER_STATE_IDLE || printerState == PRINTER_STATE_WAITING_FOR_DATA) {
                 printerStateCV.timed_wait(lk, boost::posix_time::milliseconds(500));
                 // application should close
-                if (!isRunning)
+                if (!isPrinterThreadRunning)
                     return;
             }
             do_print = printerEnabled;

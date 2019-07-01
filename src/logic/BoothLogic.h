@@ -97,7 +97,7 @@ namespace selfomat {
             PrinterManager printerManager;
             ImageProcessor imageProcessor;
 
-            bool isRunning;
+            bool isLogicThreadRunning, isCameraThreadRunning, isPrinterThreadRunning;
             boost::mutex triggerMutex;
             bool triggered;
 
