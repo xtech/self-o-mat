@@ -55,7 +55,7 @@ void BoothLogic::triggerFlash() {
 }
 
 void BoothLogic::stop(bool update_mode) {
-    if(!wasSuccessfullyStopped)
+    if(wasSuccessfullyStopped)
         return;
 
     wasSuccessfullyStopped = true;
