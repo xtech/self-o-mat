@@ -55,9 +55,10 @@ void BoothLogic::triggerFlash() {
 }
 
 void BoothLogic::stop(bool update_mode) {
-    if(!isLogicThreadRunning)
+    if(!wasSuccessfullyStopped)
         return;
 
+    wasSuccessfullyStopped = true;
 
     std::cout << "stopping logic. Update mode was: " << update_mode << std::endl;
     isLogicThreadRunning = false;
@@ -96,8 +97,6 @@ void BoothLogic::stop(bool update_mode) {
     }
 
     imageProcessor.stop();
-
-    wasSuccessfullyStopped = true;
 }
 
 void BoothLogic::cameraThread() {
