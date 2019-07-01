@@ -58,11 +58,6 @@ void BoothLogic::stop(bool update_mode) {
     if(!isRunning)
         return;
 
-    if(update_mode) {
-        returnCode = 0x42;
-    } else {
-        returnCode = -1;
-    }
 
     std::cout << "stopping logic" << std::endl;
     isRunning = false;
@@ -72,11 +67,15 @@ void BoothLogic::stop(bool update_mode) {
         logicThreadHandle.join();
     }
 
-    writeSettings();
-
     if (update_mode) {
         selfomatController.enterUpdateMode();
+        returnCode = 0x42;
+    } else {
+        returnCode = -1;
     }
+
+    writeSettings();
+
 
     selfomatController.stopBlocking();
 
