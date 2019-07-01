@@ -59,7 +59,7 @@ void BoothLogic::stop(bool update_mode) {
         return;
 
 
-    std::cout << "stopping logic" << std::endl;
+    std::cout << "stopping logic. Update mode was: " << update_mode << std::endl;
     isRunning = false;
 
     if (logicThreadHandle.joinable()) {

@@ -299,6 +299,7 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
 void SelfomatController::enterUpdateMode() {
     if(!isConnected)
         return;
+    std::cout << "[Selfomat Controller] Entering Update Mode..." << std::endl;
     {
         boost::unique_lock<boost::mutex> lk(state_mutex);
         flashStateEntered = false;
@@ -310,6 +311,8 @@ void SelfomatController::enterUpdateMode() {
             }
 
         } while (!flashStateEntered && isStarted);
+
+        std::cout << "[Selfomat Controller] Update Mode Confirmed!" << std::endl;
     }
 }
 
