@@ -264,9 +264,15 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
             break;
         case 'A': {
                 boost::unique_lock<boost::mutex> lk(state_mutex);
-                aggreementStateEntered = true;
+                agreementStateEntered = true;
                 state_condition_variable.notify_all();
             }
+            break;
+        case 'F': {
+            boost::unique_lock<boost::mutex> lk(state_mutex);
+            flashStateEntered = true;
+            state_condition_variable.notify_all();
+        }
             break;
         case 'a':
             if(logic != nullptr)
@@ -291,7 +297,20 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
 }
 
 void SelfomatController::enterUpdateMode() {
-    sendCommand('f');
+    if(!isConnected)
+        return;
+    {
+        boost::unique_lock<boost::mutex> lk(state_mutex);
+        flashStateEntered = false;
+
+        do {
+            sendCommand('f');
+            if(!state_condition_variable.timed_wait(lk, boost::posix_time::milliseconds(500))) {
+                std::cout << "update mode timed out. retrying.." << std::endl;
+            }
+
+        } while (!flashStateEntered && isStarted);
+    }
 }
 
 void SelfomatController::showPrinting() {
@@ -303,7 +322,7 @@ void SelfomatController::showAgreement() {
         return;
     {
         boost::unique_lock<boost::mutex> lk(state_mutex);
-        aggreementStateEntered = false;
+        agreementStateEntered = false;
 
         do {
             sendCommand('a');
@@ -311,7 +330,7 @@ void SelfomatController::showAgreement() {
                 std::cout << "agreement timed out. retrying.." << std::endl;
             }
 
-        } while (!aggreementStateEntered && isStarted);
+        } while (!agreementStateEntered && isStarted);
     }
 }
 

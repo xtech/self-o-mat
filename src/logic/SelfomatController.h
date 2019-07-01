@@ -84,7 +84,8 @@ namespace selfomat {
             // Initially we don't know the state of the button board
             bool settingsLoaded = false;
             bool settingsWritten = false;
-            bool aggreementStateEntered = false;
+            bool agreementStateEntered = false;
+            bool flashStateEntered = false;
             // END STATE
 
             bool loadSettingsFromBoard();
