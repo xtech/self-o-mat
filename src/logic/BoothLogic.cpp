@@ -10,7 +10,7 @@ using namespace selfomat::ui;
 
 
 bool BoothLogic::start() {
-
+    wasSuccessfullyStopped = false;
     gui->logDebug("Starting Logic");
 
     if (has_button) {
@@ -96,6 +96,8 @@ void BoothLogic::stop(bool update_mode) {
     }
 
     imageProcessor.stop();
+
+    wasSuccessfullyStopped = true;
 }
 
 void BoothLogic::cameraThread() {
@@ -649,4 +651,8 @@ FILTER BoothLogic::getFilter() {
         case 1:
             return BASIC_FILTER;
     }
+}
+
+bool BoothLogic::isStopped() {
+    return wasSuccessfullyStopped;
 }

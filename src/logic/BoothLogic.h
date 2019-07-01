@@ -133,6 +133,7 @@ namespace selfomat {
 
             int filterChoice = 0;
             double filterGain = 1.0;
+            bool wasSuccessfullyStopped = false;
 
             void readSettings();
             void writeSettings();
@@ -159,6 +160,7 @@ namespace selfomat {
 
             timespec triggerStart;
         public:
+            bool isStopped();
             void trigger();
 
             void acceptAgreement();

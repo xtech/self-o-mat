@@ -23,13 +23,16 @@ selfomat::camera::ICamera *p_cam = nullptr;
 selfomat::api::BoothApi *p_api = nullptr;
 selfomat::logic::BoothLogic *p_logic = nullptr;
 
+std::mutex exitMutex;
 bool cleaned = false;
 
 void exitfunc(int code) {
-
+    exitMutex.lock();
     // Clean up only once
-    if (cleaned)
+    if (cleaned) {
+        exitMutex.unlock();
         return;
+    }
 
     cleaned = true;
 
@@ -39,26 +42,39 @@ void exitfunc(int code) {
     if (p_api != nullptr) {
         p_api->stop();
         delete (p_api);
+        p_api = nullptr;
     }
 
     // Now we stop the logic as it will stop camera and gui for us
     if (p_logic != nullptr) {
-        p_logic->stop();
-        delete (p_cam);
-        delete (p_gui);
+        if(!p_logic->isStopped()) {
+            std::cout << "We need to stop the logic" << std::endl;
+            p_logic->stop();
+            if (p_cam != nullptr)
+                delete (p_cam);
+            if (p_gui != nullptr)
+                delete (p_gui);
+        } else {
+            std::cout << "Logic was already stopped." << std::endl;
+        }
+        p_cam = nullptr;
+        p_gui = nullptr;
     } else {
         // We have to stop camera and gui ourselves
         if (p_cam != nullptr) {
             p_cam->stop();
             delete (p_cam);
+            p_cam = nullptr;
         }
         if (p_gui != nullptr) {
             p_gui->stop();
             delete (p_gui);
+            p_gui = nullptr;
         }
     }
 
     std::cout << "Cleaned up" << endl;
+    exitMutex.unlock();
 }
 
 void exitfunc() {
