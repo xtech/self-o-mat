@@ -3,7 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  demo: false,
+  demo: !window.location.hostname.indexOf('self-o-mat.de'),
   production: false,
   SERVER_URL: 'http://localhost:9080'
 
