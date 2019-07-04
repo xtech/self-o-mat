@@ -1,7 +1,6 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import { XAPIService } from '../api.service';
 import {xtech} from '../protos/api';
-import {environment} from '../../environments/environment';
 
 import BoothSettings = xtech.selfomat.BoothSettings;
 import IFileUploadSetting = xtech.selfomat.IFileUploadSetting;
@@ -44,7 +43,7 @@ export class Tab2Page implements OnInit {
   }
 
   ngOnInit() {
-    if (!environment.demo) {
+    if (!this.apiService.isDemo) {
       setInterval(() => {
         this.refresh();
       }, 1000);

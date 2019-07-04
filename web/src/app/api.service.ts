@@ -18,6 +18,8 @@ import BoothError = xtech.selfomat.BoothError;
 
 export class XAPIService {
 
+    isDemo = !window.location.hostname.indexOf('self-o-mat.de');
+
     isUpdating = false;
     endUpdateingTimerID = null;
     postTimer = null;
@@ -58,7 +60,7 @@ export class XAPIService {
     }
 
     getCameraSettings(): Observable<xtech.selfomat.CameraSettings> {
-        if (environment.demo) {
+        if (this.isDemo) {
 
             const result = new Observable<xtech.selfomat.CameraSettings>((observer) => {
                 const settings = new xtech.selfomat.CameraSettings();
@@ -127,7 +129,7 @@ export class XAPIService {
     }
 
     getBoothSettings(): Observable<xtech.selfomat.BoothSettings> {
-        if (environment.demo) {
+        if (this.isDemo) {
 
             const result = new Observable<xtech.selfomat.BoothSettings>((observer) => {
                 const settings = new xtech.selfomat.BoothSettings();
@@ -281,7 +283,7 @@ export class XAPIService {
             array =  xtech.selfomat.IntUpdate.encode(message).finish();
         }
 
-        if (!environment.demo) {
+        if (!this.isDemo) {
             this.http.post(environment.SERVER_URL + setting['updateUrl'],
                 array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset),
                 {headers: {'Content-Type': 'application/x-www-form-urlencoded'}, responseType: 'arraybuffer'})
@@ -313,7 +315,7 @@ export class XAPIService {
 
             this.postTimer = Date.now();
 
-            if (environment.demo) {
+            if (this.isDemo) {
                 this.postLoadingController.dismiss();
                 this.postLoadingController = null;
                 this.postTimer = null;
@@ -415,7 +417,7 @@ export class XAPIService {
     }
 
     trigger() {
-        if (!environment.demo) {
+        if (!this.isDemo) {
             this.http.post(environment.SERVER_URL + '/trigger',
                 null,
                 {responseType: 'text'})
