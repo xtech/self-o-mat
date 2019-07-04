@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { XAPIService } from '../api.service';
 import {xtech} from '../protos/api';
+import {environment} from '../../environments/environment';
 
 import CameraSettings = xtech.selfomat.CameraSettings;
 
@@ -42,9 +43,11 @@ export class Tab1Page implements OnInit {
   }
 
   ngOnInit() {
-    setInterval(() => {
-      this.refresh();
-    }, 1000);
+    if (!environment.demo) {
+      setInterval(() => {
+        this.refresh();
+      }, 1000);
+    }
 
     this.refresh();
   }

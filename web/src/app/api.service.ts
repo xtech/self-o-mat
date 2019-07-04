@@ -13,7 +13,7 @@ import * as Long from 'long';
 import BoothError = xtech.selfomat.BoothError;
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 
 export class XAPIService {
@@ -24,10 +24,10 @@ export class XAPIService {
     postLoadingController = null;
 
     constructor(
-    	private readonly http: HttpClient,
-    	public loadingController: LoadingController,
-    	public actionSheetController: ActionSheetController,
-    	public alertController: AlertController
+        private readonly http: HttpClient,
+        public loadingController: LoadingController,
+        public actionSheetController: ActionSheetController,
+        public alertController: AlertController
     ) {}
 
     values(obj: Object): any[] {
@@ -58,17 +58,145 @@ export class XAPIService {
     }
 
     getCameraSettings(): Observable<xtech.selfomat.CameraSettings> {
-        return this.http.get(`${environment.SERVER_URL}/camera_settings`, {responseType: 'arraybuffer'})
-            .pipe(map(res => this.parseCameraSettings(res)),
-                catchError(this.handleError)
-            );
+        if (environment.demo) {
+
+            const result = new Observable<xtech.selfomat.CameraSettings>((observer) => {
+                const settings = new xtech.selfomat.CameraSettings();
+
+                settings.iso = new xtech.selfomat.ListSetting({
+                    name: 'ISO',
+                    values: ['Auto', '100', '125', '160', '200', '250', '320', '400', '500', '640', '800', '1000'],
+                    currentIndex: 0,
+                    updateUrl: null
+                });
+
+                settings.aperture = new xtech.selfomat.ListSetting({
+                    name: 'Aperture',
+                    values: ['1.8', '2', '2.2', '2.5', '2.8', '3.2', '3.5', '4', '4.5', '5', '5.6', '6.3', '7.1', '8', '9', '10', '11', '13', '14', '16', '18', '20', '22'],
+                    currentIndex: 6,
+                    updateUrl: null
+                });
+
+                settings.shutterSpeed = new xtech.selfomat.ListSetting({
+                    name: 'Shutter Speed',
+                    values: ['Auto'],
+                    currentIndex: 0,
+                    updateUrl: null
+                });
+
+                settings.exposureCompensation = new xtech.selfomat.ListSetting({
+                    name: 'Exposure Compensation',
+                    values: ['-5', '-4.6', '-4.3', '-4', '-3.6', '-3.3', '-3', '-2.6', '-2.3', '-2', '-1.6', '-1.3', '-1', '-0.6', '-0.3', '0', '0.3', '0.6', '1', '1.3', '1.6', '2', '2.3', '2.6', '3', '3.3', '3.6', '4', '4.3', '4.6', '5'],
+                    currentIndex: 13,
+                    updateUrl: null
+                });
+
+                settings.imageFormat = new xtech.selfomat.ListSetting({
+                    name: 'Image Format',
+                    values: ['RAW + Tiny JPEG', 'RAW + Medium Fine JPEG', 'RAW + Large Fine JPEG'],
+                    currentIndex: 2,
+                    updateUrl: null
+                });
+
+                settings.cameraName = new xtech.selfomat.ReadOnlySetting({
+                    name: 'Camera',
+                    value: 'Canon EOS 5D Mark III'
+                });
+
+                settings.cameraName = new xtech.selfomat.ReadOnlySetting({
+                    name: 'Lens',
+                    value: 'EF24-70mm f/4L IS USM'
+                });
+
+                settings.focus = new xtech.selfomat.PostSetting({
+                    name: 'Set Focus',
+                    postUrl: null
+                });
+
+                observer.next(settings);
+                observer.complete();
+            });
+            return result;
+
+        } else {
+            return this.http.get(`${environment.SERVER_URL}/camera_settings`, {responseType: 'arraybuffer'})
+                .pipe(map(res => this.parseCameraSettings(res)),
+                    catchError(this.handleError)
+                );
+        }
     }
 
     getBoothSettings(): Observable<xtech.selfomat.BoothSettings> {
-        return this.http.get(`${environment.SERVER_URL}/booth_settings`, {responseType: 'arraybuffer'})
-            .pipe(map(res => this.parseBoothSettings(res)),
-                catchError(this.handleError)
-            );
+        if (environment.demo) {
+
+            const result = new Observable<xtech.selfomat.BoothSettings>((observer) => {
+                const settings = new xtech.selfomat.BoothSettings();
+
+                settings.storageEnabled = new xtech.selfomat.BoolSetting({
+                    currentValue: true,
+                    name: 'Storage enabled?',
+                    updateUrl: null
+                });
+
+                settings.printerEnabled = new xtech.selfomat.BoolSetting({
+                    currentValue: false,
+                    name: 'Printer enabled?',
+                    updateUrl: null
+                });
+
+                settings.flashEnabled = new xtech.selfomat.BoolSetting({
+                    currentValue: true,
+                    name: 'Flash enabled?',
+                    updateUrl: null
+                });
+
+                settings.flashDurationMicros = new xtech.selfomat.IntSetting({
+                    name: 'Flash enabled?',
+                    currentValue: 80,
+                    minValue: 0,
+                    maxValue: 100,
+                    updateUrl: null
+                });
+
+                settings.countdownDuration = new xtech.selfomat.ListSetting({
+                    name: 'Countdown Duration',
+                    values: ['3s', '4s', '5s', '6s', '7s', '8s', '9s', '10s', '15s', '30s'],
+                    currentIndex: 2,
+                    updateUrl: null
+                });
+
+                settings.filterChoice = new xtech.selfomat.ListSetting({
+                    name: 'Filter Mode',
+                    values: ['Off', 'Automatic'],
+                    currentIndex: 1,
+                    updateUrl: null
+                });
+
+                settings.filterGain = new xtech.selfomat.FloatSetting({
+                    name: 'Filter Gain',
+                    currentValue: 0.5,
+                    minValue: 0,
+                    maxValue: 1,
+                    updateUrl: null
+                });
+
+                settings.updateMode = new xtech.selfomat.PostSetting({
+                    name: 'Update Mode',
+                    postUrl: null,
+                    alert: 'Do you really want to start the software update mode?'
+                });
+
+                observer.next(settings);
+                observer.complete();
+            });
+            return result;
+
+        } else {
+            return this.http.get(`${environment.SERVER_URL}/booth_settings`, {responseType: 'arraybuffer'})
+                .pipe(map(res => this.parseBoothSettings(res)),
+                    catchError(this.handleError)
+                );
+        }
     }
 
     parseCameraSettings(response: ArrayBuffer): xtech.selfomat.CameraSettings {
@@ -128,7 +256,7 @@ export class XAPIService {
 
     updateSetting($event, setting) {
 
-	    if (!this.isUpdating) {
+        if (!this.isUpdating) {
             this.isUpdating = true;
             this.endUpdateingTimerID = setTimeout(() => {
                 this.isUpdating = false;
@@ -153,13 +281,14 @@ export class XAPIService {
             array =  xtech.selfomat.IntUpdate.encode(message).finish();
         }
 
-        this.http.post(environment.SERVER_URL + setting['updateUrl'],
-            array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset),
-            {headers: {'Content-Type': 'application/x-www-form-urlencoded'}, responseType: 'arraybuffer'})
-            .subscribe(data => {}, error => {
-                console.log(error);
-            });
-
+        if (!environment.demo) {
+            this.http.post(environment.SERVER_URL + setting['updateUrl'],
+                array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset),
+                {headers: {'Content-Type': 'application/x-www-form-urlencoded'}, responseType: 'arraybuffer'})
+                .subscribe(data => {}, error => {
+                    console.log(error);
+                });
+        }
     }
 
     checkPostTimer() {
@@ -183,14 +312,21 @@ export class XAPIService {
             }
 
             this.postTimer = Date.now();
-            this.http.post(environment.SERVER_URL + setting['postUrl'],
-            	null,
-            	{responseType: 'text'})
-            	.subscribe(data => {
-                    this.postLoadingController.dismiss();
-                    this.postLoadingController = null;
-                    this.postTimer = null;
-            	}, error => {});
+
+            if (environment.demo) {
+                this.postLoadingController.dismiss();
+                this.postLoadingController = null;
+                this.postTimer = null;
+            } else {
+                this.http.post(environment.SERVER_URL + setting['postUrl'],
+                    null,
+                    {responseType: 'text'})
+                    .subscribe(data => {
+                        this.postLoadingController.dismiss();
+                        this.postLoadingController = null;
+                        this.postTimer = null;
+                    }, error => {});
+            }
         }
     }
 
@@ -198,23 +334,23 @@ export class XAPIService {
         if (this.isPost(setting)) {
 
             if (setting['alert'].length > 0) {
-            	const actionSheet = await this.actionSheetController.create({
-	            header: setting['alert'],
-	            buttons: [{
-	            	text: setting['name'],
-	            	handler: () => {
-	            		this.postWithoutHint(setting);
-	            	}
-	            }, {
-	            	text: 'Cancel',
-	            	role: 'cancel',
-	            	handler: () => {}
-	            }]
-	        });
+                const actionSheet = await this.actionSheetController.create({
+                    header: setting['alert'],
+                    buttons: [{
+                        text: setting['name'],
+                        handler: () => {
+                            this.postWithoutHint(setting);
+                        }
+                    }, {
+                        text: 'Cancel',
+                        role: 'cancel',
+                        handler: () => {}
+                    }]
+                });
 
-            	await actionSheet.present();
+                await actionSheet.present();
             } else {
-            	this.postWithoutHint(setting);
+                this.postWithoutHint(setting);
             }
 
         }
@@ -279,11 +415,13 @@ export class XAPIService {
     }
 
     trigger() {
-        this.http.post(environment.SERVER_URL + '/trigger',
-            null,
-            {responseType: 'text'})
-            .subscribe(data => {}, error => {
-                console.log(error);
-            });
+        if (!environment.demo) {
+            this.http.post(environment.SERVER_URL + '/trigger',
+                null,
+                {responseType: 'text'})
+                .subscribe(data => {}, error => {
+                    console.log(error);
+                });
+        }
     }
 }

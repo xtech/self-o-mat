@@ -5,11 +5,9 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e",
+    "serve": "ionic serve",
+    "build": "ionic build --prod",
+    "build-demo": "ng build --configuration=demo --output-path 'www-demo'",
     "proto": "pbjs -t  static-module ../api.proto -o src/app/protos/api.js && pbts --no-comments src/app/protos/api.js -o src/app/protos/api.d.ts"
   },
   "private": true,
