@@ -84,8 +84,6 @@ message IntSetting {
     required string update_url = 5;
 }
 
-
-
 message CameraSettings {
     required ListSetting iso = 1;
     required ListSetting shutter_speed = 2;
@@ -99,21 +97,27 @@ message CameraSettings {
 }
 
 message BoothSettings {
-    required BoolSetting storage_enabled = 1;
-    required BoolSetting printer_enabled = 2;
-    required BoolSetting flash_enabled = 3;
-    required IntSetting flash_duration_micros = 4;
-    required PostSetting flash_test = 5;
-    optional FileUploadSetting template_upload = 6;
-    optional BoolSetting template_enabled = 7;
-    optional ListSetting led_mode = 8;
-    optional ListSetting led_count = 9;
-    required PostSetting led_offset_clockwise = 10;
-    required PostSetting led_offset_counter_clockwise = 11;
-    required ListSetting countdown_duration = 12;
-    required ListSetting filter_choice = 13;
-    required FloatSetting filter_gain = 14;
-    required PostSetting update_mode = 253;
-    optional LinkSetting cups_link = 254;
-    optional BoolSetting flashMode = 255;
+    required BoolSetting storage_enabled = 10;
+    required BoolSetting printer_enabled = 11;
+
+    required ListSetting filter_choice = 20;
+    required FloatSetting filter_gain = 21;
+
+    optional FileUploadSetting template_upload = 30;
+    optional BoolSetting template_enabled = 31;
+
+    optional ListSetting led_mode = 40;
+    optional ListSetting led_count = 41;
+    required PostSetting led_offset_clockwise = 42;
+    required PostSetting led_offset_counter_clockwise = 43;
+    required ListSetting countdown_duration = 44;
+
+    optional LinkSetting cups_link = 50;
+    required PostSetting update_mode = 51;
+
+    optional BoolSetting flash_enabled = 200;
+    optional BoolSetting flashMode = 201;
+    optional IntSetting flash_duration_micros = 202;
+    optional PostSetting flash_test = 203;
+
 }

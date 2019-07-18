@@ -536,27 +536,56 @@ bool BoothApi::start() {
                     setting->set_currentvalue(logic->getPrinterEnabled());
                 }
 
+                {
+                    auto setting = currentBoothSettings.mutable_filter_choice();
+                    setting->set_name("Filter");
+                    setting->set_update_url("/booth_settings/filter/which");
+                    setting->set_currentindex(logic->getFilterChoice());
+                    for(auto &choice : *logic->getFilterChoices())
+                        setting->add_values(choice);
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_filter_gain();
+                    setting->set_name("Filter Gain");
+                    setting->set_update_url("/booth_settings/filter/gain");
+                    setting->set_currentvalue(logic->getFilterGain());
+                    setting->set_minvalue(0.0);
+                    setting->set_maxvalue(1.0);
+                }
+
+                bool flashAvailable = logic->getFlashAvailable();
                 bool flashEnabled = logic->getFlashEnabled();
-                {
-                    auto setting = currentBoothSettings.mutable_flash_enabled();
-                    setting->set_update_url("/booth_settings/flash/enabled");
-                    setting->set_name("Flash Enabled?");
-                    setting->set_currentvalue(flashEnabled);
-                }
 
-                {
-                    auto setting = currentBoothSettings.mutable_flash_duration_micros();
-                    setting->set_update_url("/booth_settings/flash/duration");
-                    setting->set_name("Flash Brightness");
-                    setting->set_currentvalue(controller->getFlashDurationMicros());
-                    setting->set_minvalue(0);
-                    setting->set_maxvalue(100000);
-                }
+                if (flashAvailable) {
+                    {
+                        auto setting = currentBoothSettings.mutable_flash_enabled();
+                        setting->set_update_url("/booth_settings/flash/enabled");
+                        setting->set_name("Flash Enabled?");
+                        setting->set_currentvalue(flashEnabled);
+                    }
 
-                {
-                    auto setting = currentBoothSettings.mutable_flash_test();
-                    setting->set_name("Flash Test");
-                    setting->set_post_url("/flash");
+                    {
+                        auto setting = currentBoothSettings.mutable_flashmode();
+                        setting->set_name("iTTL enabled?");
+                        setting->set_update_url("/booth_settings/flash/ittlEnabled");
+                        setting->set_currentvalue(logic->getSelfomatController()->getFlashMode());
+                    }
+
+                    {
+                        auto setting = currentBoothSettings.mutable_flash_duration_micros();
+                        setting->set_update_url("/booth_settings/flash/duration");
+                        setting->set_name("Flash Brightness");
+                        setting->set_currentvalue(controller->getFlashDurationMicros());
+                        setting->set_minvalue(0);
+                        setting->set_maxvalue(100000);
+                    }
+
+                    {
+                        auto setting = currentBoothSettings.mutable_flash_test();
+                        setting->set_name("Flash Test");
+                        setting->set_post_url("/flash");
+                    }
                 }
 
                 {
@@ -656,36 +685,6 @@ bool BoothApi::start() {
                     setting->set_name("CUPS Printer Setup");
                     setting->set_url("http://192.168.4.1:631");
                 }
-
-                {
-                    auto setting = currentBoothSettings.mutable_flashmode();
-                    setting->set_name("iTTL enabled?");
-                    setting->set_update_url("/booth_settings/flash/ittlEnabled");
-                    setting->set_currentvalue(logic->getSelfomatController()->getFlashMode());
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_filter_choice();
-                    setting->set_name("Filter");
-                    setting->set_update_url("/booth_settings/filter/which");
-                    setting->set_currentindex(logic->getFilterChoice());
-                    for(auto &choice : *logic->getFilterChoices())
-                        setting->add_values(choice);
-                }
-
-                {
-                    auto setting = currentBoothSettings.mutable_filter_gain();
-                    setting->set_name("Filter Gain");
-                    setting->set_update_url("/booth_settings/filter/gain");
-                    setting->set_currentvalue(logic->getFilterGain());
-                    setting->set_minvalue(0.0);
-                    setting->set_maxvalue(1.0);
-                }
-
-
-
-
-
 
                 res << currentBoothSettings.SerializeAsString();
             });

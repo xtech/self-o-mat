@@ -325,9 +325,8 @@ export namespace xtech {
         interface IBoothSettings {
             storageEnabled: xtech.selfomat.IBoolSetting;
             printerEnabled: xtech.selfomat.IBoolSetting;
-            flashEnabled: xtech.selfomat.IBoolSetting;
-            flashDurationMicros: xtech.selfomat.IIntSetting;
-            flashTest: xtech.selfomat.IPostSetting;
+            filterChoice: xtech.selfomat.IListSetting;
+            filterGain: xtech.selfomat.IFloatSetting;
             templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
             templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             ledMode?: (xtech.selfomat.IListSetting|null);
@@ -335,20 +334,20 @@ export namespace xtech {
             ledOffsetClockwise: xtech.selfomat.IPostSetting;
             ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             countdownDuration: xtech.selfomat.IListSetting;
-            filterChoice: xtech.selfomat.IListSetting;
-            filterGain: xtech.selfomat.IFloatSetting;
-            updateMode: xtech.selfomat.IPostSetting;
             cupsLink?: (xtech.selfomat.ILinkSetting|null);
+            updateMode: xtech.selfomat.IPostSetting;
+            flashEnabled?: (xtech.selfomat.IBoolSetting|null);
             flashMode?: (xtech.selfomat.IBoolSetting|null);
+            flashDurationMicros?: (xtech.selfomat.IIntSetting|null);
+            flashTest?: (xtech.selfomat.IPostSetting|null);
         }
 
         class BoothSettings implements IBoothSettings {
             constructor(properties?: xtech.selfomat.IBoothSettings);
             public storageEnabled: xtech.selfomat.IBoolSetting;
             public printerEnabled: xtech.selfomat.IBoolSetting;
-            public flashEnabled: xtech.selfomat.IBoolSetting;
-            public flashDurationMicros: xtech.selfomat.IIntSetting;
-            public flashTest: xtech.selfomat.IPostSetting;
+            public filterChoice: xtech.selfomat.IListSetting;
+            public filterGain: xtech.selfomat.IFloatSetting;
             public templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
             public templateEnabled?: (xtech.selfomat.IBoolSetting|null);
             public ledMode?: (xtech.selfomat.IListSetting|null);
@@ -356,11 +355,12 @@ export namespace xtech {
             public ledOffsetClockwise: xtech.selfomat.IPostSetting;
             public ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             public countdownDuration: xtech.selfomat.IListSetting;
-            public filterChoice: xtech.selfomat.IListSetting;
-            public filterGain: xtech.selfomat.IFloatSetting;
-            public updateMode: xtech.selfomat.IPostSetting;
             public cupsLink?: (xtech.selfomat.ILinkSetting|null);
+            public updateMode: xtech.selfomat.IPostSetting;
+            public flashEnabled?: (xtech.selfomat.IBoolSetting|null);
             public flashMode?: (xtech.selfomat.IBoolSetting|null);
+            public flashDurationMicros?: (xtech.selfomat.IIntSetting|null);
+            public flashTest?: (xtech.selfomat.IPostSetting|null);
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
             public static encode(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;

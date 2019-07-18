@@ -570,6 +570,9 @@ bool BoothLogic::getFlashEnabled() {
     return flashEnabled;
 }
 
+bool BoothLogic::getFlashAvailable() {
+    return has_flash;
+}
 
 void BoothLogic::setTemplateEnabled(bool templateEnabled, bool persist) {
     this->templateEnabled = templateEnabled;

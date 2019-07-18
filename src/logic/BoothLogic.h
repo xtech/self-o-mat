@@ -173,6 +173,7 @@ namespace selfomat {
 
             void setFlashEnabled(bool enabled, bool persist = false);
             bool getFlashEnabled();
+            bool getFlashAvailable();
 
             int join() {
                 if (logicThreadHandle.joinable()) {

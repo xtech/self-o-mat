@@ -3468,9 +3468,8 @@
                  * @interface IBoothSettings
                  * @property {xtech.selfomat.IBoolSetting} storageEnabled BoothSettings storageEnabled
                  * @property {xtech.selfomat.IBoolSetting} printerEnabled BoothSettings printerEnabled
-                 * @property {xtech.selfomat.IBoolSetting} flashEnabled BoothSettings flashEnabled
-                 * @property {xtech.selfomat.IIntSetting} flashDurationMicros BoothSettings flashDurationMicros
-                 * @property {xtech.selfomat.IPostSetting} flashTest BoothSettings flashTest
+                 * @property {xtech.selfomat.IListSetting} filterChoice BoothSettings filterChoice
+                 * @property {xtech.selfomat.IFloatSetting} filterGain BoothSettings filterGain
                  * @property {xtech.selfomat.IFileUploadSetting|null} [templateUpload] BoothSettings templateUpload
                  * @property {xtech.selfomat.IBoolSetting|null} [templateEnabled] BoothSettings templateEnabled
                  * @property {xtech.selfomat.IListSetting|null} [ledMode] BoothSettings ledMode
@@ -3478,11 +3477,12 @@
                  * @property {xtech.selfomat.IPostSetting} ledOffsetClockwise BoothSettings ledOffsetClockwise
                  * @property {xtech.selfomat.IPostSetting} ledOffsetCounterClockwise BoothSettings ledOffsetCounterClockwise
                  * @property {xtech.selfomat.IListSetting} countdownDuration BoothSettings countdownDuration
-                 * @property {xtech.selfomat.IListSetting} filterChoice BoothSettings filterChoice
-                 * @property {xtech.selfomat.IFloatSetting} filterGain BoothSettings filterGain
-                 * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
                  * @property {xtech.selfomat.ILinkSetting|null} [cupsLink] BoothSettings cupsLink
+                 * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
+                 * @property {xtech.selfomat.IBoolSetting|null} [flashEnabled] BoothSettings flashEnabled
                  * @property {xtech.selfomat.IBoolSetting|null} [flashMode] BoothSettings flashMode
+                 * @property {xtech.selfomat.IIntSetting|null} [flashDurationMicros] BoothSettings flashDurationMicros
+                 * @property {xtech.selfomat.IPostSetting|null} [flashTest] BoothSettings flashTest
                  */
     
                 /**
@@ -3517,28 +3517,20 @@
                 BoothSettings.prototype.printerEnabled = null;
     
                 /**
-                 * BoothSettings flashEnabled.
-                 * @member {xtech.selfomat.IBoolSetting} flashEnabled
+                 * BoothSettings filterChoice.
+                 * @member {xtech.selfomat.IListSetting} filterChoice
                  * @memberof xtech.selfomat.BoothSettings
                  * @instance
                  */
-                BoothSettings.prototype.flashEnabled = null;
+                BoothSettings.prototype.filterChoice = null;
     
                 /**
-                 * BoothSettings flashDurationMicros.
-                 * @member {xtech.selfomat.IIntSetting} flashDurationMicros
+                 * BoothSettings filterGain.
+                 * @member {xtech.selfomat.IFloatSetting} filterGain
                  * @memberof xtech.selfomat.BoothSettings
                  * @instance
                  */
-                BoothSettings.prototype.flashDurationMicros = null;
-    
-                /**
-                 * BoothSettings flashTest.
-                 * @member {xtech.selfomat.IPostSetting} flashTest
-                 * @memberof xtech.selfomat.BoothSettings
-                 * @instance
-                 */
-                BoothSettings.prototype.flashTest = null;
+                BoothSettings.prototype.filterGain = null;
     
                 /**
                  * BoothSettings templateUpload.
@@ -3597,20 +3589,12 @@
                 BoothSettings.prototype.countdownDuration = null;
     
                 /**
-                 * BoothSettings filterChoice.
-                 * @member {xtech.selfomat.IListSetting} filterChoice
+                 * BoothSettings cupsLink.
+                 * @member {xtech.selfomat.ILinkSetting|null|undefined} cupsLink
                  * @memberof xtech.selfomat.BoothSettings
                  * @instance
                  */
-                BoothSettings.prototype.filterChoice = null;
-    
-                /**
-                 * BoothSettings filterGain.
-                 * @member {xtech.selfomat.IFloatSetting} filterGain
-                 * @memberof xtech.selfomat.BoothSettings
-                 * @instance
-                 */
-                BoothSettings.prototype.filterGain = null;
+                BoothSettings.prototype.cupsLink = null;
     
                 /**
                  * BoothSettings updateMode.
@@ -3621,12 +3605,12 @@
                 BoothSettings.prototype.updateMode = null;
     
                 /**
-                 * BoothSettings cupsLink.
-                 * @member {xtech.selfomat.ILinkSetting|null|undefined} cupsLink
+                 * BoothSettings flashEnabled.
+                 * @member {xtech.selfomat.IBoolSetting|null|undefined} flashEnabled
                  * @memberof xtech.selfomat.BoothSettings
                  * @instance
                  */
-                BoothSettings.prototype.cupsLink = null;
+                BoothSettings.prototype.flashEnabled = null;
     
                 /**
                  * BoothSettings flashMode.
@@ -3635,6 +3619,22 @@
                  * @instance
                  */
                 BoothSettings.prototype.flashMode = null;
+    
+                /**
+                 * BoothSettings flashDurationMicros.
+                 * @member {xtech.selfomat.IIntSetting|null|undefined} flashDurationMicros
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.flashDurationMicros = null;
+    
+                /**
+                 * BoothSettings flashTest.
+                 * @member {xtech.selfomat.IPostSetting|null|undefined} flashTest
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.flashTest = null;
     
                 /**
                  * Creates a new BoothSettings instance using the specified properties.
@@ -3660,29 +3660,32 @@
                 BoothSettings.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
-                    $root.xtech.selfomat.BoolSetting.encode(message.storageEnabled, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    $root.xtech.selfomat.BoolSetting.encode(message.printerEnabled, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    $root.xtech.selfomat.BoolSetting.encode(message.flashEnabled, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                    $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                    $root.xtech.selfomat.PostSetting.encode(message.flashTest, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+                    $root.xtech.selfomat.BoolSetting.encode(message.storageEnabled, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
+                    $root.xtech.selfomat.BoolSetting.encode(message.printerEnabled, writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
+                    $root.xtech.selfomat.ListSetting.encode(message.filterChoice, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
+                    $root.xtech.selfomat.FloatSetting.encode(message.filterGain, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
                     if (message.templateUpload != null && message.hasOwnProperty("templateUpload"))
-                        $root.xtech.selfomat.FileUploadSetting.encode(message.templateUpload, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                        $root.xtech.selfomat.FileUploadSetting.encode(message.templateUpload, writer.uint32(/* id 30, wireType 2 =*/242).fork()).ldelim();
                     if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
-                        $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
+                        $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 31, wireType 2 =*/250).fork()).ldelim();
                     if (message.ledMode != null && message.hasOwnProperty("ledMode"))
-                        $root.xtech.selfomat.ListSetting.encode(message.ledMode, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                        $root.xtech.selfomat.ListSetting.encode(message.ledMode, writer.uint32(/* id 40, wireType 2 =*/322).fork()).ldelim();
                     if (message.ledCount != null && message.hasOwnProperty("ledCount"))
-                        $root.xtech.selfomat.ListSetting.encode(message.ledCount, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
-                    $root.xtech.selfomat.PostSetting.encode(message.ledOffsetClockwise, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
-                    $root.xtech.selfomat.PostSetting.encode(message.ledOffsetCounterClockwise, writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
-                    $root.xtech.selfomat.ListSetting.encode(message.countdownDuration, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
-                    $root.xtech.selfomat.ListSetting.encode(message.filterChoice, writer.uint32(/* id 13, wireType 2 =*/106).fork()).ldelim();
-                    $root.xtech.selfomat.FloatSetting.encode(message.filterGain, writer.uint32(/* id 14, wireType 2 =*/114).fork()).ldelim();
-                    $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 253, wireType 2 =*/2026).fork()).ldelim();
+                        $root.xtech.selfomat.ListSetting.encode(message.ledCount, writer.uint32(/* id 41, wireType 2 =*/330).fork()).ldelim();
+                    $root.xtech.selfomat.PostSetting.encode(message.ledOffsetClockwise, writer.uint32(/* id 42, wireType 2 =*/338).fork()).ldelim();
+                    $root.xtech.selfomat.PostSetting.encode(message.ledOffsetCounterClockwise, writer.uint32(/* id 43, wireType 2 =*/346).fork()).ldelim();
+                    $root.xtech.selfomat.ListSetting.encode(message.countdownDuration, writer.uint32(/* id 44, wireType 2 =*/354).fork()).ldelim();
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
-                        $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 254, wireType 2 =*/2034).fork()).ldelim();
+                        $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 50, wireType 2 =*/402).fork()).ldelim();
+                    $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 51, wireType 2 =*/410).fork()).ldelim();
+                    if (message.flashEnabled != null && message.hasOwnProperty("flashEnabled"))
+                        $root.xtech.selfomat.BoolSetting.encode(message.flashEnabled, writer.uint32(/* id 200, wireType 2 =*/1602).fork()).ldelim();
                     if (message.flashMode != null && message.hasOwnProperty("flashMode"))
-                        $root.xtech.selfomat.BoolSetting.encode(message.flashMode, writer.uint32(/* id 255, wireType 2 =*/2042).fork()).ldelim();
+                        $root.xtech.selfomat.BoolSetting.encode(message.flashMode, writer.uint32(/* id 201, wireType 2 =*/1610).fork()).ldelim();
+                    if (message.flashDurationMicros != null && message.hasOwnProperty("flashDurationMicros"))
+                        $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 202, wireType 2 =*/1618).fork()).ldelim();
+                    if (message.flashTest != null && message.hasOwnProperty("flashTest"))
+                        $root.xtech.selfomat.PostSetting.encode(message.flashTest, writer.uint32(/* id 203, wireType 2 =*/1626).fork()).ldelim();
                     return writer;
                 };
     
@@ -3717,56 +3720,56 @@
                     while (reader.pos < end) {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
-                        case 1:
+                        case 10:
                             message.storageEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
-                        case 2:
+                        case 11:
                             message.printerEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
-                        case 3:
-                            message.flashEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
-                            break;
-                        case 4:
-                            message.flashDurationMicros = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
-                            break;
-                        case 5:
-                            message.flashTest = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
-                            break;
-                        case 6:
-                            message.templateUpload = $root.xtech.selfomat.FileUploadSetting.decode(reader, reader.uint32());
-                            break;
-                        case 7:
-                            message.templateEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
-                            break;
-                        case 8:
-                            message.ledMode = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
-                            break;
-                        case 9:
-                            message.ledCount = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
-                            break;
-                        case 10:
-                            message.ledOffsetClockwise = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
-                            break;
-                        case 11:
-                            message.ledOffsetCounterClockwise = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
-                            break;
-                        case 12:
-                            message.countdownDuration = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
-                            break;
-                        case 13:
+                        case 20:
                             message.filterChoice = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
                             break;
-                        case 14:
+                        case 21:
                             message.filterGain = $root.xtech.selfomat.FloatSetting.decode(reader, reader.uint32());
                             break;
-                        case 253:
-                            message.updateMode = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
+                        case 30:
+                            message.templateUpload = $root.xtech.selfomat.FileUploadSetting.decode(reader, reader.uint32());
                             break;
-                        case 254:
+                        case 31:
+                            message.templateEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            break;
+                        case 40:
+                            message.ledMode = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
+                            break;
+                        case 41:
+                            message.ledCount = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
+                            break;
+                        case 42:
+                            message.ledOffsetClockwise = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
+                            break;
+                        case 43:
+                            message.ledOffsetCounterClockwise = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
+                            break;
+                        case 44:
+                            message.countdownDuration = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
+                            break;
+                        case 50:
                             message.cupsLink = $root.xtech.selfomat.LinkSetting.decode(reader, reader.uint32());
                             break;
-                        case 255:
+                        case 51:
+                            message.updateMode = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
+                            break;
+                        case 200:
+                            message.flashEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            break;
+                        case 201:
                             message.flashMode = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            break;
+                        case 202:
+                            message.flashDurationMicros = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
+                            break;
+                        case 203:
+                            message.flashTest = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -3777,22 +3780,16 @@
                         throw $util.ProtocolError("missing required 'storageEnabled'", { instance: message });
                     if (!message.hasOwnProperty("printerEnabled"))
                         throw $util.ProtocolError("missing required 'printerEnabled'", { instance: message });
-                    if (!message.hasOwnProperty("flashEnabled"))
-                        throw $util.ProtocolError("missing required 'flashEnabled'", { instance: message });
-                    if (!message.hasOwnProperty("flashDurationMicros"))
-                        throw $util.ProtocolError("missing required 'flashDurationMicros'", { instance: message });
-                    if (!message.hasOwnProperty("flashTest"))
-                        throw $util.ProtocolError("missing required 'flashTest'", { instance: message });
+                    if (!message.hasOwnProperty("filterChoice"))
+                        throw $util.ProtocolError("missing required 'filterChoice'", { instance: message });
+                    if (!message.hasOwnProperty("filterGain"))
+                        throw $util.ProtocolError("missing required 'filterGain'", { instance: message });
                     if (!message.hasOwnProperty("ledOffsetClockwise"))
                         throw $util.ProtocolError("missing required 'ledOffsetClockwise'", { instance: message });
                     if (!message.hasOwnProperty("ledOffsetCounterClockwise"))
                         throw $util.ProtocolError("missing required 'ledOffsetCounterClockwise'", { instance: message });
                     if (!message.hasOwnProperty("countdownDuration"))
                         throw $util.ProtocolError("missing required 'countdownDuration'", { instance: message });
-                    if (!message.hasOwnProperty("filterChoice"))
-                        throw $util.ProtocolError("missing required 'filterChoice'", { instance: message });
-                    if (!message.hasOwnProperty("filterGain"))
-                        throw $util.ProtocolError("missing required 'filterGain'", { instance: message });
                     if (!message.hasOwnProperty("updateMode"))
                         throw $util.ProtocolError("missing required 'updateMode'", { instance: message });
                     return message;
@@ -3836,19 +3833,14 @@
                             return "printerEnabled." + error;
                     }
                     {
-                        var error = $root.xtech.selfomat.BoolSetting.verify(message.flashEnabled);
+                        var error = $root.xtech.selfomat.ListSetting.verify(message.filterChoice);
                         if (error)
-                            return "flashEnabled." + error;
+                            return "filterChoice." + error;
                     }
                     {
-                        var error = $root.xtech.selfomat.IntSetting.verify(message.flashDurationMicros);
+                        var error = $root.xtech.selfomat.FloatSetting.verify(message.filterGain);
                         if (error)
-                            return "flashDurationMicros." + error;
-                    }
-                    {
-                        var error = $root.xtech.selfomat.PostSetting.verify(message.flashTest);
-                        if (error)
-                            return "flashTest." + error;
+                            return "filterGain." + error;
                     }
                     if (message.templateUpload != null && message.hasOwnProperty("templateUpload")) {
                         var error = $root.xtech.selfomat.FileUploadSetting.verify(message.templateUpload);
@@ -3885,30 +3877,35 @@
                         if (error)
                             return "countdownDuration." + error;
                     }
-                    {
-                        var error = $root.xtech.selfomat.ListSetting.verify(message.filterChoice);
+                    if (message.cupsLink != null && message.hasOwnProperty("cupsLink")) {
+                        var error = $root.xtech.selfomat.LinkSetting.verify(message.cupsLink);
                         if (error)
-                            return "filterChoice." + error;
-                    }
-                    {
-                        var error = $root.xtech.selfomat.FloatSetting.verify(message.filterGain);
-                        if (error)
-                            return "filterGain." + error;
+                            return "cupsLink." + error;
                     }
                     {
                         var error = $root.xtech.selfomat.PostSetting.verify(message.updateMode);
                         if (error)
                             return "updateMode." + error;
                     }
-                    if (message.cupsLink != null && message.hasOwnProperty("cupsLink")) {
-                        var error = $root.xtech.selfomat.LinkSetting.verify(message.cupsLink);
+                    if (message.flashEnabled != null && message.hasOwnProperty("flashEnabled")) {
+                        var error = $root.xtech.selfomat.BoolSetting.verify(message.flashEnabled);
                         if (error)
-                            return "cupsLink." + error;
+                            return "flashEnabled." + error;
                     }
                     if (message.flashMode != null && message.hasOwnProperty("flashMode")) {
                         var error = $root.xtech.selfomat.BoolSetting.verify(message.flashMode);
                         if (error)
                             return "flashMode." + error;
+                    }
+                    if (message.flashDurationMicros != null && message.hasOwnProperty("flashDurationMicros")) {
+                        var error = $root.xtech.selfomat.IntSetting.verify(message.flashDurationMicros);
+                        if (error)
+                            return "flashDurationMicros." + error;
+                    }
+                    if (message.flashTest != null && message.hasOwnProperty("flashTest")) {
+                        var error = $root.xtech.selfomat.PostSetting.verify(message.flashTest);
+                        if (error)
+                            return "flashTest." + error;
                     }
                     return null;
                 };
@@ -3935,20 +3932,15 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.printerEnabled: object expected");
                         message.printerEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.printerEnabled);
                     }
-                    if (object.flashEnabled != null) {
-                        if (typeof object.flashEnabled !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.flashEnabled: object expected");
-                        message.flashEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.flashEnabled);
+                    if (object.filterChoice != null) {
+                        if (typeof object.filterChoice !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.filterChoice: object expected");
+                        message.filterChoice = $root.xtech.selfomat.ListSetting.fromObject(object.filterChoice);
                     }
-                    if (object.flashDurationMicros != null) {
-                        if (typeof object.flashDurationMicros !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.flashDurationMicros: object expected");
-                        message.flashDurationMicros = $root.xtech.selfomat.IntSetting.fromObject(object.flashDurationMicros);
-                    }
-                    if (object.flashTest != null) {
-                        if (typeof object.flashTest !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.flashTest: object expected");
-                        message.flashTest = $root.xtech.selfomat.PostSetting.fromObject(object.flashTest);
+                    if (object.filterGain != null) {
+                        if (typeof object.filterGain !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.filterGain: object expected");
+                        message.filterGain = $root.xtech.selfomat.FloatSetting.fromObject(object.filterGain);
                     }
                     if (object.templateUpload != null) {
                         if (typeof object.templateUpload !== "object")
@@ -3985,30 +3977,35 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.countdownDuration: object expected");
                         message.countdownDuration = $root.xtech.selfomat.ListSetting.fromObject(object.countdownDuration);
                     }
-                    if (object.filterChoice != null) {
-                        if (typeof object.filterChoice !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.filterChoice: object expected");
-                        message.filterChoice = $root.xtech.selfomat.ListSetting.fromObject(object.filterChoice);
-                    }
-                    if (object.filterGain != null) {
-                        if (typeof object.filterGain !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.filterGain: object expected");
-                        message.filterGain = $root.xtech.selfomat.FloatSetting.fromObject(object.filterGain);
+                    if (object.cupsLink != null) {
+                        if (typeof object.cupsLink !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.cupsLink: object expected");
+                        message.cupsLink = $root.xtech.selfomat.LinkSetting.fromObject(object.cupsLink);
                     }
                     if (object.updateMode != null) {
                         if (typeof object.updateMode !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.updateMode: object expected");
                         message.updateMode = $root.xtech.selfomat.PostSetting.fromObject(object.updateMode);
                     }
-                    if (object.cupsLink != null) {
-                        if (typeof object.cupsLink !== "object")
-                            throw TypeError(".xtech.selfomat.BoothSettings.cupsLink: object expected");
-                        message.cupsLink = $root.xtech.selfomat.LinkSetting.fromObject(object.cupsLink);
+                    if (object.flashEnabled != null) {
+                        if (typeof object.flashEnabled !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.flashEnabled: object expected");
+                        message.flashEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.flashEnabled);
                     }
                     if (object.flashMode != null) {
                         if (typeof object.flashMode !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.flashMode: object expected");
                         message.flashMode = $root.xtech.selfomat.BoolSetting.fromObject(object.flashMode);
+                    }
+                    if (object.flashDurationMicros != null) {
+                        if (typeof object.flashDurationMicros !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.flashDurationMicros: object expected");
+                        message.flashDurationMicros = $root.xtech.selfomat.IntSetting.fromObject(object.flashDurationMicros);
+                    }
+                    if (object.flashTest != null) {
+                        if (typeof object.flashTest !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.flashTest: object expected");
+                        message.flashTest = $root.xtech.selfomat.PostSetting.fromObject(object.flashTest);
                     }
                     return message;
                 };
@@ -4029,9 +4026,8 @@
                     if (options.defaults) {
                         object.storageEnabled = null;
                         object.printerEnabled = null;
-                        object.flashEnabled = null;
-                        object.flashDurationMicros = null;
-                        object.flashTest = null;
+                        object.filterChoice = null;
+                        object.filterGain = null;
                         object.templateUpload = null;
                         object.templateEnabled = null;
                         object.ledMode = null;
@@ -4039,22 +4035,21 @@
                         object.ledOffsetClockwise = null;
                         object.ledOffsetCounterClockwise = null;
                         object.countdownDuration = null;
-                        object.filterChoice = null;
-                        object.filterGain = null;
-                        object.updateMode = null;
                         object.cupsLink = null;
+                        object.updateMode = null;
+                        object.flashEnabled = null;
                         object.flashMode = null;
+                        object.flashDurationMicros = null;
+                        object.flashTest = null;
                     }
                     if (message.storageEnabled != null && message.hasOwnProperty("storageEnabled"))
                         object.storageEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.storageEnabled, options);
                     if (message.printerEnabled != null && message.hasOwnProperty("printerEnabled"))
                         object.printerEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.printerEnabled, options);
-                    if (message.flashEnabled != null && message.hasOwnProperty("flashEnabled"))
-                        object.flashEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.flashEnabled, options);
-                    if (message.flashDurationMicros != null && message.hasOwnProperty("flashDurationMicros"))
-                        object.flashDurationMicros = $root.xtech.selfomat.IntSetting.toObject(message.flashDurationMicros, options);
-                    if (message.flashTest != null && message.hasOwnProperty("flashTest"))
-                        object.flashTest = $root.xtech.selfomat.PostSetting.toObject(message.flashTest, options);
+                    if (message.filterChoice != null && message.hasOwnProperty("filterChoice"))
+                        object.filterChoice = $root.xtech.selfomat.ListSetting.toObject(message.filterChoice, options);
+                    if (message.filterGain != null && message.hasOwnProperty("filterGain"))
+                        object.filterGain = $root.xtech.selfomat.FloatSetting.toObject(message.filterGain, options);
                     if (message.templateUpload != null && message.hasOwnProperty("templateUpload"))
                         object.templateUpload = $root.xtech.selfomat.FileUploadSetting.toObject(message.templateUpload, options);
                     if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
@@ -4069,16 +4064,18 @@
                         object.ledOffsetCounterClockwise = $root.xtech.selfomat.PostSetting.toObject(message.ledOffsetCounterClockwise, options);
                     if (message.countdownDuration != null && message.hasOwnProperty("countdownDuration"))
                         object.countdownDuration = $root.xtech.selfomat.ListSetting.toObject(message.countdownDuration, options);
-                    if (message.filterChoice != null && message.hasOwnProperty("filterChoice"))
-                        object.filterChoice = $root.xtech.selfomat.ListSetting.toObject(message.filterChoice, options);
-                    if (message.filterGain != null && message.hasOwnProperty("filterGain"))
-                        object.filterGain = $root.xtech.selfomat.FloatSetting.toObject(message.filterGain, options);
-                    if (message.updateMode != null && message.hasOwnProperty("updateMode"))
-                        object.updateMode = $root.xtech.selfomat.PostSetting.toObject(message.updateMode, options);
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
                         object.cupsLink = $root.xtech.selfomat.LinkSetting.toObject(message.cupsLink, options);
+                    if (message.updateMode != null && message.hasOwnProperty("updateMode"))
+                        object.updateMode = $root.xtech.selfomat.PostSetting.toObject(message.updateMode, options);
+                    if (message.flashEnabled != null && message.hasOwnProperty("flashEnabled"))
+                        object.flashEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.flashEnabled, options);
                     if (message.flashMode != null && message.hasOwnProperty("flashMode"))
                         object.flashMode = $root.xtech.selfomat.BoolSetting.toObject(message.flashMode, options);
+                    if (message.flashDurationMicros != null && message.hasOwnProperty("flashDurationMicros"))
+                        object.flashDurationMicros = $root.xtech.selfomat.IntSetting.toObject(message.flashDurationMicros, options);
+                    if (message.flashTest != null && message.hasOwnProperty("flashTest"))
+                        object.flashTest = $root.xtech.selfomat.PostSetting.toObject(message.flashTest, options);
                     return object;
                 };
     
