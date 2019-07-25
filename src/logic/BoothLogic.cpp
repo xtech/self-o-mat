@@ -219,7 +219,11 @@ void BoothLogic::cameraThread() {
             }
         }
     }
-    camera->stop();
+
+    if (camera != nullptr) {
+        camera->stop();
+        camera = NULL;
+    }
 }
 
 
