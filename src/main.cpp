@@ -50,15 +50,21 @@ void exitfunc(int code) {
         if(!p_logic->isStopped()) {
             std::cout << "We need to stop the logic" << std::endl;
             p_logic->stop();
-            if (p_cam != nullptr)
-                delete (p_cam);
             if (p_gui != nullptr)
                 delete (p_gui);
         } else {
             std::cout << "Logic was already stopped." << std::endl;
         }
-        p_cam = nullptr;
+
+        if (p_cam != nullptr) {
+            delete (p_cam);
+            p_cam = nullptr;
+        }
+
         p_gui = nullptr;
+
+        delete (p_logic);
+        p_logic = nullptr;
     } else {
         // We have to stop camera and gui ourselves
         if (p_cam != nullptr) {

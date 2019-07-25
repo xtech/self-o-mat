@@ -77,7 +77,6 @@ void BoothLogic::stop(bool update_mode) {
 
     writeSettings();
 
-
     selfomatController.stopBlocking();
 
     isCameraThreadRunning = false;

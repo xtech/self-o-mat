@@ -104,6 +104,8 @@ namespace selfomat {
 
             void serialPacketReceived(const boost::system::error_code &err, std::size_t bytes_transferred);
 
+            void stop(bool blocking);
+
         public:
             SelfomatController();
 
