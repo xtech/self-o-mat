@@ -746,7 +746,7 @@ bool BoothApi::start() {
                     res.set_status(200);
                     res.set_body(file_contents);
                 }
-            });
+        });
 
     mux.handle("/{file}")
             .get([this](served::response &res, const served::request &req) {
