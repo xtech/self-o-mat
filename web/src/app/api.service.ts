@@ -153,7 +153,7 @@ export class XAPIService {
                 });
 
                 settings.flashDurationMicros = new xtech.selfomat.IntSetting({
-                    name: 'Flash enabled?',
+                    name: 'Flash Brightness',
                     currentValue: 80,
                     minValue: 0,
                     maxValue: 100,

@@ -287,8 +287,11 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
                 logic->trigger();
             break;
         case 'd':
-            if(logic != nullptr)
+            stop(false);
+
+            if(logic != nullptr) {
                 logic->stop();
+            }
             break;
         default:
             std::cout << "[selfomat controller] got unknown command from button. Type was: " << ((char)commandType) << std::endl;
@@ -373,13 +376,23 @@ uint32_t SelfomatController::getFlashDurationMicros() {
     return settings.flashDurationMicros;
 }
 
-void SelfomatController::stopBlocking() {
+void SelfomatController::stop(bool blocking) {
+    if (!isStarted)
+        return;
+
+    std::cout << "[selfomat controller] Controller Thread stopping..." << std::endl;
+
     isStarted = false;
     io_service.stop();
-    if(controllerThreadHandle.joinable())
+
+    if(blocking && controllerThreadHandle.joinable())
         controllerThreadHandle.join();
     if(button_serial_port.is_open())
         button_serial_port.close();
+}
+
+void SelfomatController::stopBlocking() {
+    stop(true);
 }
 
 void SelfomatController::ioThread() {

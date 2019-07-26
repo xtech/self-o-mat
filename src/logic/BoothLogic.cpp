@@ -77,7 +77,6 @@ void BoothLogic::stop(bool update_mode) {
 
     writeSettings();
 
-
     selfomatController.stopBlocking();
 
     isCameraThreadRunning = false;
@@ -220,7 +219,11 @@ void BoothLogic::cameraThread() {
             }
         }
     }
-    camera->stop();
+
+    if (camera != nullptr) {
+        camera->stop();
+        camera = NULL;
+    }
 }
 
 
