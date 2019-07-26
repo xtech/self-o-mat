@@ -1,0 +1,34 @@
+{
+  "TABS": {
+    "camera": "Kamera",
+    "booth": "Fotobox"
+  },
+  "CAMERA": {
+    "title": "Kamera-Einstellungen"
+  },
+  "BOOTH": {
+    "title": "Fotobox-Einstellungen"
+  },
+  "DEMO": {
+    "CAMERA": {
+      "iso": "ISO",
+      "aperture": "Belichtung",
+      "shutterSpeed": "Verschlusszeit",
+      "exposureCompensation": "Belichtungskorrektur",
+      "imageFormat": "Bildformat",
+      "cameraName": "Kameramodell",
+      "lensName": "Objektivmodell",
+      "focus": "Fokus anpassen"
+    },
+    "BOOTH": {
+      "storageEnabled": "Speichern aktivieren?",
+      "printerEnabled": "Drucken aktivieren?",
+      "flashEnabled": "Blitz aktivieren?",
+      "flashDurationMicros": "Blitzdauer",
+      "countdownDuration": "Countdown-Dauer",
+      "filterChoice": "Filtermodus",
+      "filterGain": "Filterintensität",
+      "updateMode": "Update-Modus"
+    }
+  }
+}

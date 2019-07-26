@@ -13,7 +13,7 @@ import CameraSettings = xtech.selfomat.CameraSettings;
 export class Tab1Page implements OnInit {
 
   settings: CameraSettings;
-  pageTitle = 'Camera Settings';
+  pageTitle = 'CAMERA.title';
 
   constructor(readonly apiService: XAPIService) {
   }
