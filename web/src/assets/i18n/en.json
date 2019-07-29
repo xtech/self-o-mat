@@ -35,5 +35,9 @@
       "cupsLink": "Printer Setup"
     }
   },
-  "CANCEL": "Cancel"
+  "CANCEL": "Cancel",
+  "ERROR": "Error",
+  "ERRORS": {
+    "fileUnsupported": "Unsupported File!"
+  }
 }

@@ -397,7 +397,7 @@ export class XAPIService {
             if (setting['inputAccept'].length > 0) {
                 const types = setting['inputAccept'].split(',');
                 if (!types.includes(file.type.toLowerCase())) {
-                    this.presentAlert('Error', 'Unsupported file!');
+                    this.presentAlert(this.translate.instant('ERROR'), this.translate.instant('ERRORS.unsupportedFile'));
                     return;
                 }
             }
@@ -410,6 +410,12 @@ export class XAPIService {
             const reader = new FileReader();
 
             reader.onload = function () {
+                if (this.isDemo) {
+                    this.postLoadingController.dismiss();
+                    this.postLoadingController = null;
+                    return;
+                }
+
                 const buffer = new Uint8Array(<ArrayBuffer>reader.result);
 
                 const req = new XMLHttpRequest();

@@ -35,5 +35,9 @@
       "cupsLink": "Drucker einrichten"
     }
   },
-  "CANCEL": "Abbrechen"
+  "CANCEL": "Abbrechen",
+  "ERROR": "Fehler",
+  "ERRORS": {
+    "fileUnsupported": "Dateiformat wird nicht unterstützt!"
+  }
 }
