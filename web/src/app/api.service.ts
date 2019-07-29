@@ -397,7 +397,7 @@ export class XAPIService {
             if (setting['inputAccept'].length > 0) {
                 const types = setting['inputAccept'].split(',');
                 if (!types.includes(file.type.toLowerCase())) {
-                    this.presentAlert(this.translate.instant('ERROR'), this.translate.instant('ERRORS.unsupportedFile'));
+                    this.presentAlert(this.translate.instant('ERROR'), this.translate.instant('ERRORS.fileUnsupported'));
                     return;
                 }
             }
