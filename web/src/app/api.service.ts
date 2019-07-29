@@ -20,7 +20,8 @@ import BoothError = xtech.selfomat.BoothError;
 
 export class XAPIService {
 
-    isDemo = (window.location.hostname.indexOf('demo.self-o-mat.de') > -1);
+    //isDemo = (window.location.hostname.indexOf('demo.self-o-mat.de') > -1);
+    isDemo = true;
 
     isUpdating = false;
     endUpdateingTimerID = null;
@@ -191,6 +192,23 @@ export class XAPIService {
                     maxValue: 1,
                     updateUrl: null
                 });
+
+                settings.templateUpload = new xtech.selfomat.FileUploadSetting( {
+                    name: this.translate.instant('DEMO.BOOTH.templateUpload'),
+                    postUrl: null,
+                    inputAccept: 'image/x-png,image/png'
+                });
+
+                settings.templateEnabled = new xtech.selfomat.BoolSetting({
+                    name: this.translate.instant('DEMO.BOOTH.templateEnabled'),
+                    currentValue: false,
+                    updateUrl: null
+                });
+
+                settings.cupsLink = new xtech.selfomat.LinkSetting( {
+                    name: this.translate.instant('DEMO.BOOTH.cupsLink'),
+                    url: 'https://www.cups.org'
+                })
 
                 settings.updateMode = new xtech.selfomat.PostSetting({
                     name: this.translate.instant('DEMO.BOOTH.updateMode'),

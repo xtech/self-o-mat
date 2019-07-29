@@ -29,7 +29,10 @@
       "filterChoice": "Filter Mode",
       "filterGain": "Filter Gain",
       "updateMode": "Update Mode",
-      "updateModeAlert": "Do you really want to start the software update mode?"
+      "updateModeAlert": "Do you really want to start the software update mode?",
+      "templateUpload": "Template Upload",
+      "templateEnabled": "Template enabled?",
+      "cupsLink": "Printer Setup"
     }
   },
   "CANCEL": "Cancel"

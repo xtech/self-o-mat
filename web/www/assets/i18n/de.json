@@ -29,7 +29,10 @@
       "filterChoice": "Filtermodus",
       "filterGain": "Filterintensität",
       "updateMode": "Update-Modus",
-      "updateModeAlert": "Fotobox wirklich in den Update-Modus versetzen?"
+      "updateModeAlert": "Fotobox wirklich in den Update-Modus versetzen?",
+      "templateUpload": "Motiv hochladen",
+      "templateEnabled": "Motiv aktivieren?",
+      "cupsLink": "Drucker einrichten"
     }
   },
   "CANCEL": "Abbrechen"
