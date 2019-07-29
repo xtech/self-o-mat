@@ -195,7 +195,7 @@ export class XAPIService {
                 settings.updateMode = new xtech.selfomat.PostSetting({
                     name: this.translate.instant('DEMO.BOOTH.updateMode'),
                     postUrl: null,
-                    alert: 'Do you really want to start the software update mode?'
+                    alert: this.translate.instant('DEMO.BOOTH.updateModeAlert')
                 });
 
                 observer.next(settings);
@@ -354,7 +354,7 @@ export class XAPIService {
                             this.postWithoutHint(setting);
                         }
                     }, {
-                        text: 'Cancel',
+                        text: this.translate.instant('CANCEL'),
                         role: 'cancel',
                         handler: () => {}
                     }]

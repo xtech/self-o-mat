@@ -28,6 +28,9 @@
       "countdownDuration": "Countdown Duration",
       "filterChoice": "Filter Mode",
       "filterGain": "Filter Gain",
-      "updateMode": "Update Mode"
+      "updateMode": "Update Mode",
+      "updateModeAlert": "Do you really want to start the software update mode?"
     }
+  },
+  "CANCEL": "Cancel"
 }

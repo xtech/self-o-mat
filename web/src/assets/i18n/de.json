@@ -28,7 +28,9 @@
       "countdownDuration": "Countdown-Dauer",
       "filterChoice": "Filtermodus",
       "filterGain": "Filterintensität",
-      "updateMode": "Update-Modus"
+      "updateMode": "Update-Modus",
+      "updateModeAlert": "Fotobox wirklich in den Update-Modus versetzen?"
     }
-  }
+  },
+  "CANCEL": "Abbrechen"
 }
