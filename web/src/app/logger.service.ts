@@ -13,26 +13,22 @@ export class XLoggerService {
             return;
         }
 
-        console.log(name + ' ' + params);
+        const win = (window as any);
 
-        if ('AnalyticsWebInterface' in window) {
-            window!['AnalyticsWebInterface']!.logEvent(name, params ? JSON.stringify(params) : '');
-        } else if ('webkit' in window
-            && 'messageHandlers' in window['webkit']
-            && 'firebase' in window['webkit']['messageHandlers']) {
+        if (win.AnalyticsWebInterface) {
+            // Call Android interface
+            win.AnalyticsWebInterface.logEvent(name, params ? JSON.stringify(params) : '');
+        } else if (win.webkit
+            && win.webkit.messageHandlers
+            && win.webkit.messageHandlers.firebase) {
             // Call iOS interface
             const message = {
                 command: 'logEvent',
                 name: name,
                 parameters: params
             };
-            window!['webkit']['messageHandlers']['firebase']!.postMessage(message);
-        } else {
-            // No Android or iOS interface found
-            console.log('No native APIs found.');
+            win.webkit.messageHandlers.firebase.postMessage(message);
         }
-
-
     }
 
     setUserProperty(name, value) {
@@ -40,22 +36,21 @@ export class XLoggerService {
             return;
         }
 
-        if ('AnalyticsWebInterface' in window) {
-            window!['AnalyticsWebInterface']!.setUserProperty(name, value);
-        } else if ('webkit' in window
-            && 'messageHandlers' in window['webkit']
-            && 'firebase' in window['webkit']['messageHandlers']) {
+        const win = (window as any);
+
+        if (win.AnalyticsWebInterface) {
+            // Call Android interface
+            win.AnalyticsWebInterface.setUserProperty(name, value);
+        } else if (win.webkit
+            && win.webkit.messageHandlers
+            && win.webkit.messageHandlers.firebase) {
             // Call iOS interface
             const message = {
-                command: 'logEvent',
+                command: 'setUserProperty',
                 name: name,
                 value: value
             };
-            window!['webkit']['messageHandlers']['firebase']!.postMessage(message);
-        } else {
-            // No Android or iOS interface found
-            console.log('No native APIs found.');
+            win.webkit.messageHandlers.firebase.postMessage(message);
         }
-
     }
 }

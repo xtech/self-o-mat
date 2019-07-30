@@ -38,11 +38,9 @@ export class XAPIService {
         public actionSheetController: ActionSheetController,
         public alertController: AlertController
     ) {
-
         this.headers = new HttpHeaders({
             'lang': this.translate.currentLang
         });
-
     }
 
     values(obj: Object): any[] {
