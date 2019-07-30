@@ -16,7 +16,6 @@ BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool sho
 }
 
 bool BoothApi::start() {
-
     // Use wrapper to set needed headers
     mux.use_wrapper([this](served::response &res, const served::request &req, std::function<void()> old) {
         for (auto const &h : this->headers)
@@ -146,11 +145,18 @@ bool BoothApi::start() {
                     return;
                 }
 
+                boost::property_tree::ptree locale;
+                try {
+                    boost::property_tree::read_json("./i18n/" + req.header("lang") + ".json", locale);
+                } catch (boost::exception &e) {
+                    boost::property_tree::read_json("./i18n/en.json", locale);
+                }
+
                 CameraSettings currentCameraSettings;
                 {
                     auto setting = currentCameraSettings.mutable_aperture();
                     setting->set_update_url("/camera_settings/aperture");
-                    setting->set_name("Aperture");
+                    setting->set_name(locale.get<string>("api.camera.aperture"));
 
                     setting->set_currentindex(camera->getAperture());
                     auto *choices = camera->getApertureChoices();
@@ -176,7 +182,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_shutter_speed();
-                    setting->set_name("Shutter Speed");
+                    setting->set_name(locale.get<string>("api.camera.shutterSpeed"));
                     setting->set_update_url("/camera_settings/shutter_speed");
                     setting->set_currentindex(camera->getShutterSpeed());
                     auto *choices = camera->getShutterSpeedChoices();
@@ -189,7 +195,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_exposure_compensation();
-                    setting->set_name("Live Brightness");
+                    setting->set_name(locale.get<string>("api.camera.liveBrightness"));
                     setting->set_update_url("/camera_settings/exposure_correction");
                     setting->set_currentindex(camera->getExposureCorrection());
                     auto *choices = camera->getExposureCorrectionModeChoices();
@@ -202,7 +208,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_exposure_compensation_trigger();
-                    setting->set_name("Capture Brightness");
+                    setting->set_name(locale.get<string>("api.camera.captureBrightness"));
                     setting->set_update_url("/camera_settings/exposure_correction_trigger");
                     setting->set_currentindex(camera->getExposureCorrectionTrigger());
                     auto *choices = camera->getExposureCorrectionModeChoices();
@@ -215,7 +221,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_image_format();
-                    setting->set_name("Image Format");
+                    setting->set_name(locale.get<string>("api.camera.imageFormat"));
                     setting->set_update_url("/camera_settings/image_format");
                     setting->set_currentindex(camera->getImageFormat());
                     auto *choices = camera->getImageFormatChoices();
@@ -228,15 +234,15 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentCameraSettings.mutable_focus();
-                    setting->set_name("Autofocus");
+                    setting->set_name(locale.get<string>("api.camera.autoFocus"));
                     setting->set_post_url("/focus");
                 }
 
                 auto lensNameSetting = currentCameraSettings.mutable_lens_name();
-                lensNameSetting->set_name("Lens Name");
+                lensNameSetting->set_name(locale.get<string>("api.camera.lensName"));
                 lensNameSetting->set_value(camera->getLensName());
                 auto cameraNameSetting = currentCameraSettings.mutable_camera_name();
-                cameraNameSetting->set_name("Camera Name");
+                cameraNameSetting->set_name(locale.get<string>("api.camera.cameraName"));
                 cameraNameSetting->set_value(camera->getCameraName());
 
 
@@ -258,7 +264,7 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
-    mux.handle("/booth_settings/flash/ittlEnabled")
+    mux.handle("/booth_settings/flash/ittl/enabled")
             .post([this](served::response &res, const served::request &req) {
                 BoolUpdate update;
                 if (!update.ParseFromString(req.body())) {
@@ -521,24 +527,31 @@ bool BoothApi::start() {
             .get([this](served::response &res, const served::request &req) {
                 BoothSettings currentBoothSettings;
 
+                boost::property_tree::ptree locale;
+                try {
+                    boost::property_tree::read_json("./i18n/" + req.header("lang") + ".json", locale);
+                } catch (boost::exception &e) {
+                    boost::property_tree::read_json("./i18n/en.json", locale);
+                }
+
                 auto controller = logic->getSelfomatController();
                 {
                     auto setting = currentBoothSettings.mutable_storage_enabled();
-                    setting->set_name("USB Storage Enabled?");
+                    setting->set_name(locale.get<string>("api.booth.storageEnabled"));
                     setting->set_update_url("/booth_settings/storage/enabled");
                     setting->set_currentvalue(logic->getStorageEnabled());
                 }
 
                 {
                     auto setting = currentBoothSettings.mutable_printer_enabled();
-                    setting->set_name("Printer Enabled?");
+                    setting->set_name(locale.get<string>("api.booth.printerEnabled"));
                     setting->set_update_url("/booth_settings/printer/enabled");
                     setting->set_currentvalue(logic->getPrinterEnabled());
                 }
 
                 {
                     auto setting = currentBoothSettings.mutable_filter_choice();
-                    setting->set_name("Filter");
+                    setting->set_name(locale.get<string>("api.booth.filterEnabled"));
                     setting->set_update_url("/booth_settings/filter/which");
                     setting->set_currentindex(logic->getFilterChoice());
                     for(auto &choice : *logic->getFilterChoices())
@@ -547,7 +560,7 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentBoothSettings.mutable_filter_gain();
-                    setting->set_name("Filter Gain");
+                    setting->set_name(locale.get<string>("api.booth.filterGain"));
                     setting->set_update_url("/booth_settings/filter/gain");
                     setting->set_currentvalue(logic->getFilterGain());
                     setting->set_minvalue(0.0);
@@ -560,22 +573,22 @@ bool BoothApi::start() {
                 if (flashAvailable) {
                     {
                         auto setting = currentBoothSettings.mutable_flash_enabled();
+                        setting->set_name(locale.get<string>("api.booth.flashEnabled"));
                         setting->set_update_url("/booth_settings/flash/enabled");
-                        setting->set_name("Flash Enabled?");
                         setting->set_currentvalue(flashEnabled);
                     }
 
                     {
                         auto setting = currentBoothSettings.mutable_flashmode();
-                        setting->set_name("iTTL enabled?");
-                        setting->set_update_url("/booth_settings/flash/ittlEnabled");
+                        setting->set_name(locale.get<string>("api.booth.iTTLEnabled"));
+                        setting->set_update_url("/booth_settings/flash/ittl/enabled");
                         setting->set_currentvalue(logic->getSelfomatController()->getFlashMode());
                     }
 
                     {
                         auto setting = currentBoothSettings.mutable_flash_duration_micros();
                         setting->set_update_url("/booth_settings/flash/duration");
-                        setting->set_name("Flash Brightness");
+                        setting->set_name(locale.get<string>("api.booth.flashDuration"));
                         setting->set_currentvalue(controller->getFlashDurationMicros());
                         setting->set_minvalue(0);
                         setting->set_maxvalue(100000);
@@ -583,7 +596,7 @@ bool BoothApi::start() {
 
                     {
                         auto setting = currentBoothSettings.mutable_flash_test();
-                        setting->set_name("Flash Test");
+                        setting->set_name(locale.get<string>("api.booth.flashTest"));
                         setting->set_post_url("/flash");
                     }
                 }
@@ -591,7 +604,7 @@ bool BoothApi::start() {
                 {
                         auto setting = currentBoothSettings.mutable_template_upload();
                         setting->set_post_url("/template_upload");
-                        setting->set_name("Template Upload");
+                        setting->set_name(locale.get<string>("api.booth.templateUpload"));
                         setting->set_input_accept("image/x-png,image/png");
                 }
 
@@ -600,7 +613,7 @@ bool BoothApi::start() {
                     {
                         auto setting = currentBoothSettings.mutable_template_enabled();
                         setting->set_update_url("/booth_settings/template_enabled");
-                        setting->set_name("Template Enabled?");
+                        setting->set_name(locale.get<string>("api.booth.templateEnabled"));
                         setting->set_currentvalue(logic->getTemplateEnabled());
                     }
                 }
@@ -609,7 +622,7 @@ bool BoothApi::start() {
                     {
                         auto setting = currentBoothSettings.mutable_led_mode();
                         setting->set_update_url("/booth_settings/led_mode");
-                        setting->set_name("LED Mode");
+                        setting->set_name(locale.get<string>("api.booth.ledMode"));
                         setting->set_currentindex(controller->getLedType());
 
                         setting->add_values(SelfomatController::LED_TYPE::RGB.humanName);
@@ -619,7 +632,7 @@ bool BoothApi::start() {
                     {
                         auto setting = currentBoothSettings.mutable_led_count();
                         setting->set_update_url("/booth_settings/led_count");
-                        setting->set_name("LED Count");
+                        setting->set_name(locale.get<string>("api.booth.ledCount"));
 
 
                         switch (controller->getLedCount()) {
@@ -651,20 +664,20 @@ bool BoothApi::start() {
                 {
                     auto setting = currentBoothSettings.mutable_led_offset_clockwise();
                     setting->set_post_url("/booth_settings/led_offset_cw");
-                    setting->set_name("LED Offset +");
+                    setting->set_name(locale.get<string>("api.booth.ledOffset") + " +");
                 }
 
                 {
                     auto setting = currentBoothSettings.mutable_led_offset_counter_clockwise();
                     setting->set_post_url("/booth_settings/led_offset_ccw");
-                    setting->set_name("LED Offset -");
+                    setting->set_name(locale.get<string>("api.booth.ledOffset") + " -");
                 }
 
 
                 {
                     auto setting = currentBoothSettings.mutable_countdown_duration();
                     setting->set_update_url("/booth_settings/countdown_duration");
-                    setting->set_name("Countdown Duration");
+                    setting->set_name(locale.get<string>("api.booth.countdownDuration"));
 
                     setting->set_currentindex(controller->getCountDownMillis() / 1000 - 1);
 
@@ -675,14 +688,14 @@ bool BoothApi::start() {
 
                 {
                     auto setting = currentBoothSettings.mutable_update_mode();
-                    setting->set_name("Update Mode");
+                    setting->set_name(locale.get<string>("api.booth.updateMode"));
                     setting->set_post_url("/update");
-                    setting->set_alert("Do you really want to start the Update Mode?");
+                    setting->set_alert(locale.get<string>("api.booth.updateAlert"));
                 }
 
                 {
                     auto setting = currentBoothSettings.mutable_cups_link();
-                    setting->set_name("CUPS Printer Setup");
+                    setting->set_name(locale.get<string>("api.booth.cupsSetup"));
                     setting->set_url("http://192.168.4.1:631");
                 }
 
@@ -710,6 +723,19 @@ bool BoothApi::start() {
     mux.handle("/version")
             .get([this](served::response &res, const served::request &req) {
                 std::string filename = "./version";
+
+                ifstream f(filename, ios::in);
+                string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};
+
+                res.set_status(200);
+                res.set_body(file_contents);
+            });
+
+    mux.handle("/app/assets/i18n/{file}")
+            .get([this](served::response &res, const served::request &req) {
+                std::string filename = "./app/assets/i18n/" + req.params["file"];
+
+                res.set_header("Content-Type", "application/json");
 
                 ifstream f(filename, ios::in);
                 string file_contents{istreambuf_iterator<char>(f), istreambuf_iterator<char>()};

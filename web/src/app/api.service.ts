@@ -20,8 +20,7 @@ import BoothError = xtech.selfomat.BoothError;
 
 export class XAPIService {
 
-    //isDemo = (window.location.hostname.indexOf('demo.self-o-mat.de') > -1);
-    isDemo = true;
+    isDemo = (window.location.hostname.indexOf('demo.self-o-mat.de') > -1);
 
     isUpdating = false;
     endUpdateingTimerID = null;

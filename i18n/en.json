@@ -1,0 +1,33 @@
+{
+	"api": {
+		"camera": {
+			"aperture": "Aperture",
+			"shutterSpeed": "Shutter Speed",
+			"liveBrightness": "Live Brightness",
+			"captureBrightness": "Capture Brightness",
+			"imageFormat": "Image Format",
+			"autoFocus": "Adjust Focus",
+			"lensName": "Lens Name",
+			"cameraName": "Camera Name"
+		},
+		"booth": {
+			"storageEnabled": "USB Storage Enabled?",
+			"printerEnabled": "Printer Enabled?",
+			"filterEnabled": "Filter Enabled?",
+			"filterGain": "Filter Gain",
+			"flashEnabled": "Flash Enabled?",
+			"iTTLEnabled": "iTTL Enabled?",
+			"flashDuration": "Flash Brightness",
+			"flashTest": "Flash Test",
+			"templateUpload": "Template Upload",
+			"templateEnabled": "Template Enabled?",
+			"ledMode": "LED Mode",
+			"ledCount": "LED Count",
+			"ledOffset": "LED Offset",
+			"countdownDuration": "Countdown Duration",
+			"updateMode": "Update Mode",
+			"updateAlert": "Do you really want to start the Update Mode?",
+			"cupsSetup": "CUPS Printer Setup"
+		}
+	}
+}
