@@ -233,8 +233,8 @@ export class XAPIService {
         const cameraSettings = xtech.selfomat.CameraSettings.decode(new Uint8Array(response));
         this.checkPostTimer();
 
-        this.logger.setUserProperty('camera', cameraSettings.cameraName);
-        this.logger.setUserProperty('lens', cameraSettings.lensName);
+        this.logger.setUserProperty('camera', cameraSettings.cameraName.value);
+        this.logger.setUserProperty('lens', cameraSettings.lensName.value);
 
         return cameraSettings;
     }
