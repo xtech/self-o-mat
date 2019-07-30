@@ -14,6 +14,8 @@ import {xtech} from './protos/api';
 import * as Long from 'long';
 import BoothError = xtech.selfomat.BoothError;
 
+import {XLoggerService} from './logger.service'
+
 @Injectable({
     providedIn: 'root'
 })
@@ -29,6 +31,7 @@ export class XAPIService {
     headers = null;
 
     constructor(
+        private logger: XLoggerService,
         private translate: TranslateService,
         private readonly http: HttpClient,
         public loadingController: LoadingController,
@@ -231,6 +234,10 @@ export class XAPIService {
     parseCameraSettings(response: ArrayBuffer): xtech.selfomat.CameraSettings {
         const cameraSettings = xtech.selfomat.CameraSettings.decode(new Uint8Array(response));
         this.checkPostTimer();
+
+        this.logger.setUserProperty('camera', cameraSettings.cameraName);
+        this.logger.setUserProperty('lens', cameraSettings.lensName);
+
         return cameraSettings;
     }
 
@@ -347,6 +354,9 @@ export class XAPIService {
                 this.postLoadingController = null;
                 this.postTimer = null;
             } else {
+
+                this.logger.logEvent('post', setting['postUrl'])
+
                 this.http.post(environment.SERVER_URL + setting['postUrl'],
                     null,
                     {responseType: 'text'})
@@ -393,6 +403,7 @@ export class XAPIService {
             }
 
             const file = $event.target.files[0];
+
             if (setting['inputAccept'].length > 0) {
                 const types = setting['inputAccept'].split(',');
                 if (!types.includes(file.type.toLowerCase())) {
@@ -405,6 +416,8 @@ export class XAPIService {
                 this.postLoadingController = await this.loadingController.create({});
                 await this.postLoadingController.present();
             }
+
+            this.logger.logEvent('file_upload', file);
 
             const reader = new FileReader();
 
@@ -451,6 +464,8 @@ export class XAPIService {
 
     trigger() {
         if (!this.isDemo) {
+            this.logger.logEvent('trigger');
+
             this.http.post(environment.SERVER_URL + '/trigger',
                 null,
                 {responseType: 'text'})
