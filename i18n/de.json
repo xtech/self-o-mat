@@ -13,7 +13,7 @@
 		"booth": {
 			"storageEnabled": "USB-Speicher aktivieren?",
 			"printerEnabled": "Drucker aktivieren?",
-			"filterEnabled": "Filter aktivieren?",
+			"filterEnabled": "Filter-Modus",
 			"filterGain": "Filter-Intensität",
 			"flashEnabled": "Blitz aktivieren?",
 			"iTTLEnabled": "iTTL aktivieren?",

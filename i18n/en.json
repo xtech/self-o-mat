@@ -13,7 +13,7 @@
 		"booth": {
 			"storageEnabled": "USB Storage Enabled?",
 			"printerEnabled": "Printer Enabled?",
-			"filterEnabled": "Filter Enabled?",
+			"filterEnabled": "Filter Mode",
 			"filterGain": "Filter Gain",
 			"flashEnabled": "Flash Enabled?",
 			"iTTLEnabled": "iTTL Enabled?",
