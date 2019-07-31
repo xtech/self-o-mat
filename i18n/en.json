@@ -27,7 +27,12 @@
 			"countdownDuration": "Countdown Duration",
 			"updateMode": "Update Mode",
 			"updateAlert": "Do you really want to start the Update Mode?",
-			"cupsSetup": "CUPS Printer Setup"
+			"cupsSetup": "CUPS Printer Setup",
+			"triggerCounter": "Trigger Counter"
+		},
+		"error": {
+			"noAlpha": "No alpha channel found.",
+			"noAlphaTitle": "Template Upload"
 		}
 	}
 }

@@ -242,6 +242,9 @@ export class XAPIService {
     parseBoothSettings(response: ArrayBuffer): xtech.selfomat.BoothSettings {
         const boothSettings = xtech.selfomat.BoothSettings.decode(new Uint8Array(response));
         this.checkPostTimer();
+
+	this.logger.setUserProperty('trigger_counter', boothSettings.triggerCounter.value);
+
         return boothSettings;
     }
 
@@ -431,6 +434,7 @@ export class XAPIService {
                 const req = new XMLHttpRequest();
                 req.open('POST', environment.SERVER_URL + setting['postUrl'], true);
                 req.setRequestHeader('content-type', 'blob');
+                req.setRequestHeader('lang', this.translate.currentLang);
                 req.responseType = 'arraybuffer';
                 req.onreadystatechange = function() {
                     if (req.readyState === XMLHttpRequest.DONE) {

@@ -27,7 +27,12 @@
 			"countdownDuration": "Countdown-Länge",
 			"updateMode": "Update-Modus",
 			"updateAlert": "Willst du wirklich den Update-Modus starten?",
-			"cupsSetup": "CUPS-Drucker-Einrichtung"
+			"cupsSetup": "CUPS-Drucker-Einrichtung",
+			"triggerCounter": "Auslösezähler"
+		},
+		"error": {
+			"noAlpha": "Keine Transparenz gefunden! Nur an transparenten Stellen im Template wird das Foto sichtbar.",
+			"noAlphaTitle": "Motiv-Upload"
 		}
 	}
 }

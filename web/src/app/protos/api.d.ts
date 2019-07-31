@@ -340,6 +340,7 @@ export namespace xtech {
             flashMode?: (xtech.selfomat.IBoolSetting|null);
             flashDurationMicros?: (xtech.selfomat.IIntSetting|null);
             flashTest?: (xtech.selfomat.IPostSetting|null);
+            triggerCounter: xtech.selfomat.IReadOnlySetting;
         }
 
         class BoothSettings implements IBoothSettings {
@@ -361,6 +362,7 @@ export namespace xtech {
             public flashMode?: (xtech.selfomat.IBoolSetting|null);
             public flashDurationMicros?: (xtech.selfomat.IIntSetting|null);
             public flashTest?: (xtech.selfomat.IPostSetting|null);
+            public triggerCounter: xtech.selfomat.IReadOnlySetting;
             public static create(properties?: xtech.selfomat.IBoothSettings): xtech.selfomat.BoothSettings;
             public static encode(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;
             public static encodeDelimited(message: xtech.selfomat.IBoothSettings, writer?: $protobuf.Writer): $protobuf.Writer;

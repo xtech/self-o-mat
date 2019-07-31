@@ -3180,7 +3180,7 @@
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.cameraName, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.lensName, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
                     if (message.focus != null && message.hasOwnProperty("focus"))
-                        $root.xtech.selfomat.PostSetting.encode(message.focus, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
+                        $root.xtech.selfomat.PostSetting.encode(message.focus, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                     return writer;
                 };
     
@@ -3239,7 +3239,7 @@
                         case 8:
                             message.lensName = $root.xtech.selfomat.ReadOnlySetting.decode(reader, reader.uint32());
                             break;
-                        case 9:
+                        case 10:
                             message.focus = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
                             break;
                         default:
@@ -3483,6 +3483,7 @@
                  * @property {xtech.selfomat.IBoolSetting|null} [flashMode] BoothSettings flashMode
                  * @property {xtech.selfomat.IIntSetting|null} [flashDurationMicros] BoothSettings flashDurationMicros
                  * @property {xtech.selfomat.IPostSetting|null} [flashTest] BoothSettings flashTest
+                 * @property {xtech.selfomat.IReadOnlySetting} triggerCounter BoothSettings triggerCounter
                  */
     
                 /**
@@ -3637,6 +3638,14 @@
                 BoothSettings.prototype.flashTest = null;
     
                 /**
+                 * BoothSettings triggerCounter.
+                 * @member {xtech.selfomat.IReadOnlySetting} triggerCounter
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.triggerCounter = null;
+    
+                /**
                  * Creates a new BoothSettings instance using the specified properties.
                  * @function create
                  * @memberof xtech.selfomat.BoothSettings
@@ -3686,6 +3695,7 @@
                         $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 202, wireType 2 =*/1618).fork()).ldelim();
                     if (message.flashTest != null && message.hasOwnProperty("flashTest"))
                         $root.xtech.selfomat.PostSetting.encode(message.flashTest, writer.uint32(/* id 203, wireType 2 =*/1626).fork()).ldelim();
+                    $root.xtech.selfomat.ReadOnlySetting.encode(message.triggerCounter, writer.uint32(/* id 250, wireType 2 =*/2002).fork()).ldelim();
                     return writer;
                 };
     
@@ -3771,6 +3781,9 @@
                         case 203:
                             message.flashTest = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
                             break;
+                        case 250:
+                            message.triggerCounter = $root.xtech.selfomat.ReadOnlySetting.decode(reader, reader.uint32());
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -3792,6 +3805,8 @@
                         throw $util.ProtocolError("missing required 'countdownDuration'", { instance: message });
                     if (!message.hasOwnProperty("updateMode"))
                         throw $util.ProtocolError("missing required 'updateMode'", { instance: message });
+                    if (!message.hasOwnProperty("triggerCounter"))
+                        throw $util.ProtocolError("missing required 'triggerCounter'", { instance: message });
                     return message;
                 };
     
@@ -3907,6 +3922,11 @@
                         if (error)
                             return "flashTest." + error;
                     }
+                    {
+                        var error = $root.xtech.selfomat.ReadOnlySetting.verify(message.triggerCounter);
+                        if (error)
+                            return "triggerCounter." + error;
+                    }
                     return null;
                 };
     
@@ -4007,6 +4027,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.flashTest: object expected");
                         message.flashTest = $root.xtech.selfomat.PostSetting.fromObject(object.flashTest);
                     }
+                    if (object.triggerCounter != null) {
+                        if (typeof object.triggerCounter !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.triggerCounter: object expected");
+                        message.triggerCounter = $root.xtech.selfomat.ReadOnlySetting.fromObject(object.triggerCounter);
+                    }
                     return message;
                 };
     
@@ -4041,6 +4066,7 @@
                         object.flashMode = null;
                         object.flashDurationMicros = null;
                         object.flashTest = null;
+                        object.triggerCounter = null;
                     }
                     if (message.storageEnabled != null && message.hasOwnProperty("storageEnabled"))
                         object.storageEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.storageEnabled, options);
@@ -4076,6 +4102,8 @@
                         object.flashDurationMicros = $root.xtech.selfomat.IntSetting.toObject(message.flashDurationMicros, options);
                     if (message.flashTest != null && message.hasOwnProperty("flashTest"))
                         object.flashTest = $root.xtech.selfomat.PostSetting.toObject(message.flashTest, options);
+                    if (message.triggerCounter != null && message.hasOwnProperty("triggerCounter"))
+                        object.triggerCounter = $root.xtech.selfomat.ReadOnlySetting.toObject(message.triggerCounter, options);
                     return object;
                 };
     

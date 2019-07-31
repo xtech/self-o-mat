@@ -483,9 +483,16 @@ bool BoothApi::start() {
 
                 if (!logic->updateTemplate((void *)body.c_str(), body.size())) {
 
+                    boost::property_tree::ptree locale;
+                    try {
+                        boost::property_tree::read_json("./i18n/" + req.header("lang") + ".json", locale);
+                    } catch (boost::exception &e) {
+                        boost::property_tree::read_json("./i18n/en.json", locale);
+                    }
+
                     BoothError error;
-                    error.set_title("Template");
-                    error.set_message("Keine Transparenz gefunden! Nur an transparenten Stellen im Template wird das Foto sichtbar.");
+                    error.set_title(locale.get<string>("api.error.noAlphaTitle"));
+                    error.set_message(locale.get<string>("api.error.noAlpha"));
                     error.set_code(400);
 
                     res << error.SerializeAsString();
@@ -698,6 +705,10 @@ bool BoothApi::start() {
                     setting->set_name(locale.get<string>("api.booth.cupsSetup"));
                     setting->set_url("http://192.168.4.1:631");
                 }
+
+                auto triggerCountSetting = currentBoothSettings.mutable_trigger_counter();
+                triggerCountSetting->set_name(locale.get<string>("api.booth.triggerCounter"));
+                triggerCountSetting->set_value(std::to_string(logic->getTriggerCounter()));
 
                 res << currentBoothSettings.SerializeAsString();
             });
