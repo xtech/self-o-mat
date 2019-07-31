@@ -6,6 +6,8 @@ import {Injectable} from '@angular/core';
 
 export class XLoggerService {
 
+    properties = {};
+
     constructor() {}
 
     logEvent(name, params = null) {
@@ -34,6 +36,13 @@ export class XLoggerService {
     setUserProperty(name, value) {
         if (!name || !value) {
             return;
+        }
+
+        // Only log new properties
+        if (this.properties[name] === value) {
+            return;
+        } else {
+            this.properties[name] = value;
         }
 
         const win = (window as any);
