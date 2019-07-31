@@ -4,6 +4,10 @@ import {Injectable} from '@angular/core';
     providedIn: 'root'
 })
 
+/*
+    See: https://firebase.google.com/docs/analytics/android/webview
+ */
+
 export class XLoggerService {
 
     properties = {};
