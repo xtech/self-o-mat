@@ -424,7 +424,6 @@ export class XAPIService {
             }
 
             this.logger.logEvent('file_upload', file.name);
-            console.log('File: ' + file.name);
 
             const reader = new FileReader();
 
