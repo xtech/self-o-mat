@@ -12,7 +12,7 @@
   "DEMO": {
     "CAMERA": {
       "iso": "ISO",
-      "aperture": "Belichtung",
+      "aperture": "Blende",
       "shutterSpeed": "Verschlusszeit",
       "exposureCompensation": "Belichtungskorrektur",
       "imageFormat": "Bildformat",

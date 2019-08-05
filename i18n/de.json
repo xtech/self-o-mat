@@ -1,7 +1,7 @@
 {
 	"api": {
 		"camera": {
-			"aperture": "Belichtung",
+			"aperture": "Blende",
 			"shutterSpeed": "Verschlusszeit",
 			"liveBrightness": "Vorschau-Helligkeit",
 			"captureBrightness": "Auslöse-Helligkeit",
