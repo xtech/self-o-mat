@@ -272,7 +272,7 @@ void BoothGui::renderThread() {
                     float alpha_float_cos = 0.4f * cos(timeInState / 800.0f) + .6f;
                     auto alpha = uint8_t(alpha_float * alpha_float_cos * 255.0f);
 
-                    //imageSpriteLiveOverlay.setColor(sf::Color(255, 255, 255, alpha));
+                    imageSpriteLiveOverlay.setColor(sf::Color(255, 255, 255, alpha));
                     window.draw(imageSpriteLiveOverlay);
                 }
             }
