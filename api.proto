@@ -93,7 +93,7 @@ message CameraSettings {
     required ListSetting image_format = 6;
     required ReadOnlySetting camera_name = 7;
     required ReadOnlySetting lens_name = 8;
-    optional PostSetting focus = 9;
+    optional PostSetting focus = 10;
 }
 
 message BoothSettings {
@@ -120,4 +120,5 @@ message BoothSettings {
     optional IntSetting flash_duration_micros = 202;
     optional PostSetting flash_test = 203;
 
+    required ReadOnlySetting trigger_counter = 250;
 }

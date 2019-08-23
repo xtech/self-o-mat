@@ -87,6 +87,7 @@ namespace selfomat {
             string controllerBoardPrefix;
 
             // # BOOTH SETTINGS HERE
+            int triggerCounter;
             bool storageEnabled;
             bool printerEnabled;
             bool templateEnabled;
@@ -196,6 +197,9 @@ namespace selfomat {
             void stopForUpdate();
 
             virtual ~BoothLogic();
+
+            void incTriggerCounter();
+            int getTriggerCounter();
 
             void setPrinterEnabled(bool printerEnabled, bool persist = false);
             bool getPrinterEnabled();

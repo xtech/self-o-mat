@@ -5,7 +5,7 @@
 
 NAME=app
 BINARY=self_o_mat.app
-FILES="$BINARY settings/* assets/* libs/* camlibs/* firmware.hex version app/* self_o_mat"
+FILES="$BINARY settings/* i18n/* assets/* libs/* camlibs/* firmware.hex version app/* self_o_mat"
 TAR=update.tar
 BIN_DIR=$2
 CAMLIBS_DIR="/usr/local/lib/libgphoto2/2.5.23"
@@ -23,6 +23,7 @@ clean() {
     # clean settings and assets
     rm -rf ./assets
     rm -rf ./settings
+    rm -rf ./i18n
     rm -rf ./firmware.hex
     rm -rf ./version
     rm -rf ./app
@@ -43,6 +44,7 @@ rm -f selfomat.tar.gz
 # get the settings and assets from src dir into the build dir
 cp -r $1/assets .
 cp -r $1/settings .
+cp -r $1/i18n .
 cp $1/firmware.hex .
 cp -r $1/web/www ./app
 cp $1/start.sh ./self_o_mat

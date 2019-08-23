@@ -1,0 +1,43 @@
+{
+  "TABS": {
+    "camera": "Kamera",
+    "booth": "Fotobox"
+  },
+  "CAMERA": {
+    "title": "Kamera-Einstellungen"
+  },
+  "BOOTH": {
+    "title": "Fotobox-Einstellungen"
+  },
+  "DEMO": {
+    "CAMERA": {
+      "iso": "ISO",
+      "aperture": "Blende",
+      "shutterSpeed": "Verschlusszeit",
+      "exposureCompensation": "Belichtungskorrektur",
+      "imageFormat": "Bildformat",
+      "cameraName": "Kameramodell",
+      "lensName": "Objektivmodell",
+      "focus": "Fokus anpassen"
+    },
+    "BOOTH": {
+      "storageEnabled": "Speichern aktivieren?",
+      "printerEnabled": "Drucken aktivieren?",
+      "flashEnabled": "Blitz aktivieren?",
+      "flashDurationMicros": "Blitzdauer",
+      "countdownDuration": "Countdown-Dauer",
+      "filterChoice": "Filtermodus",
+      "filterGain": "Filterintensität",
+      "updateMode": "Update-Modus",
+      "updateModeAlert": "Fotobox wirklich in den Update-Modus versetzen?",
+      "templateUpload": "Motiv hochladen",
+      "templateEnabled": "Motiv aktivieren?",
+      "cupsLink": "Drucker einrichten"
+    }
+  },
+  "CANCEL": "Abbrechen",
+  "ERROR": "Fehler",
+  "ERRORS": {
+    "fileUnsupported": "Dateiformat wird nicht unterstützt!"
+  }
+}

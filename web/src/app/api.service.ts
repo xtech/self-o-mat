@@ -1,16 +1,20 @@
 import {Injectable} from '@angular/core';
 import {Observable, throwError} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {environment} from '../environments/environment';
 import {LoadingController} from '@ionic/angular';
 import {ActionSheetController} from '@ionic/angular';
 import {AlertController} from '@ionic/angular';
 
+import { TranslateService } from '@ngx-translate/core';
+
 import {xtech} from './protos/api';
 
 import * as Long from 'long';
 import BoothError = xtech.selfomat.BoothError;
+
+import {XLoggerService} from './logger.service'
 
 @Injectable({
     providedIn: 'root'
@@ -24,13 +28,20 @@ export class XAPIService {
     endUpdateingTimerID = null;
     postTimer = null;
     postLoadingController = null;
+    headers = null;
 
     constructor(
+        private logger: XLoggerService,
+        private translate: TranslateService,
         private readonly http: HttpClient,
         public loadingController: LoadingController,
         public actionSheetController: ActionSheetController,
         public alertController: AlertController
-    ) {}
+    ) {
+        this.headers = new HttpHeaders({
+            'lang': this.translate.currentLang
+        });
+    }
 
     values(obj: Object): any[] {
         if (obj == null) {
@@ -66,52 +77,52 @@ export class XAPIService {
                 const settings = new xtech.selfomat.CameraSettings();
 
                 settings.iso = new xtech.selfomat.ListSetting({
-                    name: 'ISO',
+                    name: this.translate.instant('DEMO.CAMERA.iso'),
                     values: ['Auto', '100', '125', '160', '200', '250', '320', '400', '500', '640', '800', '1000'],
                     currentIndex: 0,
                     updateUrl: null
                 });
 
                 settings.aperture = new xtech.selfomat.ListSetting({
-                    name: 'Aperture',
+                    name: this.translate.instant('DEMO.CAMERA.aperture'),
                     values: ['1.8', '2', '2.2', '2.5', '2.8', '3.2', '3.5', '4', '4.5', '5', '5.6', '6.3', '7.1', '8', '9', '10', '11', '13', '14', '16', '18', '20', '22'],
                     currentIndex: 6,
                     updateUrl: null
                 });
 
                 settings.shutterSpeed = new xtech.selfomat.ListSetting({
-                    name: 'Shutter Speed',
+                    name: this.translate.instant('DEMO.CAMERA.shutterSpeed'),
                     values: ['Auto'],
                     currentIndex: 0,
                     updateUrl: null
                 });
 
                 settings.exposureCompensation = new xtech.selfomat.ListSetting({
-                    name: 'Exposure Compensation',
+                    name: this.translate.instant('DEMO.CAMERA.exposureCompensation'),
                     values: ['-5', '-4.6', '-4.3', '-4', '-3.6', '-3.3', '-3', '-2.6', '-2.3', '-2', '-1.6', '-1.3', '-1', '-0.6', '-0.3', '0', '0.3', '0.6', '1', '1.3', '1.6', '2', '2.3', '2.6', '3', '3.3', '3.6', '4', '4.3', '4.6', '5'],
                     currentIndex: 13,
                     updateUrl: null
                 });
 
                 settings.imageFormat = new xtech.selfomat.ListSetting({
-                    name: 'Image Format',
+                    name: this.translate.instant('DEMO.CAMERA.imageFormat'),
                     values: ['RAW + Tiny JPEG', 'RAW + Medium Fine JPEG', 'RAW + Large Fine JPEG'],
                     currentIndex: 2,
                     updateUrl: null
                 });
 
                 settings.cameraName = new xtech.selfomat.ReadOnlySetting({
-                    name: 'Camera',
+                    name: this.translate.instant('DEMO.CAMERA.cameraName'),
                     value: 'Canon EOS 5D Mark III'
                 });
 
-                settings.cameraName = new xtech.selfomat.ReadOnlySetting({
-                    name: 'Lens',
+                settings.lensName = new xtech.selfomat.ReadOnlySetting({
+                    name: this.translate.instant('DEMO.CAMERA.lensName'),
                     value: 'EF24-70mm f/4L IS USM'
                 });
 
                 settings.focus = new xtech.selfomat.PostSetting({
-                    name: 'Set Focus',
+                    name: this.translate.instant('DEMO.CAMERA.focus'),
                     postUrl: null
                 });
 
@@ -121,7 +132,7 @@ export class XAPIService {
             return result;
 
         } else {
-            return this.http.get(`${environment.SERVER_URL}/camera_settings`, {responseType: 'arraybuffer'})
+            return this.http.get(`${environment.SERVER_URL}/camera_settings`, {responseType: 'arraybuffer', headers: this.headers} )
                 .pipe(map(res => this.parseCameraSettings(res)),
                     catchError(this.handleError)
                 );
@@ -135,25 +146,25 @@ export class XAPIService {
                 const settings = new xtech.selfomat.BoothSettings();
 
                 settings.storageEnabled = new xtech.selfomat.BoolSetting({
+                    name: this.translate.instant('DEMO.BOOTH.storageEnabled'),
                     currentValue: true,
-                    name: 'Storage enabled?',
                     updateUrl: null
                 });
 
                 settings.printerEnabled = new xtech.selfomat.BoolSetting({
+                    name: this.translate.instant('DEMO.BOOTH.printerEnabled'),
                     currentValue: false,
-                    name: 'Printer enabled?',
                     updateUrl: null
                 });
 
                 settings.flashEnabled = new xtech.selfomat.BoolSetting({
+                    name: this.translate.instant('DEMO.BOOTH.flashEnabled'),
                     currentValue: true,
-                    name: 'Flash enabled?',
                     updateUrl: null
                 });
 
                 settings.flashDurationMicros = new xtech.selfomat.IntSetting({
-                    name: 'Flash Brightness',
+                    name: this.translate.instant('DEMO.BOOTH.flashDurationMicros'),
                     currentValue: 80,
                     minValue: 0,
                     maxValue: 100,
@@ -161,31 +172,48 @@ export class XAPIService {
                 });
 
                 settings.countdownDuration = new xtech.selfomat.ListSetting({
-                    name: 'Countdown Duration',
+                    name: this.translate.instant('DEMO.BOOTH.countdownDuration'),
                     values: ['3s', '4s', '5s', '6s', '7s', '8s', '9s', '10s', '15s', '30s'],
                     currentIndex: 2,
                     updateUrl: null
                 });
 
                 settings.filterChoice = new xtech.selfomat.ListSetting({
-                    name: 'Filter Mode',
-                    values: ['Off', 'Automatic'],
+                    name: this.translate.instant('DEMO.BOOTH.filterChoice'),
+                    values: ['Off', 'Auto'],
                     currentIndex: 1,
                     updateUrl: null
                 });
 
                 settings.filterGain = new xtech.selfomat.FloatSetting({
-                    name: 'Filter Gain',
+                    name: this.translate.instant('DEMO.BOOTH.filterGain'),
                     currentValue: 0.5,
                     minValue: 0,
                     maxValue: 1,
                     updateUrl: null
                 });
 
-                settings.updateMode = new xtech.selfomat.PostSetting({
-                    name: 'Update Mode',
+                settings.templateUpload = new xtech.selfomat.FileUploadSetting( {
+                    name: this.translate.instant('DEMO.BOOTH.templateUpload'),
                     postUrl: null,
-                    alert: 'Do you really want to start the software update mode?'
+                    inputAccept: 'image/x-png,image/png'
+                });
+
+                settings.templateEnabled = new xtech.selfomat.BoolSetting({
+                    name: this.translate.instant('DEMO.BOOTH.templateEnabled'),
+                    currentValue: false,
+                    updateUrl: null
+                });
+
+                settings.cupsLink = new xtech.selfomat.LinkSetting( {
+                    name: this.translate.instant('DEMO.BOOTH.cupsLink'),
+                    url: 'https://www.cups.org'
+                })
+
+                settings.updateMode = new xtech.selfomat.PostSetting({
+                    name: this.translate.instant('DEMO.BOOTH.updateMode'),
+                    postUrl: null,
+                    alert: this.translate.instant('DEMO.BOOTH.updateModeAlert')
                 });
 
                 observer.next(settings);
@@ -194,7 +222,7 @@ export class XAPIService {
             return result;
 
         } else {
-            return this.http.get(`${environment.SERVER_URL}/booth_settings`, {responseType: 'arraybuffer'})
+            return this.http.get(`${environment.SERVER_URL}/booth_settings`, {responseType: 'arraybuffer', headers: this.headers})
                 .pipe(map(res => this.parseBoothSettings(res)),
                     catchError(this.handleError)
                 );
@@ -204,12 +232,24 @@ export class XAPIService {
     parseCameraSettings(response: ArrayBuffer): xtech.selfomat.CameraSettings {
         const cameraSettings = xtech.selfomat.CameraSettings.decode(new Uint8Array(response));
         this.checkPostTimer();
+
+        this.logger.setUserProperty('camera', cameraSettings.cameraName.value);
+        this.logger.setUserProperty('lens', cameraSettings.lensName.value);
+
         return cameraSettings;
     }
 
     parseBoothSettings(response: ArrayBuffer): xtech.selfomat.BoothSettings {
         const boothSettings = xtech.selfomat.BoothSettings.decode(new Uint8Array(response));
         this.checkPostTimer();
+
+	    this.logger.setUserProperty('trigger_counter', boothSettings.triggerCounter.value);
+        this.logger.setUserProperty('printer_enabled', boothSettings.printerEnabled.currentValue ? 'true' : 'false');
+        this.logger.setUserProperty('storage_enabled', boothSettings.storageEnabled.currentValue ? 'true' : 'false');
+        this.logger.setUserProperty('template_enabled', boothSettings.templateEnabled.currentValue ? 'true' : 'false');
+        this.logger.setUserProperty('filter_mode', boothSettings.filterChoice.values[boothSettings.filterChoice.currentIndex]);
+        this.logger.setUserProperty('filter_gain', boothSettings.filterGain.currentValue.toString());
+
         return boothSettings;
     }
 
@@ -320,6 +360,9 @@ export class XAPIService {
                 this.postLoadingController = null;
                 this.postTimer = null;
             } else {
+
+                this.logger.logEvent('post', setting['postUrl'])
+
                 this.http.post(environment.SERVER_URL + setting['postUrl'],
                     null,
                     {responseType: 'text'})
@@ -344,7 +387,7 @@ export class XAPIService {
                             this.postWithoutHint(setting);
                         }
                     }, {
-                        text: 'Cancel',
+                        text: this.translate.instant('CANCEL'),
                         role: 'cancel',
                         handler: () => {}
                     }]
@@ -366,10 +409,11 @@ export class XAPIService {
             }
 
             const file = $event.target.files[0];
+
             if (setting['inputAccept'].length > 0) {
                 const types = setting['inputAccept'].split(',');
                 if (!types.includes(file.type.toLowerCase())) {
-                    this.presentAlert('Error', 'Unsupported file!');
+                    this.presentAlert(this.translate.instant('ERROR'), this.translate.instant('ERRORS.fileUnsupported'));
                     return;
                 }
             }
@@ -379,14 +423,23 @@ export class XAPIService {
                 await this.postLoadingController.present();
             }
 
+            this.logger.logEvent('file_upload', file.name);
+
             const reader = new FileReader();
 
             reader.onload = function () {
+                if (this.isDemo) {
+                    this.postLoadingController.dismiss();
+                    this.postLoadingController = null;
+                    return;
+                }
+
                 const buffer = new Uint8Array(<ArrayBuffer>reader.result);
 
                 const req = new XMLHttpRequest();
                 req.open('POST', environment.SERVER_URL + setting['postUrl'], true);
                 req.setRequestHeader('content-type', 'blob');
+                req.setRequestHeader('lang', this.translate.currentLang);
                 req.responseType = 'arraybuffer';
                 req.onreadystatechange = function() {
                     if (req.readyState === XMLHttpRequest.DONE) {
@@ -418,6 +471,8 @@ export class XAPIService {
 
     trigger() {
         if (!this.isDemo) {
+            this.logger.logEvent('trigger');
+
             this.http.post(environment.SERVER_URL + '/trigger',
                 null,
                 {responseType: 'text'})

@@ -77,6 +77,12 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+@ngx-translate/core
+MIT
+
+@ngx-translate/http-loader
+MIT
+
 @protobufjs/aspromise
 BSD-3-Clause
 Copyright (c) 2016, Daniel Wirtz  All rights reserved.
@@ -310,7 +316,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
-loader
+ionic-loader
 
 protobufjs
 BSD-3-Clause

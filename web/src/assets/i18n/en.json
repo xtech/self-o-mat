@@ -1,0 +1,43 @@
+{
+  "TABS": {
+    "camera": "Camera",
+    "booth": "Photo Booth"
+  },
+  "CAMERA": {
+    "title": "Camera Settings"
+  },
+  "BOOTH": {
+    "title": "Booth Settings"
+  },
+  "DEMO": {
+    "CAMERA": {
+      "iso": "ISO",
+      "aperture": "Aperture",
+      "shutterSpeed": "Shutter Speed",
+      "exposureCompensation": "Exposure Compensation",
+      "imageFormat": "Image Format",
+      "cameraName": "Camera",
+      "lensName": "Lens",
+      "focus": "Set Focus"
+    },
+    "BOOTH": {
+      "storageEnabled": "Storage enabled?",
+      "printerEnabled": "Printer enabled?",
+      "flashEnabled": "Flash enabled?",
+      "flashDurationMicros": "Flash Brightness",
+      "countdownDuration": "Countdown Duration",
+      "filterChoice": "Filter Mode",
+      "filterGain": "Filter Gain",
+      "updateMode": "Update Mode",
+      "updateModeAlert": "Do you really want to start the software update mode?",
+      "templateUpload": "Template Upload",
+      "templateEnabled": "Template enabled?",
+      "cupsLink": "Printer Setup"
+    }
+  },
+  "CANCEL": "Cancel",
+  "ERROR": "Error",
+  "ERRORS": {
+    "fileUnsupported": "Unsupported File!"
+  }
+}

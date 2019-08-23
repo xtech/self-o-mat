@@ -306,6 +306,7 @@ void BoothLogic::trigger() {
     triggerMutex.lock();
     triggered = true;
     triggerMutex.unlock();
+    incTriggerCounter();
 }
 
 void BoothLogic::cancelPrint() {
@@ -522,6 +523,14 @@ bool BoothLogic::getPrinterEnabled() {
     return printerEnabled;
 }
 
+int BoothLogic::getTriggerCounter() {
+    return triggerCounter;
+}
+
+void BoothLogic::incTriggerCounter() {
+    this->triggerCounter++;
+}
+
 void BoothLogic::readSettings() {
     boost::property_tree::ptree ptree;
 
@@ -534,6 +543,7 @@ void BoothLogic::readSettings() {
         success = false;
     }
 
+    this->triggerCounter = (ptree.get<int>("trigger_counter", 0));
     setStorageEnabled(ptree.get<bool>("storage_enabled", true));
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
@@ -548,6 +558,7 @@ void BoothLogic::readSettings() {
 void BoothLogic::writeSettings() {
     boost::property_tree::ptree ptree;
     ptree.put("show_agreement", showAgreement);
+    ptree.put("trigger_counter", triggerCounter);
     ptree.put("storage_enabled", storageEnabled);
     ptree.put("printer_enabled", printerEnabled);
     ptree.put("template_enabled", templateEnabled);

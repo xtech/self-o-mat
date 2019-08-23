@@ -1,0 +1,38 @@
+{
+	"api": {
+		"camera": {
+			"aperture": "Blende",
+			"shutterSpeed": "Verschlusszeit",
+			"liveBrightness": "Vorschau-Helligkeit",
+			"captureBrightness": "Auslöse-Helligkeit",
+			"imageFormat": "Bildformat",
+			"autoFocus": "Fokus anpassen",
+			"lensName": "Objektiv-Modell",
+			"cameraName": "Kamera-Modell"
+		},
+		"booth": {
+			"storageEnabled": "USB-Speicher aktivieren?",
+			"printerEnabled": "Drucker aktivieren?",
+			"filterEnabled": "Filter-Modus",
+			"filterGain": "Filter-Intensität",
+			"flashEnabled": "Blitz aktivieren?",
+			"iTTLEnabled": "iTTL aktivieren?",
+			"flashDuration": "Blitz-Helligkeit",
+			"flashTest": "Blitz-Test",
+			"templateUpload": "Motiv hochladen",
+			"templateEnabled": "Motiv aktivieren?",
+			"ledMode": "LED-Modus",
+			"ledCount": "LED-Anzahl",
+			"ledOffset": "LED-Versatz",
+			"countdownDuration": "Countdown-Länge",
+			"updateMode": "Update-Modus",
+			"updateAlert": "Willst du wirklich den Update-Modus starten?",
+			"cupsSetup": "CUPS-Drucker-Einrichtung",
+			"triggerCounter": "Auslösezähler"
+		},
+		"error": {
+			"noAlpha": "Keine Transparenz gefunden! Nur an transparenten Stellen im Template wird das Foto sichtbar.",
+			"noAlphaTitle": "Motiv-Upload"
+		}
+	}
+}

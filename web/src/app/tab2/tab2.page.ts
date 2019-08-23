@@ -14,7 +14,7 @@ import IFileUploadSetting = xtech.selfomat.IFileUploadSetting;
 export class Tab2Page implements OnInit {
 
   settings: BoothSettings;
-  pageTitle = 'self-o-mat Settings';
+  pageTitle = 'BOOTH.title';
 
   constructor(readonly apiService: XAPIService) {
   }

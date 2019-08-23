@@ -3,7 +3,7 @@
 
 NAME=app
 BINARY=self_o_mat
-FILES="$BINARY settings/* assets/* libs/* firmware.hex version app/*"
+FILES="$BINARY settings/* i18n/* assets/* libs/* firmware.hex version app/*"
 TAR=update.tar
 BIN_DIR=$2
 
@@ -19,6 +19,7 @@ clean() {
     # clean settings and assets
     rm -rf ./assets
     rm -rf ./settings
+    rm -rf ./i18n
     rm -rf ./firmware.hex
     rm -rf ./version
     rm -rf ./app
@@ -39,6 +40,7 @@ rm -f selfomat.update
 # get the settings and assets from src dir into the build dir
 cp -r $1/assets .
 cp -r $1/settings .
+cp -r $1/i18n .
 cp $1/firmware.hex .
 cp -r $1/web/www ./app
 
