@@ -441,7 +441,7 @@ bool BoothLogic::isMountpoint(std::string folder) {
 }
 
 bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool showAlert) {
-    auto success = saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName);
+    auto success = saveImage(data, size, filename);
     if (!success && showAlert) {
         gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
     }

@@ -169,7 +169,9 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     continue;
                 }
 
-                if (boost::ends_with(path->name, ".jpg")) {
+                cout << "filename was: " << path->name << endl;
+
+                if (boost::iends_with(path->name, ".JPG")) {
                     cout << "We got the JPG" << endl;
 
 
