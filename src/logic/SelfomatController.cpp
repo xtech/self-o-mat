@@ -457,3 +457,10 @@ void SelfomatController::setFlashMode(bool ttlEnabled) {
     settings.flashMode = ttlEnabled;
 }
 
+void SelfomatController::setMaxLedBrightness(uint8_t maxBrightness) {
+    settings.maxLedBrightness = maxBrightness;
+}
+
+uint8_t SelfomatController::getMaxLedBrightness() {
+    return settings.maxLedBrightness;
+}

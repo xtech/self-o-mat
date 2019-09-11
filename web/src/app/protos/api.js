@@ -3477,6 +3477,7 @@
                  * @property {xtech.selfomat.IPostSetting} ledOffsetClockwise BoothSettings ledOffsetClockwise
                  * @property {xtech.selfomat.IPostSetting} ledOffsetCounterClockwise BoothSettings ledOffsetCounterClockwise
                  * @property {xtech.selfomat.IListSetting} countdownDuration BoothSettings countdownDuration
+                 * @property {xtech.selfomat.IIntSetting} maxLedBrightness BoothSettings maxLedBrightness
                  * @property {xtech.selfomat.ILinkSetting|null} [cupsLink] BoothSettings cupsLink
                  * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
                  * @property {xtech.selfomat.IBoolSetting|null} [flashEnabled] BoothSettings flashEnabled
@@ -3590,6 +3591,14 @@
                 BoothSettings.prototype.countdownDuration = null;
     
                 /**
+                 * BoothSettings maxLedBrightness.
+                 * @member {xtech.selfomat.IIntSetting} maxLedBrightness
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.maxLedBrightness = null;
+    
+                /**
                  * BoothSettings cupsLink.
                  * @member {xtech.selfomat.ILinkSetting|null|undefined} cupsLink
                  * @memberof xtech.selfomat.BoothSettings
@@ -3684,6 +3693,7 @@
                     $root.xtech.selfomat.PostSetting.encode(message.ledOffsetClockwise, writer.uint32(/* id 42, wireType 2 =*/338).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.ledOffsetCounterClockwise, writer.uint32(/* id 43, wireType 2 =*/346).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.countdownDuration, writer.uint32(/* id 44, wireType 2 =*/354).fork()).ldelim();
+                    $root.xtech.selfomat.IntSetting.encode(message.maxLedBrightness, writer.uint32(/* id 45, wireType 2 =*/362).fork()).ldelim();
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
                         $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 50, wireType 2 =*/402).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 51, wireType 2 =*/410).fork()).ldelim();
@@ -3763,6 +3773,9 @@
                         case 44:
                             message.countdownDuration = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
                             break;
+                        case 45:
+                            message.maxLedBrightness = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
+                            break;
                         case 50:
                             message.cupsLink = $root.xtech.selfomat.LinkSetting.decode(reader, reader.uint32());
                             break;
@@ -3803,6 +3816,8 @@
                         throw $util.ProtocolError("missing required 'ledOffsetCounterClockwise'", { instance: message });
                     if (!message.hasOwnProperty("countdownDuration"))
                         throw $util.ProtocolError("missing required 'countdownDuration'", { instance: message });
+                    if (!message.hasOwnProperty("maxLedBrightness"))
+                        throw $util.ProtocolError("missing required 'maxLedBrightness'", { instance: message });
                     if (!message.hasOwnProperty("updateMode"))
                         throw $util.ProtocolError("missing required 'updateMode'", { instance: message });
                     if (!message.hasOwnProperty("triggerCounter"))
@@ -3891,6 +3906,11 @@
                         var error = $root.xtech.selfomat.ListSetting.verify(message.countdownDuration);
                         if (error)
                             return "countdownDuration." + error;
+                    }
+                    {
+                        var error = $root.xtech.selfomat.IntSetting.verify(message.maxLedBrightness);
+                        if (error)
+                            return "maxLedBrightness." + error;
                     }
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink")) {
                         var error = $root.xtech.selfomat.LinkSetting.verify(message.cupsLink);
@@ -3997,6 +4017,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.countdownDuration: object expected");
                         message.countdownDuration = $root.xtech.selfomat.ListSetting.fromObject(object.countdownDuration);
                     }
+                    if (object.maxLedBrightness != null) {
+                        if (typeof object.maxLedBrightness !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.maxLedBrightness: object expected");
+                        message.maxLedBrightness = $root.xtech.selfomat.IntSetting.fromObject(object.maxLedBrightness);
+                    }
                     if (object.cupsLink != null) {
                         if (typeof object.cupsLink !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.cupsLink: object expected");
@@ -4060,6 +4085,7 @@
                         object.ledOffsetClockwise = null;
                         object.ledOffsetCounterClockwise = null;
                         object.countdownDuration = null;
+                        object.maxLedBrightness = null;
                         object.cupsLink = null;
                         object.updateMode = null;
                         object.flashEnabled = null;
@@ -4090,6 +4116,8 @@
                         object.ledOffsetCounterClockwise = $root.xtech.selfomat.PostSetting.toObject(message.ledOffsetCounterClockwise, options);
                     if (message.countdownDuration != null && message.hasOwnProperty("countdownDuration"))
                         object.countdownDuration = $root.xtech.selfomat.ListSetting.toObject(message.countdownDuration, options);
+                    if (message.maxLedBrightness != null && message.hasOwnProperty("maxLedBrightness"))
+                        object.maxLedBrightness = $root.xtech.selfomat.IntSetting.toObject(message.maxLedBrightness, options);
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
                         object.cupsLink = $root.xtech.selfomat.LinkSetting.toObject(message.cupsLink, options);
                     if (message.updateMode != null && message.hasOwnProperty("updateMode"))

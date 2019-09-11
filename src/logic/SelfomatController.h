@@ -38,6 +38,7 @@ namespace selfomat {
                 uint16_t countDownMillis;
                 uint32_t flashDurationMicros;
                 uint8_t flashMode;
+                uint8_t maxLedBrightness;
                 uint16_t crcChecksum;
             } __attribute__((packed)) settings;
 #pragma pack(pop)
@@ -140,6 +141,10 @@ namespace selfomat {
             void setLedType(uint8_t ledType);
 
             uint8_t getLedType();
+
+            void setMaxLedBrightness(uint8_t maxBrightness);
+
+            uint8_t getMaxLedBrightness();
 
             void setLedCount(uint8_t ledCount);
 

@@ -324,6 +324,21 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
+    mux.handle("/booth_settings/flash/max_led_brightness")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                SelfomatController *controller = logic->getSelfomatController();
+                controller->setMaxLedBrightness(static_cast<uint8_t>(update.value()));
+                controller->commit();
+
+                served::response::stock_reply(200, res);
+            });
+
 
     mux.handle("/booth_settings/template_enabled")
             .post([this](served::response &res, const served::request &req) {
@@ -692,6 +707,17 @@ bool BoothApi::start() {
                         setting->add_values(std::to_string(i) + "s");
                     }
                 }
+
+                {
+                    auto setting = currentBoothSettings.mutable_max_led_brightness();
+                    setting->set_update_url("/booth_settings/max_led_brightness");
+                    setting->set_name(locale.get<string>("api.booth.maxLedBrightness"));
+                    setting->set_minvalue(20);
+                    setting->set_maxvalue(255);
+                    setting->set_currentvalue(controller->getMaxLedBrightness());
+                }
+
+
 
                 {
                     auto setting = currentBoothSettings.mutable_update_mode();
