@@ -324,13 +324,15 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
-    mux.handle("/booth_settings/flash/max_led_brightness")
+    mux.handle("/booth_settings/max_led_brightness")
             .post([this](served::response &res, const served::request &req) {
                 IntUpdate update;
                 if (!update.ParseFromString(req.body())) {
                     served::response::stock_reply(400, res);
                     return;
                 }
+
+                std::cout << "Got new max led brightness" << std::endl;
 
                 SelfomatController *controller = logic->getSelfomatController();
                 controller->setMaxLedBrightness(static_cast<uint8_t>(update.value()));
