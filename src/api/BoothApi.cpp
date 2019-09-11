@@ -720,7 +720,6 @@ bool BoothApi::start() {
                 }
 
 
-
                 {
                     auto setting = currentBoothSettings.mutable_update_mode();
                     setting->set_name(locale.get<string>("api.booth.updateMode"));
@@ -734,9 +733,11 @@ bool BoothApi::start() {
                     setting->set_url("http://192.168.4.1:631");
                 }
 
-                auto triggerCountSetting = currentBoothSettings.mutable_trigger_counter();
-                triggerCountSetting->set_name(locale.get<string>("api.booth.triggerCounter"));
-                triggerCountSetting->set_value(std::to_string(logic->getTriggerCounter()));
+                {
+                    auto triggerCountSetting = currentBoothSettings.mutable_trigger_counter();
+                    triggerCountSetting->set_name(locale.get<string>("api.booth.triggerCounter"));
+                    triggerCountSetting->set_value(std::to_string(logic->getTriggerCounter()));
+                }
 
                 res << currentBoothSettings.SerializeAsString();
             });
