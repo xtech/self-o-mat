@@ -615,7 +615,7 @@ bool BoothApi::start() {
                         setting->set_name(locale.get<string>("api.booth.flashDuration"));
                         setting->set_currentvalue(controller->getFlashDurationMicros());
                         setting->set_minvalue(0);
-                        setting->set_maxvalue(100000);
+                        setting->set_maxvalue(40000);
                     }
 
                     {
@@ -705,7 +705,7 @@ bool BoothApi::start() {
 
                     setting->set_currentindex(controller->getCountDownMillis() / 1000 - 1);
 
-                    for (int i = 1; i <= 5; i++) {
+                    for (int i = 1; i <= 10; i++) {
                         setting->add_values(std::to_string(i) + "s");
                     }
                 }
