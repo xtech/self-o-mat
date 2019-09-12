@@ -243,12 +243,14 @@ export class XAPIService {
         const boothSettings = xtech.selfomat.BoothSettings.decode(new Uint8Array(response));
         this.checkPostTimer();
 
+/*
 	    this.logger.setUserProperty('trigger_counter', boothSettings.triggerCounter.value);
         this.logger.setUserProperty('printer_enabled', boothSettings.printerEnabled.currentValue ? 'true' : 'false');
         this.logger.setUserProperty('storage_enabled', boothSettings.storageEnabled.currentValue ? 'true' : 'false');
         this.logger.setUserProperty('template_enabled', boothSettings.templateEnabled.currentValue ? 'true' : 'false');
         this.logger.setUserProperty('filter_mode', boothSettings.filterChoice.values[boothSettings.filterChoice.currentIndex]);
         this.logger.setUserProperty('filter_gain', boothSettings.filterGain.currentValue.toString());
+*/
 
         return boothSettings;
     }
