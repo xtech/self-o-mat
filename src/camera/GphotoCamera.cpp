@@ -18,11 +18,11 @@ CameraStartResult GphotoCamera::start() {
 
 
     const char **gphotoVersion = gp_library_version(GP_VERSION_VERBOSE);
-    LOG_D(TAG, "GPhoto Version: " << (*gphotoVersion));
+    LOG_D(TAG, "GPhoto Version: ", (*gphotoVersion));
 
     char * camlibsenv = getenv("CAMLIBS");
     if(camlibsenv != nullptr) {
-        LOG_D(TAG, "Camlibspath is: " << camlibsenv);
+        LOG_D(TAG, "Camlibspath is: ", camlibsenv);
     } else {
         LOG_D(TAG, "Camlibspath is null");
     }
@@ -36,7 +36,7 @@ CameraStartResult GphotoCamera::start() {
 
     // Print the cameras
     int count = gp_list_count(list);
-    cout << "Found " << count << " cameras." << endl;
+    LOG_I(TAG, std::string("Found ") + std::to_string( count) + " cameras.");
     gp_list_free(list);
 
     gp_camera_new(&camera);
@@ -44,12 +44,12 @@ CameraStartResult GphotoCamera::start() {
 
     int retval = gp_camera_init(camera, gp);
     if (retval != GP_OK) {
-        cerr << "Error opening camera, error" << gp_result_as_string(retval) << endl;
+        LOG_E(TAG, "Error opening camera, error", gp_result_as_string(retval));
         setState(STATE_ERROR);
         return START_RESULT_ERROR;
     }
 
-    cout << "Successfully opened camera" << endl;
+    LOG_I(TAG, "Successfully opened camera!");
 
     gp_camera_get_config(camera, &rootWidget, gp);
 
@@ -66,7 +66,7 @@ CameraStartResult GphotoCamera::start() {
     drainEventQueue(false);
 
 
-    cout << "We're running with a " << getCameraName() << " with " << getLensName() << " attached. yeah!" << endl;
+    LOG_I(TAG, std::string("We're running with a ") + getCameraName() + " with " + getLensName() + " attached.");
 
 
     // For nikon cameras we try to find the viewfinder widget. if we have it, we make sure that the mirror is positioned correctly
@@ -84,7 +84,7 @@ CameraStartResult GphotoCamera::start() {
 
 
 void GphotoCamera::stop() {
-    cout << "Stopping camera!" << endl;
+    LOG_I(TAG, "Stopping camera!");
     // Forbid new capture or preview events
     setState(STATE_STOPPED);
 
@@ -144,7 +144,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
             if (data != nullptr) {
                 free(data);
             }
-            cerr << "return from waitevent in trigger sample with " << gp_result_as_string(retval) << endl;
+            LOG_E(TAG, "return from waitevent in trigger sample with ", gp_result_as_string(retval));
             return;
         }
         switch (evtype) {
@@ -155,7 +155,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     return;
                 break;
             case GP_EVENT_FILE_ADDED: {
-                cout << "Event FILE ADDED" << endl;
+                LOG_I(TAG, "Event FILE ADDED");
                 CameraFile *cameraFile = nullptr;
                 gp_file_new(&cameraFile);
 
@@ -163,16 +163,16 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                 retval = gp_camera_file_get(camera, path->folder, path->name, CameraFileType::GP_FILE_TYPE_NORMAL,
                                             cameraFile, gp);
                 if (retval != GP_OK) {
-                    cerr << "Error obtaining camera file handle: " << gp_result_as_string(retval) << endl;
+                    LOG_E(TAG, "Error obtaining camera file handle: ", gp_result_as_string(retval));
                     free(data);
                     gp_file_free(cameraFile);
                     continue;
                 }
 
-                cout << "filename was: " << path->name << endl;
+                LOG_D(TAG, "filename was: ",  path->name);
 
                 if (boost::iends_with(path->name, ".JPG")) {
-                    cout << "We got the JPG" << endl;
+                    LOG_D(TAG, "We got the JPG!");
 
 
 
@@ -191,7 +191,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     if (retval != GP_OK) {
                         free(data);
                         gp_file_free(cameraFile);
-                        cerr << "Error fetching image data: " << gp_result_as_string(retval) << endl;
+                        LOG_E(TAG, "Error fetching image data: ", gp_result_as_string(retval));
                         continue;
                     }
 
@@ -212,7 +212,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                         continue;
                     }
                 } else {
-                    cout << "Some other file. name was: " << path->name << endl;
+                    LOG_I(TAG, "Got some other file. name was: ", path->name);
 
                     const char *imageData = nullptr;
                     unsigned long int imageDataSize;
@@ -222,7 +222,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
                     if (retval != GP_OK) {
                         free(data);
                         gp_file_free(cameraFile);
-                        cerr << "Error fetching image data: " << gp_result_as_string(retval) << endl;
+                        LOG_E(TAG, "Error fetching image data: ", gp_result_as_string(retval));
                         continue;
                     }
 
@@ -245,6 +245,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
             }
                 break;
             default:
+                LOG_D(TAG, "some other event.");
                 // Free the data and do nothing
                 free(data);
                 break;
@@ -257,7 +258,6 @@ void GphotoCamera::drainEventQueueWhenNeeded() {
     auto timeSinceLastDrain = (now - lastDrainTime).total_milliseconds();
 
     if (timeSinceLastDrain > 1000) {
-        //cout << "Event queue not drained since " << timeSinceLastDrain << " millis" << endl;
         drainEventQueue(false);
     }
 }
@@ -272,7 +272,7 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     int retval = gp_camera_capture_preview(camera, cameraFile, gp);
 
     if (retval != GP_OK) {
-        cerr << "Error capturing preview:" << gp_result_as_string(retval) << endl;
+        LOG_E(TAG, "Error capturing preview:", gp_result_as_string(retval));
         gp_file_free(cameraFile);
         drainEventQueueWhenNeeded();
         cameraIoMutex.unlock();
@@ -285,7 +285,7 @@ bool GphotoCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
     retval = gp_file_get_data_and_size(cameraFile, &data, &size);
 
     if (retval != GP_OK) {
-        cerr << "Error fetching image data: " << gp_result_as_string(retval) << endl;
+        LOG_E(TAG, "Error fetching image data: ", gp_result_as_string(retval));
         cameraIoMutex.unlock();
         return false;
     }
@@ -471,7 +471,7 @@ bool GphotoCamera::readImageBlocking(void **fullJpegBuffer, size_t *fullJpegBuff
                            previewBufferSize,
                            previewImageInfo, JPEG_DECODE_COLORS::RGBA, 0, 800, LARGER_THAN_REQUIRED);
 
-    LOG_D(TAG, "Preview image of the final shot has size: " << previewImageInfo->width << "x" << previewImageInfo->height);
+    LOG_D(TAG, "Preview image of the final shot has size: ", std::to_string(previewImageInfo->width) + "x" + std::to_string(previewImageInfo->height));
 
 
     // Swap the buffers for jpeg
@@ -544,10 +544,10 @@ bool GphotoCamera::settingsDirty() {
 
 bool GphotoCamera::findWidget(std::string widgetName, CameraWidget **target) {
     if (GP_OK == gp_widget_get_child_by_name(rootWidget, widgetName.c_str(), target)) {
-        cout << "Found widget: " << widgetName << endl;
+        LOG_D(TAG, "Found widget: ", widgetName);
         return true;
     }
-    cout << "Did not find widget: " << widgetName << endl;
+    LOG_D(TAG, "Did not find widget: ", widgetName);
     *target = nullptr;
     return false;
 }

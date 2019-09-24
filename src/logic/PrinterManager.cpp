@@ -8,6 +8,8 @@
 
 using namespace selfomat::logic;
 
+std::string PrinterManager::TAG = "PRINTER_MANAGER";
+
 bool PrinterManager::start() {
     //refreshCupsDevices();
     refreshPrinterState();
@@ -24,8 +26,7 @@ bool PrinterManager::refreshCupsDevices() {
                                    const char *device_uri,
                                    const char *device_location, void *user_data) {
 
-                std::cout << "Found Cups devices: " << device_uri << std::endl;
-
+                LOG_D(TAG, "Found cups devices: ", device_uri);
 
         }, this);
 
@@ -44,7 +45,7 @@ bool PrinterManager::refreshCupsDestinations() {
                 auto printerName = std::string (dest->name);
 
                 if (dest->is_default && printerManager->printer_name != printerName) {
-                    std::cout << "Found default printer: " << printerName << std::endl;
+                    LOG_D(TAG, "Found default printer:", printerName);
                     printerManager->printer_name = printerName;
                 }
 
@@ -64,13 +65,13 @@ bool PrinterManager::refreshCupsDestinations() {
             }
         }
         if (!foundDefault) {
-            std::cout << "Removed old default printer" << std::endl;
+            LOG_D(TAG, "Removed old default printer.");
             printer_name.clear();
         }
     }
 
     if (printer_name.empty() && cupsDestinationCount > 0) {
-        std::cout << "Found any printer: " << cupsDestinations[0].name << std::endl;
+        LOG_D(TAG, "Found any printer:", cupsDestinations[0].name);
         printer_name = std::string (cupsDestinations[0].name);
     }
 
@@ -136,9 +137,7 @@ bool PrinterManager::refreshPrinterState() {
 
 
     if (oldPrinterState != currentPrinterState) {
-        std::cout << "Current printer state: " << currentPrinterState << std::endl;
-        for (auto i: currentStateReasons)
-            std::cout << i << std::endl;
+        LOG_D(TAG, "Current printer state: ", std::to_string(currentPrinterState));
     }
 
     return true;
@@ -177,7 +176,7 @@ bool PrinterManager::resumePrinter() {
 
     if (cupsLastError() > IPP_STATUS_OK_CONFLICTING) {
 
-        std::cout << "Cannot enable printer:" << cupsLastErrorString() << std::endl;
+        LOG_E(TAG, "Cannot enable printer:", cupsLastErrorString());
 
         return false;
     }
@@ -191,12 +190,12 @@ bool PrinterManager::resumePrinter() {
 
     if (cupsLastError() > IPP_STATUS_OK_CONFLICTING) {
 
-        std::cout << "Cannot resume printer:" << cupsLastErrorString() << std::endl;
+        LOG_E(TAG, "Cannot resume printer:", cupsLastErrorString());
 
         return false;
     }
 
-    std::cout << "Printer resumed." << std::endl;
+    LOG_D(TAG, "Printer resumed");
 
     return true;
 }
@@ -210,7 +209,7 @@ bool PrinterManager::printImage() {
     int job_id = cupsCreateJob(CUPS_HTTP_DEFAULT, printer_name.c_str(), "self-o-mat", 0, nullptr);
 
     if (job_id > 0) {
-        std::cout << "successfully created the job" << std::endl;
+        LOG_D(TAG, "successfully created the print job");
         cupsStartDocument(CUPS_HTTP_DEFAULT, printer_name.c_str(), job_id, "my_image", "image/png", 1);
 
 

@@ -29,7 +29,8 @@
 			"updateAlert": "Willst du wirklich den Update-Modus starten?",
 			"cupsSetup": "CUPS-Drucker-Einrichtung",
 			"triggerCounter": "Auslösezähler",
-			"maxLedBrightness": "LED Helligkeit"
+			"maxLedBrightness": "LED Helligkeit",
+			"debugLogEnabled": "Debug Modus Aktiviert"
 		},
 		"error": {
 			"noAlpha": "Keine Transparenz gefunden! Nur an transparenten Stellen im Template wird das Foto sichtbar.",

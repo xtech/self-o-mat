@@ -32,6 +32,8 @@
 #include "SelfomatController.h"
 #include "ILogicController.h"
 
+#include <tools/verbose.h>
+
 
 
 
@@ -58,7 +60,7 @@ namespace selfomat {
         class BoothLogic : public ILogicController {
         public:
             explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash,
-                                string imageDir, bool disable_watchdog, bool show_led_setup) : camera(camera), gui(gui),
+                                string imageDir, bool force_image_dir_mountpoint, bool disable_watchdog, bool show_led_setup) : camera(camera), gui(gui),
                                                                         imageProcessor(gui),
                                                                         printerManager(gui),
                                                                         has_button(has_button),
@@ -66,6 +68,7 @@ namespace selfomat {
                                                                         imageDir(imageDir),
                                                                         controllerBoardPrefix(button_port),
                                                                         selfomatController(),
+                                                                        force_image_dir_mountpoint(force_image_dir_mountpoint),
                                                                         show_led_setup(show_led_setup){
                 selfomatController.setLogic(this);
                 this->triggered = false;
@@ -76,8 +79,10 @@ namespace selfomat {
 
 
         private:
+            static std::string TAG;
             SelfomatController selfomatController;
             bool show_led_setup;
+            bool force_image_dir_mountpoint;
 
             int returnCode = 0;
             string imageDir;
@@ -224,6 +229,8 @@ namespace selfomat {
             double getFilterGain();
             void setFilterGain(double gain, bool persist = false);
 
+            bool getDebugLogEnabled();
+            void setDebugLogEnabled(bool newValue, bool persist = false);
 
         };
 

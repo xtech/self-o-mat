@@ -8,6 +8,7 @@
 #include "api/BoothApi.h"
 #include "ui/NopGui.h"
 #include <tools/readfile.h>
+#include <tools/verbose.h>
 
 #include <sstream>
 #include <iostream>
@@ -26,6 +27,8 @@ selfomat::logic::BoothLogic *p_logic = nullptr;
 std::mutex exitMutex;
 bool cleaned = false;
 
+std::string TAG = "MAIN";
+
 void exitfunc(int code) {
     exitMutex.lock();
     // Clean up only once
@@ -36,7 +39,7 @@ void exitfunc(int code) {
 
     cleaned = true;
 
-    std::cout << "starting clean up" << std::endl;
+    LOG_I(TAG, "starting clean up");
 
     // First, we stop the api, otherwise p_api->stop() won't get called
     if (p_api != nullptr) {
@@ -48,12 +51,12 @@ void exitfunc(int code) {
     // Now we stop the logic as it will stop camera and gui for us
     if (p_logic != nullptr) {
         if(!p_logic->isStopped()) {
-            std::cout << "We need to stop the logic" << std::endl;
+            LOG_I(TAG, "We need to stop the logic");
             p_logic->stop();
             if (p_gui != nullptr)
                 delete (p_gui);
         } else {
-            std::cout << "Logic was already stopped." << std::endl;
+            LOG_I(TAG, "Logic was already stopped.");
         }
 
         if (p_cam != nullptr) {
@@ -78,6 +81,10 @@ void exitfunc(int code) {
             p_gui = nullptr;
         }
     }
+
+    LOG_I("main", "Disable filesystem logger");
+
+    selfomat::tools::FilesystemLogger::INSTANCE.disableLogToFile();
 
     std::cout << "Cleaned up" << endl;
     exitMutex.unlock();
@@ -112,6 +119,7 @@ int main(int argc, char *argv[]) {
     bool has_button = false;
     bool has_flash = false;
     bool show_led_setup = false;
+    bool force_image_dir_mountpoint = true;
     string button_port_name;
     string image_dir;
 
@@ -123,7 +131,7 @@ int main(int argc, char *argv[]) {
     readFile("/opt/.selfomat.type", box_type);
     box_type.erase(std::remove(box_type.begin(), box_type.end(), '\n'), box_type.end());
 
-    cout << "Loading settings file for box: " << box_type << endl;
+    LOG_I(TAG, "Loading settings file for box: ", box_type);
 
     try {
         boost::property_tree::read_json("./settings/" + box_type + ".json", ptree);
@@ -135,25 +143,27 @@ int main(int argc, char *argv[]) {
         has_button = ptree.get<bool>("has_button");
         has_flash = ptree.get<bool>("has_flash");
         show_led_setup = ptree.get<bool>("show_led_setup");
+        force_image_dir_mountpoint = ptree.get<bool>("force_image_dir_mountpoint", true);
     } catch (boost::exception &e) {
-        cerr << "Error loading properties. Using defaults." << endl;
+        LOG_E(TAG, "Error loading properties. Using defaults.");
     }
 
-    cout << "Using camera: " << camera_type << endl;
-    cout << "Has Button: " << has_button << endl;
-    cout << "Button Port Name: " << button_port_name << endl;
-    cout << "Has Flash: " << has_flash << endl;
+    LOG_D(TAG, "Using camera: ", camera_type);
+    LOG_D(TAG, "Has Button: ", std::to_string(has_button));
+    LOG_D(TAG, "Button Port Name: ", button_port_name);
+    LOG_D(TAG, "Has Flash: ", std::to_string(has_flash));
+    LOG_D(TAG, "Force Imagedir mountpoint: ", std::to_string(force_image_dir_mountpoint));
 
 
     // We'll set the controller later when logic is initialized
     BoothGui *boothGuiPtr = new BoothGui(debug, nullptr);
     p_gui = boothGuiPtr;
     if (!p_gui->start()) {
-        cerr << "Error starting gui - Exiting." << endl;
+        LOG_E(TAG, "Error starting gui - Exiting.");
         return 1;
     }
 
-    cout << "Started Gui" << endl;
+    LOG_I(TAG, "Started Gui");
 
     if (camera_type == "gphoto") {
         p_cam = new gphoto::GphotoCamera();
@@ -163,30 +173,31 @@ int main(int argc, char *argv[]) {
         p_cam = new NopCamera();
     }
 
-    cout << "Started Camera" << endl;
+    LOG_I(TAG, "Started Camera");
 
-    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, disable_watchdog, show_led_setup);
+    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, force_image_dir_mountpoint, disable_watchdog, show_led_setup);
 
-    cout << "Started Logic" << endl;
+    LOG_I(TAG, "Started Logic");
+
 
     boothGuiPtr->setLogicController(p_logic);
 
     while(true) {
         try {
             p_api = new api::BoothApi(p_logic, p_cam, show_led_setup);
-            cout << "Starting API" << endl;
+            LOG_I(TAG, "Starting API");
             p_api->start();
             break;
         } catch (boost::exception &e) {
-            cerr << "Error creqting api - retrying in 5 sec" << endl;
+            LOG_E(TAG, "Error creating api - retrying in 5 sec");
             boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
         }
     }
 
-    cout << "API started" << endl;
+    LOG_I(TAG, "API started");
 
     if (!p_logic->start()) {
-        cerr << "Error starting Logic - Exiting." << endl;
+        LOG_E(TAG, "Error starting Logic - Exiting.");
         return 2;
     }
 

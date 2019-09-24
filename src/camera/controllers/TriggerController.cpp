@@ -5,6 +5,7 @@
 #include "TriggerController.h"
 
 using namespace selfomat::camera::gphoto;
+using namespace selfomat::tools;
 
 const std::string TriggerController::TAG = "TriggerController";
 

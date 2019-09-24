@@ -7,6 +7,8 @@
 using namespace std;
 using namespace selfomat::ui;
 
+std::string BoothGui::TAG = "BOOTH_GUI";
+
 BoothGui::BoothGui(bool debug, logic::ILogicController *logicController) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
@@ -20,43 +22,45 @@ BoothGui::~BoothGui() {
 }
 
 bool BoothGui::start() {
+
+    FilesystemLogger::INSTANCE.registerDelegate(this);
     // Load assets
     if (!hackFont.loadFromFile("./assets/Hack-Regular.ttf")) {
-        cerr << "Could not load font." << endl;
+        LOG_E(TAG, "Could not load font.");
         return false;
     }
 
     if (!iconFont.loadFromFile("./assets/self-o-mat.ttf")) {
-        cerr << "Could not load font." << endl;
+        LOG_E(TAG, "Could not load font.");
         return false;
     }
 
     if (!mainFont.loadFromFile("./assets/AlegreyaSans-Bold.ttf")) {
-        cerr << "Could not load font." << endl;
+        LOG_E(TAG, "Could not load font.");
         return false;
     }
 
     if (!textureLiveOverlay.loadFromFile("./assets/live.png")) {
-        cerr << "Could not load live asset." << endl;
+        LOG_E(TAG, "Could not load live asset.");
         return false;
     }
     imageSpriteLiveOverlay.setTexture(textureLiveOverlay);
 
     if (!texturePrintOverlay.loadFromFile("./assets/print_overlay.png")) {
-        cerr << "Could not load print template asset." << endl;
+        LOG_E(TAG, "Could not print overlay asset.");
         return false;
     }
     imageSpritePrintOverlay.setTexture(texturePrintOverlay);
 
     if (!textureNoCamera.loadFromFile("./assets/no-camera.png")) {
-        cerr << "Could not load 'no camera' asset." << endl;
+        LOG_E(TAG, "Could not load no camera asset.");
         return false;
     }
     imageNoCamera.setTexture(textureNoCamera);
 
     readFile("./assets/agreement.txt", agreement);
     if (agreement.length() < 1) {
-        cerr << "Could not load agreement text." << endl;
+        LOG_E(TAG, "Could not load agreement text.");
         return false;
     }
 
@@ -73,7 +77,7 @@ bool BoothGui::start() {
 void BoothGui::stop() {
     isRunning = false;
     if (renderThreadHandle.joinable()) {
-        std::cout << "Waiting for gui to stop" << std::endl;
+        LOG_I(TAG, "Waiting for gui to stop");
         renderThreadHandle.join();
     }
 }
@@ -84,7 +88,7 @@ void BoothGui::reloadTemplate() {
 
     templateLoaded = textureFinalImageOverlay.loadFromFile(std::string(getenv("HOME")) + "/.template_screen.png");
     if (!templateLoaded) {
-        cerr << "Could not load screen template asset." << endl;
+        LOG_E(TAG, "Could not load screen template asset.");
     } else {
         imageSpriteFinalOverlay.setTexture(textureFinalImageOverlay);
     }
@@ -99,7 +103,7 @@ void BoothGui::reloadTemplate() {
             finalOverlayOffsetW = ptree.get<int>("offset_w");
             finalOverlayOffsetH = ptree.get<int>("offset_h");
         } catch (boost::exception &e) {
-            logError(std::string("Error loading template properties: ") + boost::diagnostic_information(e));
+            LOG_E(TAG, std::string("Error loading template properties: ") + boost::diagnostic_information(e));
         }
     }
 
@@ -125,7 +129,7 @@ void BoothGui::updatePreviewImage(void *data, uint32_t width, uint32_t height) {
 
 
 void BoothGui::renderThread() {
-    cout << "Render thread started!" << endl;
+    LOG_I(TAG, "Render thread started!");
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
     window.create(videoMode, "self-o-mat", sf::Style::None, settings);
@@ -192,7 +196,7 @@ void BoothGui::renderThread() {
                 if (textureSize.x != imageWidth || textureSize.y != imageHeight) {
                     // Recreate the texture if needed
                     if (imageWidth > textureSize.x || imageHeight > textureSize.y) {
-                        cout << "Recreating texture to fit the new image" << endl;
+                        LOG_D(TAG, "Recreating texture to fit the new image");
                         imageTexture.create(imageWidth, imageHeight);
                     }
                 }
@@ -455,16 +459,7 @@ void BoothGui::initialized() {
     }
 }
 
-void BoothGui::log(int level, std::string s) {
-    debugLogQueueMutex.lock();
-    std::stringstream stream;
-    stream << "[" << level << "]" << ": " << s;
-    cout << stream.str() << endl;
-    debugLogQueue.push_front(stream.str());
-    if (debugLogQueue.size() > DEBUG_QUEUE_SIZE)
-        debugLogQueue.pop_back();
-    debugLogQueueMutex.unlock();
-}
+
 
 void BoothGui::drawPrintOverlay(float percentage) {
     if(!printerEnabled)
@@ -768,4 +763,16 @@ void BoothGui::cancelPrint() {
     if (getCurrentGuiState() == STATE_FINAL_IMAGE_PRINT) {
         setState(STATE_FINAL_IMAGE_PRINT_CANCELED);
     }
+}
+
+void BoothGui::log(std::string s) {
+    debugLogQueueMutex.lock();
+    debugLogQueue.push_front(s);
+    if (debugLogQueue.size() > DEBUG_QUEUE_SIZE)
+        debugLogQueue.pop_back();
+    debugLogQueueMutex.unlock();
+}
+
+void BoothGui::setDebugOutput(bool debug) {
+    this->debug = debug;
 }

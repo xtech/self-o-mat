@@ -32,6 +32,7 @@ namespace selfomat {
 
         class PrinterManager {
         private:
+            static std::string TAG;
             PRINTER_STATE currentPrinterState;
             std::vector<std::string> currentStateReasons;
 
@@ -76,6 +77,8 @@ namespace selfomat {
             bool printImage();
 
             bool cancelPrint();
+
+
         };
     }
 }

@@ -8,6 +8,8 @@ using namespace selfomat::api;
 using namespace xtech::selfomat;
 using namespace selfomat::logic;
 
+std::string BoothApi::TAG = "API";
+
 BoothApi::BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup) : logic(logic),
                                                                                                camera(camera),
                                                                                                server("0.0.0.0", "9080",
@@ -259,7 +261,7 @@ bool BoothApi::start() {
 
                 logic->setStorageEnabled(update.value(), true);
 
-                cout << "updated storage enabled to: " << update.value() << endl;
+                LOG_I(TAG, "updated storage enabled to: ", std::to_string(update.value()));
 
                 served::response::stock_reply(200, res);
             });
@@ -275,7 +277,7 @@ bool BoothApi::start() {
                 logic->getSelfomatController()->setFlashMode(update.value());
                 logic->getSelfomatController()->commit();
 
-                cout << "updated flash mode to: " << update.value() << endl;
+                LOG_I(TAG, "updated flash mode to: ", std::to_string(update.value()));
 
                 served::response::stock_reply(200, res);
             });
@@ -290,7 +292,7 @@ bool BoothApi::start() {
 
                 logic->setPrinterEnabled(update.value(), true);
 
-                cout << "updated printer enabled to: " << update.value() << endl;
+                LOG_I(TAG, "updated printer enabled to: ", std::to_string(update.value()));
 
                 served::response::stock_reply(200, res);
             });
@@ -332,7 +334,8 @@ bool BoothApi::start() {
                     return;
                 }
 
-                std::cout << "Got new max led brightness" << std::endl;
+                LOG_I(TAG, "updated max led brightness to:", std::to_string(update.value()));
+
 
                 SelfomatController *controller = logic->getSelfomatController();
                 controller->setMaxLedBrightness(static_cast<uint8_t>(update.value()));
@@ -350,7 +353,25 @@ bool BoothApi::start() {
                     return;
                 }
 
+                LOG_I(TAG, "updated template enabled to", std::to_string(update.value()));
+
                 logic->setTemplateEnabled(update.value(), true);
+
+                served::response::stock_reply(200, res);
+            });
+
+    mux.handle("/booth_settings/debug_log_enabled")
+            .post([this](served::response &res, const served::request &req) {
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                LOG_I(TAG, "updated debug log enabled to", std::to_string(update.value()));
+
+
+                logic->setDebugLogEnabled(update.value(), true);
 
                 served::response::stock_reply(200, res);
             });
@@ -734,6 +755,13 @@ bool BoothApi::start() {
                 }
 
                 {
+                    auto setting = currentBoothSettings.mutable_template_enabled();
+                    setting->set_update_url("/booth_settings/debug_log_enabled");
+                    setting->set_name(locale.get<string>("api.booth.debugLogEnabled"));
+                    setting->set_currentvalue(logic->getDebugLogEnabled());
+                }
+
+                {
                     auto triggerCountSetting = currentBoothSettings.mutable_trigger_counter();
                     triggerCountSetting->set_name(locale.get<string>("api.booth.triggerCounter"));
                     triggerCountSetting->set_value(std::to_string(logic->getTriggerCounter()));
@@ -828,13 +856,15 @@ bool BoothApi::start() {
     // THIS IS NEEDED BECAUSE BLOCKING=FALSE IS IGNORED BY SERVERD IF THREADS = 1!!!!
     server.run(2, false);
 
-    cout << "Api started" << endl;
+
+    LOG_I(TAG, "API started!");
+
 
     return true;
 }
 
 bool BoothApi::stop() {
-    cout << "Stopping the api" << endl;
+    LOG_I(TAG, "Stopping the API");
 
     server.stop();
 

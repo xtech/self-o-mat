@@ -8,16 +8,19 @@ using namespace selfomat::logic;
 using namespace selfomat::camera;
 using namespace selfomat::ui;
 
+std::string BoothLogic::TAG = "BoothLogic";
 
 bool BoothLogic::start() {
+
+
     wasSuccessfullyStopped = false;
-    gui->logDebug("Starting Logic");
+    LOG_D(TAG, "Starting Logic");
 
     if (has_button) {
-        gui->logInfo("Seraching for connected Controller");
+        LOG_D(TAG, "Seraching for connected Controller");
         selfomatController.autoconnect(controllerBoardPrefix);
 
-        if(!show_led_setup) {
+        if (!show_led_setup) {
             // Set the default LEDs.
             selfomatController.setLedType(SelfomatController::LED_TYPE::RGB.controllerValue);
             selfomatController.setLedCount(16);
@@ -31,11 +34,11 @@ bool BoothLogic::start() {
         selfomatController.showAgreement();
     }
 
-    gui->logDebug("Initializing Image Processor");
+    LOG_D(TAG, "Initializing Image Processor");
     if (!imageProcessor.start())
         return false;
 
-    gui->logDebug("Starting Printer");
+    LOG_D(TAG, "Starting Printer");
     if (!printerManager.start())
         return false;
 
@@ -55,16 +58,18 @@ void BoothLogic::triggerFlash() {
 }
 
 void BoothLogic::stop(bool update_mode) {
-    if(wasSuccessfullyStopped)
+    if (wasSuccessfullyStopped)
         return;
+
 
     wasSuccessfullyStopped = true;
 
-    std::cout << "stopping logic. Update mode was: " << update_mode << std::endl;
+    LOG_I(TAG, "stopping logic. Update mode was: ", std::to_string(update_mode));
+
     isLogicThreadRunning = false;
 
     if (logicThreadHandle.joinable()) {
-        cout << "waiting for logic" << endl;
+        LOG_D(TAG, "waiting for logic");
         logicThreadHandle.join();
     }
 
@@ -81,41 +86,41 @@ void BoothLogic::stop(bool update_mode) {
 
     isCameraThreadRunning = false;
     if (cameraThreadHandle.joinable()) {
-        cout << "waiting for cam" << endl;
+        LOG_D(TAG, "waiting for cam");
         cameraThreadHandle.join();
     }
     isPrinterThreadRunning = false;
     if (printThreadHandle.joinable()) {
-        cout << "waiting for print" << endl;
+        LOG_D(TAG, "waiting for print");
         printThreadHandle.join();
     }
 
     if (gui != nullptr) {
         gui->stop();
-        gui = NULL;
+        gui = nullptr;
     }
 
     imageProcessor.stop();
 }
 
 void BoothLogic::cameraThread() {
-    gui->logDebug("Starting Camera Thread");
+    LOG_D(TAG, "Starting Camera Thread");
     gui->initialized();
     while (isCameraThreadRunning) {
         if (camera->getState() != CameraState::STATE_WORKING) {
             // Camera is not working, try to get it working
-            gui->logDebug("Starting Camera");
+            LOG_D(TAG, "Starting Camera");
             CameraStartResult result = camera->start();
 
             switch (result) {
                 case START_RESULT_SUCCESS:
-                    gui->logInfo("...camera started successfully!");
+                    LOG_D(TAG, "...camera started successfully!");
                     continue;
                 case START_RESULT_ERROR:
-                    gui->logError("Fatal error starting camera.");
+                    LOG_D(TAG, "Fatal error starting camera.");
                     break;
                 case START_RESULT_NOT_FOUND:
-                    gui->logError("No camera found. Retrying");
+                    LOG_D(TAG, "No camera found. Retrying");
                     break;
             }
             // delay searching to avoid spamming the bus
@@ -131,12 +136,12 @@ void BoothLogic::cameraThread() {
 
             if (capture) {
                 // Do the capture
-                gui->logDebug("Doing the capture");
+                LOG_D(TAG, "Doing the capture");
                 gui->hidePreviewImage();
 
                 // We need to wait for the printer thread (not really hopefully)
                 {
-                    cout << "[Camera Thread] Waiting for printer thread to finish" << endl;
+                    LOG_D(TAG, "[Camera Thread] Waiting for printer thread to finish");
                     boost::unique_lock<boost::mutex> lk(printerStateMutex);
                     while (printerState != PRINTER_STATE_IDLE) {
                         printerStateCV.wait(lk);
@@ -160,17 +165,18 @@ void BoothLogic::cameraThread() {
 
                 timespec tend;
                 clock_gettime(CLOCK_MONOTONIC, &tend);
-                printf("time before trigger %.5f s\n",
-                       ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
-                       ((double) triggerStart.tv_sec + 1.0e-9 * triggerStart.tv_nsec));
+                LOG_D(TAG, "Time before trigger:", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                                                                  ((double) triggerStart.tv_sec +
+                                                                   1.0e-9 * triggerStart.tv_nsec)) + " sec");
+
                 clock_gettime(CLOCK_MONOTONIC, &triggerStart);
 
                 camera->triggerCaptureBlocking();
                 clock_gettime(CLOCK_MONOTONIC, &tend);
-                printf("time needed to trigger %.5f s\n",
-                       ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
-                       ((double) triggerStart.tv_sec + 1.0e-9 * triggerStart.tv_nsec));
-                gui->logDebug("Successfully triggered");
+                LOG_D(TAG, "Time needed to trigger:", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                                                                     ((double) triggerStart.tv_sec +
+                                                                      1.0e-9 * triggerStart.tv_nsec)) + " sec");
+                LOG_D(TAG, "Successfully triggered");
                 boost::this_thread::sleep(boost::posix_time::milliseconds(100));
                 auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize, &latestJpegFileName,
                                                          &imageBuffer, &imageBufferSize, &imageInfo);
@@ -201,7 +207,7 @@ void BoothLogic::cameraThread() {
                         gui->addAlert(ALERT_PRINTER_HINT, L"Foto wird gedruckt...", true, true);
                     }
                 } else {
-                    gui->logError("Got an error");
+                    LOG_E(TAG, "Got an error");
                 }
 
                 selfomatController.sendPictureTaken();
@@ -213,7 +219,7 @@ void BoothLogic::cameraThread() {
                 if (success) {
                     gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
                 } else {
-                    gui->logError("Error capturing preview. Restarting camera");
+                    LOG_E(TAG, "Error capturing preview. Restarting camera");
                     camera->stop();
                 }
             }
@@ -228,7 +234,7 @@ void BoothLogic::cameraThread() {
 
 
 void BoothLogic::logicThread() {
-    gui->logDebug("Starting Logic Thread");
+    LOG_D(TAG, "Starting Logic Thread");
 
     while (isLogicThreadRunning) {
         // Send the heartbeat
@@ -284,13 +290,13 @@ void BoothLogic::logicThread() {
     }
 
     // Sync to disk
-    cout << "Syncing changes to disk" << endl;
+    LOG_I(TAG, "Syncing changes to disk");
     boost::thread syncThreadHandle(sync);
     while (!syncThreadHandle.try_join_for(boost::chrono::milliseconds(1000))) {
-        cout << "Still syncing..." << endl;
+        LOG_D(TAG, "Still syncing...");
         selfomatController.sendHeartbeat();
     }
-    cout << "Syncing done" << endl;
+    LOG_I(TAG, "Syncing done");
 }
 
 BoothLogic::~BoothLogic() {
@@ -320,7 +326,7 @@ void BoothLogic::printerThread() {
     while (isPrinterThreadRunning) {
         bool do_print;
         {
-            cout << "[Printer Thread] Waiting for an image to process" << endl;
+            LOG_D(TAG, "[Printer Thread] Waiting for an image to process");
             boost::unique_lock<boost::mutex> lk(printerStateMutex);
             while (printerState == PRINTER_STATE_IDLE || printerState == PRINTER_STATE_WAITING_FOR_DATA) {
                 printerStateCV.timed_wait(lk, boost::posix_time::milliseconds(500));
@@ -331,7 +337,7 @@ void BoothLogic::printerThread() {
             do_print = printerEnabled;
         }
 
-        cout << "[Printer Thread] " << "Processing image. Printing enabled: " << do_print << endl;
+        LOG_D(TAG, "[Printer Thread] Processing image. Printing enabled: ", std::to_string(do_print));;
 
         if (do_print) {
             // We need the final jpeg image. So lock the mutex
@@ -343,17 +349,19 @@ void BoothLogic::printerThread() {
 
                 cv::Mat toPrepare;
                 if (templateEnabled) {
-                    toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(), filterGain);
+                    toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(),
+                                                                  filterGain);
                 } else {
-                    toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(), filterGain);
+                    toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(),
+                                                                   filterGain);
                 }
-                cout << "[Printer Thread] " << "Framed" << endl;
+
                 printerManager.prepareImageForPrint(toPrepare);
-                cout << "[Printer Thread] " << "Prepared" << endl;
+                LOG_D(TAG, "[Printer Thread] Prepared");
             }
 
             {
-                cout << "[Printer Thread] Waiting for the user to decide if he wants to print" << endl;
+                LOG_D(TAG, "[Printer Thread] Waiting for user to decide if he wants to print");
                 boost::unique_lock<boost::mutex> lk(printerStateMutex);
                 while (printerState == PRINTER_STATE_WAITING_FOR_USER_INPUT) {
                     printerStateCV.wait(lk);
@@ -365,10 +373,10 @@ void BoothLogic::printerThread() {
             {
                 boost::unique_lock<boost::mutex> lk(cancelPrintMutex);
                 if (!printCanceled) {
-                    cout << "[Printer Thread] " << "Printing" << endl;
+                    LOG_D(TAG, "[Printer Thread] Printing");
                     printerManager.printImage();
                 } else {
-                    cout << "[Printer Thread] " << "Printing canceled" << endl;
+                    LOG_D(TAG, "[Printer Thread] Print canceled!");
                     printerManager.cancelPrint();
                 }
             }
@@ -400,13 +408,17 @@ void BoothLogic::printerThread() {
 
 int BoothLogic::getFreeStorageSpaceMB() {
     if (imageDir.empty()) {
-        cerr << "No image dir specified" << endl;
+        LOG_E(TAG, "No image dir specified!");
         return -1;
     }
 
-    boost::filesystem::space_info s = boost::filesystem::space(imageDir);
+    try {
+        boost::filesystem::space_info s = boost::filesystem::space(imageDir);
 
-    return static_cast<int>(s.free / 1024 / 1024);
+        return static_cast<int>(s.free / 1024 / 1024);
+    } catch (exception &e) {
+        return -1;
+    }
 }
 
 bool BoothLogic::isMountpoint(std::string folder) {
@@ -418,21 +430,21 @@ bool BoothLogic::isMountpoint(std::string folder) {
     /* get the file's stat info */
     struct stat file_stat{};
     if (-1 == stat(folder.c_str(), &file_stat)) {
-        cerr << "stat error" << endl;
+        LOG_E(TAG, "stat error!");
         return false;
     }
 
     /* determine whether the supplied file is a directory
       if it isn't, then it can't be a mountpoint. */
     if (!(file_stat.st_mode & S_IFDIR)) {
-        cerr << "image dir is not a directory" << endl;
+        LOG_E(TAG, "image dir is not a directory");
         return false;
     }
 
     /* get the parent's stat info */
     struct stat parent_stat{};
     if (-1 == stat(parent_name.c_str(), &parent_stat)) {
-        cout << "parent stat fail" << endl;
+        LOG_E(TAG, "parent stat failed");
         return false;
     }
 
@@ -455,12 +467,12 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     }
 
     if (imageDir.empty()) {
-        cerr << "No image dir specified" << endl;
+        LOG_E(TAG, "No image dir specified");
         return false;
     }
 
-    if (!isMountpoint(imageDir)) {
-        cerr << "imageDir not a mountpoint" << endl;
+    if (force_image_dir_mountpoint && !isMountpoint(imageDir)) {
+        LOG_E(TAG, "imageDir not a mountpoint");
         return false;
     }
 
@@ -476,14 +488,14 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     fullImagePath += filename;
 
 
-    cout << "Writing image to:" << fullImagePath << endl;
+    LOG_I(TAG, "Writing image to:", fullImagePath);
 
 
     FILE *fp;
 
     fp = fopen(fullImagePath.c_str(), "wb");
     if (fp == nullptr) {
-        cerr << "Error opening output file" << endl;
+        LOG_E(TAG, "Error opening output file");
         return false;
     }
 
@@ -491,7 +503,7 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 
     fclose(fp);
 
-    cout << "File written to: " << fullImagePath << endl;
+    LOG_D(TAG, "File written to: ",  fullImagePath);
 
     return true;
 }
@@ -532,14 +544,14 @@ void BoothLogic::incTriggerCounter() {
 }
 
 void BoothLogic::readSettings() {
+    LOG_D(TAG, "Reading settings from file");
     boost::property_tree::ptree ptree;
 
     bool success = true;
     try {
         boost::property_tree::read_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
     } catch (boost::exception &e) {
-        cerr << "Error loading settings settings. Writing defaults. Error was: " << boost::diagnostic_information(e)
-             << endl;
+        LOG_E(TAG, "Error loading settings settings. Writing defaults. Error was: ", boost::diagnostic_information(e));
         success = false;
     }
 
@@ -551,6 +563,7 @@ void BoothLogic::readSettings() {
     this->showAgreement = ptree.get<bool>("show_agreement", true);
     setFilterChoice(ptree.get<int>("filter_choice", BASIC_FILTER));
     setFilterGain(ptree.get<double>("filter_gain", 1.0));
+    setDebugLogEnabled(ptree.get<bool>("debug_log_enabled", false));
     if (!success)
         writeSettings();
 }
@@ -565,10 +578,11 @@ void BoothLogic::writeSettings() {
     ptree.put("flash_enabled", this->flashEnabled);
     ptree.put("filter_gain", filterGain);
     ptree.put("filter_choice", filterChoice);
+    ptree.put("debug_log_enabled", getDebugLogEnabled());
     try {
         boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
     } catch (boost::exception &e) {
-        cerr << "Error writing settings. Error was: " << boost::diagnostic_information(e) << endl;
+        LOG_E(TAG, "Error writing settings. Error was: ", boost::diagnostic_information(e));
     }
 }
 
@@ -642,7 +656,7 @@ int BoothLogic::getFilterChoice() {
 
 void BoothLogic::setFilterChoice(int choice, bool persist) {
     filterChoice = choice;
-    if(persist) {
+    if (persist) {
         writeSettings();
     }
 }
@@ -653,15 +667,15 @@ double BoothLogic::getFilterGain() {
 
 void BoothLogic::setFilterGain(double gain, bool persist) {
     filterGain = gain;
-    if(persist)
+    if (persist)
         writeSettings();
 }
 
 FILTER BoothLogic::getFilter() {
-    if(filterChoice < 0 || filterChoice >= imageProcessor.getFilterNames()->size())
+    if (filterChoice < 0 || filterChoice >= imageProcessor.getFilterNames()->size())
         return NO_FILTER;
 
-    switch(filterChoice) {
+    switch (filterChoice) {
         case 0:
             return NO_FILTER;
         case 1:
@@ -671,4 +685,30 @@ FILTER BoothLogic::getFilter() {
 
 bool BoothLogic::isStopped() {
     return wasSuccessfullyStopped;
+}
+
+void BoothLogic::setDebugLogEnabled(bool newValue, bool persist) {
+    gui->setDebugOutput(true);
+    if (newValue) {
+        if (imageDir.empty()) {
+            LOG_E(TAG, "No image dir specified. We cannot enable debug logging");
+            return;
+        }
+
+        if (force_image_dir_mountpoint && !isMountpoint(imageDir)) {
+            LOG_E(TAG, "imageDir not a mountpoint. cannot enable debug logging");
+            return;
+        }
+
+        FilesystemLogger::INSTANCE.enableLogToFile(imageDir);
+    } else {
+        FilesystemLogger::INSTANCE.disableLogToFile();
+    }
+
+    if (persist)
+        writeSettings();
+}
+
+bool BoothLogic::getDebugLogEnabled() {
+    return FilesystemLogger::INSTANCE.getLogToFileState() == FilesystemLogger::ENABLED;
 }

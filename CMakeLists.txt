@@ -54,7 +54,7 @@ add_executable(self_o_mat.app src/main.cpp src/logic/BoothLogic.cpp src/logic/Bo
         src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp
         src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h
         src/camera/controllers/ApertureController.h src/camera/controllers/ExposureCorrectionController.h src/camera/controllers/ChoiceRangeController.cpp
-        src/camera/controllers/ChoiceRangeController.h src/tools/readfile.h src/tools/readfile.cpp src/tools/cobs.h src/tools/cobs.cpp src/logic/SelfomatController.cpp src/logic/SelfomatController.h src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp)
+        src/camera/controllers/ChoiceRangeController.h src/tools/readfile.h src/tools/readfile.cpp src/tools/cobs.h src/tools/cobs.cpp src/logic/SelfomatController.cpp src/logic/SelfomatController.h src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp src/tools/FilesystemLogger.cpp src/tools/FilesystemLogger.h src/tools/verbose.cpp)
 
 
 

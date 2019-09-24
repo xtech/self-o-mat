@@ -7,6 +7,7 @@
 
 
 using namespace selfomat::camera::gphoto;
+using namespace selfomat::tools;
 
 const std::string ChoiceRangeController::TAG = "ChoiceRangeController";
 
@@ -57,7 +58,7 @@ bool ChoiceRangeController::pullSettings() {
     currentChoice = getProperty(p_choiceRangeWidget, choices);
 
     if(currentChoice >= 0) {
-        LOG_D(TAG, "Loaded choice: " << choices[currentChoice]);
+        LOG_D(TAG, "Loaded choice: ", choices[currentChoice]);
         resetDirty();
         return true;
     }

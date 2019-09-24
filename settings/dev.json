@@ -6,5 +6,6 @@
   "debug": false,
   "button_port_name": "/dev/ttyUSB",
   "image_dir": "/tmp",
-  "show_led_setup": true
+  "show_led_setup": true,
+  "force_image_dir_mountpoint": 0
 }

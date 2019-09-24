@@ -121,5 +121,7 @@ message BoothSettings {
     optional IntSetting flash_duration_micros = 202;
     optional PostSetting flash_test = 203;
 
+    optional BoolSetting debug_log_enabled = 240;
+
     required ReadOnlySetting trigger_counter = 250;
 }

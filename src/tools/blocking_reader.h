@@ -26,6 +26,9 @@
 #include <boost/bind.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <iostream>
+#include <tools/verbose.h>
+
+using namespace selfomat::tools;
 
 class blocking_reader
 {
@@ -41,7 +44,7 @@ class blocking_reader
         read_error = (error || bytes_transferred == 0);
 
         if(read_error) {
-            std::cout << "blocking reader had read error: " << error.message() << std::endl;
+            LOG_E("BLOCKING_READER", "error: ", error.message());
         }
 
         // Read has finished, so cancel the
@@ -56,8 +59,6 @@ class blocking_reader
             // yes
             return;
         }
-
-        std::cout << "blocking reader timed out" << std::endl;
 
         // no, we have timed out, so kill
         // the read operation

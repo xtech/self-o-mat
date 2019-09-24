@@ -6,15 +6,16 @@
 #include "BaseController.h"
 
 using namespace selfomat::camera::gphoto;
+using namespace selfomat::tools;
 
 const std::string BaseController::TAG = "BaseController";
 
 bool BaseController::findWidget(std::string widgetName, CameraWidget **target) {
     if(GP_OK == gp_widget_get_child_by_name(rootWidget, widgetName.c_str(), target)) {
-        LOG_D(TAG, "Found widget: " << widgetName);
+        LOG_D(TAG, "Found widget: ", widgetName);
         return true;
     }
-    LOG_D(TAG, "Did not find widget: " << widgetName);
+    LOG_D(TAG, "Did not find widget: ", widgetName);
     *target = nullptr;
     return false;
 }
@@ -52,7 +53,11 @@ bool BaseController::loadChoices(CameraWidget *widget, std::vector<std::string> 
                 LOG_E(TAG, "Error getting range parameters");
                 return false;
             }
-            LOG_D(TAG, "Range Properties: min= " << min << ", max = " << max << ", step = " << step);
+            {
+                std::stringstream ss;
+                ss << "min= " << min << ", max = " << max << ", step = " << step;
+                LOG_D(TAG, "Range Properties:", ss.str());
+            }
 
             float current = min;
             do {
@@ -137,7 +142,11 @@ bool BaseController::setProperty(CameraWidget *widget, std::vector<std::string> 
             float floatValue = min + choice * step;
 
             if (floatValue < min || floatValue > max) {
-                LOG_E(TAG, "Invalid value: " << floatValue << "; min = " << min << ", max = " << max << ", step: " << step);
+                {
+                    std::stringstream ss;
+                    ss << floatValue << "; min = " << min << ", max = " << max << ", step: " << step;
+                    LOG_E(TAG, "Invalid value: ", ss.str());
+                }
                 return false;
             }
 

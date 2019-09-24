@@ -54,7 +54,7 @@ JpegDecoder::decodeJpegNoResize(unsigned char *jpegData, size_t jpegSize, void *
                                 TJFLAG_NOREALLOC);
 
     if (retVal < 0) {
-        LOG_E(TAG, "Error converting image, error was: " << tjGetErrorStr());
+        LOG_E(TAG, "Error converting image, error was: ", tjGetErrorStr());
         return false;
     }
 
@@ -151,11 +151,14 @@ bool JpegDecoder::decodeJpeg(unsigned char *jpegData, size_t jpegSize, void **ou
             return false;
         }
 
-        LOG_D(TAG, "Using scaling for decoding image with size: " << jpegWidth << "x" << jpegHeight << std::endl
-                                                                  << "Scaling used: "
-                                                                  << scalingFactors[scalingFactorIdx].num << "/"
-                                                                  << scalingFactors[scalingFactorIdx].denom);
-
+        {
+            std::stringstream ss;
+            ss << jpegWidth << "x" << jpegHeight << std::endl
+               << "Scaling used: "
+               << scalingFactors[scalingFactorIdx].num << "/"
+               << scalingFactors[scalingFactorIdx].denom;
+            LOG_D(TAG, "Using scaling for decoding image with size: ", ss.str());
+        }
 
         tjscalingfactor factor = scalingFactors[scalingFactorIdx];
 
@@ -168,7 +171,7 @@ bool JpegDecoder::decodeJpeg(unsigned char *jpegData, size_t jpegSize, void **ou
                                     TJSCALED(jpegWidth, factor), 0, TJSCALED(jpegHeight, factor),
                                     pixel_format, TJFLAG_NOREALLOC);
         if (retVal < 0) {
-            LOG_E(TAG, "Error converting image, error was: " << tjGetErrorStr());
+            LOG_E(TAG, "Error converting image, error was: ", tjGetErrorStr());
             return false;
         }
 
@@ -186,7 +189,7 @@ bool JpegDecoder::decodeJpeg(unsigned char *jpegData, size_t jpegSize, void **ou
         auto retVal = tjDecompress2(tj, jpegData, jpegSize, (unsigned char *) *outBuffer, 0, 0, 0, pixel_format,
                                     TJFLAG_NOREALLOC);
         if (retVal < 0) {
-            LOG_E(TAG, "Error converting image, error was: " << tjGetErrorStr());
+            LOG_E(TAG, "Error converting image, error was: ", tjGetErrorStr());
             return false;
         }
 

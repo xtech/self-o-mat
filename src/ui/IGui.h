@@ -77,6 +77,8 @@ namespace selfomat {
 
             virtual void cancelPrint() = 0;
 
+            virtual void setDebugOutput(bool debug) = 0;
+
             const boost::unordered_map<ALERT_TYPE,const char*> alertTypeToString = boost::assign::map_list_of
                     (ALERT_CAMERA, "C")
                     (ALERT_PRINTER, "P")

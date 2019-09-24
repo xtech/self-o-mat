@@ -6,6 +6,7 @@
 #define SELF_O_MAT_BUFFERS_H
 
 #include <iostream>
+#include <tools/verbose.h>
 
 namespace selfomat {
     namespace tools {

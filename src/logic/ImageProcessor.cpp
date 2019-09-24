@@ -41,7 +41,7 @@ void ImageProcessor::loadTemplateImage() {
             offset = cv::Rect(ptree.get<int>("offset_x"),  ptree.get<int>("offset_y"),
                               ptree.get<int>("offset_w"), ptree.get<int>("offset_h"));
         } catch (boost::exception &e) {
-            logger->logError(std::string("Error loading template properties"));
+            LOG_E(TAG, std::string("Error loading template properties"));
             alphaChannel = cv::Mat();
             templateWithoutAlpha = cv::Mat();
         }
@@ -121,15 +121,16 @@ ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, 
 
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
-    printf("scale took %.5f s\n",
-           ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
-           ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec));
+
+    LOG_D(TAG, "Scaling Took", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                                              ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec)) + " sec");
+
     clock_gettime(CLOCK_MONOTONIC, &tstart);
     applyFilter(decodedImage, filter, filterGain);
     clock_gettime(CLOCK_MONOTONIC, &tend);
-    printf("filtering took %.5f s\n",
-           ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
-           ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec));
+    LOG_D(TAG, "Filtering Took", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                                              ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec)) + " sec");
+
 
     clock_gettime(CLOCK_MONOTONIC, &tstart);
 
@@ -148,11 +149,9 @@ ImageProcessor::frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, 
 
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
-    printf("composition took %.5f s\n",
-           ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
-           ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec));
 
-
+    LOG_D(TAG, "Compression Took", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                                              ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec)) + " sec");
 
     return result;
 }
@@ -187,24 +186,26 @@ ImageProcessor::decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize,
         float widthFactor = (float)targetWidth / (float)decodedImage.cols;
         float heightFactor = (float)targetHeight / (float)decodedImage.rows;
         float scalingFactor = std::max(widthFactor, heightFactor);
-        LOG_D(TAG, "scaling with: " << widthFactor << ", " << heightFactor << ", " << scalingFactor);
+        {
+            std::stringstream ss;
+            ss << widthFactor << ", " << heightFactor << ", " << scalingFactor;
+            LOG_D(TAG, "scaling with: ", ss.str());
+        }
         cv::resize(decodedImage, decodedImage,
                    cv::Size(decodedImage.cols * scalingFactor, decodedImage.rows * scalingFactor));
     }
 
     clock_gettime(CLOCK_MONOTONIC, &tend);
-    printf("scaling took %.5f s\n",
-           ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
-           ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec));
+
+    LOG_D(TAG, "Scaling Took", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                                              ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec)) + " sec");
 
 
     clock_gettime(CLOCK_MONOTONIC, &tstart);
     applyFilter(decodedImage, filter, filterGain);
     clock_gettime(CLOCK_MONOTONIC, &tend);
-    printf("filtering took %.5f s\n",
-           ((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
-           ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec));
-
+    LOG_D(TAG, "Filtering Took", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
+                                              ((double) tstart.tv_sec + 1.0e-9 * tstart.tv_nsec)) + " sec");
 
     return decodedImage;
 }
@@ -247,8 +248,6 @@ bool ImageProcessor::getOffset(cv::Mat image, cv::Rect &out) {
     out.width = right - left;
     out.height = bottom - top;
 
-    std::cout << "x: " << out.x << ", y: " << out.y << ", width: " << out.width << ", height: "
-              << out.height << std::endl;
 
     return true;
 }
@@ -327,7 +326,7 @@ bool ImageProcessor::updateTemplate(void *data, size_t size) {
 void ImageProcessor::applyFilter(cv::Mat &image, FILTER filter, double gain) {
     switch (filter) {
         case BASIC_FILTER:
-            LOG_D(TAG, "basic filter with gain: " << gain);
+            LOG_D(TAG, "basic filter with gain: ", std::to_string(gain));
             basicFilter.processImage(image, gain);
             break;
         default:

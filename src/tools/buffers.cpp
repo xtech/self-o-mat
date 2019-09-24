@@ -20,7 +20,7 @@ bool selfomat::tools::requireBufferWithSize(void **buffer, size_t *bufferSize, s
     void* newBuffer = malloc(requestedSize);
 
     if(newBuffer == nullptr) {
-        std::cerr << "Error allocating new buffer" << std::endl;
+        LOG_E("BUFFERS", "Error allocating new buffer");
         return false;
     }
 
@@ -38,6 +38,7 @@ bool selfomat::tools::requireBufferWithSize(void **buffer, size_t *bufferSize, s
     *buffer = newBuffer;
     *bufferSize = requestedSize;
 
-    std::cout << "Allocated new buffer with size: " << requestedSize << std::endl;
+    LOG_I("BUFFERS", "Allocated new buffer with size:", std::to_string(requestedSize));
+
     return true;
 }

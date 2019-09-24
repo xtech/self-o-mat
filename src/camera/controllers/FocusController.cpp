@@ -5,6 +5,7 @@
 #include "FocusController.h"
 
 using namespace selfomat::camera::gphoto;
+using namespace selfomat::tools;
 
 const std::string FocusController::TAG = "FocusController";
 
@@ -33,7 +34,7 @@ bool FocusController::focus() {
 
     retval = gp_camera_set_config(camera, rootWidget, gp);
     if (retval != GP_OK) {
-        LOG_E(TAG, "Error transmitting new value to cam with error " << gp_result_as_string(retval));
+        LOG_E(TAG, "Error transmitting new value to cam with error ", gp_result_as_string(retval));
         return false;
     }
 
@@ -53,7 +54,7 @@ bool FocusController::stopFocus() {
 
     retval = gp_camera_set_config(camera, rootWidget, gp);
     if (retval != GP_OK) {
-        LOG_E(TAG, "Error transmitting new value to cam with error " << gp_result_as_string(retval));
+        LOG_E(TAG, "Error transmitting new value to cam with error ", gp_result_as_string(retval));
         return false;
     }
 

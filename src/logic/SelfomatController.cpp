@@ -6,6 +6,7 @@
 #include "SelfomatController.h"
 
 using namespace selfomat::logic;
+using namespace selfomat::tools;
 
 const SelfomatController::LED_TYPE SelfomatController::LED_TYPE::RGB = SelfomatController::LED_TYPE("RGB",0);
 const SelfomatController::LED_TYPE SelfomatController::LED_TYPE::RGBW = SelfomatController::LED_TYPE("RGBW",1);
@@ -15,10 +16,10 @@ const SelfomatController::LED_COUNT SelfomatController::LED_COUNT::COUNT_16 = Se
 const SelfomatController::LED_COUNT SelfomatController::LED_COUNT::COUNT_24 = SelfomatController::LED_COUNT("24 LEDs",24);
 const SelfomatController::LED_COUNT SelfomatController::LED_COUNT::COUNT_32 = SelfomatController::LED_COUNT("32 LEDs",32);
 
-
+std::string SelfomatController::TAG = "SELFOMAT_CONTROLLER";
 
 bool SelfomatController::autoconnect(std::string searchPrefix) {
-    std::cout << "[selfomat controller] Searching controller. Prefix: " << searchPrefix << std::endl;
+    LOG_D(TAG, "Searching controller. Prefix: ", searchPrefix);
 
     boost::asio::io_service tmpIoService;
     boost::asio::serial_port tmpSerialPort(tmpIoService);
@@ -35,7 +36,7 @@ bool SelfomatController::autoconnect(std::string searchPrefix) {
 
     // We have not found a controller
     if(foundArduinos.empty()) {
-        std::cerr << "[selfomat controller] No controller paths found :-(" << std::endl;
+        LOG_E(TAG, "No controller paths found :-(");
         return false;
     }
 
@@ -43,36 +44,36 @@ bool SelfomatController::autoconnect(std::string searchPrefix) {
     bool foundController = false;
     boost::filesystem::path controllerPath;
     for(const auto &path : foundArduinos) {
-        std::cout << "[selfomat controller] Connecting to controller at: " << path << std::endl;
+        LOG_D(TAG, "Connecting to controller at: ", path.string());
 
         try {
             tmpSerialPort.open(path.string());
             tmpSerialPort.set_option(boost::asio::serial_port_base::baud_rate(38400));
 
-            std::cout << "[selfomat controller] Waiting for identification" << std::endl;
+            LOG_D(TAG, "Waiting for identification");
 
             blocking_reader reader(tmpSerialPort, 3000);
             bool success = false;
             for(int i = 0; i < 10; i++) {
                 if (reader.get_response("\2i ", 3, c)) {
-                    std::cout << "[selfomat controller] Got a " << c << std::endl;
+                    LOG_D(TAG, "Got a ",  std::to_string(c));
                     if (c == 'b') {
-                        std::cout << "[selfomat controller] Found the selfomat controller!" << std::endl;
+                        LOG_D(TAG, "Found the selfomat controller!");
                         tmpSerialPort.close();
                         foundController = true;
                         controllerPath = path;
                         break;
                     }
-                    std::cout << "[selfomat controller] Unknown identification: " << c << std::endl;
+                    LOG_W(TAG, "Unknown identification: ");
                 } else {
-                    std::cout << "[selfomat controller] No identification received" << std::endl;
+                    LOG_W(TAG, "No identification received");
                 }
             }
             if(foundController)
                 break;
             tmpSerialPort.close();
         } catch (std::exception const &e) {
-            std::cerr << "[selfomat controller] Error opening button on port " << path << ". Reason was: " << e.what() << std::endl;
+            LOG_E(TAG, std::string("Error opening button on port ") + path.string() + ". Reason was: " + e.what());
         }
     }
 
@@ -102,7 +103,7 @@ bool SelfomatController::loadSettingsFromBoard() {
         do {
             sendCommand('?');
             if(!state_condition_variable.timed_wait(lk, boost::posix_time::milliseconds(1500))) {
-                std::cout << "[selfomat controller] setting loading timed out. retrying.." << std::endl;
+                LOG_I(TAG, "setting loading timed out. retrying..");
             }
 
         } while (!settingsLoaded && isStarted);
@@ -133,7 +134,7 @@ bool SelfomatController::writeSettingsToBoard() {
         do {
             button_serial_port.write_some(boost::asio::buffer(encoded, encoded.size()));
             if(!state_condition_variable.timed_wait(lk, boost::posix_time::milliseconds(500))) {
-                std::cout << "[selfomat controller] setting writing timed out. retrying.." << std::endl;
+                LOG_I(TAG, "setting writing timed out. retrying..");
             }
 
         } while (!settingsWritten && isStarted);
@@ -146,7 +147,7 @@ bool SelfomatController::connect(boost::filesystem::path path) {
         button_serial_port.open(path.string());
         button_serial_port.set_option(boost::asio::serial_port_base::baud_rate(38400));
     } catch (std::exception const &e) {
-        std::cerr << "[selfomat controller] Error opening button on port " << path << ". Reason was: " << e.what() << std::endl;
+        LOG_E(TAG, std::string("Error opening button on port ") + path.string() + ". Reason was: " + e.what());
         return false;
     }
 
@@ -218,7 +219,7 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
     switch (commandType) {
         case 'k': {
                 boost::unique_lock<boost::mutex> lk(state_mutex);
-                std::cout << "[selfomat controller] controller saved settings successfully" << std::endl;
+                LOG_I(TAG, "controller saved settings successfully");
                 settingsWritten = true;
                 state_condition_variable.notify_all();
             }
@@ -238,10 +239,10 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
                         settingsLoaded = true;
                         state_condition_variable.notify_all();
                     } else {
-                        std::cerr << "[selfomat controller] CRC ERROR! was: " << received_settings->crcChecksum << ", expected: " << crc << std::endl;
+                        LOG_E(TAG, std::string("CRC ERROR! was: ") + std::to_string(received_settings->crcChecksum) + ", expected: " + std::to_string(crc) );
                     }
                 } else {
-                    std::cerr << "[selfomat controller] wrong setting size received. We got: " << commandSequence.size() << ": but expected " << sizeof(struct settings)+1 << std::endl;
+                    LOG_E(TAG, std::string("wrong setting size received. We got: ") + std::to_string(commandSequence.size()) + ": but expected " + std::to_string(sizeof(struct settings)+1));
                 }
             }
             break;
@@ -252,11 +253,10 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
 
                 boost::unique_lock<boost::mutex> lk(state_mutex);
                 if(arg != '3') {
-                    std::cerr << "[selfomat controller] Controller had a problem receiving settings. Argument was: " << arg << ". Retrying"
-                              << std::endl;
+                    LOG_E(TAG, std::string("Controller had a problem receiving settings. Argument was: ") + arg + ". Retrying");
                     settingsWritten = false;
                 } else {
-                    std::cerr << "[selfomat controller] Error writing setting. Board says values are invalid :-(" << std::endl;
+                    LOG_E(TAG, "Error writing setting. Board says values are invalid :-(");
                     settingsWritten = true;
                 }
                 state_condition_variable.notify_all();
@@ -294,7 +294,7 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
             }
             break;
         default:
-            std::cout << "[selfomat controller] got unknown command from button. Type was: " << ((char)commandType) << std::endl;
+            LOG_W(TAG, "[selfomat controller] got unknown command from button. Type was: ", std::to_string(((char)commandType)));
             break;
     }
 }
@@ -302,7 +302,7 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
 void SelfomatController::enterUpdateMode() {
     if(!isConnected)
         return;
-    std::cout << "[Selfomat Controller] Entering Update Mode..." << std::endl;
+    LOG_I(TAG, "Entering Update Mode...");
     {
         boost::unique_lock<boost::mutex> lk(state_mutex);
         flashStateEntered = false;
@@ -310,12 +310,12 @@ void SelfomatController::enterUpdateMode() {
         do {
             sendCommand('f');
             if(!state_condition_variable.timed_wait(lk, boost::posix_time::milliseconds(500))) {
-                std::cout << "update mode timed out. retrying.." << std::endl;
+                LOG_E(TAG, "update mode timed out. retrying..");
             }
 
         } while (!flashStateEntered && isStarted);
 
-        std::cout << "[Selfomat Controller] Update Mode Confirmed!" << std::endl;
+        LOG_I(TAG, "Update Mode Confirmed!");
     }
 }
 
@@ -333,7 +333,7 @@ void SelfomatController::showAgreement() {
         do {
             sendCommand('a');
             if(!state_condition_variable.timed_wait(lk, boost::posix_time::milliseconds(500))) {
-                std::cout << "agreement timed out. retrying.." << std::endl;
+                LOG_W(TAG, "agreement timed out. retrying..");
             }
 
         } while (!agreementStateEntered && isStarted);
@@ -380,7 +380,7 @@ void SelfomatController::stop(bool blocking) {
     if (!isStarted)
         return;
 
-    std::cout << "[selfomat controller] Controller Thread stopping..." << std::endl;
+    LOG_I(TAG, "Controller Thread stopping...");
 
     isStarted = false;
     io_service.stop();
@@ -396,12 +396,12 @@ void SelfomatController::stopBlocking() {
 }
 
 void SelfomatController::ioThread() {
-    std::cout << "[selfomat controller] Controller Thread Started" << std::endl;
+    LOG_I(TAG, "Controller Thread Started");
     while(isStarted) {
         boost::asio::io_service::work work(io_service);
         io_service.run();
     }
-    std::cout << "[selfomat controller] Controller Thread stopped" << std::endl;
+    LOG_I(TAG, "Controller Thread stopped");
 }
 
 void SelfomatController::serialPacketReceived(const boost::system::error_code &err, std::size_t bytes_transferred) {

@@ -16,6 +16,7 @@ namespace selfomat {
 
         class BoothApi {
         private:
+            static std::string TAG;
             selfomat::logic::BoothLogic *logic;
             ICamera *camera;
 

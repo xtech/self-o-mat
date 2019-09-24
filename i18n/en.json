@@ -29,7 +29,8 @@
 			"updateAlert": "Do you really want to start the Update Mode?",
 			"cupsSetup": "CUPS Printer Setup",
 			"triggerCounter": "Trigger Counter",
-			"maxLedBrightness": "LED Brightness"
+			"maxLedBrightness": "LED Brightness",
+			"debugLogEnabled": "Debug Mode Enabled"
 		},
 		"error": {
 			"noAlpha": "No alpha channel found.",

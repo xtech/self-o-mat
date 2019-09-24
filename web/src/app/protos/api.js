@@ -3484,6 +3484,7 @@
                  * @property {xtech.selfomat.IBoolSetting|null} [flashMode] BoothSettings flashMode
                  * @property {xtech.selfomat.IIntSetting|null} [flashDurationMicros] BoothSettings flashDurationMicros
                  * @property {xtech.selfomat.IPostSetting|null} [flashTest] BoothSettings flashTest
+                 * @property {xtech.selfomat.IBoolSetting|null} [debugLogEnabled] BoothSettings debugLogEnabled
                  * @property {xtech.selfomat.IReadOnlySetting} triggerCounter BoothSettings triggerCounter
                  */
     
@@ -3647,6 +3648,14 @@
                 BoothSettings.prototype.flashTest = null;
     
                 /**
+                 * BoothSettings debugLogEnabled.
+                 * @member {xtech.selfomat.IBoolSetting|null|undefined} debugLogEnabled
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.debugLogEnabled = null;
+    
+                /**
                  * BoothSettings triggerCounter.
                  * @member {xtech.selfomat.IReadOnlySetting} triggerCounter
                  * @memberof xtech.selfomat.BoothSettings
@@ -3706,6 +3715,8 @@
                         $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 202, wireType 2 =*/1618).fork()).ldelim();
                     if (message.flashTest != null && message.hasOwnProperty("flashTest"))
                         $root.xtech.selfomat.PostSetting.encode(message.flashTest, writer.uint32(/* id 203, wireType 2 =*/1626).fork()).ldelim();
+                    if (message.debugLogEnabled != null && message.hasOwnProperty("debugLogEnabled"))
+                        $root.xtech.selfomat.BoolSetting.encode(message.debugLogEnabled, writer.uint32(/* id 240, wireType 2 =*/1922).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.triggerCounter, writer.uint32(/* id 250, wireType 2 =*/2002).fork()).ldelim();
                     return writer;
                 };
@@ -3794,6 +3805,9 @@
                             break;
                         case 203:
                             message.flashTest = $root.xtech.selfomat.PostSetting.decode(reader, reader.uint32());
+                            break;
+                        case 240:
+                            message.debugLogEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
                         case 250:
                             message.triggerCounter = $root.xtech.selfomat.ReadOnlySetting.decode(reader, reader.uint32());
@@ -3941,6 +3955,11 @@
                         if (error)
                             return "flashTest." + error;
                     }
+                    if (message.debugLogEnabled != null && message.hasOwnProperty("debugLogEnabled")) {
+                        var error = $root.xtech.selfomat.BoolSetting.verify(message.debugLogEnabled);
+                        if (error)
+                            return "debugLogEnabled." + error;
+                    }
                     {
                         var error = $root.xtech.selfomat.ReadOnlySetting.verify(message.triggerCounter);
                         if (error)
@@ -4051,6 +4070,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.flashTest: object expected");
                         message.flashTest = $root.xtech.selfomat.PostSetting.fromObject(object.flashTest);
                     }
+                    if (object.debugLogEnabled != null) {
+                        if (typeof object.debugLogEnabled !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.debugLogEnabled: object expected");
+                        message.debugLogEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.debugLogEnabled);
+                    }
                     if (object.triggerCounter != null) {
                         if (typeof object.triggerCounter !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.triggerCounter: object expected");
@@ -4091,6 +4115,7 @@
                         object.flashMode = null;
                         object.flashDurationMicros = null;
                         object.flashTest = null;
+                        object.debugLogEnabled = null;
                         object.triggerCounter = null;
                     }
                     if (message.storageEnabled != null && message.hasOwnProperty("storageEnabled"))
@@ -4129,6 +4154,8 @@
                         object.flashDurationMicros = $root.xtech.selfomat.IntSetting.toObject(message.flashDurationMicros, options);
                     if (message.flashTest != null && message.hasOwnProperty("flashTest"))
                         object.flashTest = $root.xtech.selfomat.PostSetting.toObject(message.flashTest, options);
+                    if (message.debugLogEnabled != null && message.hasOwnProperty("debugLogEnabled"))
+                        object.debugLogEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.debugLogEnabled, options);
                     if (message.triggerCounter != null && message.hasOwnProperty("triggerCounter"))
                         object.triggerCounter = $root.xtech.selfomat.ReadOnlySetting.toObject(message.triggerCounter, options);
                     return object;

@@ -26,7 +26,7 @@ namespace selfomat {
             public:
                 bool setViewfinder(bool enabled) {
                     if (viewfinderWidget != nullptr) {
-                        std::cout << "setting viewfinder to " << enabled << std::endl;
+                        LOG_I("NikonViewfinderController", "setting viewfinder to ", std::to_string(enabled));
                         return setPropertyToggle(viewfinderWidget, enabled);
                     }
                     return false;

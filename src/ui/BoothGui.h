@@ -22,12 +22,9 @@
 #include <codecvt>
 #include <tools/readfile.h>
 #include <logic/ILogicController.h>
+#include <tools/verbose.h>
 
 #define DEBUG_QUEUE_SIZE 100
-#define DEBUG_LEVEL_DEBUG 1
-#define DEBUG_LEVEL_INFO 2
-#define DEBUG_LEVEL_WARN 3
-#define DEBUG_LEVEL_ERROR 4
 
 #define COLOR_MAIN          sf::Color(20, 64, 66, 255)
 #define COLOR_MAIN_LIGHT    sf::Color(155, 194, 189)
@@ -48,6 +45,8 @@ namespace selfomat {
             explicit BoothGui(bool debug, logic::ILogicController *logicController);
 
         private:
+
+            static std::string TAG;
 
             logic::ILogicController *logicController;
 
@@ -146,28 +145,12 @@ namespace selfomat {
                 this->logicController = logicController;
             }
 
-            void log(int level, std::string s);
+        protected:
+            void log(std::string s) override;
 
-            void log(int level, const char *s) {
-                log(level, std::string(s));
-            }
+        public:
 
-            void logDebug(std::string s) override { log(DEBUG_LEVEL_DEBUG, s); }
-
-            void logDebug(const char *s) override { log(DEBUG_LEVEL_DEBUG, s); }
-
-            void logInfo(std::string s) override { log(DEBUG_LEVEL_INFO, s); }
-
-            void logInfo(const char *s) override { log(DEBUG_LEVEL_INFO, s); }
-
-            void logWarn(std::string s) override { log(DEBUG_LEVEL_WARN, s); }
-
-            void logWarn(const char *s) override { log(DEBUG_LEVEL_WARN, s); }
-
-            void logError(std::string s) override { log(DEBUG_LEVEL_ERROR, s); }
-
-            void logError(const char *s) override { log(DEBUG_LEVEL_ERROR, s); }
-
+            void setDebugOutput(bool debug);
 
             bool start() override;
 

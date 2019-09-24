@@ -6,11 +6,13 @@
 
 using namespace selfomat::camera;
 
+std::string OpenCVCamera::TAG = "OPENCV_CAMERA";
+
 CameraStartResult OpenCVCamera::start() {
 
 
     if (!cap.open(0)) {
-        cout << "CVCamera: Error opening camera" << endl;
+        LOG_E(TAG, "CVCamera: Error opening camera");
         return START_RESULT_ERROR;
     }
 
@@ -31,7 +33,7 @@ bool OpenCVCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
 
 
     if (!selfomat::tools::requireBufferWithSize(buffer, bufferSize, bytesUsed)) {
-        cerr << "Error allocating buffer" << endl;
+        LOG_E(TAG, "Error allocating buffer");
         return false;
     }
 
@@ -48,7 +50,7 @@ bool OpenCVCamera::capturePreviewBlocking(void **buffer, size_t *bufferSize, Ima
 
 
 void OpenCVCamera::stop() {
-    cout << "Stopping camera!" << endl;
+    LOG_I(TAG, "Stopping camera!");
 
     cap.release();
 }

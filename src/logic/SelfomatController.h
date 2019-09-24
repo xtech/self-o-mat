@@ -19,6 +19,7 @@
 #include <tools/blocking_reader.h>
 #include <boost/asio.hpp>
 #include <boost/crc.hpp>
+#include <tools/verbose.h>
 
 
 
@@ -68,6 +69,7 @@ namespace selfomat {
             };
 
         private:
+            static std::string TAG;
             ILogicController *logic;
             boost::crc_ccitt_type crc16;
             boost::asio::streambuf serialBuffer;

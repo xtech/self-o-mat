@@ -26,21 +26,6 @@ namespace selfomat {
 
             void notifyPreviewIncoming() override;
 
-            void logDebug(std::string s) override;
-
-            void logDebug(const char *s) override;
-
-            void logInfo(std::string s) override;
-
-            void logInfo(const char *s) override;
-
-            void logWarn(std::string s) override;
-
-            void logWarn(const char *s) override;
-
-            void logError(std::string s) override;
-
-            void logError(const char *s) override;
 
             void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, bool isHint) override;
 
@@ -49,6 +34,11 @@ namespace selfomat {
             void setPrinterEnabled(bool printerEnabled) override;
 
             void setTemplateEnabled(bool templateEnabled) override;
+
+            const GUI_STATE getCurrentGuiState() override;
+
+        protected:
+            void log(std::string s) override;
         };
     }
 }

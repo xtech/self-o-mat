@@ -6,15 +6,20 @@
 #define SELF_O_MAT_VERBOSE_H
 
 #include <iostream>
+#include <tools/FilesystemLogger.h>
 
 
-#ifdef VERBOSE
-#define LOG_D(TAG, MSG) std::cout << "[" << TAG  << "] " << MSG << std::endl
-#else
-#define LOG_D(TAG, MSG) //std::cout << TAG << MSG << std::endl
-#endif
+namespace selfomat {
+    namespace tools {
+        void LOG_D(std::string tag, std::string message, std::string arg = "");
 
-#define LOG_E(TAG, MSG) std::cerr << "[" << TAG  << "] " << MSG << std::endl
+        void LOG_I(std::string tag, std::string message, std::string arg = "");
+
+        void LOG_W(std::string tag, std::string message, std::string arg = "");
+
+        void LOG_E(std::string tag, std::string message, std::string arg = "");
+    }
+}
 
 
 #endif //SELF_O_MAT_VERBOSE_H

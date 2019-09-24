@@ -20,6 +20,7 @@ namespace selfomat {
         class OpenCVCamera : public ICamera {
 
         private:
+            static std::string TAG;
             VideoCapture cap;
 
         public:
