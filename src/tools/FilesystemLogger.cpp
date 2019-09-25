@@ -42,6 +42,7 @@ void FilesystemLogger::logToFile(std::string s) {
     fileLogMutex.lock();
     if(logToFileState == ENABLED) {
         ofstream << s << std::endl;
+        ofstream.flush();
     }
     if(loggerDelegate != nullptr) {
         loggerDelegate->log(s);

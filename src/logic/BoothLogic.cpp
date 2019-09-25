@@ -688,7 +688,7 @@ bool BoothLogic::isStopped() {
 }
 
 void BoothLogic::setDebugLogEnabled(bool newValue, bool persist) {
-    gui->setDebugOutput(true);
+    gui->setDebugOutput(newValue);
     if (newValue) {
         if (imageDir.empty()) {
             LOG_E(TAG, "No image dir specified. We cannot enable debug logging");
