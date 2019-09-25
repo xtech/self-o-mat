@@ -688,7 +688,6 @@ bool BoothLogic::isStopped() {
 }
 
 void BoothLogic::setDebugLogEnabled(bool newValue, bool persist) {
-    gui->setDebugOutput(newValue);
     if (newValue) {
         if (imageDir.empty()) {
             LOG_E(TAG, "No image dir specified. We cannot enable debug logging");
@@ -704,6 +703,8 @@ void BoothLogic::setDebugLogEnabled(bool newValue, bool persist) {
     } else {
         FilesystemLogger::INSTANCE.disableLogToFile();
     }
+
+    gui->setDebugOutput(FilesystemLogger::INSTANCE.getLogToFileState() == FilesystemLogger::ENABLED);
 
     if (persist)
         writeSettings();
