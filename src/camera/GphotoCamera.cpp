@@ -245,7 +245,7 @@ void GphotoCamera::drainEventQueue(bool waitForPhoto) {
             }
                 break;
             default:
-                LOG_D(TAG, "some other event.");
+                LOG_D(TAG, "some other event. Type was:", std::to_string(evtype));
                 // Free the data and do nothing
                 free(data);
                 break;
