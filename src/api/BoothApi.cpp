@@ -755,7 +755,7 @@ bool BoothApi::start() {
                 }
 
                 {
-                    auto setting = currentBoothSettings.mutable_template_enabled();
+                    auto setting = currentBoothSettings.mutable_debug_log_enabled();
                     setting->set_update_url("/booth_settings/debug_log_enabled");
                     setting->set_name(locale.get<string>("api.booth.debugLogEnabled"));
                     setting->set_currentvalue(logic->getDebugLogEnabled());

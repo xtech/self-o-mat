@@ -1,7 +1,7 @@
 {
-  "camera_type": "gphoto",
+  "camera_type": "opencv",
   "has_flash": false,
-  "has_button": true,
+  "has_button": false,
   "disable_watchdog": false,
   "debug": false,
   "button_port_name": "/dev/ttyUSB",
