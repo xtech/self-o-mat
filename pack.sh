@@ -8,7 +8,7 @@ BINARY=self_o_mat.app
 FILES="$BINARY settings/* i18n/* assets/* libs/* camlibs/* firmware.hex version app/* self_o_mat"
 TAR=update.tar
 BIN_DIR=$2
-CAMLIBS_DIR="/usr/local/lib/libgphoto2/2.5.23"
+CAMLIBS_DIR="/usr/local/lib/libgphoto2/2.5.24"
 
 clean() {
     echo "Cleaning in $BIN_DIR"
