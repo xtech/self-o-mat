@@ -132,7 +132,9 @@ void BoothGui::renderThread() {
     LOG_I(TAG, "Render thread started!");
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
-    window.create(videoMode, "self-o-mat", sf::Style::None, settings);
+    settings.majorVersion = 2;
+    settings.minorVersion = 1;
+    window.create(videoMode, "self-o-mat", sf::Style::Fullscreen, settings);
 
     window.setVerticalSyncEnabled(true);
 
