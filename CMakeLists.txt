@@ -24,7 +24,7 @@ find_package(Protobuf REQUIRED)
 
 include_directories(src)
 include_directories(dependencies)
-include_directories(/usr/local/include/gphoto2)
+include_directories(/usr/include/gphoto2)
 include_directories(/opt/libjpeg-turbo/include)
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${CUPS_INCLUDE_DIR})
