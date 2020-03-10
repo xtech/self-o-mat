@@ -138,6 +138,7 @@ void BoothGui::renderThread() {
 
     window.setVerticalSyncEnabled(true);
 
+    window.setFramerateLimit(60);
 
 
     // Init variables
