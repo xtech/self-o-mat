@@ -3478,6 +3478,7 @@
                  * @property {xtech.selfomat.IPostSetting} ledOffsetCounterClockwise BoothSettings ledOffsetCounterClockwise
                  * @property {xtech.selfomat.IListSetting} countdownDuration BoothSettings countdownDuration
                  * @property {xtech.selfomat.IIntSetting|null} [maxLedBrightness] BoothSettings maxLedBrightness
+                 * @property {xtech.selfomat.IBoolSetting} autofocusBeforeTrigger BoothSettings autofocusBeforeTrigger
                  * @property {xtech.selfomat.ILinkSetting|null} [cupsLink] BoothSettings cupsLink
                  * @property {xtech.selfomat.IPostSetting} updateMode BoothSettings updateMode
                  * @property {xtech.selfomat.IBoolSetting|null} [flashEnabled] BoothSettings flashEnabled
@@ -3600,6 +3601,14 @@
                 BoothSettings.prototype.maxLedBrightness = null;
     
                 /**
+                 * BoothSettings autofocusBeforeTrigger.
+                 * @member {xtech.selfomat.IBoolSetting} autofocusBeforeTrigger
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.autofocusBeforeTrigger = null;
+    
+                /**
                  * BoothSettings cupsLink.
                  * @member {xtech.selfomat.ILinkSetting|null|undefined} cupsLink
                  * @memberof xtech.selfomat.BoothSettings
@@ -3704,6 +3713,7 @@
                     $root.xtech.selfomat.ListSetting.encode(message.countdownDuration, writer.uint32(/* id 44, wireType 2 =*/354).fork()).ldelim();
                     if (message.maxLedBrightness != null && message.hasOwnProperty("maxLedBrightness"))
                         $root.xtech.selfomat.IntSetting.encode(message.maxLedBrightness, writer.uint32(/* id 45, wireType 2 =*/362).fork()).ldelim();
+                    $root.xtech.selfomat.BoolSetting.encode(message.autofocusBeforeTrigger, writer.uint32(/* id 46, wireType 2 =*/370).fork()).ldelim();
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
                         $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 50, wireType 2 =*/402).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 51, wireType 2 =*/410).fork()).ldelim();
@@ -3788,6 +3798,9 @@
                         case 45:
                             message.maxLedBrightness = $root.xtech.selfomat.IntSetting.decode(reader, reader.uint32());
                             break;
+                        case 46:
+                            message.autofocusBeforeTrigger = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            break;
                         case 50:
                             message.cupsLink = $root.xtech.selfomat.LinkSetting.decode(reader, reader.uint32());
                             break;
@@ -3831,6 +3844,8 @@
                         throw $util.ProtocolError("missing required 'ledOffsetCounterClockwise'", { instance: message });
                     if (!message.hasOwnProperty("countdownDuration"))
                         throw $util.ProtocolError("missing required 'countdownDuration'", { instance: message });
+                    if (!message.hasOwnProperty("autofocusBeforeTrigger"))
+                        throw $util.ProtocolError("missing required 'autofocusBeforeTrigger'", { instance: message });
                     if (!message.hasOwnProperty("updateMode"))
                         throw $util.ProtocolError("missing required 'updateMode'", { instance: message });
                     if (!message.hasOwnProperty("triggerCounter"))
@@ -3924,6 +3939,11 @@
                         var error = $root.xtech.selfomat.IntSetting.verify(message.maxLedBrightness);
                         if (error)
                             return "maxLedBrightness." + error;
+                    }
+                    {
+                        var error = $root.xtech.selfomat.BoolSetting.verify(message.autofocusBeforeTrigger);
+                        if (error)
+                            return "autofocusBeforeTrigger." + error;
                     }
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink")) {
                         var error = $root.xtech.selfomat.LinkSetting.verify(message.cupsLink);
@@ -4040,6 +4060,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.maxLedBrightness: object expected");
                         message.maxLedBrightness = $root.xtech.selfomat.IntSetting.fromObject(object.maxLedBrightness);
                     }
+                    if (object.autofocusBeforeTrigger != null) {
+                        if (typeof object.autofocusBeforeTrigger !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.autofocusBeforeTrigger: object expected");
+                        message.autofocusBeforeTrigger = $root.xtech.selfomat.BoolSetting.fromObject(object.autofocusBeforeTrigger);
+                    }
                     if (object.cupsLink != null) {
                         if (typeof object.cupsLink !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.cupsLink: object expected");
@@ -4109,6 +4134,7 @@
                         object.ledOffsetCounterClockwise = null;
                         object.countdownDuration = null;
                         object.maxLedBrightness = null;
+                        object.autofocusBeforeTrigger = null;
                         object.cupsLink = null;
                         object.updateMode = null;
                         object.flashEnabled = null;
@@ -4142,6 +4168,8 @@
                         object.countdownDuration = $root.xtech.selfomat.ListSetting.toObject(message.countdownDuration, options);
                     if (message.maxLedBrightness != null && message.hasOwnProperty("maxLedBrightness"))
                         object.maxLedBrightness = $root.xtech.selfomat.IntSetting.toObject(message.maxLedBrightness, options);
+                    if (message.autofocusBeforeTrigger != null && message.hasOwnProperty("autofocusBeforeTrigger"))
+                        object.autofocusBeforeTrigger = $root.xtech.selfomat.BoolSetting.toObject(message.autofocusBeforeTrigger, options);
                     if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
                         object.cupsLink = $root.xtech.selfomat.LinkSetting.toObject(message.cupsLink, options);
                     if (message.updateMode != null && message.hasOwnProperty("updateMode"))

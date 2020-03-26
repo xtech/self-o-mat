@@ -335,6 +335,7 @@ export namespace xtech {
             ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             countdownDuration: xtech.selfomat.IListSetting;
             maxLedBrightness?: (xtech.selfomat.IIntSetting|null);
+            autofocusBeforeTrigger: xtech.selfomat.IBoolSetting;
             cupsLink?: (xtech.selfomat.ILinkSetting|null);
             updateMode: xtech.selfomat.IPostSetting;
             flashEnabled?: (xtech.selfomat.IBoolSetting|null);
@@ -359,6 +360,7 @@ export namespace xtech {
             public ledOffsetCounterClockwise: xtech.selfomat.IPostSetting;
             public countdownDuration: xtech.selfomat.IListSetting;
             public maxLedBrightness?: (xtech.selfomat.IIntSetting|null);
+            public autofocusBeforeTrigger: xtech.selfomat.IBoolSetting;
             public cupsLink?: (xtech.selfomat.ILinkSetting|null);
             public updateMode: xtech.selfomat.IPostSetting;
             public flashEnabled?: (xtech.selfomat.IBoolSetting|null);
