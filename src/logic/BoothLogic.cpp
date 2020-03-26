@@ -171,7 +171,7 @@ void BoothLogic::cameraThread() {
 
                 clock_gettime(CLOCK_MONOTONIC, &triggerStart);
 
-                camera->triggerCaptureBlocking();
+                camera->triggerCaptureBlocking(autofocus_before_trigger);
                 clock_gettime(CLOCK_MONOTONIC, &tend);
                 LOG_D(TAG, "Time needed to trigger:", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
                                                                      ((double) triggerStart.tv_sec +
@@ -564,6 +564,8 @@ void BoothLogic::readSettings() {
     setFilterChoice(ptree.get<int>("filter_choice", BASIC_FILTER));
     setFilterGain(ptree.get<double>("filter_gain", 1.0));
     setDebugLogEnabled(ptree.get<bool>("debug_log_enabled", false));
+    setAutofocusBeforeTrigger(ptree.get<bool>("autofocus_before_trigger", false));
+    
     if (!success)
         writeSettings();
 }
@@ -579,6 +581,8 @@ void BoothLogic::writeSettings() {
     ptree.put("filter_gain", filterGain);
     ptree.put("filter_choice", filterChoice);
     ptree.put("debug_log_enabled", getDebugLogEnabled());
+    ptree.put("autofocus_before_trigger", this->autofocus_before_trigger);
+
     try {
         boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
     } catch (boost::exception &e) {
@@ -712,4 +716,15 @@ void BoothLogic::setDebugLogEnabled(bool newValue, bool persist) {
 
 bool BoothLogic::getDebugLogEnabled() {
     return FilesystemLogger::INSTANCE.getLogToFileState() == FilesystemLogger::ENABLED;
+}
+
+bool BoothLogic::getAutofocusBeforeTrigger() {
+    return autofocus_before_trigger;
+}
+
+void BoothLogic::setAutofocusBeforeTrigger(bool newValue, bool persist) {
+    autofocus_before_trigger = newValue;
+
+    if(persist)
+        writeSettings();
 }

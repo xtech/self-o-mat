@@ -105,7 +105,7 @@ namespace selfomat {
 
                 void stop() override;
 
-                bool triggerCaptureBlocking() override;
+                bool triggerCaptureBlocking(bool autofocus_before_trigger) override;
 
                 bool autofocusBlocking() override;
 

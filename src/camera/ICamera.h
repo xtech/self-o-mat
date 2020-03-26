@@ -86,7 +86,7 @@ namespace selfomat {
              * @param resultInfo: A pointer to the resulting image info
              * @return true if success else false
              */
-            virtual bool triggerCaptureBlocking() = 0;
+            virtual bool triggerCaptureBlocking(bool autofocus_before_trigger) = 0;
 
             /**
              * Captures an image into the specified buffer.

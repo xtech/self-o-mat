@@ -120,6 +120,7 @@ int main(int argc, char *argv[]) {
     bool has_flash = false;
     bool show_led_setup = false;
     bool force_image_dir_mountpoint = true;
+    bool autofocus_before_trigger = false;
     string button_port_name;
     string image_dir;
 
@@ -144,6 +145,7 @@ int main(int argc, char *argv[]) {
         has_flash = ptree.get<bool>("has_flash");
         show_led_setup = ptree.get<bool>("show_led_setup");
         force_image_dir_mountpoint = ptree.get<bool>("force_image_dir_mountpoint", true);
+        autofocus_before_trigger = ptree.get<bool>("autofocus_before_trigger", false);
     } catch (boost::exception &e) {
         LOG_E(TAG, "Error loading properties. Using defaults.");
     }
@@ -153,6 +155,7 @@ int main(int argc, char *argv[]) {
     LOG_D(TAG, "Button Port Name: ", button_port_name);
     LOG_D(TAG, "Has Flash: ", std::to_string(has_flash));
     LOG_D(TAG, "Force Imagedir mountpoint: ", std::to_string(force_image_dir_mountpoint));
+    LOG_D(TAG, "Autofocus Before Trigger: ", std::to_string(autofocus_before_trigger));
 
 
     // We'll set the controller later when logic is initialized
@@ -175,7 +178,7 @@ int main(int argc, char *argv[]) {
 
     LOG_I(TAG, "Started Camera");
 
-    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, force_image_dir_mountpoint, disable_watchdog, show_led_setup);
+    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, force_image_dir_mountpoint, disable_watchdog, show_led_setup, autofocus_before_trigger);
 
     LOG_I(TAG, "Started Logic");
 

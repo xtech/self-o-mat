@@ -103,7 +103,7 @@ namespace selfomat {
                 setState(STATE_STOPPED);
             }
 
-            bool triggerCaptureBlocking() override {
+            bool triggerCaptureBlocking(bool autofocus_before_trigger) override {
                 return true;
             }
 

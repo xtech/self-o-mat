@@ -55,7 +55,8 @@ void OpenCVCamera::stop() {
     cap.release();
 }
 
-bool OpenCVCamera::triggerCaptureBlocking() {
+bool OpenCVCamera::triggerCaptureBlocking(bool autofocus_before_trigger) {
+    // we ignore autofocus_before_trigger since the camera autofocuses constantly
     return true;
 }
 

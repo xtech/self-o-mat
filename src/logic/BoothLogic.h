@@ -60,7 +60,7 @@ namespace selfomat {
         class BoothLogic : public ILogicController {
         public:
             explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash,
-                                string imageDir, bool force_image_dir_mountpoint, bool disable_watchdog, bool show_led_setup) : camera(camera), gui(gui),
+                                string imageDir, bool force_image_dir_mountpoint, bool disable_watchdog, bool show_led_setup, bool autofocus_before_trigger) : camera(camera), gui(gui),
                                                                         imageProcessor(gui),
                                                                         printerManager(gui),
                                                                         has_button(has_button),
@@ -69,7 +69,8 @@ namespace selfomat {
                                                                         controllerBoardPrefix(button_port),
                                                                         selfomatController(),
                                                                         force_image_dir_mountpoint(force_image_dir_mountpoint),
-                                                                        show_led_setup(show_led_setup){
+                                                                        show_led_setup(show_led_setup),
+                                                                        autofocus_before_trigger(autofocus_before_trigger) {
                 selfomatController.setLogic(this);
                 this->triggered = false;
                 this->disable_watchdog = disable_watchdog;
@@ -82,6 +83,7 @@ namespace selfomat {
             static std::string TAG;
             SelfomatController selfomatController;
             bool show_led_setup;
+            bool autofocus_before_trigger;
             bool force_image_dir_mountpoint;
 
             int returnCode = 0;
@@ -231,6 +233,9 @@ namespace selfomat {
 
             bool getDebugLogEnabled();
             void setDebugLogEnabled(bool newValue, bool persist = false);
+
+            bool setAutofocusBeforeTrigger(bool newValue, bool persist = false);
+            bool getAutofocusBeforeTrigger();
 
         };
 

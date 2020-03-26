@@ -343,7 +343,7 @@ bool GphotoCamera::pushCameraSettings() {
     return success;
 }
 
-bool GphotoCamera::triggerCaptureBlocking() {
+bool GphotoCamera::triggerCaptureBlocking(bool autofocus_before_trigger) {
     if (getState() != STATE_WORKING)
         return false;
 
@@ -352,7 +352,8 @@ bool GphotoCamera::triggerCaptureBlocking() {
     // set exposure and trigger
     exposureCorrectionController->preTrigger();
     pushCameraSettings();
-    bool success = triggerController->trigger();
+    // we force legacy mode, if the user wants to focus before triggering for some reason.
+    bool success = triggerController->trigger(autofocus_before_trigger);
 
     cameraIoMutex.unlock();
 

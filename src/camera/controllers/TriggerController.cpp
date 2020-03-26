@@ -14,7 +14,7 @@ TriggerController::TriggerController(GPContext *gp, Camera *camera, CameraWidget
     // Find the widgets we need in order to focus and trigger the camera
     LOG_D(TAG, "Looking for trigger widget");
 
-    if(findWidget("eosremoterelease", &triggerWidget)) {
+    if (findWidget("eosremoterelease", &triggerWidget)) {
         mode = TRIGGER_MODE_EOSREMOTERELEASE;
         return;
     }
@@ -22,31 +22,28 @@ TriggerController::TriggerController(GPContext *gp, Camera *camera, CameraWidget
     mode = TRIGGER_MODE_DEFAULT;
 }
 
-bool TriggerController::trigger() {
+bool TriggerController::trigger(bool force_legacy_trigger) {
     LOG_D(TAG, "Triggering");
 
-    switch (mode) {
-        case TRIGGER_MODE_DEFAULT: {
-            bool success = GP_OK == gp_camera_trigger_capture(camera, gp);
-            if (!success) {
-                LOG_E(TAG, "Error triggering capture");
-            }
-            return success;
+    if (mode == TRIGGER_MODE_DEFAULT || force_legacy_trigger) {
+        bool success = GP_OK == gp_camera_trigger_capture(camera, gp);
+        if (!success) {
+            LOG_E(TAG, "Error triggering capture");
         }
-        case TRIGGER_MODE_EOSREMOTERELEASE: {
-            bool success = true;
+        return success;
+    } else if (mode == TRIGGER_MODE_EOSREMOTERELEASE) {
+        bool success = true;
 
-            success &= (GP_OK == gp_widget_set_value(triggerWidget, "Immediate"));
-            success &= (GP_OK == gp_camera_set_config(camera, rootWidget, gp));
+        success &= (GP_OK == gp_widget_set_value(triggerWidget, "Immediate"));
+        success &= (GP_OK == gp_camera_set_config(camera, rootWidget, gp));
 
-            if (!success) {
-                LOG_E(TAG, "Error triggering capture");
-            }
-            return success;
+        if (!success) {
+            LOG_E(TAG, "Error triggering capture");
         }
-        default:
-            LOG_E(TAG, "Invalid Trigger Mode");
-            return false;
+        return success;
+    } else {
+        LOG_E(TAG, "Invalid Trigger Mode");
+        return false;
     }
 }
 

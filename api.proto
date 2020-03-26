@@ -112,6 +112,7 @@ message BoothSettings {
     required PostSetting led_offset_counter_clockwise = 43;
     required ListSetting countdown_duration = 44;
     optional IntSetting max_led_brightness = 45;
+    required BoolSetting autofocus_before_trigger = 46;
 
     optional LinkSetting cups_link = 50;
     required PostSetting update_mode = 51;

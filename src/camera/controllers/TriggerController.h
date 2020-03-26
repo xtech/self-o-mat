@@ -33,7 +33,7 @@ namespace selfomat {
 
                 bool supportsCamera() override;
 
-                bool trigger();
+                bool trigger(bool force_legacy_trigger);
 
                 bool releaseTrigger();
 
