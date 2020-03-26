@@ -30,7 +30,8 @@
 			"cupsSetup": "CUPS-Drucker-Einrichtung",
 			"triggerCounter": "Auslösezähler",
 			"maxLedBrightness": "LED Helligkeit",
-			"debugLogEnabled": "Debug Modus Aktiviert"
+			"debugLogEnabled": "Debug Modus Aktiviert",
+			"autofocus_before_trigger": "Autofocus der Aufnahme (nicht empfohlen)"
 		},
 		"error": {
 			"noAlpha": "Keine Transparenz gefunden! Nur an transparenten Stellen im Template wird das Foto sichtbar.",

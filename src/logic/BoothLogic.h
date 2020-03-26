@@ -234,7 +234,7 @@ namespace selfomat {
             bool getDebugLogEnabled();
             void setDebugLogEnabled(bool newValue, bool persist = false);
 
-            bool setAutofocusBeforeTrigger(bool newValue, bool persist = false);
+            void setAutofocusBeforeTrigger(bool newValue, bool persist = false);
             bool getAutofocusBeforeTrigger();
 
         };

@@ -565,7 +565,7 @@ void BoothLogic::readSettings() {
     setFilterGain(ptree.get<double>("filter_gain", 1.0));
     setDebugLogEnabled(ptree.get<bool>("debug_log_enabled", false));
     setAutofocusBeforeTrigger(ptree.get<bool>("autofocus_before_trigger", false));
-    
+
     if (!success)
         writeSettings();
 }

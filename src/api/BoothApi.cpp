@@ -266,6 +266,23 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
+    mux.handle("/booth_settings/autofocus_before_trigger/enabled")
+            .post([this](served::response &res, const served::request &req) {
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setAutofocusBeforeTrigger(update.value(), true);
+
+                LOG_I(TAG, "updated autofocus before trigger enabled to: ", std::to_string(update.value()));
+
+                served::response::stock_reply(200, res);
+            });
+
+
+
     mux.handle("/booth_settings/flash/ittl/enabled")
             .post([this](served::response &res, const served::request &req) {
                 BoolUpdate update;
@@ -611,6 +628,15 @@ bool BoothApi::start() {
                     setting->set_minvalue(0.0);
                     setting->set_maxvalue(1.0);
                 }
+
+                {
+                    auto setting = currentBoothSettings.mutable_autofocus_before_trigger();
+                    setting->set_name(locale.get<string>("api.booth.autofocus_before_trigger"));
+                    setting->set_update_url("/booth_settings/autofocus_before_trigger/enabled");
+                    setting->set_currentvalue(logic->getAutofocusBeforeTrigger());
+                }
+
+
 
                 bool flashAvailable = logic->getFlashAvailable();
                 bool flashEnabled = logic->getFlashEnabled();

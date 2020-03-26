@@ -30,7 +30,8 @@
 			"cupsSetup": "CUPS Printer Setup",
 			"triggerCounter": "Trigger Counter",
 			"maxLedBrightness": "LED Brightness",
-			"debugLogEnabled": "Debug Mode Enabled"
+			"debugLogEnabled": "Debug Mode Enabled",
+			"autofocus_before_trigger": "Autofocus on Trigger (not recommended)"
 		},
 		"error": {
 			"noAlpha": "No alpha channel found.",
