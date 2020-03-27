@@ -171,43 +171,59 @@ void BoothLogic::cameraThread() {
 
                 clock_gettime(CLOCK_MONOTONIC, &triggerStart);
 
-                camera->triggerCaptureBlocking(autofocus_before_trigger);
+                auto trigger_success = camera->triggerCaptureBlocking(autofocus_before_trigger);
                 clock_gettime(CLOCK_MONOTONIC, &tend);
                 LOG_D(TAG, "Time needed to trigger:", std::to_string(((double) tend.tv_sec + 1.0e-9 * tend.tv_nsec) -
                                                                      ((double) triggerStart.tv_sec +
                                                                       1.0e-9 * triggerStart.tv_nsec)) + " sec");
-                LOG_D(TAG, "Successfully triggered");
-                boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-                auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize, &latestJpegFileName,
-                                                         &imageBuffer, &imageBufferSize, &imageInfo);
-                jpegImageMutex.unlock();
 
-                {
-                    boost::unique_lock<boost::mutex> lk(printerStateMutex);
-                    printerState = PRINTER_STATE_WAITING_FOR_USER_INPUT;
-                    printerStateCV.notify_all();
-                }
+                if (trigger_success) {
+                    LOG_D(TAG, "Successfully triggered");
+                    boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+                    auto success = camera->readImageBlocking(&latestJpegBuffer, &latestJpegBufferSize,
+                                                             &latestJpegFileName,
+                                                             &imageBuffer, &imageBufferSize, &imageInfo);
+                    jpegImageMutex.unlock();
 
-                if (success) {
-                    gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
-                    gui->notifyFinalImageSent();
-                    selfomatController.showPrinting();
-
-                    // 4500ms from here for the user to decide
-                    boost::this_thread::sleep(boost::posix_time::milliseconds(4500));
-
-                    // Notify the printer thread
                     {
                         boost::unique_lock<boost::mutex> lk(printerStateMutex);
-                        printerState = PRINTER_STATE_WORKING;
+                        printerState = PRINTER_STATE_WAITING_FOR_USER_INPUT;
                         printerStateCV.notify_all();
                     }
 
-                    if (printerEnabled && !printCanceled && printerManager.getCurrentPrinterState() != STATE_STOPPED) {
-                        gui->addAlert(ALERT_PRINTER_HINT, L"Foto wird gedruckt...", true, true);
+                    if (success) {
+                        gui->updatePreviewImage(imageBuffer, imageInfo.width, imageInfo.height);
+                        gui->notifyFinalImageSent();
+                        selfomatController.showPrinting();
+
+                        // 4500ms from here for the user to decide
+                        boost::this_thread::sleep(boost::posix_time::milliseconds(4500));
+
+                        // Notify the printer thread
+                        {
+                            boost::unique_lock<boost::mutex> lk(printerStateMutex);
+                            printerState = PRINTER_STATE_WORKING;
+                            printerStateCV.notify_all();
+                        }
+
+                        if (printerEnabled && !printCanceled &&
+                            printerManager.getCurrentPrinterState() != STATE_STOPPED) {
+                            gui->addAlert(ALERT_PRINTER_HINT, L"Foto wird gedruckt...", true, true);
+                        }
+                    } else {
+                        LOG_E(TAG, "Got an error while waiting for image");
                     }
                 } else {
-                    LOG_E(TAG, "Got an error");
+                    jpegImageMutex.unlock();
+
+                    // Reset printer thread state to idle
+                    {
+                        boost::unique_lock<boost::mutex> lk(printerStateMutex);
+                        printerState = PRINTER_STATE_IDLE;
+                        printerStateCV.notify_all();
+                    }
+
+                    LOG_E(TAG, "Got an error while triggering");
                 }
 
                 selfomatController.sendPictureTaken();
@@ -503,7 +519,7 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
 
     fclose(fp);
 
-    LOG_D(TAG, "File written to: ",  fullImagePath);
+    LOG_D(TAG, "File written to: ", fullImagePath);
 
     return true;
 }
@@ -725,6 +741,6 @@ bool BoothLogic::getAutofocusBeforeTrigger() {
 void BoothLogic::setAutofocusBeforeTrigger(bool newValue, bool persist) {
     autofocus_before_trigger = newValue;
 
-    if(persist)
+    if (persist)
         writeSettings();
 }
