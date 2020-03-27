@@ -174,7 +174,13 @@ namespace selfomat {
             }
 
             void notifyPreviewIncoming() override {
-                setState(STATE_TRANS_PRINT_PREV1);
+                if(currentState == STATE_BLACK) {
+                    // We're before the final image but we get a new preview - there seems to be an error.
+                    // Go fade to live
+                    setState(STATE_TRANS_PREV2_PREV3);
+                } else {
+                    setState(STATE_TRANS_PRINT_PREV1);
+                }
             }
 
             void showAgreement() override;

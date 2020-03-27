@@ -701,6 +701,7 @@ FILTER BoothLogic::getFilter() {
         case 1:
             return BASIC_FILTER;
     }
+    return NO_FILTER;
 }
 
 bool BoothLogic::isStopped() {
