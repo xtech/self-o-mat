@@ -3488,6 +3488,7 @@
                  * @property {xtech.selfomat.IPostSetting|null} [flashTest] BoothSettings flashTest
                  * @property {xtech.selfomat.IBoolSetting|null} [debugLogEnabled] BoothSettings debugLogEnabled
                  * @property {xtech.selfomat.IReadOnlySetting} triggerCounter BoothSettings triggerCounter
+                 * @property {xtech.selfomat.IReadOnlySetting} softwareVersion BoothSettings softwareVersion
                  */
     
                 /**
@@ -3682,6 +3683,14 @@
                 BoothSettings.prototype.triggerCounter = null;
     
                 /**
+                 * BoothSettings softwareVersion.
+                 * @member {xtech.selfomat.IReadOnlySetting} softwareVersion
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.softwareVersion = null;
+    
+                /**
                  * Creates a new BoothSettings instance using the specified properties.
                  * @function create
                  * @memberof xtech.selfomat.BoothSettings
@@ -3738,6 +3747,7 @@
                     if (message.debugLogEnabled != null && message.hasOwnProperty("debugLogEnabled"))
                         $root.xtech.selfomat.BoolSetting.encode(message.debugLogEnabled, writer.uint32(/* id 240, wireType 2 =*/1922).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.triggerCounter, writer.uint32(/* id 250, wireType 2 =*/2002).fork()).ldelim();
+                    $root.xtech.selfomat.ReadOnlySetting.encode(message.softwareVersion, writer.uint32(/* id 255, wireType 2 =*/2042).fork()).ldelim();
                     return writer;
                 };
     
@@ -3838,6 +3848,9 @@
                         case 250:
                             message.triggerCounter = $root.xtech.selfomat.ReadOnlySetting.decode(reader, reader.uint32());
                             break;
+                        case 255:
+                            message.softwareVersion = $root.xtech.selfomat.ReadOnlySetting.decode(reader, reader.uint32());
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -3865,6 +3878,8 @@
                         throw $util.ProtocolError("missing required 'updateMode'", { instance: message });
                     if (!message.hasOwnProperty("triggerCounter"))
                         throw $util.ProtocolError("missing required 'triggerCounter'", { instance: message });
+                    if (!message.hasOwnProperty("softwareVersion"))
+                        throw $util.ProtocolError("missing required 'softwareVersion'", { instance: message });
                     return message;
                 };
     
@@ -4005,6 +4020,11 @@
                         if (error)
                             return "triggerCounter." + error;
                     }
+                    {
+                        var error = $root.xtech.selfomat.ReadOnlySetting.verify(message.softwareVersion);
+                        if (error)
+                            return "softwareVersion." + error;
+                    }
                     return null;
                 };
     
@@ -4130,6 +4150,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.triggerCounter: object expected");
                         message.triggerCounter = $root.xtech.selfomat.ReadOnlySetting.fromObject(object.triggerCounter);
                     }
+                    if (object.softwareVersion != null) {
+                        if (typeof object.softwareVersion !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.softwareVersion: object expected");
+                        message.softwareVersion = $root.xtech.selfomat.ReadOnlySetting.fromObject(object.softwareVersion);
+                    }
                     return message;
                 };
     
@@ -4169,6 +4194,7 @@
                         object.flashTest = null;
                         object.debugLogEnabled = null;
                         object.triggerCounter = null;
+                        object.softwareVersion = null;
                     }
                     if (message.languageChoice != null && message.hasOwnProperty("languageChoice"))
                         object.languageChoice = $root.xtech.selfomat.ListSetting.toObject(message.languageChoice, options);
@@ -4214,6 +4240,8 @@
                         object.debugLogEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.debugLogEnabled, options);
                     if (message.triggerCounter != null && message.hasOwnProperty("triggerCounter"))
                         object.triggerCounter = $root.xtech.selfomat.ReadOnlySetting.toObject(message.triggerCounter, options);
+                    if (message.softwareVersion != null && message.hasOwnProperty("softwareVersion"))
+                        object.softwareVersion = $root.xtech.selfomat.ReadOnlySetting.toObject(message.softwareVersion, options);
                     return object;
                 };
     

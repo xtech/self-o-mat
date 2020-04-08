@@ -127,4 +127,5 @@ message BoothSettings {
     optional BoolSetting debug_log_enabled = 240;
 
     required ReadOnlySetting trigger_counter = 250;
+    required ReadOnlySetting software_version = 255;
 }

@@ -32,7 +32,8 @@
 			"triggerCounter": "Trigger Counter",
 			"maxLedBrightness": "LED Brightness",
 			"debugLogEnabled": "Debug Mode Enabled",
-			"autofocus_before_trigger": "Autofocus on Trigger (not recommended)"
+			"autofocus_before_trigger": "Autofocus on Trigger (not recommended)",
+			"software_version": "Software Version"
 		},
 		"error": {
 			"noAlpha": "No alpha channel found.",

@@ -32,7 +32,8 @@
 			"triggerCounter": "Auslösezähler",
 			"maxLedBrightness": "LED Helligkeit",
 			"debugLogEnabled": "Debug Modus Aktiviert",
-			"autofocus_before_trigger": "Autofokus bei Aufnahme (nicht empfohlen)"
+			"autofocus_before_trigger": "Autofokus bei Aufnahme (nicht empfohlen)",
+			"software_version": "Software Version"
 		},
 		"error": {
 			"noAlpha": "Keine Transparenz gefunden! Nur an transparenten Stellen im Template wird das Foto sichtbar.",

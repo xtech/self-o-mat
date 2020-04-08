@@ -818,6 +818,13 @@ bool BoothApi::start() {
                     triggerCountSetting->set_value(std::to_string(logic->getTriggerCounter()));
                 }
 
+                {
+                    auto setting = currentBoothSettings.mutable_software_version();
+                    setting->set_name(locale.get<string>("api.booth.software_version"));
+                    setting->set_value("v1.0.7 - 20200408");
+                }
+
+
                 res << currentBoothSettings.SerializeAsString();
             });
 
