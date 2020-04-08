@@ -7,5 +7,6 @@
   "button_port_name": "/dev/ttyS0",
   "image_dir": "/media/usb",
   "show_led_setup": true,
-  "force_image_dir_mountpoint": 1
+  "force_image_dir_mountpoint": 1,
+  "fullscreen": true
 }

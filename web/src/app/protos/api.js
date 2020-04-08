@@ -3466,6 +3466,7 @@
                  * Properties of a BoothSettings.
                  * @memberof xtech.selfomat
                  * @interface IBoothSettings
+                 * @property {xtech.selfomat.IListSetting} languageChoice BoothSettings languageChoice
                  * @property {xtech.selfomat.IBoolSetting} storageEnabled BoothSettings storageEnabled
                  * @property {xtech.selfomat.IBoolSetting} printerEnabled BoothSettings printerEnabled
                  * @property {xtech.selfomat.IListSetting} filterChoice BoothSettings filterChoice
@@ -3503,6 +3504,14 @@
                             if (properties[keys[i]] != null)
                                 this[keys[i]] = properties[keys[i]];
                 }
+    
+                /**
+                 * BoothSettings languageChoice.
+                 * @member {xtech.selfomat.IListSetting} languageChoice
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.languageChoice = null;
     
                 /**
                  * BoothSettings storageEnabled.
@@ -3696,6 +3705,7 @@
                 BoothSettings.encode = function encode(message, writer) {
                     if (!writer)
                         writer = $Writer.create();
+                    $root.xtech.selfomat.ListSetting.encode(message.languageChoice, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.storageEnabled, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.printerEnabled, writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.filterChoice, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
@@ -3762,6 +3772,9 @@
                     while (reader.pos < end) {
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
+                        case 5:
+                            message.languageChoice = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
+                            break;
                         case 10:
                             message.storageEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
@@ -3830,6 +3843,8 @@
                             break;
                         }
                     }
+                    if (!message.hasOwnProperty("languageChoice"))
+                        throw $util.ProtocolError("missing required 'languageChoice'", { instance: message });
                     if (!message.hasOwnProperty("storageEnabled"))
                         throw $util.ProtocolError("missing required 'storageEnabled'", { instance: message });
                     if (!message.hasOwnProperty("printerEnabled"))
@@ -3880,6 +3895,11 @@
                 BoothSettings.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    {
+                        var error = $root.xtech.selfomat.ListSetting.verify(message.languageChoice);
+                        if (error)
+                            return "languageChoice." + error;
+                    }
                     {
                         var error = $root.xtech.selfomat.BoolSetting.verify(message.storageEnabled);
                         if (error)
@@ -4000,6 +4020,11 @@
                     if (object instanceof $root.xtech.selfomat.BoothSettings)
                         return object;
                     var message = new $root.xtech.selfomat.BoothSettings();
+                    if (object.languageChoice != null) {
+                        if (typeof object.languageChoice !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.languageChoice: object expected");
+                        message.languageChoice = $root.xtech.selfomat.ListSetting.fromObject(object.languageChoice);
+                    }
                     if (object.storageEnabled != null) {
                         if (typeof object.storageEnabled !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.storageEnabled: object expected");
@@ -4122,6 +4147,7 @@
                         options = {};
                     var object = {};
                     if (options.defaults) {
+                        object.languageChoice = null;
                         object.storageEnabled = null;
                         object.printerEnabled = null;
                         object.filterChoice = null;
@@ -4144,6 +4170,8 @@
                         object.debugLogEnabled = null;
                         object.triggerCounter = null;
                     }
+                    if (message.languageChoice != null && message.hasOwnProperty("languageChoice"))
+                        object.languageChoice = $root.xtech.selfomat.ListSetting.toObject(message.languageChoice, options);
                     if (message.storageEnabled != null && message.hasOwnProperty("storageEnabled"))
                         object.storageEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.storageEnabled, options);
                     if (message.printerEnabled != null && message.hasOwnProperty("printerEnabled"))

@@ -80,6 +80,15 @@ namespace selfomat {
 
 
         private:
+
+            // TODO: maybe migrate from std::wstring to std::string or convert on load
+            std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+            const std::vector<std::string> languageNames { "English (EN)", "German (DE)" };
+            const std::vector<std::string> languageIDs { "en", "de" };
+            int languageChoice = 0;
+            boost::property_tree::ptree locale;
+
+
             static std::string TAG;
             SelfomatController selfomatController;
             bool show_led_setup;
@@ -237,6 +246,11 @@ namespace selfomat {
             void setAutofocusBeforeTrigger(bool newValue, bool persist = false);
             bool getAutofocusBeforeTrigger();
 
+            const std::vector<std::string> * getLanguageChoices();
+            int getLanguageChoice();
+            void setLanguageChoice(int choice, bool persist = false);
+
+            std::wstring getTranslation(std::string id);
         };
 
     }

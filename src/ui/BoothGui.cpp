@@ -9,13 +9,14 @@ using namespace selfomat::ui;
 
 std::string BoothGui::TAG = "BOOTH_GUI";
 
-BoothGui::BoothGui(bool debug, logic::ILogicController *logicController) : debugLogQueue(), stateTimer(), alertTimer() {
+BoothGui::BoothGui(bool fullscreen, bool debug, logic::ILogicController *logicController) : debugLogQueue(), stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
     this->currentState = STATE_INIT;
     this->shouldShowAgreement = false;
     this->debug = debug;
     this->logicController = logicController;
+    this->fullscreen = fullscreen;
 }
 
 BoothGui::~BoothGui() {
@@ -134,7 +135,9 @@ void BoothGui::renderThread() {
     settings.antialiasingLevel = 8;
     settings.majorVersion = 2;
     settings.minorVersion = 1;
-    window.create(videoMode, "self-o-mat", sf::Style::Fullscreen, settings);
+    auto style = fullscreen ? sf::Style::Fullscreen : sf::Style::Default;
+
+    window.create(videoMode, "self-o-mat", style, settings);
 
     window.setVerticalSyncEnabled(true);
 
@@ -475,7 +478,7 @@ void BoothGui::drawPrintOverlay(float percentage) {
     printBackground.setPosition(0, templateY);
     window.draw(printBackground);
 
-    printText.setString(L"Druck abbrechen?");
+    printText.setString(logicController->getTranslation("frontend.cancel_print"));
     sf::FloatRect textRect = printText.getLocalBounds();
     printText.setPosition((window.getSize().x - textRect.width) / 2.0f, templateY + 10);
     window.draw(printText);
@@ -498,8 +501,8 @@ void BoothGui::drawPrintOverlay(float percentage) {
 }
 
 void BoothGui::drawAgreement(float alpha) {
-    std::wstring title = L"Nutzungsbedingungen";
-    std::wstring button = L"Akzeptieren?";
+    std::wstring title = L"MIT Software License";
+    std::wstring button = L"Accept?";
     std::vector<std::wstring> blocks;
     u_int8_t lines = 0;
     u_int8_t margin = 50;

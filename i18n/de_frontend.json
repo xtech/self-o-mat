@@ -1,0 +1,13 @@
+{
+  "frontend": {
+    "adjusting_focus": "Fokus wird gesucht",
+    "template_saved": "Template wurde gespeichert",
+    "print_in_progress": "Foto wird gedruckt...",
+    "printer_error": "Drucker wurde gestoppt",
+    "check_camera": "Prüfe deine Kamera",
+    "no_storage_found": "Kein Speichermedium gefunden",
+    "storage_space_low": "Geringe Speicherkapazität: ",
+    "storage_error": "Fehler beim Speichern des Fotos",
+    "cancel_print": "Druck abbrechen?"
+  }
+}

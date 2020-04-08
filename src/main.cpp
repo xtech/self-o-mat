@@ -121,6 +121,7 @@ int main(int argc, char *argv[]) {
     bool show_led_setup = false;
     bool force_image_dir_mountpoint = true;
     bool autofocus_before_trigger = false;
+    bool fullscreen = true;
     string button_port_name;
     string image_dir;
 
@@ -146,6 +147,7 @@ int main(int argc, char *argv[]) {
         show_led_setup = ptree.get<bool>("show_led_setup");
         force_image_dir_mountpoint = ptree.get<bool>("force_image_dir_mountpoint", true);
         autofocus_before_trigger = ptree.get<bool>("autofocus_before_trigger", false);
+        fullscreen = ptree.get<bool>("fullscreen", true);
     } catch (boost::exception &e) {
         LOG_E(TAG, "Error loading properties. Using defaults.");
     }
@@ -156,10 +158,11 @@ int main(int argc, char *argv[]) {
     LOG_D(TAG, "Has Flash: ", std::to_string(has_flash));
     LOG_D(TAG, "Force Imagedir mountpoint: ", std::to_string(force_image_dir_mountpoint));
     LOG_D(TAG, "Autofocus Before Trigger: ", std::to_string(autofocus_before_trigger));
+    LOG_D(TAG, "Fullscreen: ", std::to_string(fullscreen));
 
 
     // We'll set the controller later when logic is initialized
-    BoothGui *boothGuiPtr = new BoothGui(debug, nullptr);
+    BoothGui *boothGuiPtr = new BoothGui(fullscreen, debug, nullptr);
     p_gui = boothGuiPtr;
     if (!p_gui->start()) {
         LOG_E(TAG, "Error starting gui - Exiting.");

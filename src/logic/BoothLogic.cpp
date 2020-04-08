@@ -208,7 +208,7 @@ void BoothLogic::cameraThread() {
 
                         if (printerEnabled && !printCanceled &&
                             printerManager.getCurrentPrinterState() != STATE_STOPPED) {
-                            gui->addAlert(ALERT_PRINTER_HINT, L"Foto wird gedruckt...", true, true);
+                            gui->addAlert(ALERT_PRINTER_HINT, getTranslation("frontend.print_in_progress"), true, true);
                         }
                     } else {
                         LOG_E(TAG, "Got an error while waiting for image");
@@ -280,7 +280,7 @@ void BoothLogic::logicThread() {
         // check the printer state
         printerManager.refreshPrinterState();
         if (printerManager.getCurrentPrinterState() == STATE_STOPPED && printerEnabled) {
-            gui->addAlert(ALERT_PRINTER, L"Drucker wurde gestoppt");
+            gui->addAlert(ALERT_PRINTER, getTranslation("frontend.printer_error"));
         } else {
             gui->removeAlert(ALERT_PRINTER);
         }
@@ -288,7 +288,7 @@ void BoothLogic::logicThread() {
 
         // check the camera state
         if (camera->getState() != STATE_WORKING) {
-            gui->addAlert(ALERT_CAMERA, L"Prüfe deine Kamera");
+            gui->addAlert(ALERT_CAMERA, getTranslation("frontend.check_camera"));
         } else {
             gui->removeAlert(ALERT_CAMERA);
         }
@@ -296,9 +296,9 @@ void BoothLogic::logicThread() {
         int freeStorage = getFreeStorageSpaceMB();
         if (freeStorage < 500) {
             if (freeStorage == -1)
-                gui->addAlert(ALERT_STORAGE, L"Kein Speichermedium gefunden");
+                gui->addAlert(ALERT_STORAGE, getTranslation("frontend.no_storage_found"));
             else
-                gui->addAlert(ALERT_STORAGE, L"Geringe Speicherkapazität: " + to_wstring(freeStorage) + L"MB");
+                gui->addAlert(ALERT_STORAGE, getTranslation("frontend.storage_space_low") + to_wstring(freeStorage) + L"MB");
         } else {
             gui->removeAlert(ALERT_STORAGE);
         }
@@ -471,7 +471,7 @@ bool BoothLogic::isMountpoint(std::string folder) {
 bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool showAlert) {
     auto success = saveImage(data, size, filename);
     if (!success && showAlert) {
-        gui->addAlert(ALERT_STORAGE_ERROR, L"Fehler beim Speichern des Fotos", true);
+        gui->addAlert(ALERT_STORAGE_ERROR, getTranslation("frontend.storage_error"), true);
     }
 
     return success;
@@ -581,6 +581,8 @@ void BoothLogic::readSettings() {
     setFilterGain(ptree.get<double>("filter_gain", 1.0));
     setDebugLogEnabled(ptree.get<bool>("debug_log_enabled", false));
     setAutofocusBeforeTrigger(ptree.get<bool>("autofocus_before_trigger", false));
+    setLanguageChoice(ptree.get<int>("frontend_language_choice", 0));
+
 
     if (!success)
         writeSettings();
@@ -598,6 +600,7 @@ void BoothLogic::writeSettings() {
     ptree.put("filter_choice", filterChoice);
     ptree.put("debug_log_enabled", getDebugLogEnabled());
     ptree.put("autofocus_before_trigger", this->autofocus_before_trigger);
+    ptree.put("frontend_language_choice", this->languageChoice);
 
     try {
         boost::property_tree::write_json(std::string(getenv("HOME")) + "/.selfomat_settings.json", ptree);
@@ -640,7 +643,9 @@ bool BoothLogic::getTemplateLoaded() {
 
 void BoothLogic::adjustFocus() {
     camera->autofocusBlocking();
-    gui->addAlert(ALERT_CAMERA_HINT, L"Fokus wird gesucht", true, true);
+
+
+    gui->addAlert(ALERT_CAMERA_HINT, getTranslation("frontend.adjusting_focus"), true, true);
 }
 
 SelfomatController *BoothLogic::getSelfomatController() {
@@ -661,7 +666,7 @@ bool BoothLogic::updateTemplate(void *data, size_t size) {
     bool result = imageProcessor.updateTemplate(data, size);
     gui->reloadTemplate();
     if (result) {
-        gui->addAlert(ALERT_TEMPLATE, L"Template wurde gespeichert", true, true);
+        gui->addAlert(ALERT_TEMPLATE, getTranslation("frontend.template_saved"), true, true);
     }
     return result;
 }
@@ -676,6 +681,32 @@ int BoothLogic::getFilterChoice() {
 
 void BoothLogic::setFilterChoice(int choice, bool persist) {
     filterChoice = choice;
+    if (persist) {
+        writeSettings();
+    }
+}
+
+const std::vector<std::string> *BoothLogic::getLanguageChoices() {
+    return &languageNames;
+}
+
+int BoothLogic::getLanguageChoice() {
+    return languageChoice;
+}
+
+void BoothLogic::setLanguageChoice(int choice, bool persist) {
+    if(choice < 0 || choice >= languageIDs.size()) {
+        choice = 0;
+    }
+    languageChoice = choice;
+
+    // load the language into the property tree
+    try {
+        boost::property_tree::read_json("./i18n/" + languageIDs[choice] + "_frontend.json", locale);
+    } catch (boost::exception &e) {
+        boost::property_tree::read_json("./i18n/en_frontend.json", locale);
+    }
+
     if (persist) {
         writeSettings();
     }
@@ -744,4 +775,8 @@ void BoothLogic::setAutofocusBeforeTrigger(bool newValue, bool persist) {
 
     if (persist)
         writeSettings();
+}
+
+std::wstring BoothLogic::getTranslation(std::string id) {
+    return converter.from_bytes(locale.get<string>(id));
 }

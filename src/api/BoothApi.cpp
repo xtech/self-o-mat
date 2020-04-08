@@ -559,6 +559,19 @@ bool BoothApi::start() {
             });
 
 
+    mux.handle("/booth_settings/language/which")
+            .post([this](served::response &res, const served::request &req) {
+                IntUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setLanguageChoice(update.value(), true);
+
+                served::response::stock_reply(200, res);
+            });
+
     mux.handle("/booth_settings/filter/which")
             .post([this](served::response &res, const served::request &req) {
                 IntUpdate update;
@@ -596,7 +609,19 @@ bool BoothApi::start() {
                     boost::property_tree::read_json("./i18n/en.json", locale);
                 }
 
+
+
                 auto controller = logic->getSelfomatController();
+
+                {
+                    auto setting = currentBoothSettings.mutable_language_choice();
+                    setting->set_name(locale.get<string>("api.booth.languageChoice"));
+                    setting->set_update_url("/booth_settings/language/which");
+                    setting->set_currentindex(logic->getLanguageChoice());
+                    for(auto &choice : *logic->getLanguageChoices())
+                        setting->add_values(choice);
+                }
+
                 {
                     auto setting = currentBoothSettings.mutable_storage_enabled();
                     setting->set_name(locale.get<string>("api.booth.storageEnabled"));

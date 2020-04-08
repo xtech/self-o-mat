@@ -323,6 +323,7 @@ export namespace xtech {
         }
 
         interface IBoothSettings {
+            languageChoice: xtech.selfomat.IListSetting;
             storageEnabled: xtech.selfomat.IBoolSetting;
             printerEnabled: xtech.selfomat.IBoolSetting;
             filterChoice: xtech.selfomat.IListSetting;
@@ -348,6 +349,7 @@ export namespace xtech {
 
         class BoothSettings implements IBoothSettings {
             constructor(properties?: xtech.selfomat.IBoothSettings);
+            public languageChoice: xtech.selfomat.IListSetting;
             public storageEnabled: xtech.selfomat.IBoolSetting;
             public printerEnabled: xtech.selfomat.IBoolSetting;
             public filterChoice: xtech.selfomat.IListSetting;

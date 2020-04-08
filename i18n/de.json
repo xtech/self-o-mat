@@ -11,6 +11,7 @@
 			"cameraName": "Kamera-Modell"
 		},
 		"booth": {
+			"languageChoice": "Anzeigesprache",
 			"storageEnabled": "USB-Speicher aktivieren?",
 			"printerEnabled": "Drucker aktivieren?",
 			"filterEnabled": "Filter-Modus",

@@ -42,7 +42,7 @@ namespace selfomat {
 
         class BoothGui : public IGui {
         public:
-            explicit BoothGui(bool debug, logic::ILogicController *logicController);
+            explicit BoothGui(bool fullscreen, bool debug, logic::ILogicController *logicController);
 
         private:
 
@@ -53,6 +53,7 @@ namespace selfomat {
             bool isRunning;
 
             bool debug;
+            bool fullscreen;
 
             bool printerEnabled;
             bool templateEnabled;
