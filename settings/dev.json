@@ -1,5 +1,5 @@
 {
-  "camera_type": "opencv",
+  "camera_type": "gphoto",
   "has_flash": false,
   "has_button": false,
   "disable_watchdog": false,

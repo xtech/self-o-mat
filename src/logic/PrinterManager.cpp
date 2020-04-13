@@ -246,5 +246,6 @@ bool PrinterManager::prepareImageForPrint(cv::Mat image) {
 bool PrinterManager::cancelPrint() {
     hasImagePrepared = false;
     sizeOfPreparedImage = 0;
+    return true;
 }
 

@@ -49,6 +49,7 @@ namespace selfomat {
 
                 bool setTriggerChoice(int choice) {
                     preTriggerChoice = choice;
+                    return true;
                 }
 
                 int getTriggerChoice() {

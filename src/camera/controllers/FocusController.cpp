@@ -28,15 +28,18 @@ bool FocusController::focus() {
     int value = 1;
     auto retval = gp_widget_set_value(focusWidget, &value);
     if (retval != GP_OK) {
-        LOG_E(TAG, "Error triggering capture");
+        LOG_E(TAG, "Error starting focus");
         return false;
     }
+    LOG_D(TAG, "Set focus, transmitting to camera");
+
 
     retval = gp_camera_set_config(camera, rootWidget, gp);
     if (retval != GP_OK) {
         LOG_E(TAG, "Error transmitting new value to cam with error ", gp_result_as_string(retval));
         return false;
     }
+    LOG_D(TAG, "Focus transmitted to camera successfully");
 
     return true;
 }
@@ -48,7 +51,7 @@ bool FocusController::stopFocus() {
     int value = 0;
     auto retval = gp_widget_set_value(focusWidget, &value);
     if (retval != GP_OK) {
-        LOG_E(TAG, "Error triggering capture");
+        LOG_E(TAG, "Error stopping focus");
         return false;
     }
 

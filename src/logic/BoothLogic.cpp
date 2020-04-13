@@ -642,6 +642,14 @@ bool BoothLogic::getTemplateLoaded() {
 
 
 void BoothLogic::adjustFocus() {
+    if(camera == nullptr) {
+        LOG_E("BoothLogic", "Error: Camera was null");
+        return;
+    }
+    if(camera->getState() != CameraState::STATE_WORKING) {
+        LOG_E("BoothLogic", "Error: Camera not currently working");
+        return;
+    }
     camera->autofocusBlocking();
 
 

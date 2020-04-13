@@ -412,6 +412,7 @@ const vector<string> * const GphotoCamera::getShootingModeChoices() {
 
 bool GphotoCamera::autofocusBlocking() {
     trigger_focus = true;
+    return true;
 }
 
 const vector<string> * const GphotoCamera::getExposureCorrectionModeChoices() {
