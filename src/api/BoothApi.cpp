@@ -821,7 +821,7 @@ bool BoothApi::start() {
                 {
                     auto setting = currentBoothSettings.mutable_software_version();
                     setting->set_name(locale.get<string>("api.booth.software_version"));
-                    setting->set_value("v1.0.8 - 20200413");
+                    setting->set_value("v1.0.9 - 20200417");
                 }
 
 
