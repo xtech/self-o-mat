@@ -272,7 +272,7 @@ void BoothLogic::logicThread() {
             size_t rawSize = 0;
             std::string rawFilename;
             if (camera->getLastRawImage(&rawBuffer, &rawSize, &rawFilename)) {
-                saveImage(rawBuffer, rawSize, rawFilename, true);
+                saveImage(rawBuffer, rawSize, rawFilename, false, true);
                 free(rawBuffer);
             }
         }
@@ -361,12 +361,20 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(jpegImageMutex);
 
                 // first we save the image
-                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, true);
+                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, false, true);
 
                 cv::Mat toPrepare;
                 if (templateEnabled) {
                     toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(),
                                                                   filterGain);
+                    // Store a copy of the image
+                    LOG_D(TAG, "[Printer Thread] Saving an edited copy of the image");
+
+                    std::vector<uchar> framedJpegBuffer;
+                    cv::imencode(".jpg", toPrepare, framedJpegBuffer);
+                    saveImage(framedJpegBuffer.data(), framedJpegBuffer.size(), latestJpegFileName, true, true);
+
+                    LOG_D(TAG, "[Printer Thread] finished encoding and saving the copy");
                 } else {
                     toPrepare = imageProcessor.decodeImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(),
                                                                    filterGain);
@@ -402,7 +410,22 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(jpegImageMutex);
 
                 // we only need to save the image
-                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, true);
+                saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, false, true);
+
+                // If the template is enabled, create and save the edited version
+                if (templateEnabled) {
+                    cv::Mat edited;
+                    edited = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(),
+                                                                  filterGain);
+                    // Store a copy of the image
+                    LOG_D(TAG, "[Printer Thread] Saving an edited copy of the image");
+
+                    std::vector<uchar> framedJpegBuffer;
+                    cv::imencode(".jpg", edited, framedJpegBuffer);
+                    saveImage(framedJpegBuffer.data(), framedJpegBuffer.size(), latestJpegFileName, true, true);
+
+                    LOG_D(TAG, "[Printer Thread] finished encoding and saving the copy");
+                }
             }
 
             // wait for logic thread
@@ -468,8 +491,8 @@ bool BoothLogic::isMountpoint(std::string folder) {
     return file_stat.st_dev != parent_stat.st_dev;
 }
 
-bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool showAlert) {
-    auto success = saveImage(data, size, filename);
+bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool is_edited, bool showAlert) {
+    auto success = saveImage(data, size, filename, is_edited);
     if (!success && showAlert) {
         gui->addAlert(ALERT_STORAGE_ERROR, getTranslation("frontend.storage_error"), true);
     }
@@ -477,7 +500,7 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool s
     return success;
 }
 
-bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
+bool BoothLogic::saveImage(void *data, size_t size, std::string filename, bool is_edited) {
     if (!storageEnabled) {
         return true;
     }
@@ -499,6 +522,9 @@ bool BoothLogic::saveImage(void *data, size_t size, std::string filename) {
     std::string fullImagePath = imageDir;
 
     fullImagePath += "/";
+    if(is_edited) {
+        fullImagePath += "edited_";
+    }
     fullImagePath += to_string((long) time);
     fullImagePath += "_";
     fullImagePath += filename;
