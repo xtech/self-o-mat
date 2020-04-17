@@ -1,0 +1,13 @@
+{
+  "frontend": {
+    "adjusting_focus": "Mise au point...",
+    "template_saved": "Gabarit chargé avec succès.",
+    "print_in_progress": "Impression en cours...",
+    "printer_error": "Erreur d'impression !",
+    "check_camera": "Veuillez vérifier votre caméra.",
+    "no_storage_found": "Clé USB introuvable.",
+    "storage_space_low": "Clé USB pleine : ",
+    "storage_error": "Erreur d'écriture sur la clé USB.",
+    "cancel_print": "Annuler l'impression ?"
+  }
+}

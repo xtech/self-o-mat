@@ -9,7 +9,7 @@ export class LanguageService {
 
   constructor(private translate: TranslateService) {
     const language = this.translate.getBrowserLang();
-    this.translate.setDefaultLang(language);
-    this.translate.use(language)
+    this.translate.setDefaultLang('en');
+    this.translate.use(language);
   }
 }

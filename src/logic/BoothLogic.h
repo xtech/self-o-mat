@@ -83,8 +83,8 @@ namespace selfomat {
 
             // TODO: maybe migrate from std::wstring to std::string or convert on load
             std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-            const std::vector<std::string> languageNames { "English (EN)", "German (DE)" };
-            const std::vector<std::string> languageIDs { "en", "de" };
+            const std::vector<std::string> languageNames { "English (EN)", "German (DE)", "French (FR)" };
+            const std::vector<std::string> languageIDs { "en", "de", "fr" };
             int languageChoice = 0;
             boost::property_tree::ptree locale;
 
