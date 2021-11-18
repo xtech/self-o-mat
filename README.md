@@ -1,7 +1,5 @@
 # The self-o-mat Project
 
-## [Try our free live demo!](https://live.self-o-mat.de/)
-
 <a href="https://www.youtube.com/watch?v=fj-s72GkQOo"/><img src="https://github.com/xtech/self-o-mat/raw/master/images/self-o-mat-youtube.png" /></a>
 
 The self-o-mat project started with the desire to build an __inexpensive photobooth__ for personal use which is able to produce __high quality images__ using __DSLR cameras__. Since we wanted to build a solution for personal use, the project needed to run on inexpensive hardware and work with our DSLR cameras. Sadly we did not find a project which is able to deliver this - so the self-o-mat project was born.
