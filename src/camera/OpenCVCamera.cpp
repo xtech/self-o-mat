@@ -4,6 +4,18 @@
 
 #include "OpenCVCamera.h"
 
+/* Some OpenCV definitions are outdated/ have been renamed and moved into the `cv` namespace;
+ * see also: https://stackoverflow.com/questions/57982505/opencv-4-cap-prop-pos-frames-was-not-declared-in-this-scope
+ * Conditionally defining the macros by the preprocessor if they don't already exist shouldn't 
+ * break the build for older OpenCV versions but fix it for newer ones.
+ */
+#ifndef CV_CAP_PROP_FRAME_WIDTH
+    #define CV_CAP_PROP_FRAME_WIDTH     cv::CAP_PROP_FRAME_WIDTH
+#endif
+#ifndef CV_CAP_PROP_FRAME_HEIGHT
+    #define CV_CAP_PROP_FRAME_HEIGHT    cv::CAP_PROP_FRAME_HEIGHT
+#endif
+
 using namespace selfomat::camera;
 
 std::string OpenCVCamera::TAG = "OPENCV_CAMERA";
