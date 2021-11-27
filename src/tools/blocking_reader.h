@@ -28,6 +28,18 @@
 #include <iostream>
 #include <tools/verbose.h>
 
+/* Use the following macro to allow builds for different boost library versions;
+ * inspired by: https://stackoverflow.com/a/67773642/1627585
+ */
+#if BOOST_VERSION >= 107000
+#define GET_IO_SERVICE(s) ((boost::asio::io_context&)(s).get_executor().context())
+#else
+#define GET_IO_SERVICE(s) ((s).get_io_service())
+#endif
+
+#define BRDR_TAG "BLOCKING_READER"
+
+
 using namespace selfomat::tools;
 
 class blocking_reader
@@ -41,10 +53,11 @@ class blocking_reader
     // Called when an async read completes or has been cancelled
     void read_complete(const boost::system::error_code& error,
                        size_t bytes_transferred) {
+        LOG_D(BRDR_TAG, "read complete: bytes_transferred=" + std::to_string(bytes_transferred));
         read_error = (error || bytes_transferred == 0);
 
         if(read_error) {
-            LOG_E("BLOCKING_READER", "error: ", error.message());
+            LOG_E(BRDR_TAG, "boost error message: ", error.message());
         }
 
         // Read has finished, so cancel the
@@ -54,11 +67,12 @@ class blocking_reader
 
     // Called when the timer's deadline expires.
     void time_out(const boost::system::error_code& error) {
-        // Was the timeout was cancelled?
+        // Was the timeout cancelled?
         if (error) {
             // yes
             return;
         }
+        LOG_D(BRDR_TAG, "timeout");
 
         // no, we have timed out, so kill
         // the read operation
@@ -73,7 +87,7 @@ public:
     // a timeout in milliseconds.
     blocking_reader(boost::asio::serial_port& port, size_t timeout) :
             port(port), timeout(timeout),
-            timer(port.get_io_service()),
+            timer( GET_IO_SERVICE(port) ),
             read_error(true) {
 
     }
@@ -86,8 +100,7 @@ public:
 
         // After a timeout & cancel it seems we need
         // to do a reset for subsequent reads to work.
-        port.get_io_service().reset();
-
+        GET_IO_SERVICE(port).reset();
 
         // Asynchronously read 1 character.
         boost::asio::async_read(port, boost::asio::buffer(&c, 1),
@@ -97,6 +110,7 @@ public:
                                             boost::asio::placeholders::bytes_transferred));
 
         // send the request
+        LOG_D(BRDR_TAG, "Sending request (size: " + std::to_string(request_size) + ")");
         port.write_some(boost::asio::buffer(request, request_size));
 
         // Setup a deadline time to implement our timeout.
@@ -106,7 +120,7 @@ public:
 
         // This will block until a character is read
         // or until the it is cancelled.
-        port.get_io_service().run();
+        GET_IO_SERVICE(port).run();
 
         if (!read_error)
             val = c;

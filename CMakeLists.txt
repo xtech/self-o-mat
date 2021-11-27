@@ -18,7 +18,14 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/protobuf/api.pb.cc ${C
 
 
 find_package(OpenCV REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system thread filesystem)
+find_package(Boost REQUIRED)
+if(Boost_FOUND)
+    if(${Boost_VERSION} VERSION_GREATER_EQUAL 1.70)
+        find_package(Boost REQUIRED COMPONENTS system thread filesystem chrono)
+    else()
+        find_package(Boost REQUIRED COMPONENTS system thread filesystem)
+    endif()
+endif()
 find_package(Cups REQUIRED)
 find_package(Protobuf REQUIRED)
 

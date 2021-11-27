@@ -10,6 +10,20 @@
 #include <opencv2/opencv.hpp>
 #include <SFML/System/Clock.hpp>
 
+/* Some OpenCV definitions are outdated/ have been renamed and moved into the `cv` namespace;
+ * see also: https://stackoverflow.com/questions/57982505/opencv-4-cap-prop-pos-frames-was-not-declared-in-this-scope
+ * Conditionally defining the macros by the preprocessor if they don't already exist shouldn't 
+ * break the build for older OpenCV versions but fix it for newer ones.
+ */
+#ifndef CV_CAP_PROP_POS_FRAMES
+    #define CV_CAP_PROP_POS_FRAMES      cv::CAP_PROP_POS_FRAMES
+#endif
+#ifndef CV_CAP_PROP_FRAME_COUNT
+    #define CV_CAP_PROP_FRAME_COUNT     cv::CAP_PROP_FRAME_COUNT
+#endif
+#ifndef CV_CAP_PROP_FPS
+    #define CV_CAP_PROP_FPS             cv::CAP_PROP_FPS
+#endif
 
 namespace selfomat {
     namespace camera {
