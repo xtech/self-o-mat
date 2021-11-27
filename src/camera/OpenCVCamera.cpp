@@ -145,11 +145,11 @@ bool OpenCVCamera::autofocusBlocking() {
 
 
 string OpenCVCamera::getCameraName() {
-    return std::__cxx11::string();
+    return std::string();
 }
 
 string OpenCVCamera::getLensName() {
-    return std::__cxx11::string();
+    return std::string();
 }
 
 int OpenCVCamera::getExposureCorrection() {
