@@ -72,13 +72,16 @@ cmake ..
 make
 ```
 
-4. Edit settings.json to match your setup
+4. Tell your system which type of self-o-mat you are running. For development config use 'dev' by running:
+   ``sudo bash -c 'echo "dev" > /opt/.selfomat.type'``
 
-5. Run self-o-mat
+5. Edit settings/dev.json to match your setup. It should work with an Arduino Nano by default.
+
+6. Run the self-o-mat photo-booth software:
 ```
 #setup your installation
-cd <source dir>
-build/self_o_mat
+cd <source dir>/build
+./self_o_mat.app
 ```
 
 # Now what?

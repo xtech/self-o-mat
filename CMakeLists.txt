@@ -92,3 +92,4 @@ add_custom_target(WITH_APP /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/deploy_app.sh ${C
 add_custom_target(PACK /bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/pack.sh ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_dependencies(PACK self_o_mat.app)
+add_dependencies(self_o_mat.app WITH_APP)
