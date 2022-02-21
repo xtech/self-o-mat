@@ -39,6 +39,9 @@ Currently the self-o-mat software is a basic but stable and reliable software wi
 # How to get started?
 Getting started with self-o-mat is simple. You just need to clone the git repository, install the dependencies, build the software and run it.
 __If you're not sure how to do this, we provide a hardware kit which includes the precompiled software fully installed. Just plug and play: [Get it here!](https://shop.self-o-mat.de/fotobox-bausatz/37-hardware-kit.html)__
+
+ℹ️ For more information, check the wiki here: https://github.com/xtech/self-o-mat/wiki
+
 ## Clone
 
 ```git clone --recursive https://github.com/xtech/self-o-mat.git```
@@ -104,6 +107,8 @@ __You can [Get the controller board here!](https://shop.self-o-mat.de/zubehoer/2
 
 ### The DIY Solution
 Self-o-mat is triggered by sending commands to the serial console. In order to trigger the software, use any Arduino board and write the trigger signals to the serial port. Serial settings and protocol can be adjusted in the software.
+
+If you want to build your own controller board using an arduino, follow this Wiki article: https://github.com/xtech/self-o-mat/wiki/Controller-board
 
 ## Flash
 
