@@ -11,6 +11,7 @@
 			"cameraName": "Kamera-Modell"
 		},
 		"booth": {
+			"newTestSetting": "Hallo @maehw!",
 			"languageChoice": "Anzeigesprache",
 			"storageEnabled": "USB-Speicher aktivieren?",
 			"printerEnabled": "Drucker aktivieren?",
