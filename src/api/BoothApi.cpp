@@ -614,6 +614,14 @@ bool BoothApi::start() {
                 auto controller = logic->getSelfomatController();
 
                 {
+                    auto setting = currentBoothSettings.mutable_new_test_setting();
+                    setting->set_name(locale.get<string>("api.booth.newTestSetting"));
+                    setting->set_update_url("/booth_settings/new_test_setting");
+                    // TODO: return actual value here ;-)
+                    setting->set_currentvalue(true);
+                }
+
+                {
                     auto setting = currentBoothSettings.mutable_language_choice();
                     setting->set_name(locale.get<string>("api.booth.languageChoice"));
                     setting->set_update_url("/booth_settings/language/which");

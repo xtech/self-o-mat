@@ -97,6 +97,7 @@ message CameraSettings {
 }
 
 message BoothSettings {
+    required BoolSetting new_test_setting = 1;
     required ListSetting language_choice = 5;
 
     required BoolSetting storage_enabled = 10;
