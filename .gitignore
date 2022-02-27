@@ -41,6 +41,8 @@ src/protobuf/**
 # CLion Files
 .idea/**
 
+# WWW resources
+web/www
 
 # OS generated files #
 ######################
