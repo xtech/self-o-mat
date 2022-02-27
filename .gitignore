@@ -42,7 +42,7 @@ src/protobuf/**
 .idea/**
 
 # WWW resources
-web/www
+web/www/**
 
 # OS generated files #
 ######################
