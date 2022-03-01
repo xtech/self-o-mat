@@ -156,13 +156,11 @@ void BoothLogic::cameraThread() {
                     printerStateCV.notify_all();
                 }
 
-                cancelPrintMutex.lock();
+                // Initial condition: the print is neither canceled nor confirmed
+                cancelOrConfirmPrintMutex.lock();
                 printCanceled = false;
-                cancelPrintMutex.unlock();
-
-                confirmPrintMutex.lock();
                 printConfirmed = false;
-                confirmPrintMutex.unlock();
+                cancelOrConfirmPrintMutex.unlock();
 
                 // Get the mutex for the last jpeg image. We should have no problem doing this
                 jpegImageMutex.lock();
@@ -339,17 +337,17 @@ void BoothLogic::trigger() {
 }
 
 void BoothLogic::cancelPrint() {
-    cancelPrintMutex.lock();
+    cancelOrConfirmPrintMutex.lock();
     printCanceled = true;
     gui->cancelPrint();
-    cancelPrintMutex.unlock();
+    cancelOrConfirmPrintMutex.unlock();
 }
 
 void BoothLogic::confirmPrint() {
-    confirmPrintMutex.lock();
+    cancelOrConfirmPrintMutex.lock();
     printConfirmed = true;
     gui->confirmPrint();
-    confirmPrintMutex.unlock();
+    cancelOrConfirmPrintMutex.unlock();
 }
 
 void BoothLogic::printerThread() {
@@ -409,24 +407,24 @@ void BoothLogic::printerThread() {
 
             // We need the info if the user wants to print or not
             if (printConfirmationEnabled) {
-                // only print with confirmation
-                boost::unique_lock<boost::mutex> lk(confirmPrintMutex);
+                // only print with user confirmation (auto-cancling)
+                boost::unique_lock<boost::mutex> lk(cancelOrConfirmPrintMutex);
                 if (printConfirmed) {
                     LOG_D(TAG, "[Printer Thread] Printing (user explicitely confirmed)");
                     printerManager.printImage();
                 } else {
-                    LOG_D(TAG, "[Printer Thread] Print not confirmed!");
+                    LOG_D(TAG, "[Printer Thread] Print not confirmed (auto-canceling)!");
                     printerManager.cancelPrint();
                 }
             }
             else {
-                // only print when not canceled
-                boost::unique_lock<boost::mutex> lk(cancelPrintMutex);
+                // only print when not print request is not canceled by user (auto-print)
+                boost::unique_lock<boost::mutex> lk(cancelOrConfirmPrintMutex);
                 if (!printCanceled) {
                     LOG_D(TAG, "[Printer Thread] Printing (user did not cancel)");
                     printerManager.printImage();
                 } else {
-                    LOG_D(TAG, "[Printer Thread] Print canceled!");
+                    LOG_D(TAG, "[Printer Thread] Print canceled by user!");
                     printerManager.cancelPrint();
                 }
             }

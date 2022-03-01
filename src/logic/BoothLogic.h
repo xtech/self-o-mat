@@ -122,11 +122,14 @@ namespace selfomat {
             // We have a second thread running which first tries to get the jpegImageMutex
             // as soon as it has the jpegImageMutex it prepares for printing.
             boost::mutex jpegImageMutex;
-            // Then the thread waits for the cancelPrintMutex. As soon as it has the cancelPrintMutex it checks if it
-            // really needs to print or not. if it wants to print it prints.
-            // Finally it unlocks both mutex and exits
-            boost::mutex cancelPrintMutex;
-            boost::mutex confirmPrintMutex;
+            // Then the thread waits for the cancelOrConfirmPrintMutex.
+            // As soon as it has the cancelOrConfirmPrintMutex it checks if it
+            // really needs to print or not. If it wants to print it prints.
+            // Finally it unlocks both mutexes and exits
+            boost::mutex cancelOrConfirmPrintMutex;
+            // Depending on the setting of printConfirmationEnabled a print
+            // - either starts automatically if not canceled by the user
+            // - or does not auto-start and needs to be confirmed by the user.
             bool printCanceled = false;
             bool printConfirmed = false;
 
