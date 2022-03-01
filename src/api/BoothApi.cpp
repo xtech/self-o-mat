@@ -314,6 +314,21 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
+    mux.handle("/booth_settings/print_confirmation/enabled")
+            .post([this](served::response &res, const served::request &req) {
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setPrintConfirmationEnabled(update.value(), true);
+
+                LOG_I(TAG, "updated print confirmation enabled to: ", std::to_string(update.value()));
+
+                served::response::stock_reply(200, res);
+            });
+
     mux.handle("/booth_settings/flash/enabled")
             .post([this](served::response &res, const served::request &req) {
                 BoolUpdate update;
@@ -614,14 +629,6 @@ bool BoothApi::start() {
                 auto controller = logic->getSelfomatController();
 
                 {
-                    auto setting = currentBoothSettings.mutable_new_test_setting();
-                    setting->set_name(locale.get<string>("api.booth.newTestSetting"));
-                    setting->set_update_url("/booth_settings/new_test_setting");
-                    // TODO: return actual value here ;-)
-                    setting->set_currentvalue(true);
-                }
-
-                {
                     auto setting = currentBoothSettings.mutable_language_choice();
                     setting->set_name(locale.get<string>("api.booth.languageChoice"));
                     setting->set_update_url("/booth_settings/language/which");
@@ -642,6 +649,13 @@ bool BoothApi::start() {
                     setting->set_name(locale.get<string>("api.booth.printerEnabled"));
                     setting->set_update_url("/booth_settings/printer/enabled");
                     setting->set_currentvalue(logic->getPrinterEnabled());
+                }
+
+                {
+                    auto setting = currentBoothSettings.mutable_print_confirmation_enabled();
+                    setting->set_name(locale.get<string>("api.booth.printConfirmationEnabled"));
+                    setting->set_update_url("/booth_settings/print_confirmation/enabled");
+                    setting->set_currentvalue(logic->getPrintConfirmationEnabled());
                 }
 
                 {
@@ -829,7 +843,7 @@ bool BoothApi::start() {
                 {
                     auto setting = currentBoothSettings.mutable_software_version();
                     setting->set_name(locale.get<string>("api.booth.software_version"));
-                    setting->set_value("v1.0.9 - 20200417");
+                    setting->set_value("unreleased (Build date + time: " __DATE__ " " __TIME__ ")");
                 }
 
 

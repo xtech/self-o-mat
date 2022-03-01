@@ -106,6 +106,7 @@ namespace selfomat {
             int triggerCounter;
             bool storageEnabled;
             bool printerEnabled;
+            bool printConfirmationEnabled;
             bool templateEnabled;
             bool flashEnabled;
             bool showAgreement;
@@ -125,7 +126,9 @@ namespace selfomat {
             // really needs to print or not. if it wants to print it prints.
             // Finally it unlocks both mutex and exits
             boost::mutex cancelPrintMutex;
+            boost::mutex confirmPrintMutex;
             bool printCanceled = false;
+            bool printConfirmed = false;
 
             ICamera *camera;
             IGui *gui;
@@ -182,6 +185,7 @@ namespace selfomat {
 
             void acceptAgreement();
             void cancelPrint();
+            void confirmPrint();
             bool start();
 
             void stop(bool update_mode);
@@ -219,6 +223,9 @@ namespace selfomat {
 
             void setPrinterEnabled(bool printerEnabled, bool persist = false);
             bool getPrinterEnabled();
+
+            bool getPrintConfirmationEnabled();
+            void setPrintConfirmationEnabled(bool printConfirmationEnabled, bool persist = false);
 
             void setStorageEnabled(bool storageEnabled, bool persist = false);
             bool getStorageEnabled();

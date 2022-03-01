@@ -97,11 +97,11 @@ message CameraSettings {
 }
 
 message BoothSettings {
-    required BoolSetting new_test_setting = 1;
     required ListSetting language_choice = 5;
 
     required BoolSetting storage_enabled = 10;
     required BoolSetting printer_enabled = 11;
+    required BoolSetting print_confirmation_enabled = 12;
 
     required ListSetting filter_choice = 20;
     required FloatSetting filter_gain = 21;

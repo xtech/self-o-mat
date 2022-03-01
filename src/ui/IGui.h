@@ -26,6 +26,7 @@ namespace selfomat {
             STATE_TRANS_FINAL_IMAGE_PRINT,
             STATE_FINAL_IMAGE_PRINT,
             STATE_FINAL_IMAGE_PRINT_CANCELED,
+            STATE_FINAL_IMAGE_PRINT_CONFIRMED,
             STATE_TRANS_PRINT_PREV1,
             STATE_TRANS_PREV1_PREV2,
             STATE_TRANS_PREV2_PREV3
@@ -76,6 +77,8 @@ namespace selfomat {
             virtual void setTemplateEnabled(bool templateEnabled) = 0;
 
             virtual void cancelPrint() = 0;
+
+            virtual void confirmPrint() = 0;
 
             virtual void setDebugOutput(bool debug) = 0;
 

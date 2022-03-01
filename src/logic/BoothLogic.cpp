@@ -160,6 +160,10 @@ void BoothLogic::cameraThread() {
                 printCanceled = false;
                 cancelPrintMutex.unlock();
 
+                confirmPrintMutex.lock();
+                printConfirmed = false;
+                confirmPrintMutex.unlock();
+
                 // Get the mutex for the last jpeg image. We should have no problem doing this
                 jpegImageMutex.lock();
 
@@ -206,9 +210,12 @@ void BoothLogic::cameraThread() {
                             printerStateCV.notify_all();
                         }
 
-                        if (printerEnabled && !printCanceled &&
-                            printerManager.getCurrentPrinterState() != STATE_STOPPED) {
-                            gui->addAlert(ALERT_PRINTER_HINT, getTranslation("frontend.print_in_progress"), true, true);
+                        if (printerEnabled) {
+                            if ( ((!printConfirmationEnabled && !printCanceled) ||
+                                  (printConfirmationEnabled && printConfirmed)) &&
+                                 printerManager.getCurrentPrinterState() != STATE_STOPPED) {
+                                 gui->addAlert(ALERT_PRINTER_HINT, getTranslation("frontend.print_in_progress"), true, true);
+                            }
                         }
                     } else {
                         LOG_E(TAG, "Got an error while waiting for image");
@@ -338,6 +345,13 @@ void BoothLogic::cancelPrint() {
     cancelPrintMutex.unlock();
 }
 
+void BoothLogic::confirmPrint() {
+    confirmPrintMutex.lock();
+    printConfirmed = true;
+    gui->confirmPrint();
+    confirmPrintMutex.unlock();
+}
+
 void BoothLogic::printerThread() {
     while (isPrinterThreadRunning) {
         bool do_print;
@@ -385,7 +399,7 @@ void BoothLogic::printerThread() {
             }
 
             {
-                LOG_D(TAG, "[Printer Thread] Waiting for user to decide if he wants to print");
+                LOG_D(TAG, "[Printer Thread] Waiting for user to decide if they want to print");
                 boost::unique_lock<boost::mutex> lk(printerStateMutex);
                 while (printerState == PRINTER_STATE_WAITING_FOR_USER_INPUT) {
                     printerStateCV.wait(lk);
@@ -394,10 +408,22 @@ void BoothLogic::printerThread() {
 
 
             // We need the info if the user wants to print or not
-            {
+            if (printConfirmationEnabled) {
+                // only print with confirmation
+                boost::unique_lock<boost::mutex> lk(confirmPrintMutex);
+                if (printConfirmed) {
+                    LOG_D(TAG, "[Printer Thread] Printing (user explicitely confirmed)");
+                    printerManager.printImage();
+                } else {
+                    LOG_D(TAG, "[Printer Thread] Print not confirmed!");
+                    printerManager.cancelPrint();
+                }
+            }
+            else {
+                // only print when not canceled
                 boost::unique_lock<boost::mutex> lk(cancelPrintMutex);
                 if (!printCanceled) {
-                    LOG_D(TAG, "[Printer Thread] Printing");
+                    LOG_D(TAG, "[Printer Thread] Printing (user did not cancel)");
                     printerManager.printImage();
                 } else {
                     LOG_D(TAG, "[Printer Thread] Print canceled!");
@@ -577,6 +603,18 @@ bool BoothLogic::getPrinterEnabled() {
     return printerEnabled;
 }
 
+void BoothLogic::setPrintConfirmationEnabled(bool printConfirmationEnabled, bool persist) {
+    this->printConfirmationEnabled = printConfirmationEnabled;
+    //gui->setPrintConfirmationEnabled(printConfirmationEnabled);
+    if (persist) {
+        writeSettings();
+    }
+}
+
+bool BoothLogic::getPrintConfirmationEnabled() {
+    return printConfirmationEnabled;
+}
+
 int BoothLogic::getTriggerCounter() {
     return triggerCounter;
 }
@@ -600,6 +638,7 @@ void BoothLogic::readSettings() {
     this->triggerCounter = (ptree.get<int>("trigger_counter", 0));
     setStorageEnabled(ptree.get<bool>("storage_enabled", true));
     setPrinterEnabled(ptree.get<bool>("printer_enabled", true));
+    setPrintConfirmationEnabled(ptree.get<bool>("print_confirmation_enabled", false));
     setTemplateEnabled(ptree.get<bool>("template_enabled", false));
     setFlashEnabled(ptree.get<bool>("flash_enabled", false));
     this->showAgreement = ptree.get<bool>("show_agreement", true);

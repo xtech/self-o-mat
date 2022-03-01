@@ -10,7 +10,9 @@ namespace selfomat {
             virtual void trigger() = 0;
             virtual void acceptAgreement() = 0;
             virtual void cancelPrint() = 0;
+            virtual void confirmPrint() = 0;
             virtual void stop() = 0;
+            virtual bool getPrintConfirmationEnabled() = 0;
             virtual std::wstring getTranslation(std::string id) = 0;
         };
     }
