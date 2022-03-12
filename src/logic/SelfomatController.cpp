@@ -279,8 +279,19 @@ void SelfomatController::handleCommand(cobs::ByteSequence &commandSequence) {
                 logic->acceptAgreement();
             break;
         case 'c':
-            if(logic != nullptr)
-                logic->cancelPrint();
+            if(logic != nullptr) {
+                // the SelfomatController alone only know that a button has been
+                // pressed which is related to printing; it depends on a setting
+                // if that shall be interpreted as "cancel" or "confirm"
+                if( logic->getPrintConfirmationEnabled() ) {
+                    LOG_I(TAG, "confirming print");
+                    logic->confirmPrint();
+                }
+                else {
+                    LOG_I(TAG, "canceling print");
+                    logic->cancelPrint();
+                }
+            }
             break;
         case 't':
             if(logic != nullptr)

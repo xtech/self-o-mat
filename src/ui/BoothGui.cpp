@@ -359,6 +359,7 @@ void BoothGui::renderThread() {
                 }
             }
                 break;
+            case STATE_FINAL_IMAGE_PRINT_CONFIRMED: /* intentional fall-through */
             case STATE_FINAL_IMAGE_PRINT_CANCELED: {
                 float timeInState = stateTimer.getElapsedTime().asMilliseconds();
                 float duration = 200.0f;
@@ -478,7 +479,14 @@ void BoothGui::drawPrintOverlay(float percentage) {
     printBackground.setPosition(0, templateY);
     window.draw(printBackground);
 
-    printText.setString(logicController->getTranslation("frontend.cancel_print"));
+    if( logicController != nullptr ) {
+      if( logicController->getPrintConfirmationEnabled() ) {
+        printText.setString(logicController->getTranslation("frontend.confirm_print"));
+      }
+      else {
+        printText.setString(logicController->getTranslation("frontend.cancel_print"));
+      }
+    }
     sf::FloatRect textRect = printText.getLocalBounds();
     printText.setPosition((window.getSize().x - textRect.width) / 2.0f, templateY + 10);
     window.draw(printText);
@@ -771,6 +779,11 @@ void BoothGui::cancelPrint() {
     }
 }
 
+void BoothGui::confirmPrint() {
+    if (getCurrentGuiState() == STATE_FINAL_IMAGE_PRINT) {
+        setState(STATE_FINAL_IMAGE_PRINT_CONFIRMED);
+    }
+}
 void BoothGui::log(std::string s) {
     debugLogQueueMutex.lock();
     debugLogQueue.push_front(s);

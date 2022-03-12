@@ -195,6 +195,7 @@ namespace selfomat {
             void setTemplateEnabled(bool templateEnabled) override;
 
             void cancelPrint() override;
+            void confirmPrint() override;
 
             ~BoothGui() override;
 

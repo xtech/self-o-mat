@@ -314,6 +314,21 @@ bool BoothApi::start() {
                 served::response::stock_reply(200, res);
             });
 
+    mux.handle("/booth_settings/print_confirmation/enabled")
+            .post([this](served::response &res, const served::request &req) {
+                BoolUpdate update;
+                if (!update.ParseFromString(req.body())) {
+                    served::response::stock_reply(400, res);
+                    return;
+                }
+
+                logic->setPrintConfirmationEnabled(update.value(), true);
+
+                LOG_I(TAG, "updated print confirmation enabled to: ", std::to_string(update.value()));
+
+                served::response::stock_reply(200, res);
+            });
+
     mux.handle("/booth_settings/flash/enabled")
             .post([this](served::response &res, const served::request &req) {
                 BoolUpdate update;
@@ -637,6 +652,13 @@ bool BoothApi::start() {
                 }
 
                 {
+                    auto setting = currentBoothSettings.mutable_print_confirmation_enabled();
+                    setting->set_name(locale.get<string>("api.booth.printConfirmationEnabled"));
+                    setting->set_update_url("/booth_settings/print_confirmation/enabled");
+                    setting->set_currentvalue(logic->getPrintConfirmationEnabled());
+                }
+
+                {
                     auto setting = currentBoothSettings.mutable_filter_choice();
                     setting->set_name(locale.get<string>("api.booth.filterEnabled"));
                     setting->set_update_url("/booth_settings/filter/which");
@@ -821,7 +843,7 @@ bool BoothApi::start() {
                 {
                     auto setting = currentBoothSettings.mutable_software_version();
                     setting->set_name(locale.get<string>("api.booth.software_version"));
-                    setting->set_value("v1.0.9 - 20200417");
+                    setting->set_value("unreleased (Build date + time: " __DATE__ " " __TIME__ ")");
                 }
 
 

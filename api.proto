@@ -101,6 +101,7 @@ message BoothSettings {
 
     required BoolSetting storage_enabled = 10;
     required BoolSetting printer_enabled = 11;
+    required BoolSetting print_confirmation_enabled = 12;
 
     required ListSetting filter_choice = 20;
     required FloatSetting filter_gain = 21;

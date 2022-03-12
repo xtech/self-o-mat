@@ -1,6 +1,6 @@
 {
   "frontend": {
-    "adjusting_focus": "Adjusting Focus..",
+    "adjusting_focus": "Adjusting Focus...",
     "template_saved": "Template saved successfully",
     "print_in_progress": "Printing in Progress...",
     "printer_error": "Printer Error!",
@@ -8,6 +8,7 @@
     "no_storage_found": "No USB Storage found",
     "storage_space_low": "Low Storage: ",
     "storage_error": "Error writing to USB storage.",
-    "cancel_print": "Cancel Printing?"
+    "cancel_print": "Cancel Printing?",
+    "confirm_print": "Print this Photo?"
   }
 }

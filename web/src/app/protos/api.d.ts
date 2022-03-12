@@ -326,6 +326,7 @@ export namespace xtech {
             languageChoice: xtech.selfomat.IListSetting;
             storageEnabled: xtech.selfomat.IBoolSetting;
             printerEnabled: xtech.selfomat.IBoolSetting;
+            printConfirmationEnabled: xtech.selfomat.IBoolSetting;
             filterChoice: xtech.selfomat.IListSetting;
             filterGain: xtech.selfomat.IFloatSetting;
             templateUpload?: (xtech.selfomat.IFileUploadSetting|null);
@@ -353,6 +354,7 @@ export namespace xtech {
             public languageChoice: xtech.selfomat.IListSetting;
             public storageEnabled: xtech.selfomat.IBoolSetting;
             public printerEnabled: xtech.selfomat.IBoolSetting;
+            public printConfirmationEnabled: xtech.selfomat.IBoolSetting;
             public filterChoice: xtech.selfomat.IListSetting;
             public filterGain: xtech.selfomat.IFloatSetting;
             public templateUpload?: (xtech.selfomat.IFileUploadSetting|null);

@@ -8,6 +8,7 @@
     "no_storage_found": "Clé USB introuvable.",
     "storage_space_low": "Clé USB pleine : ",
     "storage_error": "Erreur d'écriture sur la clé USB.",
-    "cancel_print": "Annuler l'impression ?"
+    "cancel_print": "Annuler l'impression?",
+    "confirm_print": "Confirmer l'impression?"
   }
 }

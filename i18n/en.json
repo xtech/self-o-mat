@@ -11,6 +11,7 @@
 			"cameraName": "Camera Name"
 		},
 		"booth": {
+			"printConfirmationEnabled": "Additionally confirm print with a button press?",
 			"languageChoice": "Display Language",
 			"storageEnabled": "USB Storage Enabled?",
 			"printerEnabled": "Printer Enabled?",

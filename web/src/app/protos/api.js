@@ -239,7 +239,7 @@
                 /**
                  * State enum.
                  * @name xtech.selfomat.Status.State
-                 * @enum {string}
+                 * @enum {number}
                  * @property {number} INITIALIZING=0 INITIALIZING value
                  * @property {number} RUNNING=1 RUNNING value
                  * @property {number} ERROR=2 ERROR value
@@ -1348,7 +1348,7 @@
                         writer = $Writer.create();
                     writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
                     writer.uint32(/* id 2, wireType 2 =*/18).string(message.postUrl);
-                    if (message.alert != null && message.hasOwnProperty("alert"))
+                    if (message.alert != null && Object.hasOwnProperty.call(message, "alert"))
                         writer.uint32(/* id 3, wireType 2 =*/26).string(message.alert);
                     return writer;
                 };
@@ -1580,7 +1580,7 @@
                         writer = $Writer.create();
                     writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
                     writer.uint32(/* id 2, wireType 2 =*/18).string(message.postUrl);
-                    if (message.inputAccept != null && message.hasOwnProperty("inputAccept"))
+                    if (message.inputAccept != null && Object.hasOwnProperty.call(message, "inputAccept"))
                         writer.uint32(/* id 3, wireType 2 =*/26).string(message.inputAccept);
                     return writer;
                 };
@@ -3179,7 +3179,7 @@
                     $root.xtech.selfomat.ListSetting.encode(message.imageFormat, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.cameraName, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.lensName, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                    if (message.focus != null && message.hasOwnProperty("focus"))
+                    if (message.focus != null && Object.hasOwnProperty.call(message, "focus"))
                         $root.xtech.selfomat.PostSetting.encode(message.focus, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                     return writer;
                 };
@@ -3469,6 +3469,7 @@
                  * @property {xtech.selfomat.IListSetting} languageChoice BoothSettings languageChoice
                  * @property {xtech.selfomat.IBoolSetting} storageEnabled BoothSettings storageEnabled
                  * @property {xtech.selfomat.IBoolSetting} printerEnabled BoothSettings printerEnabled
+                 * @property {xtech.selfomat.IBoolSetting} printConfirmationEnabled BoothSettings printConfirmationEnabled
                  * @property {xtech.selfomat.IListSetting} filterChoice BoothSettings filterChoice
                  * @property {xtech.selfomat.IFloatSetting} filterGain BoothSettings filterGain
                  * @property {xtech.selfomat.IFileUploadSetting|null} [templateUpload] BoothSettings templateUpload
@@ -3529,6 +3530,14 @@
                  * @instance
                  */
                 BoothSettings.prototype.printerEnabled = null;
+    
+                /**
+                 * BoothSettings printConfirmationEnabled.
+                 * @member {xtech.selfomat.IBoolSetting} printConfirmationEnabled
+                 * @memberof xtech.selfomat.BoothSettings
+                 * @instance
+                 */
+                BoothSettings.prototype.printConfirmationEnabled = null;
     
                 /**
                  * BoothSettings filterChoice.
@@ -3717,34 +3726,35 @@
                     $root.xtech.selfomat.ListSetting.encode(message.languageChoice, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.storageEnabled, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.printerEnabled, writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
+                    $root.xtech.selfomat.BoolSetting.encode(message.printConfirmationEnabled, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.filterChoice, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
                     $root.xtech.selfomat.FloatSetting.encode(message.filterGain, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
-                    if (message.templateUpload != null && message.hasOwnProperty("templateUpload"))
+                    if (message.templateUpload != null && Object.hasOwnProperty.call(message, "templateUpload"))
                         $root.xtech.selfomat.FileUploadSetting.encode(message.templateUpload, writer.uint32(/* id 30, wireType 2 =*/242).fork()).ldelim();
-                    if (message.templateEnabled != null && message.hasOwnProperty("templateEnabled"))
+                    if (message.templateEnabled != null && Object.hasOwnProperty.call(message, "templateEnabled"))
                         $root.xtech.selfomat.BoolSetting.encode(message.templateEnabled, writer.uint32(/* id 31, wireType 2 =*/250).fork()).ldelim();
-                    if (message.ledMode != null && message.hasOwnProperty("ledMode"))
+                    if (message.ledMode != null && Object.hasOwnProperty.call(message, "ledMode"))
                         $root.xtech.selfomat.ListSetting.encode(message.ledMode, writer.uint32(/* id 40, wireType 2 =*/322).fork()).ldelim();
-                    if (message.ledCount != null && message.hasOwnProperty("ledCount"))
+                    if (message.ledCount != null && Object.hasOwnProperty.call(message, "ledCount"))
                         $root.xtech.selfomat.ListSetting.encode(message.ledCount, writer.uint32(/* id 41, wireType 2 =*/330).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.ledOffsetClockwise, writer.uint32(/* id 42, wireType 2 =*/338).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.ledOffsetCounterClockwise, writer.uint32(/* id 43, wireType 2 =*/346).fork()).ldelim();
                     $root.xtech.selfomat.ListSetting.encode(message.countdownDuration, writer.uint32(/* id 44, wireType 2 =*/354).fork()).ldelim();
-                    if (message.maxLedBrightness != null && message.hasOwnProperty("maxLedBrightness"))
+                    if (message.maxLedBrightness != null && Object.hasOwnProperty.call(message, "maxLedBrightness"))
                         $root.xtech.selfomat.IntSetting.encode(message.maxLedBrightness, writer.uint32(/* id 45, wireType 2 =*/362).fork()).ldelim();
                     $root.xtech.selfomat.BoolSetting.encode(message.autofocusBeforeTrigger, writer.uint32(/* id 46, wireType 2 =*/370).fork()).ldelim();
-                    if (message.cupsLink != null && message.hasOwnProperty("cupsLink"))
+                    if (message.cupsLink != null && Object.hasOwnProperty.call(message, "cupsLink"))
                         $root.xtech.selfomat.LinkSetting.encode(message.cupsLink, writer.uint32(/* id 50, wireType 2 =*/402).fork()).ldelim();
                     $root.xtech.selfomat.PostSetting.encode(message.updateMode, writer.uint32(/* id 51, wireType 2 =*/410).fork()).ldelim();
-                    if (message.flashEnabled != null && message.hasOwnProperty("flashEnabled"))
+                    if (message.flashEnabled != null && Object.hasOwnProperty.call(message, "flashEnabled"))
                         $root.xtech.selfomat.BoolSetting.encode(message.flashEnabled, writer.uint32(/* id 200, wireType 2 =*/1602).fork()).ldelim();
-                    if (message.flashMode != null && message.hasOwnProperty("flashMode"))
+                    if (message.flashMode != null && Object.hasOwnProperty.call(message, "flashMode"))
                         $root.xtech.selfomat.BoolSetting.encode(message.flashMode, writer.uint32(/* id 201, wireType 2 =*/1610).fork()).ldelim();
-                    if (message.flashDurationMicros != null && message.hasOwnProperty("flashDurationMicros"))
+                    if (message.flashDurationMicros != null && Object.hasOwnProperty.call(message, "flashDurationMicros"))
                         $root.xtech.selfomat.IntSetting.encode(message.flashDurationMicros, writer.uint32(/* id 202, wireType 2 =*/1618).fork()).ldelim();
-                    if (message.flashTest != null && message.hasOwnProperty("flashTest"))
+                    if (message.flashTest != null && Object.hasOwnProperty.call(message, "flashTest"))
                         $root.xtech.selfomat.PostSetting.encode(message.flashTest, writer.uint32(/* id 203, wireType 2 =*/1626).fork()).ldelim();
-                    if (message.debugLogEnabled != null && message.hasOwnProperty("debugLogEnabled"))
+                    if (message.debugLogEnabled != null && Object.hasOwnProperty.call(message, "debugLogEnabled"))
                         $root.xtech.selfomat.BoolSetting.encode(message.debugLogEnabled, writer.uint32(/* id 240, wireType 2 =*/1922).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.triggerCounter, writer.uint32(/* id 250, wireType 2 =*/2002).fork()).ldelim();
                     $root.xtech.selfomat.ReadOnlySetting.encode(message.softwareVersion, writer.uint32(/* id 255, wireType 2 =*/2042).fork()).ldelim();
@@ -3790,6 +3800,9 @@
                             break;
                         case 11:
                             message.printerEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
+                            break;
+                        case 12:
+                            message.printConfirmationEnabled = $root.xtech.selfomat.BoolSetting.decode(reader, reader.uint32());
                             break;
                         case 20:
                             message.filterChoice = $root.xtech.selfomat.ListSetting.decode(reader, reader.uint32());
@@ -3862,6 +3875,8 @@
                         throw $util.ProtocolError("missing required 'storageEnabled'", { instance: message });
                     if (!message.hasOwnProperty("printerEnabled"))
                         throw $util.ProtocolError("missing required 'printerEnabled'", { instance: message });
+                    if (!message.hasOwnProperty("printConfirmationEnabled"))
+                        throw $util.ProtocolError("missing required 'printConfirmationEnabled'", { instance: message });
                     if (!message.hasOwnProperty("filterChoice"))
                         throw $util.ProtocolError("missing required 'filterChoice'", { instance: message });
                     if (!message.hasOwnProperty("filterGain"))
@@ -3924,6 +3939,11 @@
                         var error = $root.xtech.selfomat.BoolSetting.verify(message.printerEnabled);
                         if (error)
                             return "printerEnabled." + error;
+                    }
+                    {
+                        var error = $root.xtech.selfomat.BoolSetting.verify(message.printConfirmationEnabled);
+                        if (error)
+                            return "printConfirmationEnabled." + error;
                     }
                     {
                         var error = $root.xtech.selfomat.ListSetting.verify(message.filterChoice);
@@ -4055,6 +4075,11 @@
                             throw TypeError(".xtech.selfomat.BoothSettings.printerEnabled: object expected");
                         message.printerEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.printerEnabled);
                     }
+                    if (object.printConfirmationEnabled != null) {
+                        if (typeof object.printConfirmationEnabled !== "object")
+                            throw TypeError(".xtech.selfomat.BoothSettings.printConfirmationEnabled: object expected");
+                        message.printConfirmationEnabled = $root.xtech.selfomat.BoolSetting.fromObject(object.printConfirmationEnabled);
+                    }
                     if (object.filterChoice != null) {
                         if (typeof object.filterChoice !== "object")
                             throw TypeError(".xtech.selfomat.BoothSettings.filterChoice: object expected");
@@ -4175,6 +4200,7 @@
                         object.languageChoice = null;
                         object.storageEnabled = null;
                         object.printerEnabled = null;
+                        object.printConfirmationEnabled = null;
                         object.filterChoice = null;
                         object.filterGain = null;
                         object.templateUpload = null;
@@ -4202,6 +4228,8 @@
                         object.storageEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.storageEnabled, options);
                     if (message.printerEnabled != null && message.hasOwnProperty("printerEnabled"))
                         object.printerEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.printerEnabled, options);
+                    if (message.printConfirmationEnabled != null && message.hasOwnProperty("printConfirmationEnabled"))
+                        object.printConfirmationEnabled = $root.xtech.selfomat.BoolSetting.toObject(message.printConfirmationEnabled, options);
                     if (message.filterChoice != null && message.hasOwnProperty("filterChoice"))
                         object.filterChoice = $root.xtech.selfomat.ListSetting.toObject(message.filterChoice, options);
                     if (message.filterGain != null && message.hasOwnProperty("filterGain"))

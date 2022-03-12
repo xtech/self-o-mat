@@ -11,6 +11,7 @@
 			"cameraName": "Kamera-Modell"
 		},
 		"booth": {
+			"printConfirmationEnabled": "Drucken über zusätzlichen Tastendruck bestätigen?",
 			"languageChoice": "Anzeigesprache",
 			"storageEnabled": "USB-Speicher aktivieren?",
 			"printerEnabled": "Drucker aktivieren?",

@@ -106,6 +106,7 @@ namespace selfomat {
             int triggerCounter;
             bool storageEnabled;
             bool printerEnabled;
+            bool printConfirmationEnabled;
             bool templateEnabled;
             bool flashEnabled;
             bool showAgreement;
@@ -121,11 +122,16 @@ namespace selfomat {
             // We have a second thread running which first tries to get the jpegImageMutex
             // as soon as it has the jpegImageMutex it prepares for printing.
             boost::mutex jpegImageMutex;
-            // Then the thread waits for the cancelPrintMutex. As soon as it has the cancelPrintMutex it checks if it
-            // really needs to print or not. if it wants to print it prints.
-            // Finally it unlocks both mutex and exits
-            boost::mutex cancelPrintMutex;
+            // Then the thread waits for the cancelOrConfirmPrintMutex.
+            // As soon as it has the cancelOrConfirmPrintMutex it checks if it
+            // really needs to print or not. If it wants to print it prints.
+            // Finally it unlocks both mutexes and exits
+            boost::mutex cancelOrConfirmPrintMutex;
+            // Depending on the setting of printConfirmationEnabled a print
+            // - either starts automatically if not canceled by the user
+            // - or does not auto-start and needs to be confirmed by the user.
             bool printCanceled = false;
+            bool printConfirmed = false;
 
             ICamera *camera;
             IGui *gui;
@@ -182,6 +188,7 @@ namespace selfomat {
 
             void acceptAgreement();
             void cancelPrint();
+            void confirmPrint();
             bool start();
 
             void stop(bool update_mode);
@@ -219,6 +226,9 @@ namespace selfomat {
 
             void setPrinterEnabled(bool printerEnabled, bool persist = false);
             bool getPrinterEnabled();
+
+            bool getPrintConfirmationEnabled();
+            void setPrintConfirmationEnabled(bool printConfirmationEnabled, bool persist = false);
 
             void setStorageEnabled(bool storageEnabled, bool persist = false);
             bool getStorageEnabled();
