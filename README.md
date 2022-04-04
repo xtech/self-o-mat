@@ -2,7 +2,7 @@
 
 
 
-## Join the Discord server for self-o-mat discussion: ![HERE](https://discord.gg/jE7QNaSxW7)
+## Join the Discord server for self-o-mat discussion: [HERE](https://discord.gg/jE7QNaSxW7)
 
 
 
