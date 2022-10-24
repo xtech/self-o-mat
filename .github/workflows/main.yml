@@ -10,3 +10,5 @@ jobs:
         with:
           fqbn: arduino:avr:nano
           sketch-paths: Arduino/SelfomatController
+          libraries: |
+            - name: Adafruit_NeoPixel
