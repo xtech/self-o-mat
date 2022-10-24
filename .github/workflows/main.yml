@@ -10,4 +10,4 @@ jobs:
         with:
           fqbn: arduino:avr:nano
           sketch-paths: Arduino/SelfomatController
-          required-libraries: Adafruit NeoPixel
+          required-libraries: Adafruit NeoPixel@1.10.6
