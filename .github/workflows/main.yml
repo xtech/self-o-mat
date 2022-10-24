@@ -10,4 +10,4 @@ jobs:
         with:
           fqbn: arduino:avr:nano
           sketch-paths: Arduino/SelfomatController
-          libraries: "Adafruit NeoPixel"
+          libraries: ""Adafruit NeoPixel""
