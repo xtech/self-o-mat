@@ -2,7 +2,7 @@ on:
   - push
   - pull_request
 jobs:
-  compile_sketch:
+  compile_controller_board_arduino_sketch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,3 +12,4 @@ jobs:
           sketch-paths: Arduino/SelfomatController
           libraries: |
             "Adafruit NeoPixel"
+            "PinChangeInterrupt"
