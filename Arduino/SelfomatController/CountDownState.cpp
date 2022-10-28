@@ -11,9 +11,9 @@ bool CountDownState::processCommand(const uint8_t* buffer, size_t size) {
 void CountDownState::animationStep(unsigned long dt) {
   uint32_t color = colors[animationCycle];
   float percentage = ((float)timeInState() - animationCycle * oneCycleMillis) / oneCycleMillis;
-  
+
   float pixelBorder = ring.numPixels() - ring.numPixels() * percentage;
-  
+
   for(int8_t i=0; i<ring.numPixels(); i++) {
 
     if(i > pixelBorder) {
@@ -37,6 +37,7 @@ BaseState* CountDownState::logicStep() {
   if(timeInState() > settings.countDownMillis) {
     // Trigger the capture and go to idle
     sendCommand('t');
+    //logger.println("Cntdn expired, triggered -> BusyState");
     return &BusyState::INSTANCE;
   }
   return this;

@@ -33,18 +33,20 @@ BaseState* BusyState::logicStep() {
   if(flashTriggered) {
     if(settings.flashDurationMicros < 0) {
       delay(10);
-    } else {  
+    } else {
       while(micros() - flashStartMicros < settings.flashDurationMicros);
     }
     digitalWrite(PIN_FLASH_ON, LOW);
     flashTriggered = false;
   }
-  
+
   // timeout in busy state
   if(timeInState() > 15000 || exitIdle) {
+    logger.println(  F("exit to -> IdleState") );
     return &IdleState::INSTANCE;
   }
   if(exitPrint) {
+    logger.println( F("exit to -> PrintingState") );
     return &PrintingState::INSTANCE;
   }
   return this;

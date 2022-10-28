@@ -1,6 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 #include "stdint.h"
+#include "Logging.h"
 #include <Adafruit_NeoPixel.h>
 #include "FastCRC.h"
 #include "PacketSerial.h"
@@ -8,21 +9,22 @@
 /*
  * PIN Defines
  */
-#define PIN_LED 4
-#define PIN_LED_OFF 9
-
-#define PIN_STATUS 20
+#define PIN_LED                 (6) //(4)
+#define PIN_LED_OFF             (9)
+#define PIN_STATUS              (20)
 
 // DO NOT CHANGE!!! WE HAVE DIRECT HARDWARE ACCESS ON THIS PIN!!!!
-#define PIN_FLASH_ON 11
-#define PIN_FLASH_CAM_TRIGGER 7
+#define PIN_FLASH_ON            (11)
+#define PIN_FLASH_CAM_TRIGGER   (7)
 
-#define PIN_BUTTON 2
-#define PIN_SWITCH 3
-#define PIN_ON 8
-#define PIN_LEVEL_SHIFTER_OE 19
+#define PIN_BUTTON              (2)
+#define PIN_SWITCH              (3)
+#define PIN_ON                  (8)
+#define PIN_LEVEL_SHIFTER_OE    (19)
 
-#define PIXEL_TYPES 2
+#define PIN_SWSERIAL_LOGGING_TX (13)
+
+#define PIXEL_TYPES             (2)
 extern neoPixelType supportedPixels[PIXEL_TYPES];
 
 
@@ -54,6 +56,7 @@ extern bool settingsDirty;
 extern Adafruit_NeoPixel ring;
 extern FastCRC16 CRC16;
 extern COBSSpacePacketSerial packetSerial;
+extern Logging logger;
 
 extern unsigned long lastHeartbeat;
 extern bool heartbeatDeactivated;
