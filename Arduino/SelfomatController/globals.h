@@ -9,7 +9,7 @@
 /*
  * PIN Defines
  */
-#define PIN_LED                 (6) //(4)
+#define PIN_LED                 (6) //(4) TODO/FIXME: change back to 4 at least during review as this has been adapter for some special hardware
 #define PIN_LED_OFF             (9)
 #define PIN_STATUS              (20)
 
