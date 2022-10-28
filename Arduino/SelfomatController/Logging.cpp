@@ -1,8 +1,10 @@
 #include "Logging.h"
-#include <NeoSWSerial.h>
 
-#ifndef NEOSWSERIAL_EXTERNAL_PCINT
-#error NEOSWSERIAL_EXTERNAL_PCINT needs to be defined inside of NeoSWSerial.h or as compile flag.
+#ifdef LOGGING_ACTIVE
+  #include <NeoSWSerial.h>
+  #ifndef NEOSWSERIAL_EXTERNAL_PCINT
+  #error NEOSWSERIAL_EXTERNAL_PCINT needs to be defined inside of NeoSWSerial.h or as compile flag.
+  #endif
 #endif
 
 Logging::Logging(uint8_t transmitPin) {

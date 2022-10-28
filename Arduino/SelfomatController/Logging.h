@@ -3,7 +3,7 @@
 
 #include "Print.h"
 
-#define LOGGING_ACTIVE /* Comment out when logging is unwanted; could also overwrite class! */
+//#define LOGGING_ACTIVE /* Comment out when logging is unwanted; could also overwrite class! */
 
 class Logging : public Print {
 public:
