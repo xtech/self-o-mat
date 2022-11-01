@@ -21,7 +21,7 @@ void FlashingState::animationStep(unsigned long dt) {
 
     // Flash 10x per second
     int on = (timeInState() / 150) & 0x01;
-  
+
     for(int j = 0; j < ring.numPixels(); j++) {
       if(on) {
         ring.setPixelColor(j, 255, 0, 0);
@@ -42,11 +42,12 @@ BaseState* FlashingState::logicStep() {
 
 void FlashingState::enter() {
   BaseState::enter();
+  logger.println( F("Entering FlashingState") );
   shouldExit = false;
 }
 
 void FlashingState::exit() {
-
+  logger.println( F("Leaving FlashingState") );
 }
 
 bool FlashingState::needsHeartbeat() {
