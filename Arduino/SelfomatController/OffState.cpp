@@ -26,6 +26,7 @@ BaseState* OffState::logicStep() {
 
 void OffState::enter() {
   BaseState::enter();
+  logger.println( F("Entering OffState") );
 
   // read settings
   logger.println( F("Read settings on entry") );
@@ -60,6 +61,7 @@ void OffState::exit() {
   ring.show();
 
   blink(2);
+  logger.println( F("Leaving OffState") );
 }
 
 bool OffState::needsHeartbeat() {

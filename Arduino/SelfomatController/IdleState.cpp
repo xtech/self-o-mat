@@ -17,7 +17,7 @@ void IdleState::animationStep(unsigned long dt) {
   float brightness = sinx*sinx;
   uint8_t g = brightness * 255.0f;
   for(int i = 0; i < ring.numPixels(); i++) {
-    ring.setPixelColor(i, 0, g, g >> 2);  
+    ring.setPixelColor(i, 0, g, g >> 2);
   }
   ring.show();
 }
@@ -36,12 +36,13 @@ BaseState* IdleState::logicStep() {
 
 void IdleState::enter() {
   BaseState::enter();
+  logger.println( F("Entering IdleState") );
   externalTrigger = false;
   green = 0;
 }
 
 void IdleState::exit() {
-
+  logger.println( F("Leaving IdleState") );
 }
 
 bool IdleState::needsHeartbeat() {

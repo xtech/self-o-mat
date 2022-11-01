@@ -34,7 +34,7 @@ void BaseState::sendCurrentSettings() {
 bool BaseState::processCommand(const uint8_t* buffer, size_t size) {
   if (size == 0)
     return false;
-  logger.println( F("Processing command") );
+  logger.println( F("Processing cmd") );
   unsigned char c = buffer[0];
   switch (c) {
     case '#':

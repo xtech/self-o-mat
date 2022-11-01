@@ -59,6 +59,7 @@ BaseState* AgreementState::logicStep() {
 
 void AgreementState::enter() {
   BaseState::enter();
+  logger.println( F("Entering AgreementState") );
   b = 0;
   frame = 0;
   exitAnimationDone = shouldExit = false;
@@ -66,7 +67,7 @@ void AgreementState::enter() {
 }
 
 void AgreementState::exit() {
-
+  logger.println( F("Leaving AgreementState") );
 }
 
 bool AgreementState::needsHeartbeat() {

@@ -45,16 +45,18 @@ BaseState* CountDownState::logicStep() {
 
 void CountDownState::enter() {
   BaseState::enter();
+  logger.println( F("Entering CountDownState") );
   oneCycleMillis = (settings.countDownMillis)/3.0f;
   animationCycle = 0;
   lastColor = 0;
 }
 
 void CountDownState::exit() {
-    for(int8_t i=0; i<ring.numPixels(); i++) {
-      ring.setPixelColor(i, 0);
-    }
-    ring.show();
+  for(int8_t i=0; i<ring.numPixels(); i++) {
+    ring.setPixelColor(i, 0);
+  }
+  ring.show();
+  logger.println( F("Leaving CountDownState") );
 }
 
 bool CountDownState::needsHeartbeat() {
