@@ -4,15 +4,13 @@
  * PinChangeInterrupt by NicoHood
  */
 
-
-#include <avr/wdt.h>
+#include <Arduino.h>
 #include "globals.h"
 #include "FastCRC.h"
 #include "State.h"
 #include "OffState.h"
 #include "IdleState.h"
 #include "BusyState.h"
-
 
 /*
  * State Machine
@@ -37,6 +35,7 @@ void onPacketReceived(const uint8_t* buffer, size_t size) {
   // Check, if we need to bootload. If so, do it. No state needed
   if(size == 1) {
     switch(buffer[0]) {
+      /*TODO: reenable for ATMEGA support with custom bootloader
       case '0': {
         typedef void (*do_reboot_t)(void);
         const do_reboot_t do_reboot = (do_reboot_t)((FLASHEND - 511) >> 1);
@@ -44,6 +43,7 @@ void onPacketReceived(const uint8_t* buffer, size_t size) {
         do_reboot();    
       }
       return;
+      */
       case 'i': {
         // Identify yourself
         Serial.write('b');
@@ -67,10 +67,12 @@ void onPacketReceived(const uint8_t* buffer, size_t size) {
 }
 
 void setup() {
+  /* TODO: reenable for ATMEGA support with custom bootloader
   // Reset and disable Watchdog
   // NEVER EVER REMOVE THE FOLLOWING 2 LINES!!!!
   MCUSR = 0;
   wdt_disable();
+  */
 
   // Setup Pins
   pinMode(PIN_STATUS, OUTPUT);
@@ -82,17 +84,10 @@ void setup() {
   digitalWrite(PIN_BUTTON, HIGH);
   pinMode(PIN_SWITCH, INPUT);
   digitalWrite(PIN_SWITCH, HIGH);
-  pinMode(PIN_FLASH_CAM_TRIGGER, INPUT);
-  // pullups
-  digitalWrite(PIN_FLASH_CAM_TRIGGER, HIGH);
 
-  pinMode(PIN_FLASH_ON, OUTPUT);
-  // flash off by default
-  digitalWrite(PIN_FLASH_ON, LOW);
 
   pinMode(PIN_ON, OUTPUT); 
   pinMode(PIN_LEVEL_SHIFTER_OE, OUTPUT);
-
 
   packetSerial.begin(38400);
   packetSerial.setPacketHandler(&onPacketReceived);

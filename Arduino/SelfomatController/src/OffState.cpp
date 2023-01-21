@@ -34,8 +34,7 @@ void OffState::enter() {
 
   blink(3);
   // Disable the ring
-  ring.setPin(PIN_LED_OFF);
-  digitalWrite(PIN_LED, LOW);
+  // TODO: disable ring power
 
   // power off the system and level shifter
   digitalWrite(PIN_LEVEL_SHIFTER_OE, LOW);
@@ -50,9 +49,6 @@ void OffState::exit() {
   digitalWrite(PIN_ON, HIGH);
   digitalWrite(PIN_LEVEL_SHIFTER_OE, HIGH);
 
-
-  // Setup the ring
-  ring.setPin(PIN_LED);
   ring.begin();
   ring.clear();
   ring.show();

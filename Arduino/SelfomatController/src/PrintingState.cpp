@@ -11,6 +11,7 @@ bool PrintingState::processCommand(const uint8_t* buffer, size_t size) {
   if(size == 1 && buffer[0] == 'k') {
     shouldExit = true;
   }
+  return false;
 }
 
 void PrintingState::animationStep(unsigned long dt) {

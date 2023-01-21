@@ -5,17 +5,19 @@
 #include "FastCRC.h"
 #include "PacketSerial.h"
 
+typedef PacketSerial_<COBS, ' '> COBSSpacePacketSerial;
+
 /*
  * PIN Defines
  */
-#define PIN_LED 4
-#define PIN_LED_OFF 9
+#define PIN_NEOPIXELS 4
 
-#define PIN_STATUS 20
+// Status LED for blinks
+#define PIN_STATUS LED_BUILTIN
 
 // DO NOT CHANGE!!! WE HAVE DIRECT HARDWARE ACCESS ON THIS PIN!!!!
-#define PIN_FLASH_ON 11
-#define PIN_FLASH_CAM_TRIGGER 7
+// #define PIN_FLASH_ON 11
+// #define PIN_FLASH_CAM_TRIGGER 7
 
 #define PIN_BUTTON 2
 #define PIN_SWITCH 3

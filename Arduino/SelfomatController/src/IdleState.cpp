@@ -10,6 +10,7 @@ bool IdleState::processCommand(const uint8_t* buffer, size_t size) {
   if(size == 1 && buffer[0] == 't') {
     externalTrigger = true;
   }
+  return false;
 }
 
 void IdleState::animationStep(unsigned long dt) {

@@ -24,8 +24,12 @@ BaseState* BaseState::logicStep() {
 void BaseState::sendCurrentSettings() {
   size_t data_size = sizeof(settings)+1;
   uint8_t data[data_size];
+  uint8_t* settings_ptr = (uint8_t*)&settings;
   data[0] = '$';
-  memcpy(data+1, &settings, data_size-1);
+  for(size_t i = 0; i < data_size-1; i++) {
+    data[i+1] = settings_ptr[i];
+  }
+  
   packetSerial.send(data, data_size);
   Serial.flush();
 }

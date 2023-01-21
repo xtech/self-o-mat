@@ -4,7 +4,7 @@
   "has_button": true,
   "disable_watchdog": false,
   "debug": false,
-  "button_port_name": "/dev/ttyUSB",
+  "button_port_name": "/dev/ttyACM0",
   "image_dir": "/tmp",
   "show_led_setup": true,
   "force_image_dir_mountpoint": 0,
