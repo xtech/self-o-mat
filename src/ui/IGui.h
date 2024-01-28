@@ -65,6 +65,8 @@ namespace selfomat {
 
             virtual void notifyPreviewIncoming() = 0;
 
+            virtual void updateCountdown(int new_countdown) = 0;
+
             virtual bool hasAlert(ALERT_TYPE type) = 0;
             virtual void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false, bool isHint = false) = 0;
             virtual void removeAlert(ALERT_TYPE type) = 0;

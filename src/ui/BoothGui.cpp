@@ -156,6 +156,11 @@ void BoothGui::renderThread() {
     iconText.setFillColor(COLOR_ALERT);
     iconText.setCharacterSize(50);
 
+    countdownText.setFont(hackFont);
+    countdownText.setFillColor(COLOR_COUNTDOWN);
+    countdownText.setCharacterSize(400);
+    countdownText.setStyle(1); // Bold
+
     alertText.setFont(mainFont);
     alertText.setFillColor(COLOR_ALERT);
     alertText.setCharacterSize(50);
@@ -440,6 +445,7 @@ void BoothGui::renderThread() {
                 break;
         }
 
+        drawCountdown();
         drawAlerts();
         drawDebug();
 
@@ -580,6 +586,23 @@ void BoothGui::drawAgreement(float alpha) {
     }
 }
 
+void BoothGui::drawCountdown() {
+    if (currentState == STATE_AGREEMENT) {
+      return;
+    }
+
+    countdownMutex.lock();
+    int localCountdown = countdown;
+    countdownMutex.unlock();
+
+    if (localCountdown > -1) {
+        countdownText.setString(std::to_string(localCountdown));
+        countdownText.setPosition((window.getSize().x - countdownText.getLocalBounds().width) / 2,
+                                  countdownText.getLocalBounds().height / 2.0f);
+        window.draw(countdownText);
+    }
+}
+
 void BoothGui::drawAlerts() {
 
     if (currentState == STATE_AGREEMENT) {
@@ -710,6 +733,13 @@ void BoothGui::hideAgreement()  {
         return;
 
     setState(STATE_TRANS_AGREEMENT);
+}
+
+
+void BoothGui::updateCountdown(int new_countdown) {
+    countdownMutex.lock();
+    countdown = new_countdown;
+    countdownMutex.unlock();
 }
 
 bool BoothGui::hasAlert(ALERT_TYPE type) {

@@ -122,6 +122,7 @@ int main(int argc, char *argv[]) {
     bool force_image_dir_mountpoint = true;
     bool autofocus_before_trigger = false;
     bool fullscreen = true;
+    int trigger_delay = 0;
     string button_port_name;
     string image_dir;
 
@@ -148,6 +149,7 @@ int main(int argc, char *argv[]) {
         force_image_dir_mountpoint = ptree.get<bool>("force_image_dir_mountpoint", true);
         autofocus_before_trigger = ptree.get<bool>("autofocus_before_trigger", false);
         fullscreen = ptree.get<bool>("fullscreen", true);
+        trigger_delay = ptree.get<int>("trigger_delay", 0);
     } catch (boost::exception &e) {
         LOG_E(TAG, "Error loading properties. Using defaults.");
     }
@@ -159,7 +161,7 @@ int main(int argc, char *argv[]) {
     LOG_D(TAG, "Force Imagedir mountpoint: ", std::to_string(force_image_dir_mountpoint));
     LOG_D(TAG, "Autofocus Before Trigger: ", std::to_string(autofocus_before_trigger));
     LOG_D(TAG, "Fullscreen: ", std::to_string(fullscreen));
-
+    LOG_D(TAG, "Trigger delay: ", std::to_string(trigger_delay));
 
     // We'll set the controller later when logic is initialized
     BoothGui *boothGuiPtr = new BoothGui(fullscreen, debug, nullptr);
@@ -181,7 +183,7 @@ int main(int argc, char *argv[]) {
 
     LOG_I(TAG, "Started Camera");
 
-    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, force_image_dir_mountpoint, disable_watchdog, show_led_setup, autofocus_before_trigger);
+    p_logic = new logic::BoothLogic(p_cam, p_gui, has_button, button_port_name, has_flash, image_dir, force_image_dir_mountpoint, disable_watchdog, show_led_setup, autofocus_before_trigger, trigger_delay);
 
     LOG_I(TAG, "Started Logic");
 

@@ -60,7 +60,7 @@ namespace selfomat {
         class BoothLogic : public ILogicController {
         public:
             explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash,
-                                string imageDir, bool force_image_dir_mountpoint, bool disable_watchdog, bool show_led_setup, bool autofocus_before_trigger) : camera(camera), gui(gui),
+                                string imageDir, bool force_image_dir_mountpoint, bool disable_watchdog, bool show_led_setup, bool autofocus_before_trigger, int trigger_delay) : camera(camera), gui(gui),
                                                                         imageProcessor(gui),
                                                                         printerManager(gui),
                                                                         has_button(has_button),
@@ -70,7 +70,8 @@ namespace selfomat {
                                                                         selfomatController(),
                                                                         force_image_dir_mountpoint(force_image_dir_mountpoint),
                                                                         show_led_setup(show_led_setup),
-                                                                        autofocus_before_trigger(autofocus_before_trigger) {
+                                                                        autofocus_before_trigger(autofocus_before_trigger),
+                                                                        trigger_delay(trigger_delay) {
                 selfomatController.setLogic(this);
                 this->triggered = false;
                 this->disable_watchdog = disable_watchdog;
@@ -94,6 +95,7 @@ namespace selfomat {
             bool show_led_setup;
             bool autofocus_before_trigger;
             bool force_image_dir_mountpoint;
+            int trigger_delay;
 
             int returnCode = 0;
             string imageDir;
@@ -118,6 +120,8 @@ namespace selfomat {
             bool isLogicThreadRunning, isCameraThreadRunning, isPrinterThreadRunning;
             boost::mutex triggerMutex;
             bool triggered;
+            boost::mutex triggerCurrentDelayMutex;
+            int triggerCurrentDelay = -1;
 
             // We have a second thread running which first tries to get the jpegImageMutex
             // as soon as it has the jpegImageMutex it prepares for printing.
@@ -161,10 +165,11 @@ namespace selfomat {
             void readSettings();
             void writeSettings();
 
+            void triggerDelayThread();
+
             void cameraThread();
 
             void logicThread();
-
 
 
 

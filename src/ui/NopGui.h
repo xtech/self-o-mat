@@ -27,6 +27,8 @@ namespace selfomat {
             void notifyPreviewIncoming() override;
 
 
+            void updateCountdown(int new_countdown) override;
+
             void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, bool isHint) override;
 
             void removeAlert(ALERT_TYPE type) override;
