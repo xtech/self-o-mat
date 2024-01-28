@@ -35,7 +35,8 @@ void NopGui::notifyPreviewIncoming() {
     std::cout << "preview incoming callback" << std::endl;
 }
 
-
+void NopGui::updateCountdown(int new_countdown) {
+}
 
 void NopGui::addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove, bool isHint) {
 

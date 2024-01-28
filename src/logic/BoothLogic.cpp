@@ -103,6 +103,22 @@ void BoothLogic::stop(bool update_mode) {
     imageProcessor.stop();
 }
 
+// Thread used for delaying trigger
+void BoothLogic::triggerDelayThread() {
+    LOG_D(TAG, "Starting Trigger Delay Thread");
+    while (triggerCurrentDelay >= 0) {
+        // Do 1s delay
+        LOG_D(TAG, "Waiting for trigger: ", std::to_string(triggerCurrentDelay));
+        gui->updateCountdown(triggerCurrentDelay);
+        triggerCurrentDelayMutex.lock();
+        triggerCurrentDelay--;
+        triggerCurrentDelayMutex.unlock();
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+    }
+    // -1 disables countdown
+    gui->updateCountdown(-1);
+}
+
 void BoothLogic::cameraThread() {
     LOG_D(TAG, "Starting Camera Thread");
     gui->initialized();
@@ -127,7 +143,7 @@ void BoothLogic::cameraThread() {
             boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
         } else {
             // Camera is working, use it
-            bool capture = triggered;
+            bool capture = (triggered && (triggerCurrentDelay == -1));
             if (capture) {
                 triggerMutex.lock();
                 triggered = false;
@@ -330,10 +346,21 @@ void BoothLogic::trigger() {
 
     clock_gettime(CLOCK_MONOTONIC, &triggerStart);
 
+    // First set trigger delay to avoid data race
+    if (trigger_delay > 0) {
+        triggerCurrentDelayMutex.lock();
+        triggerCurrentDelay = trigger_delay;
+        triggerCurrentDelayMutex.unlock();
+    }
+    
+    // Set trigger
     triggerMutex.lock();
     triggered = true;
     triggerMutex.unlock();
     incTriggerCounter();
+
+    // Start delay thread
+    boost::thread(boost::bind(&BoothLogic::triggerDelayThread, this));
 }
 
 void BoothLogic::cancelPrint() {

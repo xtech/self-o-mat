@@ -28,6 +28,7 @@
 
 #define COLOR_MAIN          sf::Color(20, 64, 66, 255)
 #define COLOR_MAIN_LIGHT    sf::Color(155, 194, 189)
+#define COLOR_COUNTDOWN     sf::Color(128, 128, 128)
 #define COLOR_ALERT         sf::Color(200, 0, 0)
 
 namespace selfomat {
@@ -63,6 +64,9 @@ namespace selfomat {
             GUI_STATE currentState;
             sf::Clock stateTimer;
 
+            boost::mutex countdownMutex;
+            int countdown = -1;
+
             boost::mutex alertMutex;
             std::map<ALERT_TYPE, Alert> alerts;
             sf::Clock alertTimer;
@@ -75,6 +79,7 @@ namespace selfomat {
             sf::Color clearColor;
             sf::Text debugText;
             sf::Text iconText;
+            sf::Text countdownText;
             sf::Text alertText;
             sf::Text printText;
             sf::Text agreementText;
@@ -127,6 +132,7 @@ namespace selfomat {
             float easeOutSin(float t, float b, float c, float d);
 
             void drawPrintOverlay(float percentage = 1.0f);
+            void drawCountdown();
             void drawAlerts();
             void drawAgreement(float alpha = 1);
             void drawDebug();
@@ -186,6 +192,8 @@ namespace selfomat {
 
             void showAgreement() override;
             void hideAgreement() override;
+
+            void updateCountdown(int new_countdown) override;
 
             bool hasAlert(ALERT_TYPE type) override;
             void addAlert(ALERT_TYPE type, std::wstring text, bool autoRemove = false, bool isHint = false) override;
