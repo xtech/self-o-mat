@@ -43,10 +43,11 @@ bool BoothLogic::start() {
         return false;
 
     // Start the threads
-    isLogicThreadRunning = isCameraThreadRunning = isPrinterThreadRunning = true;
+    isLogicThreadRunning = isCameraThreadRunning = isPrinterThread = isMetricsThreadRunning = true;
     logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
     cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
     printThreadHandle = boost::thread(boost::bind(&BoothLogic::printerThread, this));
+    metricsThreadHandle = boost::thread(boost::bind(&BoothLogic::metricsThread, this));
 
     return true;
 }
@@ -93,6 +94,11 @@ void BoothLogic::stop(bool update_mode) {
     if (printThreadHandle.joinable()) {
         LOG_D(TAG, "waiting for print");
         printThreadHandle.join();
+    }
+    isMetricsThreadRunning = false;
+    if (metricsThreadHandle.joinable()) {
+        LOG_D(TAG, "waiting for metrics");
+        metricsThreadHandle.join();
     }
 
     if (gui != nullptr) {
@@ -368,6 +374,10 @@ void BoothLogic::printerThread() {
         LOG_D(TAG, "[Printer Thread] Processing image. Printing enabled: ", std::to_string(do_print));;
 
         if (do_print) {
+            ImagePrintMetrics metrics = {};
+            metrics.jobState = STATE_UNKNOWN;
+            clock_gettime(CLOCK_MONOTONIC, &metrics.processingTs);
+
             // We need the final jpeg image. So lock the mutex
             {
                 boost::unique_lock<boost::mutex> lk(jpegImageMutex);
@@ -396,6 +406,8 @@ void BoothLogic::printerThread() {
                 LOG_D(TAG, "[Printer Thread] Prepared");
             }
 
+            clock_gettime(CLOCK_MONOTONIC, &metrics.awaitUserDecisionTs);
+
             {
                 LOG_D(TAG, "[Printer Thread] Waiting for user to decide if they want to print");
                 boost::unique_lock<boost::mutex> lk(printerStateMutex);
@@ -404,6 +416,7 @@ void BoothLogic::printerThread() {
                 }
             }
 
+            clock_gettime(CLOCK_MONOTONIC, &metrics.gotUserDecisionTs);
 
             // We need the info if the user wants to print or not
             if (printConfirmationEnabled) {
@@ -411,10 +424,11 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(cancelOrConfirmPrintMutex);
                 if (printConfirmed) {
                     LOG_D(TAG, "[Printer Thread] Printing (user explicitely confirmed)");
-                    printerManager.printImage();
+                    metrics.cupsJobId = printerManager.printImage();
                 } else {
                     LOG_D(TAG, "[Printer Thread] Print not confirmed (auto-canceling)!");
                     printerManager.cancelPrint();
+                    metrics.cupsJobId = -1;
                 }
             }
             else {
@@ -422,11 +436,23 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(cancelOrConfirmPrintMutex);
                 if (!printCanceled) {
                     LOG_D(TAG, "[Printer Thread] Printing (user did not cancel)");
-                    printerManager.printImage();
+                    metrics.cupsJobId = printerManager.printImage();
                 } else {
                     LOG_D(TAG, "[Printer Thread] Print canceled by user!");
                     printerManager.cancelPrint();
+                    metrics.cupsJobId = -1;
                 }
+            }
+
+            // if job ID > 0, start checking this job from the metrics thread
+            // (append to list and activate thread if not already active); otherwise just log
+            if(metrics.cupsJobId > 0) {
+                boost::unique_lock<boost::mutex> lk(printMetricsMutex);
+                printMetricsMutex.push_back(metrics);
+                // TODO: activate thread; how to signal metricsThread?
+            } else {
+                // TODO: log only timings known until here
+                LOG_D(TAG, "[Printer Thread] No print job available");
             }
         } else {
             // We need the final jpeg image. So lock the mutex
@@ -466,6 +492,54 @@ void BoothLogic::printerThread() {
             printerState = PRINTER_STATE_IDLE;
             printerStateCV.notify_all();
         }
+    }
+}
+
+void BoothLogic::metricsThread() {
+    LOG_D(TAG, "Starting Metrics Thread");
+
+    while (isMetricsThreadRunning) {
+        // TODO: put this thread to sleep; awake it only when a print job has been added to the list;
+        //       stay active only as long as list of monitored print jobs is not empty
+
+        size_t listLength = 0;
+        {
+            boost::unique_lock<boost::mutex> lk(printMetricsMutex);
+            
+            std::list<ImagePrintMetrics>::iterator it = printMetrics.begin();
+            while (it != printMetrics.end()) {
+                int jobId = *it.cupsJobId;
+
+                PrinterJobState jobState;
+                
+                time_t cupsCreationTs, cupsProcessingTs, cupsCompletedTs;
+
+                bool gotJobDetails = printerManager.getJobDetails(jobId, jobState, cupsCreationTs,
+                                                                  cupsProcessingTs, cupsCompletedTs);
+
+                if(gotJobDetails) {
+                    *it.jobState = jobState;
+                    *it.cupsCreationTs = cupsCreationTs;
+                    *it.cupsProcessingTs = cupsProcessingTs;
+                    *it.cupsCompletedTs = cupsCompletedTs;
+
+                    if (STATE_UNKNOWN == jobState || STATE_CANCELED == jobState ||
+                        STATE_ABORTED == jobState || STATE_COMPLETED == jobState) {
+                        LOG_D(TAG, "[Metrics Thread] Erasing print job from metrics list: ", std::to_string(jobId));
+                        printMetrics.erase(it++);
+                    } else {
+                        ++it;
+                    }
+                } else {
+                    ++it;
+                }
+            }
+            listLength = printMetrics.size();
+            LOG_D(TAG, "[Metrics Thread] Length of metrics list: ", std::to_string(listLength));
+        }
+
+        // TODO: if listLength > 0, wake up periodically, otherwise wait for external activation from printerThread
+        boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
     }
 }
 

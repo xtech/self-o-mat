@@ -57,6 +57,25 @@ namespace selfomat {
                     PRINTER_STATE_WORKING = 3
         };
 
+        struct ImagePrintMetrics {
+            // Timestamp when processing in printer thread has started
+            timespec processingTs;
+            // Timestamp when processing in printer thread has finished and waiting for user decision started
+            timespec awaitUserDecisionTs;
+            // Timestamp when user decision (confirmation or cancellation) has arrived in printer thread
+            timespec gotUserDecisionTs;
+            // Job ID returned from CUPS (or 0 on CUPS error or when print has been canceled)
+            int cupsJobId;
+            // Timestamp when the CUPS job was created
+            time_t cupsCreationTs;
+            // Timestamp when the CUPS job was processed
+            time_t cupsProcessingTs;
+            // Timestamp when the CUPS job was completed
+            time_t cupsCompletedTs;
+            // Job state returned by CUPS and converted to PrinterManager-specific type
+            PrinterJobState jobState;
+        };
+
         class BoothLogic : public ILogicController {
         public:
             explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash,
@@ -115,7 +134,7 @@ namespace selfomat {
             PrinterManager printerManager;
             ImageProcessor imageProcessor;
 
-            bool isLogicThreadRunning, isCameraThreadRunning, isPrinterThreadRunning;
+            bool isLogicThreadRunning, isCameraThreadRunning, isPrinterThreadRunning, isMetricsThreadRunning;
             boost::mutex triggerMutex;
             bool triggered;
 
@@ -153,6 +172,7 @@ namespace selfomat {
             boost::thread logicThreadHandle;
             boost::thread cameraThreadHandle;
             boost::thread printThreadHandle;
+            boost::thread metricsThreadHandle;
 
             int filterChoice = 0;
             double filterGain = 1.0;
@@ -165,10 +185,9 @@ namespace selfomat {
 
             void logicThread();
 
-
-
-
             void printerThread();
+        
+            void metricsThread();
 
             void triggerFlash();
 
@@ -182,6 +201,9 @@ namespace selfomat {
             FILTER getFilter();
 
             timespec triggerStart;
+            
+            std::list<ImagePrintMetrics> printMetrics;
+            boost::mutex printMetricsMutex;
         public:
             bool isStopped();
             void trigger();

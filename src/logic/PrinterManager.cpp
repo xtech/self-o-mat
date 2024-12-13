@@ -200,25 +200,24 @@ bool PrinterManager::resumePrinter() {
     return true;
 }
 
-bool PrinterManager::printImage() {
+int PrinterManager::printImage() {
     if(!hasImagePrepared || printer_name.empty())
-        return false;
+        return 0;
 
     resumePrinter();
 
+    // Job ID or 0 on error
     int job_id = cupsCreateJob(CUPS_HTTP_DEFAULT, printer_name.c_str(), "self-o-mat", 0, nullptr);
 
     if (job_id > 0) {
         LOG_D(TAG, "successfully created the print job");
         cupsStartDocument(CUPS_HTTP_DEFAULT, printer_name.c_str(), job_id, "my_image", "image/png", 1);
 
-
         cupsWriteRequestData(CUPS_HTTP_DEFAULT, (const char *) imageTmpBuffer, sizeOfPreparedImage);
 
         cupsFinishDocument(CUPS_HTTP_DEFAULT, printer_name.c_str());
-        return true;
     }
-    return false;
+    return job_id;
 }
 
 PrinterManager::PrinterManager(ILogger *logger) : logger(logger) {
@@ -247,5 +246,57 @@ bool PrinterManager::cancelPrint() {
     hasImagePrepared = false;
     sizeOfPreparedImage = 0;
     return true;
+}
+
+PrinterJobState PrinterManager::getJobDetails(int jobId, PrinterJobState &state, time_t &creationTs, time_t &processingTs, time_t &completedTs) {
+    
+    if(jobId <= 0)
+        return false;
+
+    cups_job_t *cupsJobs;
+    int cupsJobCount = cupsGetJobs2(CUPS_HTTP_DEFAULT, &cupsJobs, NULL, 0, CUPS_WHICHJOBS_ALL);
+    LOG_D(TAG, "Number of print jobs:", std::to_string(cupsJobCount));
+
+    for(int i = 0; i < cupsJobCount; i++) {
+        if (cupsJobs[i].id == jobId) {
+            LOG_D(TAG, "Found print job with ID:", std::to_string(jobId));
+            
+            creationTs = cupsJobs[i].creation_time;
+            processingTs = cupsJobs[i].processing_time;
+            completedTs = cupsJobs[i].completed_time;
+
+            switch(cupsJobs[i].state)
+            {
+                // map known values
+                case IPP_JOB_PENDING:
+                    state = STATE_PENDING;
+                    break;
+                case IPP_JOB_HELD:
+                    state = STATE_HELD;
+                    break;
+                case IPP_JOB_PROCESSING:
+                    state = STATE_PROCESSING;
+                    break;
+                case IPP_JOB_STOPPED:
+                    state = STATE_STOPPED;
+                    break;
+                case IPP_JOB_CANCELLED:
+                    state = STATE_CANCELED;
+                    break;
+                case IPP_JOB_ABORTED:
+                    state = STATE_ABORTED;
+                    break;
+                case IPP_JOB_COMPLETED:
+                    state = STATE_COMPLETED;
+                    break;
+                default:
+                    state = STATE_UNKNOWN;
+                    break;
+            }
+            return true;
+        }
+    }
+
+    return false;
 }
 

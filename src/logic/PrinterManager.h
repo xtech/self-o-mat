@@ -30,6 +30,17 @@ namespace selfomat {
             STATE_STOPPED
         };
 
+        enum PrinterJobState {
+            STATE_UNKNOWN,
+            STATE_PENDING,
+            STATE_HELD,
+            STATE_PROCESSING,
+            STATE_STOPPED,
+            STATE_CANCELED,
+            STATE_ABORTED,
+            STATE_COMPLETED
+        };
+
         class PrinterManager {
         private:
             static std::string TAG;
@@ -74,11 +85,11 @@ namespace selfomat {
 
             bool resumePrinter();
 
-            bool printImage();
+            int printImage();
 
             bool cancelPrint();
 
-
+            bool getJobDetails(int jobId, PrinterJobState &state, time_t &creationTs, time_t &processingTs, time_t &completedTs);
         };
     }
 }
