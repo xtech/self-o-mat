@@ -1,4 +1,5 @@
 #include <utility>
+#include <algorithm>
 
 //
 // Created by clemens on 12.02.19.
@@ -252,6 +253,8 @@ bool PrinterManager::getJobDetails(int jobId, PrinterJobState &state, time_t &cr
     if(jobId <= 0)
         return false;
 
+    boost::unique_lock<boost::mutex> lk(printerStateMutex);
+
     cups_job_t *cupsJobs;
     int cupsJobCount = cupsGetJobs2(CUPS_HTTP_DEFAULT, &cupsJobs, NULL, 0, CUPS_WHICHJOBS_ALL);
     LOG_D(TAG, "Number of print jobs: ", std::to_string(cupsJobCount));
@@ -321,4 +324,80 @@ const char* PrinterManager::printerJobStateToString(PrinterJobState &state) {
 	default:
 	    return "unknown";
     }
+}
+
+bool PrinterManager::getJobAttributes(int jobId) {
+    if(jobId <= 0)
+        return false;
+
+    boost::unique_lock<boost::mutex> lk(printerStateMutex);
+
+    LOG_D(TAG, "Querying attributes for print job with ID #", std::to_string(jobId));
+
+    http_t *http;
+    ipp_t *request;
+    ipp_t *response;
+    char uri[HTTP_MAX_URI];
+    char job_printer_state_reasons[2048];
+    ipp_attribute_t *attr;
+
+    http = httpConnect2(cupsServer(),
+                        ippPort(),
+                        NULL,
+                        AF_UNSPEC,
+                        cupsEncryption(),
+                        1,
+                        30000,
+                        NULL);
+
+
+    httpAssembleURIf(HTTP_URI_CODING_ALL, uri, sizeof(uri), "ipp", NULL, "localhost", ippPort(), "/printers/%s", printer_name.c_str());
+
+    request = ippNewRequest(IPP_OP_GET_JOB_ATTRIBUTES);
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_URI, "printer-uri", NULL, uri);
+    ippAddInteger(request, IPP_TAG_OPERATION, IPP_TAG_INTEGER, "job-id", jobId);
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_NAME, "requesting-user-name", NULL, cupsUser());
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_KEYWORD, "requested-attributes", NULL, "job-printer-state-reasons");
+
+    response = cupsDoRequest(http, request, "/admin");
+
+    job_printer_state_reasons[0] = '\0';
+    if ((attr = ippFindAttribute(response, "job-printer-state-reasons", IPP_TAG_KEYWORD)) != NULL) {
+        ippAttributeString(attr, job_printer_state_reasons, sizeof(job_printer_state_reasons));
+    }
+
+    ippDelete(response);
+
+    httpClose(http);
+
+    std::vector<std::string> needsPaperReasons = {"media-empty-error", "media-needed"};
+    std::vector<std::string> needsInkReasons = {"marker-supply-empty-error"};
+    std::string inputTrayMissingReason = "input-tray-missing";
+    std::vector<std::string> reasons;
+
+    boost::split(reasons,
+                 job_printer_state_reasons,
+                 boost::is_any_of(", "),
+                 boost::token_compress_on);
+
+    bool needsPaper = false;
+    bool needsInk = false;
+    bool needsTray = false;
+    for (std::vector<std::string>::iterator r = reasons.begin(); r != reasons.end(); ++r) {
+        LOG_D(TAG, "Job printer state reason: ", *r);
+        if (std::find(needsPaperReasons.begin(), needsPaperReasons.end(), *r) != needsPaperReasons.end()) {
+            LOG_D(TAG, "Printer needs paper!");
+	    needsPaper = true;
+	}
+        if (std::find(needsInkReasons.begin(), needsInkReasons.end(), *r) != needsInkReasons.end()) {
+            LOG_D(TAG, "Printer needs ink!");
+	    needsInk = true;
+        }
+	if (inputTrayMissingReason.compare(*r) == 0) {
+            LOG_D(TAG, "Printer needs input tray!");
+            needsTray = true;
+        }
+    }
+
+    return true;
 }

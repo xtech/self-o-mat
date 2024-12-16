@@ -92,6 +92,8 @@ namespace selfomat {
             bool getJobDetails(int jobId, PrinterJobState &state, time_t &creationTs, time_t &processingTs, time_t &completedTs);
 
             static const char* printerJobStateToString(PrinterJobState &state);
+            
+            bool getJobAttributes(int jobId);
         };
     }
 }

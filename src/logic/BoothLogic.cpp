@@ -519,7 +519,7 @@ void BoothLogic::metricsThread() {
                 bool gotJobDetails = printerManager.getJobDetails(jobId, jobState, cupsCreationTs,
                                                                   cupsProcessingTs, cupsCompletedTs);
 
-                if(gotJobDetails) {
+                if (gotJobDetails) {
                     it->jobState = jobState;
                     it->cupsCreationTs = cupsCreationTs;
                     it->cupsProcessingTs = cupsProcessingTs;
@@ -527,6 +527,7 @@ void BoothLogic::metricsThread() {
 
                     if (JOB_STATE_UNKNOWN == jobState || JOB_STATE_CANCELED == jobState ||
                         JOB_STATE_ABORTED == jobState || JOB_STATE_COMPLETED == jobState) {
+			// job is in a state where it is no longer monitored
                         LOG_D(TAG, "[Metrics Thread] Erasing print job from metrics list: #", std::to_string(jobId));
                         LOG_D(TAG, "[Metrics Thread] Processing timestamp:          ", std::string(CTIME_NO_NL(&it->processingTs.tv_sec)));
                         LOG_D(TAG, "[Metrics Thread] Await user decision timestamp: ", std::string(CTIME_NO_NL(&it->awaitUserDecisionTs.tv_sec)));
@@ -543,10 +544,19 @@ void BoothLogic::metricsThread() {
                         }
                         printMetrics.erase(it++);
                     } else {
+                        // job is in a state where it will be still monitored
                         LOG_D(TAG, "[Metrics Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
+                        if (JOB_STATE_PROCESSING == jobState) {
+			    timespec tnow;
+                            clock_gettime(CLOCK_REALTIME, &tnow);
+                            double durationProcessing = difftime(tnow.tv_sec, cupsProcessingTs);
+                            LOG_D(TAG, "[Metrics Thread] CUPS job has been processing for [seconds]: ", std::to_string(durationProcessing));
+                            printerManager.getJobAttributes(jobId);
+			}
                         ++it;
                     }
                 } else {
+                    // didn't get job details but want to increment interator anyway
                     ++it;
                 }
             }
