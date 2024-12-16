@@ -248,19 +248,18 @@ bool PrinterManager::cancelPrint() {
     return true;
 }
 
-PrinterJobState PrinterManager::getJobDetails(int jobId, PrinterJobState &state, time_t &creationTs, time_t &processingTs, time_t &completedTs) {
-    
+bool PrinterManager::getJobDetails(int jobId, PrinterJobState &state, time_t &creationTs, time_t &processingTs, time_t &completedTs) {
     if(jobId <= 0)
         return false;
 
     cups_job_t *cupsJobs;
     int cupsJobCount = cupsGetJobs2(CUPS_HTTP_DEFAULT, &cupsJobs, NULL, 0, CUPS_WHICHJOBS_ALL);
-    LOG_D(TAG, "Number of print jobs:", std::to_string(cupsJobCount));
+    LOG_D(TAG, "Number of print jobs: ", std::to_string(cupsJobCount));
 
     for(int i = 0; i < cupsJobCount; i++) {
         if (cupsJobs[i].id == jobId) {
-            LOG_D(TAG, "Found print job with ID:", std::to_string(jobId));
-            
+            LOG_D(TAG, "Found print job with ID #", std::to_string(jobId));
+
             creationTs = cupsJobs[i].creation_time;
             processingTs = cupsJobs[i].processing_time;
             completedTs = cupsJobs[i].completed_time;
@@ -269,28 +268,28 @@ PrinterJobState PrinterManager::getJobDetails(int jobId, PrinterJobState &state,
             {
                 // map known values
                 case IPP_JOB_PENDING:
-                    state = STATE_PENDING;
+                    state = JOB_STATE_PENDING;
                     break;
                 case IPP_JOB_HELD:
-                    state = STATE_HELD;
+                    state = JOB_STATE_HELD;
                     break;
                 case IPP_JOB_PROCESSING:
-                    state = STATE_PROCESSING;
+                    state = JOB_STATE_PROCESSING;
                     break;
                 case IPP_JOB_STOPPED:
-                    state = STATE_STOPPED;
+                    state = JOB_STATE_STOPPED;
                     break;
                 case IPP_JOB_CANCELLED:
-                    state = STATE_CANCELED;
+                    state = JOB_STATE_CANCELED;
                     break;
                 case IPP_JOB_ABORTED:
-                    state = STATE_ABORTED;
+                    state = JOB_STATE_ABORTED;
                     break;
                 case IPP_JOB_COMPLETED:
-                    state = STATE_COMPLETED;
+                    state = JOB_STATE_COMPLETED;
                     break;
                 default:
-                    state = STATE_UNKNOWN;
+                    state = JOB_STATE_UNKNOWN;
                     break;
             }
             return true;
@@ -300,3 +299,26 @@ PrinterJobState PrinterManager::getJobDetails(int jobId, PrinterJobState &state,
     return false;
 }
 
+const char* PrinterManager::printerJobStateToString(PrinterJobState &state) {
+    switch(state)
+    {
+	// map known values
+        case JOB_STATE_PENDING:
+            return "pending";
+        case JOB_STATE_HELD:
+            return "held";
+        case JOB_STATE_PROCESSING:
+            return "processing";
+        case JOB_STATE_STOPPED:
+            return "stopped";
+        case JOB_STATE_CANCELED:
+            return "canceled";
+        case JOB_STATE_ABORTED:
+            return "aborted";
+        case JOB_STATE_COMPLETED:
+            return "completed";
+    	case JOB_STATE_UNKNOWN:
+	default:
+	    return "unknown";
+    }
+}

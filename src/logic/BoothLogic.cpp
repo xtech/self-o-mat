@@ -43,7 +43,7 @@ bool BoothLogic::start() {
         return false;
 
     // Start the threads
-    isLogicThreadRunning = isCameraThreadRunning = isPrinterThread = isMetricsThreadRunning = true;
+    isLogicThreadRunning = isCameraThreadRunning = isPrinterThreadRunning = isMetricsThreadRunning = true;
     logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
     cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
     printThreadHandle = boost::thread(boost::bind(&BoothLogic::printerThread, this));
@@ -375,8 +375,8 @@ void BoothLogic::printerThread() {
 
         if (do_print) {
             ImagePrintMetrics metrics = {};
-            metrics.jobState = STATE_UNKNOWN;
-            clock_gettime(CLOCK_MONOTONIC, &metrics.processingTs);
+            metrics.jobState = JOB_STATE_UNKNOWN;
+            clock_gettime(CLOCK_REALTIME, &metrics.processingTs);
 
             // We need the final jpeg image. So lock the mutex
             {
@@ -406,7 +406,7 @@ void BoothLogic::printerThread() {
                 LOG_D(TAG, "[Printer Thread] Prepared");
             }
 
-            clock_gettime(CLOCK_MONOTONIC, &metrics.awaitUserDecisionTs);
+            clock_gettime(CLOCK_REALTIME, &metrics.awaitUserDecisionTs);
 
             {
                 LOG_D(TAG, "[Printer Thread] Waiting for user to decide if they want to print");
@@ -416,7 +416,7 @@ void BoothLogic::printerThread() {
                 }
             }
 
-            clock_gettime(CLOCK_MONOTONIC, &metrics.gotUserDecisionTs);
+            clock_gettime(CLOCK_REALTIME, &metrics.gotUserDecisionTs);
 
             // We need the info if the user wants to print or not
             if (printConfirmationEnabled) {
@@ -448,7 +448,7 @@ void BoothLogic::printerThread() {
             // (append to list and activate thread if not already active); otherwise just log
             if(metrics.cupsJobId > 0) {
                 boost::unique_lock<boost::mutex> lk(printMetricsMutex);
-                printMetricsMutex.push_back(metrics);
+                printMetrics.push_back(metrics);
                 // TODO: activate thread; how to signal metricsThread?
             } else {
                 // TODO: log only timings known until here
@@ -495,6 +495,8 @@ void BoothLogic::printerThread() {
     }
 }
 
+#define CTIME_NO_NL(x) strtok(ctime(x), "\n")
+
 void BoothLogic::metricsThread() {
     LOG_D(TAG, "Starting Metrics Thread");
 
@@ -505,29 +507,43 @@ void BoothLogic::metricsThread() {
         size_t listLength = 0;
         {
             boost::unique_lock<boost::mutex> lk(printMetricsMutex);
-            
+
             std::list<ImagePrintMetrics>::iterator it = printMetrics.begin();
             while (it != printMetrics.end()) {
-                int jobId = *it.cupsJobId;
+                int jobId = it->cupsJobId;
 
                 PrinterJobState jobState;
-                
+
                 time_t cupsCreationTs, cupsProcessingTs, cupsCompletedTs;
 
                 bool gotJobDetails = printerManager.getJobDetails(jobId, jobState, cupsCreationTs,
                                                                   cupsProcessingTs, cupsCompletedTs);
 
                 if(gotJobDetails) {
-                    *it.jobState = jobState;
-                    *it.cupsCreationTs = cupsCreationTs;
-                    *it.cupsProcessingTs = cupsProcessingTs;
-                    *it.cupsCompletedTs = cupsCompletedTs;
+                    it->jobState = jobState;
+                    it->cupsCreationTs = cupsCreationTs;
+                    it->cupsProcessingTs = cupsProcessingTs;
+                    it->cupsCompletedTs = cupsCompletedTs;
 
-                    if (STATE_UNKNOWN == jobState || STATE_CANCELED == jobState ||
-                        STATE_ABORTED == jobState || STATE_COMPLETED == jobState) {
-                        LOG_D(TAG, "[Metrics Thread] Erasing print job from metrics list: ", std::to_string(jobId));
+                    if (JOB_STATE_UNKNOWN == jobState || JOB_STATE_CANCELED == jobState ||
+                        JOB_STATE_ABORTED == jobState || JOB_STATE_COMPLETED == jobState) {
+                        LOG_D(TAG, "[Metrics Thread] Erasing print job from metrics list: #", std::to_string(jobId));
+                        LOG_D(TAG, "[Metrics Thread] Processing timestamp:          ", std::string(CTIME_NO_NL(&it->processingTs.tv_sec)));
+                        LOG_D(TAG, "[Metrics Thread] Await user decision timestamp: ", std::string(CTIME_NO_NL(&it->awaitUserDecisionTs.tv_sec)));
+                        LOG_D(TAG, "[Metrics Thread] Got user decision timestamp:   ", std::string(CTIME_NO_NL(&it->gotUserDecisionTs.tv_sec)));
+                        LOG_D(TAG, "[Metrics Thread] CUPS creation timestamp:       ", std::string(CTIME_NO_NL(&cupsCreationTs)));
+                        LOG_D(TAG, "[Metrics Thread] CUPS processing timestamp:     ", std::string(CTIME_NO_NL(&cupsProcessingTs)));
+                        LOG_D(TAG, "[Metrics Thread] CUPS completed timestamp:      ", std::string(CTIME_NO_NL(&cupsCompletedTs)));
+                        LOG_D(TAG, "[Metrics Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
+                        if(JOB_STATE_COMPLETED == jobState) {
+			    double durationUntilProc = difftime(cupsProcessingTs, cupsCreationTs);
+			    double durationProcCompl = difftime(cupsCompletedTs, cupsProcessingTs);
+			    LOG_D(TAG, "[Metrics Thread] Creation -> processing:   ", std::to_string(durationUntilProc));
+			    LOG_D(TAG, "[Metrics Thread] Processing -> completion: ", std::to_string(durationProcCompl));
+                        }
                         printMetrics.erase(it++);
                     } else {
+                        LOG_D(TAG, "[Metrics Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
                         ++it;
                     }
                 } else {

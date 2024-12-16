@@ -31,14 +31,14 @@ namespace selfomat {
         };
 
         enum PrinterJobState {
-            STATE_UNKNOWN,
-            STATE_PENDING,
-            STATE_HELD,
-            STATE_PROCESSING,
-            STATE_STOPPED,
-            STATE_CANCELED,
-            STATE_ABORTED,
-            STATE_COMPLETED
+            JOB_STATE_UNKNOWN,
+            JOB_STATE_PENDING,
+            JOB_STATE_HELD,
+            JOB_STATE_PROCESSING,
+            JOB_STATE_STOPPED,
+            JOB_STATE_CANCELED,
+            JOB_STATE_ABORTED,
+            JOB_STATE_COMPLETED
         };
 
         class PrinterManager {
@@ -90,6 +90,8 @@ namespace selfomat {
             bool cancelPrint();
 
             bool getJobDetails(int jobId, PrinterJobState &state, time_t &creationTs, time_t &processingTs, time_t &completedTs);
+
+            static const char* printerJobStateToString(PrinterJobState &state);
         };
     }
 }
