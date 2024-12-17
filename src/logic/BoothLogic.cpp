@@ -43,11 +43,11 @@ bool BoothLogic::start() {
         return false;
 
     // Start the threads
-    isLogicThreadRunning = isCameraThreadRunning = isPrinterThreadRunning = isMetricsThreadRunning = true;
+    isLogicThreadRunning = isCameraThreadRunning = isPrinterThreadRunning = isPrintMonitoringThreadRunning = true;
     logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
     cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
     printThreadHandle = boost::thread(boost::bind(&BoothLogic::printerThread, this));
-    metricsThreadHandle = boost::thread(boost::bind(&BoothLogic::metricsThread, this));
+    printMonitoringThreadHandle = boost::thread(boost::bind(&BoothLogic::printMonitoringThread, this));
 
     return true;
 }
@@ -95,10 +95,10 @@ void BoothLogic::stop(bool update_mode) {
         LOG_D(TAG, "waiting for print");
         printThreadHandle.join();
     }
-    isMetricsThreadRunning = false;
-    if (metricsThreadHandle.joinable()) {
-        LOG_D(TAG, "waiting for metrics");
-        metricsThreadHandle.join();
+    isPrintMonitoringThreadRunning = false;
+    if (printMonitoringThreadHandle.joinable()) {
+        LOG_D(TAG, "waiting for print monitoring");
+        printMonitoringThreadHandle.join();
     }
 
     if (gui != nullptr) {
@@ -450,7 +450,7 @@ void BoothLogic::printerThread() {
             if(metrics.cupsJobId > 0) {
                 boost::unique_lock<boost::mutex> lk(printMetricsMutex);
                 printMetrics.push_back(metrics);
-                // TODO: explicitely activate thread; how to signal metricsThread?
+                // TODO: explicitely activate thread; how to signal print monitoring thread?
             }
         } else {
             // We need the final jpeg image. So lock the mutex
@@ -495,10 +495,10 @@ void BoothLogic::printerThread() {
 
 #define CTIME_NO_NL(x) strtok(ctime(x), "\n")
 
-void BoothLogic::metricsThread() {
-    LOG_D(TAG, "Starting Metrics Thread");
+void BoothLogic::printMonitoringThread() {
+    LOG_D(TAG, "Starting Print Monitoring Thread");
 
-    while (isMetricsThreadRunning) {
+    while (isPrintMonitoringThreadRunning) {
         // TODO: put this thread to sleep; awake it only when a print job has been added to the list;
         //       stay active only as long as list of monitored print jobs is not empty
 
@@ -506,7 +506,7 @@ void BoothLogic::metricsThread() {
         {
             boost::unique_lock<boost::mutex> lk(printMetricsMutex);
 
-            unsigned int printerAttentionFlags = 0;
+            unsigned int printerAttentionFlags = 0; // reset flags
 
             std::list<ImagePrintMetrics>::iterator it = printMetrics.begin();
             while (it != printMetrics.end()) {
@@ -520,6 +520,7 @@ void BoothLogic::metricsThread() {
                                                                   cupsProcessingTs, cupsCompletedTs);
 
                 if (gotJobDetails) {
+                    // copy job details from printer manager
                     it->jobState = jobState;
                     it->cupsCreationTs = cupsCreationTs;
                     it->cupsProcessingTs = cupsProcessingTs;
@@ -527,7 +528,7 @@ void BoothLogic::metricsThread() {
 
                     if (JOB_STATE_UNKNOWN == jobState || JOB_STATE_CANCELED == jobState ||
                         JOB_STATE_ABORTED == jobState || JOB_STATE_COMPLETED == jobState) {
-			// job is in a state where it is no longer monitored
+			// job is in a state where it is no longer monitored ("stopped" is excluded on purpose)
                         LOG_D(TAG, "[Metrics Thread] Erasing print job from metrics list: #", std::to_string(jobId));
                         //LOG_D(TAG, "[Metrics Thread] Processing timestamp:          ", std::string(CTIME_NO_NL(&it->processingTs.tv_sec)));
                         //LOG_D(TAG, "[Metrics Thread] Await user decision timestamp: ", std::string(CTIME_NO_NL(&it->awaitUserDecisionTs.tv_sec)));
@@ -547,6 +548,9 @@ void BoothLogic::metricsThread() {
                         // job is in a state where it will be still monitored
                         LOG_D(TAG, "[Metrics Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
                         if (JOB_STATE_PROCESSING == jobState) {
+                            // when the job is being processed, we can check if the printer needs attention
+                            // e.g. has run out of paper or ink or the input tray is missing;
+                            // we could also let the user know that the processing duration has exceeded a certain threshold
 			    timespec tnow;
                             clock_gettime(CLOCK_REALTIME, &tnow);
                             double durationProcessing = difftime(tnow.tv_sec, cupsProcessingTs);
@@ -556,7 +560,7 @@ void BoothLogic::metricsThread() {
                         ++it;
                     }
                 } else {
-                    // didn't get job details but want to increment interator anyway
+                    // didn't get job details but need to increment the iterator anyway
                     ++it;
                 }
             }
@@ -566,6 +570,7 @@ void BoothLogic::metricsThread() {
 
             if ((printerAttentionFlags > 0) && printerEnabled) {
                 // as only one flag is checked at a time, they are ordered by attention relevance
+                // or "level of attention/action/expertise", i.e. changing the ink cartridge may be "harder" to do
                 if (printerAttentionFlags & PRINTER_ATTN_NO_INK) {
                     gui->addAlert(ALERT_PRINTER_JOB_HINT, getTranslation("frontend.printer_no_ink"));
                 } else if(printerAttentionFlags & PRINTER_ATTN_NO_TRAY) {

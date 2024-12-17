@@ -134,7 +134,7 @@ namespace selfomat {
             PrinterManager printerManager;
             ImageProcessor imageProcessor;
 
-            bool isLogicThreadRunning, isCameraThreadRunning, isPrinterThreadRunning, isMetricsThreadRunning;
+            bool isLogicThreadRunning, isCameraThreadRunning, isPrinterThreadRunning, isPrintMonitoringThreadRunning;
             boost::mutex triggerMutex;
             bool triggered;
 
@@ -172,7 +172,7 @@ namespace selfomat {
             boost::thread logicThreadHandle;
             boost::thread cameraThreadHandle;
             boost::thread printThreadHandle;
-            boost::thread metricsThreadHandle;
+            boost::thread printMonitoringThreadHandle;
 
             int filterChoice = 0;
             double filterGain = 1.0;
@@ -186,8 +186,8 @@ namespace selfomat {
             void logicThread();
 
             void printerThread();
-        
-            void metricsThread();
+
+            void printMonitoringThread();
 
             void triggerFlash();
 
@@ -201,7 +201,7 @@ namespace selfomat {
             FILTER getFilter();
 
             timespec triggerStart;
-            
+
             std::list<ImagePrintMetrics> printMetrics;
             boost::mutex printMetricsMutex;
         public:
@@ -230,6 +230,9 @@ namespace selfomat {
                 }
                 if (printThreadHandle.joinable()) {
                     printThreadHandle.join();
+                }
+                if (printMonitoringThreadHandle.joinable()) {
+                    printMonitoringThreadHandle.join();
                 }
 
                 if (returnCode == -1) {
