@@ -445,14 +445,12 @@ void BoothLogic::printerThread() {
             }
 
             // if job ID > 0, start checking this job from the metrics thread
-            // (append to list and activate thread if not already active); otherwise just log
+            // (append to list and activate thread if not already active);
+            // otherwise the already known timing values could be logged
             if(metrics.cupsJobId > 0) {
                 boost::unique_lock<boost::mutex> lk(printMetricsMutex);
                 printMetrics.push_back(metrics);
-                // TODO: activate thread; how to signal metricsThread?
-            } else {
-                // TODO: log only timings known until here
-                LOG_D(TAG, "[Printer Thread] No print job available");
+                // TODO: explicitely activate thread; how to signal metricsThread?
             }
         } else {
             // We need the final jpeg image. So lock the mutex
@@ -508,6 +506,8 @@ void BoothLogic::metricsThread() {
         {
             boost::unique_lock<boost::mutex> lk(printMetricsMutex);
 
+            unsigned int printerAttentionFlags = 0;
+
             std::list<ImagePrintMetrics>::iterator it = printMetrics.begin();
             while (it != printMetrics.end()) {
                 int jobId = it->cupsJobId;
@@ -529,9 +529,9 @@ void BoothLogic::metricsThread() {
                         JOB_STATE_ABORTED == jobState || JOB_STATE_COMPLETED == jobState) {
 			// job is in a state where it is no longer monitored
                         LOG_D(TAG, "[Metrics Thread] Erasing print job from metrics list: #", std::to_string(jobId));
-                        LOG_D(TAG, "[Metrics Thread] Processing timestamp:          ", std::string(CTIME_NO_NL(&it->processingTs.tv_sec)));
-                        LOG_D(TAG, "[Metrics Thread] Await user decision timestamp: ", std::string(CTIME_NO_NL(&it->awaitUserDecisionTs.tv_sec)));
-                        LOG_D(TAG, "[Metrics Thread] Got user decision timestamp:   ", std::string(CTIME_NO_NL(&it->gotUserDecisionTs.tv_sec)));
+                        //LOG_D(TAG, "[Metrics Thread] Processing timestamp:          ", std::string(CTIME_NO_NL(&it->processingTs.tv_sec)));
+                        //LOG_D(TAG, "[Metrics Thread] Await user decision timestamp: ", std::string(CTIME_NO_NL(&it->awaitUserDecisionTs.tv_sec)));
+                        //LOG_D(TAG, "[Metrics Thread] Got user decision timestamp:   ", std::string(CTIME_NO_NL(&it->gotUserDecisionTs.tv_sec)));
                         LOG_D(TAG, "[Metrics Thread] CUPS creation timestamp:       ", std::string(CTIME_NO_NL(&cupsCreationTs)));
                         LOG_D(TAG, "[Metrics Thread] CUPS processing timestamp:     ", std::string(CTIME_NO_NL(&cupsProcessingTs)));
                         LOG_D(TAG, "[Metrics Thread] CUPS completed timestamp:      ", std::string(CTIME_NO_NL(&cupsCompletedTs)));
@@ -539,8 +539,8 @@ void BoothLogic::metricsThread() {
                         if(JOB_STATE_COMPLETED == jobState) {
 			    double durationUntilProc = difftime(cupsProcessingTs, cupsCreationTs);
 			    double durationProcCompl = difftime(cupsCompletedTs, cupsProcessingTs);
-			    LOG_D(TAG, "[Metrics Thread] Creation -> processing:   ", std::to_string(durationUntilProc));
-			    LOG_D(TAG, "[Metrics Thread] Processing -> completion: ", std::to_string(durationProcCompl));
+			    LOG_D(TAG, "[Metrics Thread] Duration CUPS creation -> processing:   ", std::to_string(durationUntilProc));
+			    LOG_D(TAG, "[Metrics Thread] Duration CUPS processing -> completion: ", std::to_string(durationProcCompl));
                         }
                         printMetrics.erase(it++);
                     } else {
@@ -551,7 +551,7 @@ void BoothLogic::metricsThread() {
                             clock_gettime(CLOCK_REALTIME, &tnow);
                             double durationProcessing = difftime(tnow.tv_sec, cupsProcessingTs);
                             LOG_D(TAG, "[Metrics Thread] CUPS job has been processing for [seconds]: ", std::to_string(durationProcessing));
-                            printerManager.getJobAttributes(jobId);
+                            printerManager.checkPrinterAttentionFromJob(jobId, printerAttentionFlags);
 			}
                         ++it;
                     }
@@ -561,7 +561,21 @@ void BoothLogic::metricsThread() {
                 }
             }
             listLength = printMetrics.size();
-            LOG_D(TAG, "[Metrics Thread] Length of metrics list: ", std::to_string(listLength));
+            //LOG_D(TAG, "[Metrics Thread] Length of metrics list: ", std::to_string(listLength));
+            //LOG_D(TAG, "[Metrics Thread] Printer attention flags: ", std::to_string(printerAttentionFlags));
+
+            if ((printerAttentionFlags > 0) && printerEnabled) {
+                // as only one flag is checked at a time, they are ordered by attention relevance
+                if (printerAttentionFlags & PRINTER_ATTN_NO_INK) {
+                    gui->addAlert(ALERT_PRINTER_JOB_HINT, getTranslation("frontend.printer_no_ink"));
+                } else if(printerAttentionFlags & PRINTER_ATTN_NO_TRAY) {
+                    gui->addAlert(ALERT_PRINTER_JOB_HINT, getTranslation("frontend.printer_no_tray"));
+                } else if(printerAttentionFlags & PRINTER_ATTN_NO_PAPER) {
+                    gui->addAlert(ALERT_PRINTER_JOB_HINT, getTranslation("frontend.printer_no_paper"));
+                }
+            } else {
+                gui->removeAlert(ALERT_PRINTER_JOB_HINT);
+            }
         }
 
         // TODO: if listLength > 0, wake up periodically, otherwise wait for external activation from printerThread

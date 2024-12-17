@@ -257,11 +257,11 @@ bool PrinterManager::getJobDetails(int jobId, PrinterJobState &state, time_t &cr
 
     cups_job_t *cupsJobs;
     int cupsJobCount = cupsGetJobs2(CUPS_HTTP_DEFAULT, &cupsJobs, NULL, 0, CUPS_WHICHJOBS_ALL);
-    LOG_D(TAG, "Number of print jobs: ", std::to_string(cupsJobCount));
+    //LOG_D(TAG, "Number of print jobs: ", std::to_string(cupsJobCount));
 
     for(int i = 0; i < cupsJobCount; i++) {
         if (cupsJobs[i].id == jobId) {
-            LOG_D(TAG, "Found print job with ID #", std::to_string(jobId));
+            //LOG_D(TAG, "Found print job with ID #", std::to_string(jobId));
 
             creationTs = cupsJobs[i].creation_time;
             processingTs = cupsJobs[i].processing_time;
@@ -326,13 +326,13 @@ const char* PrinterManager::printerJobStateToString(PrinterJobState &state) {
     }
 }
 
-bool PrinterManager::getJobAttributes(int jobId) {
+void PrinterManager::checkPrinterAttentionFromJob(int jobId, unsigned int &flags) {
     if(jobId <= 0)
-        return false;
+        return;
 
     boost::unique_lock<boost::mutex> lk(printerStateMutex);
 
-    LOG_D(TAG, "Querying attributes for print job with ID #", std::to_string(jobId));
+    //LOG_D(TAG, "Querying attributes for print job with ID #", std::to_string(jobId));
 
     http_t *http;
     ipp_t *request;
@@ -380,24 +380,19 @@ bool PrinterManager::getJobAttributes(int jobId) {
                  boost::is_any_of(", "),
                  boost::token_compress_on);
 
-    bool needsPaper = false;
-    bool needsInk = false;
-    bool needsTray = false;
     for (std::vector<std::string>::iterator r = reasons.begin(); r != reasons.end(); ++r) {
         LOG_D(TAG, "Job printer state reason: ", *r);
         if (std::find(needsPaperReasons.begin(), needsPaperReasons.end(), *r) != needsPaperReasons.end()) {
             LOG_D(TAG, "Printer needs paper!");
-	    needsPaper = true;
+	    flags |= PRINTER_ATTN_NO_PAPER;
 	}
         if (std::find(needsInkReasons.begin(), needsInkReasons.end(), *r) != needsInkReasons.end()) {
             LOG_D(TAG, "Printer needs ink!");
-	    needsInk = true;
+	    flags |= PRINTER_ATTN_NO_INK;
         }
 	if (inputTrayMissingReason.compare(*r) == 0) {
             LOG_D(TAG, "Printer needs input tray!");
-            needsTray = true;
+	    flags |= PRINTER_ATTN_NO_TRAY;
         }
     }
-
-    return true;
 }

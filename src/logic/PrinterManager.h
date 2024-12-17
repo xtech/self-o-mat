@@ -41,6 +41,12 @@ namespace selfomat {
             JOB_STATE_COMPLETED
         };
 
+        enum PrinterAttentionFlag {
+            PRINTER_ATTN_NO_PAPER = (1 << 0),
+            PRINTER_ATTN_NO_INK = (1 << 1),
+            PRINTER_ATTN_NO_TRAY = (1 << 2)
+        };
+
         class PrinterManager {
         private:
             static std::string TAG;
@@ -92,8 +98,8 @@ namespace selfomat {
             bool getJobDetails(int jobId, PrinterJobState &state, time_t &creationTs, time_t &processingTs, time_t &completedTs);
 
             static const char* printerJobStateToString(PrinterJobState &state);
-            
-            bool getJobAttributes(int jobId);
+
+            void checkPrinterAttentionFromJob(int jobId, unsigned int &flags);
         };
     }
 }
