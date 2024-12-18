@@ -14,6 +14,7 @@
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 
 #include <unistd.h>
 #include <linux/reboot.h>
@@ -89,7 +90,8 @@ namespace selfomat {
                                                                         selfomatController(),
                                                                         force_image_dir_mountpoint(force_image_dir_mountpoint),
                                                                         show_led_setup(show_led_setup),
-                                                                        autofocus_before_trigger(autofocus_before_trigger) {
+                                                                        autofocus_before_trigger(autofocus_before_trigger),
+ 								        printMetricsSem(0) {
                 selfomatController.setLogic(this);
                 this->triggered = false;
                 this->disable_watchdog = disable_watchdog;
@@ -204,6 +206,7 @@ namespace selfomat {
 
             std::list<ImagePrintMetrics> printMetrics;
             boost::mutex printMetricsMutex;
+	    boost::interprocess::interprocess_semaphore printMetricsSem;
         public:
             bool isStopped();
             void trigger();

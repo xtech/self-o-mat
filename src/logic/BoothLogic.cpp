@@ -1,3 +1,4 @@
+
 //
 // Created by clemens on 21.01.19.
 //
@@ -450,7 +451,8 @@ void BoothLogic::printerThread() {
             if(metrics.cupsJobId > 0) {
                 boost::unique_lock<boost::mutex> lk(printMetricsMutex);
                 printMetrics.push_back(metrics);
-                // TODO: explicitely activate thread; how to signal print monitoring thread?
+                // explicitely activate print monitoring thread
+                printMetricsSem.post();
             }
         } else {
             // We need the final jpeg image. So lock the mutex
@@ -498,9 +500,26 @@ void BoothLogic::printerThread() {
 void BoothLogic::printMonitoringThread() {
     LOG_D(TAG, "Starting Print Monitoring Thread");
 
+    // boolean flag which indicates whether to wait for external activation of this thread
+    // from the printer thread
+    bool waitForActivation = true;
+
     while (isPrintMonitoringThreadRunning) {
-        // TODO: put this thread to sleep; awake it only when a print job has been added to the list;
-        //       stay active only as long as list of monitored print jobs is not empty
+        if (waitForActivation) {
+            // blocking wait: only accept activation from printer thread (no periodic execution of this thread)
+            LOG_D(TAG, "[Print Mon Thread] Waiting for activation from printer thread (going to sleep...)");
+            printMetricsSem.wait();
+            LOG_D(TAG, "[Print Mon Thread] Activated from printer thread (slept before)");
+        } else {
+            // blocking wait for period time; but also activate earlier if the semaphore has been posted by the printer thread
+            boost::system_time const timeout = boost::get_system_time() + boost::posix_time::milliseconds(5000);
+            bool semPosted = printMetricsSem.timed_wait(timeout);
+            if (semPosted) {
+                LOG_D(TAG, "[Print Mon Thread] Activated from print thread (already active before)");
+            } else {
+                LOG_D(TAG, "[Print Mon Thread] Periodic execution (wait for semaphore timeout)");
+            }
+        }
 
         size_t listLength = 0;
         {
@@ -529,24 +548,25 @@ void BoothLogic::printMonitoringThread() {
                     if (JOB_STATE_UNKNOWN == jobState || JOB_STATE_CANCELED == jobState ||
                         JOB_STATE_ABORTED == jobState || JOB_STATE_COMPLETED == jobState) {
 			// job is in a state where it is no longer monitored ("stopped" is excluded on purpose)
-                        LOG_D(TAG, "[Metrics Thread] Erasing print job from metrics list: #", std::to_string(jobId));
-                        //LOG_D(TAG, "[Metrics Thread] Processing timestamp:          ", std::string(CTIME_NO_NL(&it->processingTs.tv_sec)));
-                        //LOG_D(TAG, "[Metrics Thread] Await user decision timestamp: ", std::string(CTIME_NO_NL(&it->awaitUserDecisionTs.tv_sec)));
-                        //LOG_D(TAG, "[Metrics Thread] Got user decision timestamp:   ", std::string(CTIME_NO_NL(&it->gotUserDecisionTs.tv_sec)));
-                        LOG_D(TAG, "[Metrics Thread] CUPS creation timestamp:       ", std::string(CTIME_NO_NL(&cupsCreationTs)));
-                        LOG_D(TAG, "[Metrics Thread] CUPS processing timestamp:     ", std::string(CTIME_NO_NL(&cupsProcessingTs)));
-                        LOG_D(TAG, "[Metrics Thread] CUPS completed timestamp:      ", std::string(CTIME_NO_NL(&cupsCompletedTs)));
-                        LOG_D(TAG, "[Metrics Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
+                        LOG_D(TAG, "[Print Mon Thread] Erasing print job from metrics list: #", std::to_string(jobId));
+                        //LOG_D(TAG, "[Print Mon Thread] Processing timestamp:          ", std::string(CTIME_NO_NL(&it->processingTs.tv_sec)));
+                        //LOG_D(TAG, "[Print Mon Thread] Await user decision timestamp: ", std::string(CTIME_NO_NL(&it->awaitUserDecisionTs.tv_sec)));
+                        //LOG_D(TAG, "[Print Mon Thread] Got user decision timestamp:   ", std::string(CTIME_NO_NL(&it->gotUserDecisionTs.tv_sec)));
+                        LOG_D(TAG, "[Print Mon Thread] CUPS creation timestamp:       ", std::string(CTIME_NO_NL(&cupsCreationTs)));
+                        LOG_D(TAG, "[Print Mon Thread] CUPS processing timestamp:     ", std::string(CTIME_NO_NL(&cupsProcessingTs)));
+                        LOG_D(TAG, "[Print Mon Thread] CUPS completed timestamp:      ", std::string(CTIME_NO_NL(&cupsCompletedTs)));
+                        LOG_D(TAG, "[Print Mon Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
                         if(JOB_STATE_COMPLETED == jobState) {
+ 			    // finally, it's time to emit (log) the collected metrics
 			    double durationUntilProc = difftime(cupsProcessingTs, cupsCreationTs);
 			    double durationProcCompl = difftime(cupsCompletedTs, cupsProcessingTs);
-			    LOG_D(TAG, "[Metrics Thread] Duration CUPS creation -> processing:   ", std::to_string(durationUntilProc));
-			    LOG_D(TAG, "[Metrics Thread] Duration CUPS processing -> completion: ", std::to_string(durationProcCompl));
+			    LOG_D(TAG, "[Print Mon Thread] Duration CUPS creation -> processing:   ", std::to_string(durationUntilProc));
+			    LOG_D(TAG, "[Print Mon Thread] Duration CUPS processing -> completion: ", std::to_string(durationProcCompl));
                         }
                         printMetrics.erase(it++);
                     } else {
                         // job is in a state where it will be still monitored
-                        LOG_D(TAG, "[Metrics Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
+                        LOG_D(TAG, "[Print Mon Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
                         if (JOB_STATE_PROCESSING == jobState) {
                             // when the job is being processed, we can check if the printer needs attention
                             // e.g. has run out of paper or ink or the input tray is missing;
@@ -554,7 +574,7 @@ void BoothLogic::printMonitoringThread() {
 			    timespec tnow;
                             clock_gettime(CLOCK_REALTIME, &tnow);
                             double durationProcessing = difftime(tnow.tv_sec, cupsProcessingTs);
-                            LOG_D(TAG, "[Metrics Thread] CUPS job has been processing for [seconds]: ", std::to_string(durationProcessing));
+                            LOG_D(TAG, "[Print Mon Thread] CUPS job has been processing for [seconds]: ", std::to_string(durationProcessing));
                             printerManager.checkPrinterAttentionFromJob(jobId, printerAttentionFlags);
 			}
                         ++it;
@@ -565,8 +585,8 @@ void BoothLogic::printMonitoringThread() {
                 }
             }
             listLength = printMetrics.size();
-            //LOG_D(TAG, "[Metrics Thread] Length of metrics list: ", std::to_string(listLength));
-            //LOG_D(TAG, "[Metrics Thread] Printer attention flags: ", std::to_string(printerAttentionFlags));
+            //LOG_D(TAG, "[Print Mon Thread] Length of metrics list: ", std::to_string(listLength));
+            //LOG_D(TAG, "[Print Mon Thread] Printer attention flags: ", std::to_string(printerAttentionFlags));
 
             if ((printerAttentionFlags > 0) && printerEnabled) {
                 // as only one flag is checked at a time, they are ordered by attention relevance
@@ -581,10 +601,11 @@ void BoothLogic::printMonitoringThread() {
             } else {
                 gui->removeAlert(ALERT_PRINTER_JOB_HINT);
             }
-        }
 
-        // TODO: if listLength > 0, wake up periodically, otherwise wait for external activation from printerThread
-        boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
+            // execute periodically if there's still some job to be monitored or a print job alarm active (any flag set);
+            // otherwise wait for activation from print thread
+            waitForActivation = (listLength == 0) && (printerAttentionFlags == 0);
+        }
     }
 }
 
