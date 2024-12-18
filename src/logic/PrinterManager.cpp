@@ -179,6 +179,8 @@ bool PrinterManager::resumePrinter() {
 
         LOG_E(TAG, "Cannot enable printer:", cupsLastErrorString());
 
+        httpClose(http);
+
         return false;
     }
 
@@ -188,6 +190,8 @@ bool PrinterManager::resumePrinter() {
     ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_NAME, "requesting-user-name", NULL, cupsUser());
 
     ippDelete(cupsDoRequest(http, request, "/admin/"));
+
+    httpClose(http);
 
     if (cupsLastError() > IPP_STATUS_OK_CONFLICTING) {
 
