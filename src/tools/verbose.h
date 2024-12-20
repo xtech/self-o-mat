@@ -6,7 +6,6 @@
 #define SELF_O_MAT_VERBOSE_H
 
 #include <iostream>
-#include <tools/FilesystemLogger.h>
 
 
 namespace selfomat {

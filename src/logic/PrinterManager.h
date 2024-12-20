@@ -10,7 +10,6 @@
 #include <cups/ipp.h>
 #include <cups/adminutil.h>
 #include <iostream>
-#include "tools/ILogger.h"
 #include <opencv2/opencv.hpp>
 #include "../tools/buffers.h"
 
@@ -53,7 +52,6 @@ namespace selfomat {
             PRINTER_STATE currentPrinterState;
             std::vector<std::string> currentStateReasons;
 
-            ILogger *logger;
             std::string printer_name;
 
             void *imageTmpBuffer = nullptr;
@@ -83,7 +81,7 @@ namespace selfomat {
 
             bool refreshPrinterState();
 
-            PrinterManager(ILogger *logger);
+            PrinterManager();
 
             bool prepareImageForPrint(cv::Mat image);
 

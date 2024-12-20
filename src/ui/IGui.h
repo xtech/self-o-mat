@@ -5,12 +5,10 @@
 #ifndef SELF_O_MAT_IGUI_H
 #define SELF_O_MAT_IGUI_H
 
-#include "tools/ILogger.h"
 
 #include <boost/unordered_map.hpp>
 #include <boost/assign/list_of.hpp>
 
-using namespace selfomat::tools;
 
 namespace selfomat {
     namespace ui {
@@ -45,7 +43,7 @@ namespace selfomat {
             ALERT_TEMPLATE
         };
 
-        class IGui : public ILogger {
+        class IGui {
         public:
 
             virtual const GUI_STATE getCurrentGuiState() = 0;

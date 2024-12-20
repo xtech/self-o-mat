@@ -49,12 +49,7 @@ void ImageProcessor::loadTemplateImage() {
 
 }
 
-ImageProcessor::ImageProcessor(ILogger *logger) {
-    if (logger != nullptr) {
-        this->logger = logger;
-    } else {
-        this->logger = new ConsoleLogger();
-    }
+ImageProcessor::ImageProcessor() {
 }
 
 ImageProcessor::~ImageProcessor() {

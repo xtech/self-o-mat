@@ -4,6 +4,7 @@
 
 
 #include "BaseController.h"
+#include <sstream>
 
 using namespace selfomat::camera::gphoto;
 using namespace selfomat::tools;
