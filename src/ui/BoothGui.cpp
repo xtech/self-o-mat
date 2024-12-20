@@ -3,13 +3,15 @@
 //
 
 #include "BoothGui.h"
+#include "tools/verbose.h"
 
 using namespace std;
 using namespace selfomat::ui;
+using namespace selfomat::tools;
 
 std::string BoothGui::TAG = "BOOTH_GUI";
 
-BoothGui::BoothGui(bool fullscreen, bool debug, logic::ILogicController *logicController) : debugLogQueue(), stateTimer(), alertTimer() {
+BoothGui::BoothGui(bool fullscreen, bool debug, logic::ILogicController *logicController) : stateTimer(), alertTimer() {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
     this->currentState = STATE_INIT;
@@ -23,8 +25,6 @@ BoothGui::~BoothGui() {
 }
 
 bool BoothGui::start() {
-
-    FilesystemLogger::INSTANCE.registerDelegate(this);
     // Load assets
     if (!hackFont.loadFromFile("./assets/Hack-Regular.ttf")) {
         LOG_E(TAG, "Could not load font.");
@@ -184,7 +184,11 @@ void BoothGui::renderThread() {
                 window.close();
             } else if(logicController != nullptr && event.type == sf::Event::MouseButtonPressed) {
                 if(event.mouseButton.button == sf::Mouse::Button::Left) {
-                    logicController->trigger();
+                    if(logicController->isAgreementVisible()) {
+                        logicController->acceptAgreement();
+                    } else {
+                        logicController->trigger();
+                    }
                 }
             }
         }
@@ -681,10 +685,6 @@ void BoothGui::drawDebug() {
     debugStr += to_string(cameraFrameCounter.fps);
     debugStr += "\n";
 
-    debugLogQueueMutex.lock();
-    for (const auto &string : debugLogQueue)
-        debugStr += string + "\n";
-    debugLogQueueMutex.unlock();
 
     debugText.setString(debugStr);
 
@@ -783,13 +783,6 @@ void BoothGui::confirmPrint() {
     if (getCurrentGuiState() == STATE_FINAL_IMAGE_PRINT) {
         setState(STATE_FINAL_IMAGE_PRINT_CONFIRMED);
     }
-}
-void BoothGui::log(std::string s) {
-    debugLogQueueMutex.lock();
-    debugLogQueue.push_front(s);
-    if (debugLogQueue.size() > DEBUG_QUEUE_SIZE)
-        debugLogQueue.pop_back();
-    debugLogQueueMutex.unlock();
 }
 
 void BoothGui::setDebugOutput(bool debug) {

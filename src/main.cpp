@@ -12,6 +12,12 @@
 
 #include <sstream>
 #include <iostream>
+#include <spdlog/spdlog.h>
+#include <spdlog/async.h>
+
+#include "spdlog/sinks/dist_sink.h"
+#include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 using namespace std;
 using namespace boost;
@@ -84,7 +90,7 @@ void exitfunc(int code) {
 
     LOG_I("main", "Disable filesystem logger");
 
-    selfomat::tools::FilesystemLogger::INSTANCE.disableLogToFile();
+    // TODO: spdlog disable file system logging?
 
     std::cout << "Cleaned up" << endl;
     exitMutex.unlock();
@@ -95,6 +101,19 @@ void exitfunc() {
 }
 
 int main(int argc, char *argv[]) {
+
+    // Setup logging (async logger to file and console)
+    spdlog::init_thread_pool(8192, 1);
+    auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt >();
+
+    // create a dist_sink which distributes to other sinks
+    // this allows us to add the file sink later
+    const auto dist_sink = std::make_shared<spdlog::sinks::dist_sink<std::mutex>>();
+    dist_sink->add_sink(stdout_sink);
+    spdlog::set_default_logger(std::make_unique<spdlog::async_logger>("default", dist_sink,
+        spdlog::thread_pool(), spdlog::async_overflow_policy::block));
+
+    spdlog::flush_every(std::chrono::seconds(1));
 
 
     // Listen to some common signals so that we're able to stop the camera gui etc gracefully

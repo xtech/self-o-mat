@@ -36,9 +36,6 @@ namespace selfomat {
             void setTemplateEnabled(bool templateEnabled) override;
 
             const GUI_STATE getCurrentGuiState() override;
-
-        protected:
-            void log(std::string s) override;
         };
     }
 }
