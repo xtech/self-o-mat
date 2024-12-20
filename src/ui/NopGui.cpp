@@ -56,7 +56,3 @@ void NopGui::setTemplateEnabled(bool templateEnabled) {
 const GUI_STATE NopGui::getCurrentGuiState() {
     return STATE_TRANS_AGREEMENT;
 }
-
-void NopGui::log(std::string s) {
-    std::cout << s << std::endl;
-}

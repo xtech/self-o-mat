@@ -7,11 +7,9 @@
 
 
 #include <iostream>
-#include <tools/ILogger.h>
 #include <tools/imageinfo.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <tools/ConsoleLogger.h>
 #include <tools/buffers.h>
 #include <tools/verbose.h>
 #include <tools/JpegDecoder.h>
@@ -40,8 +38,6 @@ namespace selfomat {
 
             cv::Rect offset;
 
-            ILogger *logger;
-
             void *latestBuffer = nullptr;
             size_t latestBufferSize = 0;
 
@@ -58,7 +54,7 @@ namespace selfomat {
             void loadTemplateImage();
 
         public:
-            explicit ImageProcessor(ILogger *logger);
+            explicit ImageProcessor();
 
             cv::Mat frameImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);
             cv::Mat decodeImageForPrint(void *inputImageJpeg, size_t jpegBufferSize, FILTER filter = NO_FILTER, double filterGain = 1.0);

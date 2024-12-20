@@ -14,7 +14,7 @@
       <ion-label slot="start" *ngIf="apiService.isNumber(setting['minValue'])">{{setting['name']}}</ion-label>
       <ion-toggle slot="end" *ngIf="apiService.isBoolean(setting['currentValue'])" [(ngModel)]="setting['currentValue']" (ionChange)="apiService.updateSetting($event, setting)"></ion-toggle>
       <ion-range slot="end" pin="false" *ngIf="apiService.isNumber(setting['minValue'])" [(ngModel)]="setting['currentValue']" [min]="setting['minValue']" [max]="setting['maxValue']" (ionChange)="apiService.updateSetting($event, setting)" debounce="50" step="0.1"></ion-range>
-      <ion-select slot="end" *ngIf="apiService.isList(setting)" interface="popover" [(ngModel)]="setting['currentIndex']" [value]="setting['currentIndex']" (ionChange)="apiService.updateSetting($event, setting)">
+      <ion-select slot="end" *ngIf="apiService.isList(setting)" interface="action-sheet" [(ngModel)]="setting['currentIndex']" [value]="setting['currentIndex']" (ionChange)="apiService.updateSetting($event, setting)">
         <ion-select-option *ngFor="let value of apiService.getList(setting).values; index as i" [value]="i">{{value}}</ion-select-option>
       </ion-select>
       <ion-note slot="end" *ngIf="apiService.isReadOnly(setting)">{{setting['value']}}</ion-note>

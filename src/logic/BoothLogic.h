@@ -33,8 +33,9 @@
 #include "ILogicController.h"
 
 #include <tools/verbose.h>
+#include <spdlog/spdlog.h>
 
-
+#include "spdlog/sinks/rotating_file_sink.h"
 
 
 using namespace selfomat::camera;
@@ -82,8 +83,8 @@ namespace selfomat {
         public:
             explicit BoothLogic(ICamera *camera, IGui *gui, bool has_button, const string &button_port, bool has_flash,
                                 string imageDir, bool force_image_dir_mountpoint, bool disable_watchdog, bool show_led_setup, bool autofocus_before_trigger) : camera(camera), gui(gui),
-                                                                        imageProcessor(gui),
-                                                                        printerManager(gui),
+                                                                        imageProcessor(),
+                                                                        printerManager(),
                                                                         has_button(has_button),
                                                                         has_flash(has_flash),
                                                                         imageDir(imageDir),
@@ -176,6 +177,8 @@ namespace selfomat {
             boost::thread printThreadHandle;
             boost::thread printMonitoringThreadHandle;
 
+            std::shared_ptr<spdlog::sinks::rotating_file_sink_mt> file_logger{nullptr};
+
             int filterChoice = 0;
             double filterGain = 1.0;
             bool wasSuccessfullyStopped = false;
@@ -252,6 +255,8 @@ namespace selfomat {
 
             void incTriggerCounter();
             int getTriggerCounter();
+
+            bool isAgreementVisible() override;
 
             void setPrinterEnabled(bool printerEnabled, bool persist = false);
             bool getPrinterEnabled();

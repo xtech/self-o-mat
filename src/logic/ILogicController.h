@@ -13,6 +13,7 @@ namespace selfomat {
             virtual void confirmPrint() = 0;
             virtual void stop() = 0;
             virtual bool getPrintConfirmationEnabled() = 0;
+            virtual bool isAgreementVisible() = 0;
             virtual std::wstring getTranslation(std::string id) = 0;
         };
     }
