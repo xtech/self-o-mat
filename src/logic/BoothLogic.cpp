@@ -376,6 +376,7 @@ void BoothLogic::printerThread() {
         if (do_print) {
             ImagePrintMetrics metrics = {};
             metrics.jobState = JOB_STATE_UNKNOWN;
+            metrics.printerNeededAttention = false;
             clock_gettime(CLOCK_REALTIME, &metrics.processingTs);
 
             // We need the final jpeg image. So lock the mutex
@@ -493,6 +494,22 @@ void BoothLogic::printerThread() {
 
 #define CTIME_NO_NL(x) strtok(ctime(x), "\n")
 
+int BoothLogic::difftimeSeconds(time_t later, time_t earlier) {
+    // starting epoch timestamp is zero (i.e. has not been set) indicate invalid timediff
+    if (earlier == 0)
+        return -1;
+
+    // replace missing timestamp with "now"
+    // please note that this may not be accurate and depends on the period time of the thread
+    if (later == 0) {
+        timespec tnow;
+        clock_gettime(CLOCK_REALTIME, &tnow);
+        later = tnow.tv_sec;
+    }
+
+    return difftime(later, earlier);
+}
+
 void BoothLogic::printMonitoringThread() {
     LOG_D(TAG, "Starting Print Monitoring Thread");
 
@@ -521,38 +538,42 @@ void BoothLogic::printMonitoringThread() {
                     it->cupsProcessingTs = cupsProcessingTs;
                     it->cupsCompletedTs = cupsCompletedTs;
 
+                    // "now" is a good reference timestamp
+		    timespec tnow;
+                    clock_gettime(CLOCK_REALTIME, &tnow);
+
+                    LOG_D(TAG, "[Print Mon Thread] CUPS job #", std::to_string(jobId) +
+			" in state: " + std::string(printerManager.printerJobStateToString(it->jobState)));
+
                     if (JOB_STATE_UNKNOWN == jobState || JOB_STATE_CANCELED == jobState ||
                         JOB_STATE_ABORTED == jobState || JOB_STATE_COMPLETED == jobState) {
 			// job is in a state where it is no longer monitored ("stopped" is excluded on purpose)
                         LOG_D(TAG, "[Print Mon Thread] Erasing print job from metrics list: #", std::to_string(jobId));
-                        //LOG_D(TAG, "[Print Mon Thread] Processing timestamp:          ", std::string(CTIME_NO_NL(&it->processingTs.tv_sec)));
-                        //LOG_D(TAG, "[Print Mon Thread] Await user decision timestamp: ", std::string(CTIME_NO_NL(&it->awaitUserDecisionTs.tv_sec)));
-                        //LOG_D(TAG, "[Print Mon Thread] Got user decision timestamp:   ", std::string(CTIME_NO_NL(&it->gotUserDecisionTs.tv_sec)));
-                        LOG_D(TAG, "[Print Mon Thread] CUPS creation timestamp:       ", std::string(CTIME_NO_NL(&cupsCreationTs)));
-                        LOG_D(TAG, "[Print Mon Thread] CUPS processing timestamp:     ", std::string(CTIME_NO_NL(&cupsProcessingTs)));
-                        LOG_D(TAG, "[Print Mon Thread] CUPS completed timestamp:      ", std::string(CTIME_NO_NL(&cupsCompletedTs)));
-                        LOG_D(TAG, "[Print Mon Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
+                        LOG_D(TAG, "[Print Mon Thread] CUPS creation timestamp: ", std::string(CTIME_NO_NL(&cupsCreationTs)));
 
-                        if(JOB_STATE_COMPLETED == jobState) {
- 			    // finally, it's time to emit (log) the collected metrics
-			    double durationUntilProc = difftime(cupsProcessingTs, cupsCreationTs);
-			    double durationProcCompl = difftime(cupsCompletedTs, cupsProcessingTs);
-			    LOG_D(TAG, "[Print Mon Thread] Duration CUPS creation -> processing:   ", std::to_string(durationUntilProc));
-			    LOG_D(TAG, "[Print Mon Thread] Duration CUPS processing -> completion: ", std::to_string(durationProcCompl));
-                        }
+                        // finally, it's time to emit (log) the collected metrics;
+                        // let's use full seconds only (values are floor'ed not rounded for sake of simplicity!
+                        // CUPS timestamps have second granularity anyway)
+			int durationCupsCreation2CupsProc = difftimeSeconds(cupsProcessingTs, cupsCreationTs);
+			int durationCupsProc2CupsCompl = difftimeSeconds(cupsCompletedTs, cupsProcessingTs);
+
+                        std::string csvLine = std::to_string(jobId) +
+			    ";\"" + std::string(CTIME_NO_NL(&cupsCreationTs)) +
+			    "\";\"" + std::string(printerManager.printerJobStateToString(it->jobState)) +
+			    "\";" + std::to_string(durationCupsCreation2CupsProc) + ";" +
+                            std::to_string(durationCupsProc2CupsCompl) + ";" +
+                            std::to_string(it->printerNeededAttention);
+                        LOG_D(TAG, "[Print Mon Thread] CSV>", csvLine);
 
                         printMetrics.erase(it++);
                     } else {
                         // job is in a state where it will be still monitored
-                        LOG_D(TAG, "[Print Mon Thread] CUPS state                     ", std::string(printerManager.printerJobStateToString(it->jobState)));
 
                         if (JOB_STATE_PROCESSING == jobState) {
                             // when the job is being processed, we can check if the printer needs attention
                             // e.g. has run out of paper or ink or the input tray is missing;
                             // we could also let the user know that the processing duration has exceeded a certain threshold
-			    timespec tnow;
-                            clock_gettime(CLOCK_REALTIME, &tnow);
-                            double durationProcessing = difftime(tnow.tv_sec, cupsProcessingTs);
+                            int durationProcessing = difftime(tnow.tv_sec, cupsProcessingTs);
                             LOG_D(TAG, "[Print Mon Thread] CUPS job has been processing for [seconds]: ", std::to_string(durationProcessing));
                             unsigned int currentPrinterAttentionFlags = 0;
                             printerManager.checkPrinterAttentionFromJob(jobId, currentPrinterAttentionFlags);

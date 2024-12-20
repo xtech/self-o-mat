@@ -202,6 +202,8 @@ namespace selfomat {
 
             FILTER getFilter();
 
+            int difftimeSeconds(time_t later, time_t earlier);
+
             timespec triggerStart;
 
             std::list<ImagePrintMetrics> printMetrics;
