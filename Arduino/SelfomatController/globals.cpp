@@ -26,5 +26,7 @@ FastCRC16 CRC16;
 
 COBSSpacePacketSerial packetSerial;
 
+Logging logger(PIN_SWSERIAL_LOGGING_TX);
+
 unsigned long lastHeartbeat = 0;
 bool heartbeatDeactivated = false;
