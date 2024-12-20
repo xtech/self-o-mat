@@ -43,6 +43,8 @@ OPTION (SERVED_BUILD_TESTS "Build served unit test suite" OFF)
 OPTION (SERVED_BUILD_EXAMPLES "Build served  examples" OFF)
 add_subdirectory(dependencies/served)
 
+add_subdirectory(dependencies/spdlog)
+
 if(USE_SPI)
     message("We have wiring pi!")
 
@@ -51,30 +53,42 @@ else()
     message("We don't have wiring pi!")
 endif()
 
-add_executable(self_o_mat.app src/main.cpp src/logic/BoothLogic.cpp src/logic/BoothLogic.h src/ui/BoothGui.cpp src/ui/BoothGui.h
-        src/camera/ICamera.h src/camera/OpenCVCamera.cpp src/camera/OpenCVCamera.h src/camera/GphotoCamera.cpp src/camera/GphotoCamera.h
-        src/ui/FPSCounter.h src/camera/NopCamera.h src/logic/ImageProcessor.cpp src/logic/ImageProcessor.h src/ui/IGui.h src/tools/ILogger.h
-        src/tools/ConsoleLogger.cpp src/tools/ConsoleLogger.h src/tools/buffers.h src/tools/buffers.cpp src/tools/imageinfo.h src/logic/PrinterManager.cpp
-        src/logic/PrinterManager.h src/api/BoothApi.h src/api/BoothApi.cpp src/protobuf/api.pb.cc src/protobuf/api.pb.h src/ui/NopGui.cpp
-        src/ui/NopGui.h src/tools/JpegDecoder.cpp src/tools/JpegDecoder.h src/tools/verbose.h src/tools/blocking_reader.h
-        src/camera/controllers/BaseController.h src/camera/controllers/TriggerController.cpp src/camera/controllers/NikonViewfinderController.h
-        src/camera/controllers/TriggerController.h src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp
-        src/camera/controllers/FocusController.h src/camera/controllers/InfoController.cpp src/camera/controllers/InfoController.h
-        src/camera/controllers/ApertureController.h src/camera/controllers/ExposureCorrectionController.h src/camera/controllers/ChoiceRangeController.cpp
-        src/camera/controllers/ChoiceRangeController.h src/tools/readfile.h src/tools/readfile.cpp src/tools/cobs.h src/tools/cobs.cpp src/logic/SelfomatController.cpp src/logic/SelfomatController.h src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp src/tools/FilesystemLogger.cpp src/tools/FilesystemLogger.h src/tools/verbose.cpp)
+add_executable(self_o_mat.app
+        src/main.cpp
+        src/logic/BoothLogic.cpp
+        src/ui/BoothGui.cpp
+        src/camera/OpenCVCamera.cpp
+        src/camera/GphotoCamera.cpp
+        src/logic/ImageProcessor.cpp
+        src/tools/buffers.cpp
+        src/logic/PrinterManager.cpp
+        src/api/BoothApi.cpp src/protobuf/api.pb.cc
+        src/ui/NopGui.cpp
+        src/tools/JpegDecoder.cpp
+        src/camera/controllers/TriggerController.cpp
+        src/camera/controllers/BaseController.cpp src/camera/controllers/FocusController.cpp
+        src/camera/controllers/InfoController.cpp
+        src/camera/controllers/ChoiceRangeController.cpp
+        src/tools/readfile.cpp
+        src/tools/cobs.cpp src/logic/SelfomatController.cpp
+        src/logic/filters/BasicImageFilter.cpp
+        src/logic/filters/IImageFilter.cpp
+        src/tools/verbose.cpp)
 
 
 
-target_link_libraries(self_o_mat.app ${Boost_LIBRARIES})
-target_link_libraries(self_o_mat.app gphoto2)
-target_link_libraries(self_o_mat.app turbojpeg)
-target_link_libraries(self_o_mat.app sfml-system)
-target_link_libraries(self_o_mat.app sfml-graphics)
-target_link_libraries(self_o_mat.app sfml-window)
-target_link_libraries(self_o_mat.app ${OpenCV_LIBS})
-target_link_libraries(self_o_mat.app ${CUPS_LIBRARIES})
-target_link_libraries(self_o_mat.app served)
-target_link_libraries(self_o_mat.app protobuf)
+target_link_libraries(self_o_mat.app ${Boost_LIBRARIES}
+        gphoto2
+        turbojpeg
+        sfml-system
+        sfml-graphics
+        sfml-window
+        ${OpenCV_LIBS}
+        ${CUPS_LIBRARIES}
+        served
+        protobuf
+        spdlog::spdlog
+)
 
 add_executable(filter_test src/main_filter.cpp src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp)
 target_link_libraries(filter_test ${Boost_LIBRARIES})
