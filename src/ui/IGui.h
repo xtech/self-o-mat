@@ -36,6 +36,7 @@ namespace selfomat {
             ALERT_CAMERA,
             ALERT_PRINTER,
             ALERT_PRINTER_HINT,
+            ALERT_PRINTER_JOB_HINT,
             ALERT_STORAGE,
             ALERT_STORAGE_ERROR,
             ALERT_CAMERA_HINT,
@@ -86,6 +87,7 @@ namespace selfomat {
                     (ALERT_CAMERA, "C")
                     (ALERT_PRINTER, "P")
                     (ALERT_PRINTER_HINT, "P")
+                    (ALERT_PRINTER_JOB_HINT, "P")
                     (ALERT_STORAGE, "U")
                     (ALERT_STORAGE_ERROR, "U")
                     (ALERT_CAMERA_HINT, "C")

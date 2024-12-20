@@ -1,4 +1,5 @@
 #include <utility>
+#include <algorithm>
 
 //
 // Created by clemens on 12.02.19.
@@ -178,6 +179,8 @@ bool PrinterManager::resumePrinter() {
 
         LOG_E(TAG, "Cannot enable printer:", cupsLastErrorString());
 
+        httpClose(http);
+
         return false;
     }
 
@@ -187,6 +190,8 @@ bool PrinterManager::resumePrinter() {
     ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_NAME, "requesting-user-name", NULL, cupsUser());
 
     ippDelete(cupsDoRequest(http, request, "/admin/"));
+
+    httpClose(http);
 
     if (cupsLastError() > IPP_STATUS_OK_CONFLICTING) {
 
@@ -200,25 +205,24 @@ bool PrinterManager::resumePrinter() {
     return true;
 }
 
-bool PrinterManager::printImage() {
+int PrinterManager::printImage() {
     if(!hasImagePrepared || printer_name.empty())
-        return false;
+        return 0;
 
     resumePrinter();
 
+    // Job ID or 0 on error
     int job_id = cupsCreateJob(CUPS_HTTP_DEFAULT, printer_name.c_str(), "self-o-mat", 0, nullptr);
 
     if (job_id > 0) {
         LOG_D(TAG, "successfully created the print job");
         cupsStartDocument(CUPS_HTTP_DEFAULT, printer_name.c_str(), job_id, "my_image", "image/png", 1);
 
-
         cupsWriteRequestData(CUPS_HTTP_DEFAULT, (const char *) imageTmpBuffer, sizeOfPreparedImage);
 
         cupsFinishDocument(CUPS_HTTP_DEFAULT, printer_name.c_str());
-        return true;
     }
-    return false;
+    return job_id;
 }
 
 PrinterManager::PrinterManager(ILogger *logger) : logger(logger) {
@@ -249,3 +253,150 @@ bool PrinterManager::cancelPrint() {
     return true;
 }
 
+bool PrinterManager::getJobDetails(int jobId, PrinterJobState &state, time_t &creationTs, time_t &processingTs, time_t &completedTs) {
+    if(jobId <= 0)
+        return false;
+
+    boost::unique_lock<boost::mutex> lk(printerStateMutex);
+
+    cups_job_t *cupsJobs;
+    int cupsJobCount = cupsGetJobs2(CUPS_HTTP_DEFAULT, &cupsJobs, NULL, 0, CUPS_WHICHJOBS_ALL);
+    //LOG_D(TAG, "Number of print jobs: ", std::to_string(cupsJobCount));
+
+    for(int i = 0; i < cupsJobCount; i++) {
+        if (cupsJobs[i].id == jobId) {
+            //LOG_D(TAG, "Found print job with ID #", std::to_string(jobId));
+
+            creationTs = cupsJobs[i].creation_time;
+            processingTs = cupsJobs[i].processing_time;
+            completedTs = cupsJobs[i].completed_time;
+
+            switch(cupsJobs[i].state)
+            {
+                // map known values
+                case IPP_JOB_PENDING:
+                    state = JOB_STATE_PENDING;
+                    break;
+                case IPP_JOB_HELD:
+                    state = JOB_STATE_HELD;
+                    break;
+                case IPP_JOB_PROCESSING:
+                    state = JOB_STATE_PROCESSING;
+                    break;
+                case IPP_JOB_STOPPED:
+                    state = JOB_STATE_STOPPED;
+                    break;
+                case IPP_JOB_CANCELLED:
+                    state = JOB_STATE_CANCELED;
+                    break;
+                case IPP_JOB_ABORTED:
+                    state = JOB_STATE_ABORTED;
+                    break;
+                case IPP_JOB_COMPLETED:
+                    state = JOB_STATE_COMPLETED;
+                    break;
+                default:
+                    state = JOB_STATE_UNKNOWN;
+                    break;
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+const char* PrinterManager::printerJobStateToString(PrinterJobState &state) {
+    switch(state)
+    {
+	// map known values
+        case JOB_STATE_PENDING:
+            return "pending";
+        case JOB_STATE_HELD:
+            return "held";
+        case JOB_STATE_PROCESSING:
+            return "processing";
+        case JOB_STATE_STOPPED:
+            return "stopped";
+        case JOB_STATE_CANCELED:
+            return "canceled";
+        case JOB_STATE_ABORTED:
+            return "aborted";
+        case JOB_STATE_COMPLETED:
+            return "completed";
+    	case JOB_STATE_UNKNOWN:
+	default:
+	    return "unknown";
+    }
+}
+
+void PrinterManager::checkPrinterAttentionFromJob(int jobId, unsigned int &flags) {
+    if(jobId <= 0)
+        return;
+
+    boost::unique_lock<boost::mutex> lk(printerStateMutex);
+
+    //LOG_D(TAG, "Querying attributes for print job with ID #", std::to_string(jobId));
+
+    http_t *http;
+    ipp_t *request;
+    ipp_t *response;
+    char uri[HTTP_MAX_URI];
+    char job_printer_state_reasons[2048];
+    ipp_attribute_t *attr;
+
+    http = httpConnect2(cupsServer(),
+                        ippPort(),
+                        NULL,
+                        AF_UNSPEC,
+                        cupsEncryption(),
+                        1,
+                        30000,
+                        NULL);
+
+
+    httpAssembleURIf(HTTP_URI_CODING_ALL, uri, sizeof(uri), "ipp", NULL, "localhost", ippPort(), "/printers/%s", printer_name.c_str());
+
+    request = ippNewRequest(IPP_OP_GET_JOB_ATTRIBUTES);
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_URI, "printer-uri", NULL, uri);
+    ippAddInteger(request, IPP_TAG_OPERATION, IPP_TAG_INTEGER, "job-id", jobId);
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_NAME, "requesting-user-name", NULL, cupsUser());
+    ippAddString(request, IPP_TAG_OPERATION, IPP_TAG_KEYWORD, "requested-attributes", NULL, "job-printer-state-reasons");
+
+    response = cupsDoRequest(http, request, "/admin");
+
+    job_printer_state_reasons[0] = '\0';
+    if ((attr = ippFindAttribute(response, "job-printer-state-reasons", IPP_TAG_KEYWORD)) != NULL) {
+        ippAttributeString(attr, job_printer_state_reasons, sizeof(job_printer_state_reasons));
+    }
+
+    ippDelete(response);
+
+    httpClose(http);
+
+    std::vector<std::string> needsPaperReasons = {"media-empty-error", "media-needed"};
+    std::vector<std::string> needsInkReasons = {"marker-supply-empty-error"};
+    std::string inputTrayMissingReason = "input-tray-missing";
+    std::vector<std::string> reasons;
+
+    boost::split(reasons,
+                 job_printer_state_reasons,
+                 boost::is_any_of(", "),
+                 boost::token_compress_on);
+
+    for (std::vector<std::string>::iterator r = reasons.begin(); r != reasons.end(); ++r) {
+        LOG_D(TAG, "Job printer state reason: ", *r);
+        if (std::find(needsPaperReasons.begin(), needsPaperReasons.end(), *r) != needsPaperReasons.end()) {
+            LOG_D(TAG, "Printer needs paper!");
+	    flags |= PRINTER_ATTN_NO_PAPER;
+	}
+        if (std::find(needsInkReasons.begin(), needsInkReasons.end(), *r) != needsInkReasons.end()) {
+            LOG_D(TAG, "Printer needs ink!");
+	    flags |= PRINTER_ATTN_NO_INK;
+        }
+	if (inputTrayMissingReason.compare(*r) == 0) {
+            LOG_D(TAG, "Printer needs input tray!");
+	    flags |= PRINTER_ATTN_NO_TRAY;
+        }
+    }
+}

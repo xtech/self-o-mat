@@ -43,10 +43,11 @@ bool BoothLogic::start() {
         return false;
 
     // Start the threads
-    isLogicThreadRunning = isCameraThreadRunning = isPrinterThreadRunning = true;
+    isLogicThreadRunning = isCameraThreadRunning = isPrinterThreadRunning = isPrintMonitoringThreadRunning = true;
     logicThreadHandle = boost::thread(boost::bind(&BoothLogic::logicThread, this));
     cameraThreadHandle = boost::thread(boost::bind(&BoothLogic::cameraThread, this));
     printThreadHandle = boost::thread(boost::bind(&BoothLogic::printerThread, this));
+    printMonitoringThreadHandle = boost::thread(boost::bind(&BoothLogic::printMonitoringThread, this));
 
     return true;
 }
@@ -93,6 +94,11 @@ void BoothLogic::stop(bool update_mode) {
     if (printThreadHandle.joinable()) {
         LOG_D(TAG, "waiting for print");
         printThreadHandle.join();
+    }
+    isPrintMonitoringThreadRunning = false;
+    if (printMonitoringThreadHandle.joinable()) {
+        LOG_D(TAG, "waiting for print monitoring");
+        printMonitoringThreadHandle.join();
     }
 
     if (gui != nullptr) {
@@ -368,6 +374,11 @@ void BoothLogic::printerThread() {
         LOG_D(TAG, "[Printer Thread] Processing image. Printing enabled: ", std::to_string(do_print));;
 
         if (do_print) {
+            ImagePrintMetrics metrics = {};
+            metrics.jobState = JOB_STATE_UNKNOWN;
+            metrics.printerNeededAttention = false;
+            clock_gettime(CLOCK_REALTIME, &metrics.processingTs);
+
             // We need the final jpeg image. So lock the mutex
             {
                 boost::unique_lock<boost::mutex> lk(jpegImageMutex);
@@ -396,6 +407,8 @@ void BoothLogic::printerThread() {
                 LOG_D(TAG, "[Printer Thread] Prepared");
             }
 
+            clock_gettime(CLOCK_REALTIME, &metrics.awaitUserDecisionTs);
+
             {
                 LOG_D(TAG, "[Printer Thread] Waiting for user to decide if they want to print");
                 boost::unique_lock<boost::mutex> lk(printerStateMutex);
@@ -404,6 +417,7 @@ void BoothLogic::printerThread() {
                 }
             }
 
+            clock_gettime(CLOCK_REALTIME, &metrics.gotUserDecisionTs);
 
             // We need the info if the user wants to print or not
             if (printConfirmationEnabled) {
@@ -411,10 +425,11 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(cancelOrConfirmPrintMutex);
                 if (printConfirmed) {
                     LOG_D(TAG, "[Printer Thread] Printing (user explicitely confirmed)");
-                    printerManager.printImage();
+                    metrics.cupsJobId = printerManager.printImage();
                 } else {
                     LOG_D(TAG, "[Printer Thread] Print not confirmed (auto-canceling)!");
                     printerManager.cancelPrint();
+                    metrics.cupsJobId = -1;
                 }
             }
             else {
@@ -422,11 +437,19 @@ void BoothLogic::printerThread() {
                 boost::unique_lock<boost::mutex> lk(cancelOrConfirmPrintMutex);
                 if (!printCanceled) {
                     LOG_D(TAG, "[Printer Thread] Printing (user did not cancel)");
-                    printerManager.printImage();
+                    metrics.cupsJobId = printerManager.printImage();
                 } else {
                     LOG_D(TAG, "[Printer Thread] Print canceled by user!");
                     printerManager.cancelPrint();
+                    metrics.cupsJobId = -1;
                 }
+            }
+
+            // if job ID > 0, add this job to the list of jobs monitored by the print monitoring thread;
+            // otherwise the already known timing values could be logged here (don't seem relevant at the moment)
+            if(metrics.cupsJobId > 0) {
+                boost::unique_lock<boost::mutex> lk(printMetricsMutex);
+                printMetrics.push_back(metrics);
             }
         } else {
             // We need the final jpeg image. So lock the mutex
@@ -466,6 +489,129 @@ void BoothLogic::printerThread() {
             printerState = PRINTER_STATE_IDLE;
             printerStateCV.notify_all();
         }
+    }
+}
+
+#define CTIME_NO_NL(x) strtok(ctime(x), "\n")
+
+int BoothLogic::difftimeSeconds(time_t later, time_t earlier) {
+    // starting epoch timestamp is zero (i.e. has not been set) indicate invalid timediff
+    if (earlier == 0)
+        return -1;
+
+    // replace missing timestamp with "now"
+    // please note that this may not be accurate and depends on the period time of the thread
+    if (later == 0) {
+        timespec tnow;
+        clock_gettime(CLOCK_REALTIME, &tnow);
+        later = tnow.tv_sec;
+    }
+
+    return difftime(later, earlier);
+}
+
+void BoothLogic::printMonitoringThread() {
+    LOG_D(TAG, "Starting Print Monitoring Thread");
+
+    while (isPrintMonitoringThreadRunning) {
+        size_t listLength = 0;
+        {
+            boost::unique_lock<boost::mutex> lk(printMetricsMutex);
+
+            unsigned int printerAttentionFlags = 0; // reset flags
+
+            std::list<ImagePrintMetrics>::iterator it = printMetrics.begin();
+            while (it != printMetrics.end()) {
+                int jobId = it->cupsJobId;
+
+                PrinterJobState jobState;
+
+                time_t cupsCreationTs, cupsProcessingTs, cupsCompletedTs;
+
+                bool gotJobDetails = printerManager.getJobDetails(jobId, jobState, cupsCreationTs,
+                                                                  cupsProcessingTs, cupsCompletedTs);
+
+                if (gotJobDetails) {
+                    // copy job details from printer manager
+                    it->jobState = jobState;
+                    it->cupsCreationTs = cupsCreationTs;
+                    it->cupsProcessingTs = cupsProcessingTs;
+                    it->cupsCompletedTs = cupsCompletedTs;
+
+                    // "now" is a good reference timestamp
+		    timespec tnow;
+                    clock_gettime(CLOCK_REALTIME, &tnow);
+
+                    LOG_D(TAG, "[Print Mon Thread] CUPS job #", std::to_string(jobId) +
+			" in state: " + std::string(printerManager.printerJobStateToString(it->jobState)));
+
+                    if (JOB_STATE_UNKNOWN == jobState || JOB_STATE_CANCELED == jobState ||
+                        JOB_STATE_ABORTED == jobState || JOB_STATE_COMPLETED == jobState) {
+			// job is in a state where it is no longer monitored ("stopped" is excluded on purpose)
+                        LOG_D(TAG, "[Print Mon Thread] Erasing print job from metrics list: #", std::to_string(jobId));
+                        LOG_D(TAG, "[Print Mon Thread] CUPS creation timestamp: ", std::string(CTIME_NO_NL(&cupsCreationTs)));
+
+                        // finally, it's time to emit (log) the collected metrics;
+                        // let's use full seconds only (values are floor'ed not rounded for sake of simplicity!
+                        // CUPS timestamps have second granularity anyway)
+			int durationCupsCreation2CupsProc = difftimeSeconds(cupsProcessingTs, cupsCreationTs);
+			int durationCupsProc2CupsCompl = difftimeSeconds(cupsCompletedTs, cupsProcessingTs);
+
+                        std::string csvLine = std::to_string(jobId) +
+			    ";\"" + std::string(CTIME_NO_NL(&cupsCreationTs)) +
+			    "\";\"" + std::string(printerManager.printerJobStateToString(it->jobState)) +
+			    "\";" + std::to_string(durationCupsCreation2CupsProc) + ";" +
+                            std::to_string(durationCupsProc2CupsCompl) + ";" +
+                            std::to_string(it->printerNeededAttention);
+                        LOG_D(TAG, "[Print Mon Thread] CSV>", csvLine);
+
+                        printMetrics.erase(it++);
+                    } else {
+                        // job is in a state where it will be still monitored
+
+                        if (JOB_STATE_PROCESSING == jobState) {
+                            // when the job is being processed, we can check if the printer needs attention
+                            // e.g. has run out of paper or ink or the input tray is missing;
+                            // we could also let the user know that the processing duration has exceeded a certain threshold
+                            int durationProcessing = difftime(tnow.tv_sec, cupsProcessingTs);
+                            LOG_D(TAG, "[Print Mon Thread] CUPS job has been processing for [seconds]: ", std::to_string(durationProcessing));
+                            unsigned int currentPrinterAttentionFlags = 0;
+                            printerManager.checkPrinterAttentionFromJob(jobId, currentPrinterAttentionFlags);
+                            printerAttentionFlags |= currentPrinterAttentionFlags;
+
+                            if (currentPrinterAttentionFlags != 0) {
+                                it->printerNeededAttention = true; // set sticky flag
+                            }
+			}
+
+                        ++it;
+                    }
+                } else {
+                    // didn't get job details but need to increment the iterator anyway
+                    ++it;
+                }
+            }
+            listLength = printMetrics.size();
+            //LOG_D(TAG, "[Print Mon Thread] Length of metrics list: ", std::to_string(listLength));
+            //LOG_D(TAG, "[Print Mon Thread] Printer attention flags: ", std::to_string(printerAttentionFlags));
+
+            if ((printerAttentionFlags != 0) && printerEnabled) {
+                // as only one flag is checked at a time, they are ordered by attention relevance
+                // or "level of attention/action/expertise", i.e. changing the ink cartridge may be "harder" to do
+                if (printerAttentionFlags & PRINTER_ATTN_NO_INK) {
+                    gui->addAlert(ALERT_PRINTER_JOB_HINT, getTranslation("frontend.printer_no_ink"));
+                } else if(printerAttentionFlags & PRINTER_ATTN_NO_TRAY) {
+                    gui->addAlert(ALERT_PRINTER_JOB_HINT, getTranslation("frontend.printer_no_tray"));
+                } else if(printerAttentionFlags & PRINTER_ATTN_NO_PAPER) {
+                    gui->addAlert(ALERT_PRINTER_JOB_HINT, getTranslation("frontend.printer_no_paper"));
+                }
+            } else {
+                gui->removeAlert(ALERT_PRINTER_JOB_HINT);
+            }
+        }
+
+	// this thread keeps polling periodically
+        boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
     }
 }
 
