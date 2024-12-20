@@ -1,0 +1,18 @@
+on:
+  - push
+  - pull_request
+jobs:
+  compile_controller_board_arduino_sketch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: arduino/compile-sketches@v1
+        with:
+          fqbn: arduino:avr:nano  # fully qualified board name (fqbn)
+          verbose: true
+          enable-deltas-report: true
+          enable-warnings-report: true
+          sketch-paths: Arduino/SelfomatController
+          libraries: |
+            "Adafruit NeoPixel"
+            "PinChangeInterrupt"
