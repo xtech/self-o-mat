@@ -23,7 +23,9 @@
 #include <logic/ILogicController.h>
 #include <tools/verbose.h>
 
-#define DEBUG_QUEUE_SIZE 100
+#include "spdlog/sinks/ringbuffer_sink.h"
+
+#define DEBUG_QUEUE_SIZE 20
 
 #define COLOR_MAIN          sf::Color(20, 64, 66, 255)
 #define COLOR_MAIN_LIGHT    sf::Color(155, 194, 189)
@@ -84,6 +86,8 @@ namespace selfomat {
             sf::RectangleShape rect_overlay;
 
             sf::CircleShape count_down_circle;
+
+            std::shared_ptr<spdlog::sinks::ringbuffer_sink_mt> logging_sink{nullptr};
 
             // Live frame
             sf::Texture textureLiveOverlay;

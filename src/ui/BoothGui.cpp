@@ -4,6 +4,8 @@
 
 #include "BoothGui.h"
 #include "tools/verbose.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/dist_sink.h>
 
 using namespace std;
 using namespace selfomat::ui;
@@ -11,7 +13,7 @@ using namespace selfomat::tools;
 
 std::string BoothGui::TAG = "BOOTH_GUI";
 
-BoothGui::BoothGui(bool fullscreen, bool debug, logic::ILogicController *logicController) : stateTimer(), alertTimer() {
+BoothGui::BoothGui(bool fullscreen, bool debug, logic::ILogicController *logicController) {
     // TODO: fixed resolution -> variable resolution
     videoMode = sf::VideoMode(1280, 800);
     this->currentState = STATE_INIT;
@@ -19,9 +21,14 @@ BoothGui::BoothGui(bool fullscreen, bool debug, logic::ILogicController *logicCo
     this->debug = debug;
     this->logicController = logicController;
     this->fullscreen = fullscreen;
+
+    // Register a ringbuffer sink so that we can draw the last logs on screen
+    logging_sink = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(DEBUG_QUEUE_SIZE);
+    dynamic_cast<spdlog::sinks::dist_sink<std::mutex>*>(spdlog::default_logger()->sinks().front().get())->add_sink(logging_sink);
 }
 
 BoothGui::~BoothGui() {
+    dynamic_cast<spdlog::sinks::dist_sink<std::mutex>*>(spdlog::default_logger()->sinks().front().get())->remove_sink(logging_sink);
 }
 
 bool BoothGui::start() {
@@ -685,6 +692,9 @@ void BoothGui::drawDebug() {
     debugStr += to_string(cameraFrameCounter.fps);
     debugStr += "\n";
 
+    const auto logs = logging_sink->last_formatted();
+    for (const auto &string : logs)
+        debugStr += string + "\n";
 
     debugText.setString(debugStr);
 
