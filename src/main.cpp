@@ -115,6 +115,7 @@ int main(int argc, char *argv[]) {
 
     spdlog::flush_every(std::chrono::seconds(1));
 
+    spdlog::set_level(spdlog::level::debug);
 
     // Listen to some common signals so that we're able to stop the camera gui etc gracefully
     //^C
