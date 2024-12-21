@@ -37,12 +37,8 @@ include_directories(${Boost_INCLUDE_DIR})
 include_directories(${CUPS_INCLUDE_DIR})
 include_directories(${Protobuf_INCLUDE_DIRS})
 include_directories(${Protobuf_INCLUDE_DIR})
-include_directories(dependencies/served/src)
 
-OPTION (SERVED_BUILD_TESTS "Build served unit test suite" OFF)
-OPTION (SERVED_BUILD_EXAMPLES "Build served  examples" OFF)
-add_subdirectory(dependencies/served)
-
+add_subdirectory(dependencies/crow)
 add_subdirectory(dependencies/spdlog)
 
 if(USE_SPI)
@@ -85,7 +81,7 @@ target_link_libraries(self_o_mat.app ${Boost_LIBRARIES}
         sfml-window
         ${OpenCV_LIBS}
         ${CUPS_LIBRARIES}
-        served
+        Crow
         protobuf
         spdlog::spdlog
 )
