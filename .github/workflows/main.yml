@@ -1,6 +1,5 @@
 on:
   - push
-  - pull_request
 jobs:
   compile_controller_board_arduino_sketch:
     runs-on: ubuntu-latest
@@ -16,3 +15,37 @@ jobs:
           libraries: |
             "Adafruit NeoPixel"
             "PinChangeInterrupt"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+      - name: Set up QEMU (arm64)
+        if: runner.arch != 'arm64' && matrix.docker_build_arch == 'linux/arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - name: Set up QEMU (x64)
+        if: runner.arch != 'x64' && matrix.docker_build_arch == 'linux/amd64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: amd64
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=local,dest=./build_output
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - uses: actions/upload-artifact@v4
+        name: Upload Artifact
+        with:
+          path: ./build_output

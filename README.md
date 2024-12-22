@@ -50,15 +50,13 @@ __If you're not sure how to do this, we provide a hardware kit which includes th
 
 ## Clone
 
-```git clone --recursive https://github.com/xtech/self-o-mat.git```
-
-_Hint: `--recursive` is required to clone git submodules._
+```git clone https://github.com/xtech/self-o-mat.git```
 
 ## Installation
 Installation is simple - just follow these steps:
 
 1. Install the following dependencies:
-```sudo apt-get install build-essential cmake libmagick++-dev libboost-all-dev libopencv-dev libsfml-dev libcups2-dev libprotobuf-dev protobuf-compiler libusb-dev automake autoconf pkg-config autopoint gettext libtool nasm libturbojpeg0-dev```
+```sudo apt-get install git build-essential cmake libmagick++-dev libboost-all-dev libopencv-dev libsfml-dev libcups2-dev libprotobuf-dev protobuf-compiler libusb-dev automake autoconf pkg-config autopoint gettext libtool nasm libturbojpeg0-dev libasio-dev```
 
 2. Get libgphoto2:
 ```
@@ -94,7 +92,7 @@ cd <source dir>/build
 ```
 
 # Now what?
-So now you're running the self-o-mat software and your photoboot is technically done. Just add a trigger mechanism and put it in a box. For better image quality, add a flash to your box. If you want to get started quickly, we have created some components for you:
+So now you're running the self-o-mat software and your photobooth is technically done. Just add a trigger mechanism and put it in a box. For better image quality, add a flash to your box. If you want to get started quickly, we have created some components for you:
 
 ## The Controller
 You'll need a controller to trigger the image capture. Basically you have two options: The self-o-mat controller or a DIY solution.
