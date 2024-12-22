@@ -66,7 +66,7 @@ add_executable(self_o_mat.app src/main.cpp src/logic/BoothLogic.cpp src/logic/Bo
 
 
 target_link_libraries(self_o_mat.app ${Boost_LIBRARIES})
-target_link_libraries(self_o_mat.app gphoto2)
+target_link_libraries(self_o_mat.app gphoto2 gphoto2_port)
 target_link_libraries(self_o_mat.app turbojpeg)
 target_link_libraries(self_o_mat.app sfml-system)
 target_link_libraries(self_o_mat.app sfml-graphics)
