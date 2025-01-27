@@ -18,6 +18,7 @@ BaseState* OffState::logicStep() {
 
   if (digitalRead(PIN_SWITCH) == LOW) {
     // The switch is on and we're allowed to exit the off state->do it
+    logger.println( F("HW switch LOW -> booting") );
     return &BootingState::INSTANCE;
   }
   return this;
@@ -25,10 +26,12 @@ BaseState* OffState::logicStep() {
 
 void OffState::enter() {
   BaseState::enter();
-  
+  logger.println( F("Entering OffState") );
+
   // read settings
+  logger.println( F("Read settings on entry") );
   readSettings();
-  
+
   allowExitState = false;
 
 
@@ -58,6 +61,7 @@ void OffState::exit() {
   ring.show();
 
   blink(2);
+  logger.println( F("Leaving OffState") );
 }
 
 bool OffState::needsHeartbeat() {

@@ -33,18 +33,20 @@ BaseState* BusyState::logicStep() {
   if(flashTriggered) {
     if(settings.flashDurationMicros < 0) {
       delay(10);
-    } else {  
+    } else {
       while(micros() - flashStartMicros < settings.flashDurationMicros);
     }
     digitalWrite(PIN_FLASH_ON, LOW);
     flashTriggered = false;
   }
-  
+
   // timeout in busy state
   if(timeInState() > 15000 || exitIdle) {
+    logger.println(  F("exit to -> IdleState") );
     return &IdleState::INSTANCE;
   }
   if(exitPrint) {
+    logger.println( F("exit to -> PrintingState") );
     return &PrintingState::INSTANCE;
   }
   return this;
@@ -52,6 +54,7 @@ BaseState* BusyState::logicStep() {
 
 void BusyState::enter() {
   BaseState::enter();
+  logger.println( F("Entering BusyState") );
   flashTriggered = exitPrint = exitIdle = false;
   attachPinChangeInterrupt(digitalPinToPinChangeInterrupt(PIN_FLASH_CAM_TRIGGER), triggerFlash, FALLING);
 }
@@ -61,6 +64,7 @@ void BusyState::exit() {
   detachPinChangeInterrupt(digitalPinToPinChangeInterrupt(PIN_FLASH_CAM_TRIGGER));
   // then turn off the light for safety
   digitalWrite(PIN_FLASH_ON, LOW);
+  logger.println( F("Leaving BusyState") );
 }
 
 bool BusyState::needsHeartbeat() {

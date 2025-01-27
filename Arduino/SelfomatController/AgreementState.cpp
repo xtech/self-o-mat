@@ -9,7 +9,7 @@ bool AgreementState::processCommand(const uint8_t* buffer, size_t size) {
     sendCommand('A');
     return true;
   }
-  
+
   // Process base commands.
   if(BaseState::processCommand(buffer, size))
     return true;
@@ -31,11 +31,11 @@ void AgreementState::animationStep(unsigned long dt) {
       }
     }
 
-  
+
     float angleOffset = timeInState()/300.0f;
     float anglePerLed = (2.0 * PI) / ring.numPixels();
     for(int j = 0; j < ring.numPixels(); j++) {
-      float angle = (float)j * anglePerLed + angleOffset;   
+      float angle = (float)j * anglePerLed + angleOffset;
       float sin_x = sin(angle);
       uint8_t brightness = sin_x*sin_x * 255.0f * b;
       ring.setPixelColor(j, 0, brightness, 0);
@@ -48,9 +48,10 @@ BaseState* AgreementState::logicStep() {
     shouldExit = true;
     sendCommand('c');
   }
-  
+
   if(shouldExit && exitAnimationDone) {
     sendCommand('a');
+    logger.println( F("exit to -> IdleState") );
     return &IdleState::INSTANCE;
   }
   return this;
@@ -58,6 +59,7 @@ BaseState* AgreementState::logicStep() {
 
 void AgreementState::enter() {
   BaseState::enter();
+  logger.println( F("Entering AgreementState") );
   b = 0;
   frame = 0;
   exitAnimationDone = shouldExit = false;
@@ -65,7 +67,7 @@ void AgreementState::enter() {
 }
 
 void AgreementState::exit() {
-
+  logger.println( F("Leaving AgreementState") );
 }
 
 bool AgreementState::needsHeartbeat() {
