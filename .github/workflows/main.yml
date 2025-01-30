@@ -21,16 +21,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: 'true'
-      - name: Set up QEMU (arm64)
-        if: runner.arch != 'arm64' && matrix.docker_build_arch == 'linux/arm64'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-      - name: Set up QEMU (x64)
-        if: runner.arch != 'x64' && matrix.docker_build_arch == 'linux/amd64'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: amd64
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
