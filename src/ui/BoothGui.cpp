@@ -24,6 +24,7 @@ BoothGui::BoothGui(bool fullscreen, bool debug, logic::ILogicController *logicCo
 
     // Register a ringbuffer sink so that we can draw the last logs on screen
     logging_sink = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(DEBUG_QUEUE_SIZE);
+    logging_sink->set_pattern("[%X] [%^%l%$]: %v");
     dynamic_cast<spdlog::sinks::dist_sink<std::mutex>*>(spdlog::default_logger()->sinks().front().get())->add_sink(logging_sink);
 }
 

@@ -104,6 +104,7 @@ int main(int argc, char *argv[]) {
 
     // Setup logging (async logger to file and console)
     spdlog::init_thread_pool(8192, 1);
+
     auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt >();
 
     // create a dist_sink which distributes to other sinks
@@ -115,6 +116,7 @@ int main(int argc, char *argv[]) {
 
     spdlog::flush_every(std::chrono::seconds(1));
 
+    spdlog::set_pattern("[%X] [%^%l%$]: %v");
     spdlog::set_level(spdlog::level::debug);
 
     // Listen to some common signals so that we're able to stop the camera gui etc gracefully
@@ -171,7 +173,6 @@ int main(int argc, char *argv[]) {
     } catch (boost::exception &e) {
         LOG_E(TAG, "Error loading properties. Using defaults.");
     }
-
     LOG_D(TAG, "Using camera: ", camera_type);
     LOG_D(TAG, "Has Button: ", std::to_string(has_button));
     LOG_D(TAG, "Button Port Name: ", button_port_name);
