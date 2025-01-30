@@ -225,7 +225,7 @@ int PrinterManager::printImage() {
     return job_id;
 }
 
-PrinterManager::PrinterManager(ILogger *logger) : logger(logger) {
+PrinterManager::PrinterManager() {
     currentPrinterState = STATE_UNKNOWN;
 }
 

@@ -3,6 +3,7 @@
 //
 
 #include "JpegDecoder.h"
+#include <sstream>
 
 using namespace selfomat::tools;
 

@@ -60,7 +60,7 @@ namespace selfomat {
                 // Load assets
                 video = cv::VideoCapture("/opt/assets/nop.mov");
                 if (!video.isOpened()) {
-                    cerr << "Could not load nop video." << endl;
+                    spdlog::error("Could not load nop video.");
                 } else {
                     fpsClock.restart();
                 }

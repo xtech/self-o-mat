@@ -13,7 +13,6 @@
 #include <iostream>
 #include <queue>
 #include "FPSCounter.h"
-#include "tools/ILogger.h"
 #include "IGui.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -24,7 +23,9 @@
 #include <logic/ILogicController.h>
 #include <tools/verbose.h>
 
-#define DEBUG_QUEUE_SIZE 100
+#include "spdlog/sinks/ringbuffer_sink.h"
+
+#define DEBUG_QUEUE_SIZE 20
 
 #define COLOR_MAIN          sf::Color(20, 64, 66, 255)
 #define COLOR_MAIN_LIGHT    sf::Color(155, 194, 189)
@@ -86,8 +87,7 @@ namespace selfomat {
 
             sf::CircleShape count_down_circle;
 
-            sf::Mutex debugLogQueueMutex;
-            std::deque<std::string> debugLogQueue;
+            std::shared_ptr<spdlog::sinks::ringbuffer_sink_mt> logging_sink{nullptr};
 
             // Live frame
             sf::Texture textureLiveOverlay;
@@ -146,8 +146,6 @@ namespace selfomat {
                 this->logicController = logicController;
             }
 
-        protected:
-            void log(std::string s) override;
 
         public:
 
@@ -197,7 +195,7 @@ namespace selfomat {
             void cancelPrint() override;
             void confirmPrint() override;
 
-            ~BoothGui() override;
+            ~BoothGui();
 
 
         };

@@ -3,6 +3,8 @@
 //
 #include "BoothLogic.h"
 
+#include "spdlog/sinks/dist_sink.h"
+
 using namespace std;
 using namespace selfomat::logic;
 using namespace selfomat::camera;
@@ -763,6 +765,10 @@ int BoothLogic::getTriggerCounter() {
     return triggerCounter;
 }
 
+bool BoothLogic::isAgreementVisible() {
+    return showAgreement;
+}
+
 void BoothLogic::incTriggerCounter() {
     this->triggerCounter++;
 }
@@ -968,19 +974,25 @@ void BoothLogic::setDebugLogEnabled(bool newValue, bool persist) {
             return;
         }
 
-        FilesystemLogger::INSTANCE.enableLogToFile(imageDir);
+        if(!file_logger) {
+            // Create the file logger and add it to the dist_sink
+            file_logger = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(imageDir+"/selfomat.log", 1024*1024*10, 3, false);
+            dynamic_cast<spdlog::sinks::dist_sink<std::mutex>*>(spdlog::default_logger()->sinks().front().get())->add_sink(file_logger);
+        }
     } else {
-        FilesystemLogger::INSTANCE.disableLogToFile();
+        if(file_logger) {
+            // if we have a file logger, remove it from the sink and delete it
+            dynamic_cast<spdlog::sinks::dist_sink<std::mutex>*>(spdlog::default_logger()->sinks().front().get())->remove_sink(file_logger);
+            file_logger = nullptr;
+        }
     }
-
-    gui->setDebugOutput(FilesystemLogger::INSTANCE.getLogToFileState() == FilesystemLogger::ENABLED);
 
     if (persist)
         writeSettings();
 }
 
 bool BoothLogic::getDebugLogEnabled() {
-    return FilesystemLogger::INSTANCE.getLogToFileState() == FilesystemLogger::ENABLED;
+    return file_logger != nullptr;
 }
 
 bool BoothLogic::getAutofocusBeforeTrigger() {
