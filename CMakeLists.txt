@@ -79,6 +79,7 @@ add_executable(self_o_mat.app
 
 target_link_libraries(self_o_mat.app ${Boost_LIBRARIES}
         gphoto2
+        gphoto2_port
         turbojpeg
         sfml-system
         sfml-graphics
