@@ -50,7 +50,9 @@ __If you're not sure how to do this, we provide a hardware kit which includes th
 
 ## Clone
 
-```git clone https://github.com/xtech/self-o-mat.git```
+```git clone --recursive https://github.com/xtech/self-o-mat.git```
+
+_Hint: `--recursive` is required to clone git submodules._
 
 ## Installation
 Installation is simple - just follow these steps:
