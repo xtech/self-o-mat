@@ -389,6 +389,8 @@ void BoothLogic::printerThread() {
                 saveImage(latestJpegBuffer, latestJpegBufferSize, latestJpegFileName, false, true);
 
                 cv::Mat toPrepare;
+                int filterChoice = getFilterChoice();
+                LOG_D(TAG, "[Printer Thread] Filter choice (numeric): ", std::to_string(filterChoice));
                 if (templateEnabled) {
                     toPrepare = imageProcessor.frameImageForPrint(latestJpegBuffer, latestJpegBufferSize, getFilter(),
                                                                   filterGain);
@@ -954,6 +956,8 @@ FILTER BoothLogic::getFilter() {
             return NO_FILTER;
         case 1:
             return BASIC_FILTER;
+	case 2:
+	    return GRAYSCALE_FILTER;
     }
     return NO_FILTER;
 }

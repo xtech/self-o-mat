@@ -72,6 +72,7 @@ add_executable(self_o_mat.app
         src/tools/readfile.cpp
         src/tools/cobs.cpp src/logic/SelfomatController.cpp
         src/logic/filters/BasicImageFilter.cpp
+        src/logic/filters/GrayscaleImageFilter.cpp
         src/logic/filters/IImageFilter.cpp
         src/tools/verbose.cpp)
 
@@ -91,7 +92,13 @@ target_link_libraries(self_o_mat.app ${Boost_LIBRARIES}
         spdlog::spdlog
 )
 
-add_executable(filter_test src/main_filter.cpp src/logic/filters/IImageFilter.h src/logic/filters/BasicImageFilter.cpp src/logic/filters/BasicImageFilter.h src/logic/filters/IImageFilter.cpp)
+add_executable(filter_test src/main_filter.cpp
+        src/logic/filters/IImageFilter.h
+        src/logic/filters/BasicImageFilter.cpp
+        src/logic/filters/BasicImageFilter.h
+        src/logic/filters/GrayscaleImageFilter.cpp
+        src/logic/filters/GrayscaleImageFilter.h
+        src/logic/filters/IImageFilter.cpp)
 target_link_libraries(filter_test ${Boost_LIBRARIES})
 target_link_libraries(filter_test ${OpenCV_LIBS})
 
