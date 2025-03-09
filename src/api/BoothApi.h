@@ -7,8 +7,9 @@
 
 #include "../protobuf/api.pb.h"
 #include "../logic/BoothLogic.h"
+#include <crow.h>
+#include <crow/middlewares/cors.h>
 
-#include <served/served.hpp>
 
 using namespace selfomat;
 namespace selfomat {
@@ -20,18 +21,10 @@ namespace selfomat {
             selfomat::logic::BoothLogic *logic;
             ICamera *camera;
 
-            served::multiplexer mux;
-            served::net::server server;
+            crow::App<crow::CORSHandler> app;
+            std::future<void> app_handle;
 
             bool show_led_setup;
-
-            const std::map<std::string, std::string> headers = {
-                    {"Access-Control-Allow-Origin", "*"},
-                    {"Access-Control-Allow-Credentials", "true"},
-                    {"Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT"},
-                    {"Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"},
-
-            };
 
         public:
             BoothApi(selfomat::logic::BoothLogic *logic, ICamera *camera, bool show_led_setup);

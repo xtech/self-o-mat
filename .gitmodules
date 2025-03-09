@@ -1,3 +1,0 @@
-[submodule "dependencies/served"]
-	path = dependencies/served
-	url = https://github.com/meltwater/served.git
