@@ -324,6 +324,10 @@ void ImageProcessor::applyFilter(cv::Mat &image, FILTER filter, double gain) {
             LOG_D(TAG, "basic filter with gain: ", std::to_string(gain));
             basicFilter.processImage(image, gain);
             break;
+        case GRAYSCALE_FILTER:
+            LOG_D(TAG, "grayscale filter");
+            grayscaleFilter.processImage(image, gain);
+            break;
         default:
             LOG_D(TAG, "No Filter");
             break;

@@ -15,6 +15,7 @@
 #include <tools/JpegDecoder.h>
 #include <opencv2/opencv.hpp>
 #include "logic/filters/BasicImageFilter.h"
+#include "logic/filters/GrayscaleImageFilter.h"
 
 
 using namespace selfomat::tools;
@@ -24,10 +25,11 @@ namespace selfomat {
 
         enum FILTER {
             NO_FILTER = 0,
-            BASIC_FILTER = 1
+            BASIC_FILTER = 1,
+            GRAYSCALE_FILTER = 2
         };
 
-        const std::vector<std::string> filterNames { "No Filter", "Basic Filter" };
+        const std::vector<std::string> filterNames { "No Filter", "Basic Filter", "Grayscale Filter" };
 
         class ImageProcessor {
         private:
@@ -45,6 +47,7 @@ namespace selfomat {
             void writeOffset(cv::Rect offset, std::string filename);
 
             BasicImageFilter basicFilter;
+            GrayscaleImageFilter grayscaleFilter;
 
             void applyFilter(cv::Mat &image, FILTER filter, double gain);
 

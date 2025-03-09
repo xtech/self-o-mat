@@ -1,6 +1,7 @@
 #include <vector>
 #include <logic/filters/IImageFilter.h>
 #include <logic/filters/BasicImageFilter.h>
+#include <logic/filters/GrayscaleImageFilter.h>
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <string>
@@ -12,15 +13,13 @@ using namespace boost::filesystem;
 int main(int argc, char *argv[]) {
 
     if(argc != 2) {
-        std::cout << "Usage: ./filter_test <image in dir> <image out dir>" << std::endl;
+        std::cout << "Usage: ./filter_test <image in dir>" << std::endl;
         return 1;
     }
 
-
-
-
     std::vector<IImageFilter*> filters;
     filters.push_back(new BasicImageFilter());
+    filters.push_back(new GrayscaleImageFilter());
 
     path p(argv[1]);
     directory_iterator end_itr;
@@ -50,7 +49,9 @@ int main(int argc, char *argv[]) {
 
 
             for(auto &filter : filters) {
+                printf("running filter %s\n", filter->getName().c_str());
                 for(double d = 0.0; d <= 1.0; d+=0.25) {
+                    printf("d = %.2lf\n", d);
                     clock_gettime(CLOCK_MONOTONIC, &tstart);
                     image = cv::imread(current_file);
 
@@ -60,7 +61,7 @@ int main(int argc, char *argv[]) {
 
                     clock_gettime(CLOCK_MONOTONIC, &tend);
 
-                    printf("loading took %.5f s\n",
+                    printf("loading took %.5lf s\n",
                            ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
                            ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
                     clock_gettime(CLOCK_MONOTONIC, &tstart);
@@ -71,7 +72,7 @@ int main(int argc, char *argv[]) {
                     filter->processImage(image, d);
                     clock_gettime(CLOCK_MONOTONIC, &tend);
 
-                    printf("filtering took %.5f s\n",
+                    printf("filtering took %.5lf s\n",
                            ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
                            ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
 
@@ -85,7 +86,7 @@ int main(int argc, char *argv[]) {
             }
             clock_gettime(CLOCK_MONOTONIC, &tend);
 
-            printf("filtering took %.5f s\n",
+            printf("overall filtering took %.5lf s\n",
                    ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) -
                    ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
 
