@@ -12,6 +12,7 @@
 #include "OffState.h"
 #include "IdleState.h"
 #include "BusyState.h"
+#include "Logging.h"
 
 
 /*
@@ -23,6 +24,7 @@ unsigned long lastAnimationStep = 0;
 void goToState(BaseState *nextState) {
   if(nextState == currentState)
     return;
+  logger.println( F("Switch state") );
   if(currentState) {
     currentState->exit();
   }
@@ -38,19 +40,22 @@ void onPacketReceived(const uint8_t* buffer, size_t size) {
   if(size == 1) {
     switch(buffer[0]) {
       case '0': {
+        logger.print( F("Rx'ed reboot request") );
         typedef void (*do_reboot_t)(void);
         const do_reboot_t do_reboot = (do_reboot_t)((FLASHEND - 511) >> 1);
         cli(); MCUSR = TCCR0A = TCCR1A = TCCR2A = 0; // make sure interrupts are off and timers are reset.
-        do_reboot();    
+        do_reboot();
       }
       return;
       case 'i': {
+        logger.print( F("Rx'ed id request") );
         // Identify yourself
         Serial.write('b');
-        Serial.flush();    
+        Serial.flush();
       }
       return;
       case '.': {
+        logger.print( F("Rx'ed heartbeat") );
         // Reset our software watchdog
         lastHeartbeat = millis();
         // no return here, we want it to propagate to the other states
@@ -72,13 +77,13 @@ void setup() {
   MCUSR = 0;
   wdt_disable();
 
+  logger.begin(38400);
+
   // Setup Pins
   pinMode(PIN_STATUS, OUTPUT);
   digitalWrite(PIN_STATUS, LOW);
 
- 
-  
-  pinMode(PIN_BUTTON, INPUT); 
+  pinMode(PIN_BUTTON, INPUT);
   digitalWrite(PIN_BUTTON, HIGH);
   pinMode(PIN_SWITCH, INPUT);
   digitalWrite(PIN_SWITCH, HIGH);
@@ -90,32 +95,38 @@ void setup() {
   // flash off by default
   digitalWrite(PIN_FLASH_ON, LOW);
 
-  pinMode(PIN_ON, OUTPUT); 
+  pinMode(PIN_ON, OUTPUT);
   pinMode(PIN_LEVEL_SHIFTER_OE, OUTPUT);
 
+  logger.println( F("Pin setup complete") );
 
   packetSerial.begin(38400);
   packetSerial.setPacketHandler(&onPacketReceived);
 
+  logger.println( F("Paket handler setup complete") );
+
   // If the switch is on, turn on instantly BUT ONLY THIS FIRST TIME
   if(digitalRead(PIN_SWITCH) == LOW) {
+    logger.println( F("HW SW LOW -> booting") );
     // We want to call exit function but not enter function
     currentState = &OffState::INSTANCE;
     goToState(&BootingState::INSTANCE);
   } else {
+    logger.println( F("HW SW HIGH -> off") );
     goToState(&OffState::INSTANCE);
   }
 }
 
-void loop() { 
+void loop() {
   bool checkHeartbeat = currentState == 0 || currentState->needsHeartbeat();
-  
+
   if(checkHeartbeat && millis() - lastHeartbeat > 15000) {
+    logger.println( F("No heartbeat received -> off") );
     // Turn off if heartbeat was not sent
     goToState(&OffState::INSTANCE);
     return;
   }
-  
+
  if(currentState) {
   BaseState *nextState = currentState->logicStep();
   unsigned long dt = millis() - lastAnimationStep;

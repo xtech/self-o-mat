@@ -27,11 +27,11 @@ void PrintingState::animationStep(unsigned long dt) {
       }
     }
 
-  
+
     float angleOffset = timeInState()/300.0f;
     float anglePerLed = (2.0 * PI) / ring.numPixels();
     for(int j = 0; j < ring.numPixels(); j++) {
-      float angle = (float)j * anglePerLed + angleOffset;   
+      float angle = (float)j * anglePerLed + angleOffset;
       float sin_x = sin(angle);
       uint8_t brightness = sin_x*sin_x * 255.0f * b;
       ring.setPixelColor(j, 0, brightness, brightness >> 2);
@@ -48,7 +48,7 @@ BaseState* PrintingState::logicStep() {
     cancelSent = true;
     sendCommand('c');
   }
- 
+
   if(timeInState() > 30000 || (shouldExit && exitAnimationDone)) {
     return &IdleState::INSTANCE;
   }
@@ -57,6 +57,7 @@ BaseState* PrintingState::logicStep() {
 
 void PrintingState::enter() {
   BaseState::enter();
+  logger.println( F("Entering PrintingState") );
   cancelSent = false;
   b = 0;
   frame = 0;
@@ -64,7 +65,7 @@ void PrintingState::enter() {
 }
 
 void PrintingState::exit() {
-
+  logger.println( F("Leaving PrintingState") );
 }
 
 bool PrintingState::needsHeartbeat() {

@@ -8,7 +8,7 @@ bool ShutDownState::processCommand(const uint8_t* buffer, size_t size) {
 }
 
 void ShutDownState::animationStep(unsigned long dt) {
- 
+
   // Fade
   if (shouldExit) {
     if (b > 0) {
@@ -41,6 +41,7 @@ BaseState* ShutDownState::logicStep() {
 
 void ShutDownState::enter() {
   BaseState::enter();
+  logger.println( F("Entering ShutDownState") );
   writeSettings();
   b = 0;
   frame = 0;
@@ -52,7 +53,7 @@ void ShutDownState::enter() {
 }
 
 void ShutDownState::exit() {
-
+  logger.println( F("Leaving ShutDownState") );
 }
 
 bool ShutDownState::needsHeartbeat() {

@@ -45,6 +45,7 @@ BaseState* BootingState::logicStep() {
     return parentStep;
 
   if(shouldExit && exitAnimationDone) {
+    logger.println( F("exit to -> IdleState") );
     return &IdleState::INSTANCE;
   }
 
@@ -54,12 +55,14 @@ BaseState* BootingState::logicStep() {
 void BootingState::enter() {
   frame = 0;
   exitAnimationDone = shouldExit = false;
+  logger.println( F("Entering BootingState") );
 }
 
 void BootingState::exit() {
   // Booting done, we need a heartbeat. Assume we got it now
   heartbeatDeactivated = false;
-  lastHeartbeat = millis();  
+  lastHeartbeat = millis();
+  logger.println( F("Leaving BootingState") );
 }
 
 bool BootingState::needsHeartbeat() {

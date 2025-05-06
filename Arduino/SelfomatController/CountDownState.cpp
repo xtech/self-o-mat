@@ -11,9 +11,9 @@ bool CountDownState::processCommand(const uint8_t* buffer, size_t size) {
 void CountDownState::animationStep(unsigned long dt) {
   uint32_t color = colors[animationCycle];
   float percentage = ((float)timeInState() - animationCycle * oneCycleMillis) / oneCycleMillis;
-  
+
   float pixelBorder = ring.numPixels() - ring.numPixels() * percentage;
-  
+
   for(int8_t i=0; i<ring.numPixels(); i++) {
 
     if(i > pixelBorder) {
@@ -37,6 +37,7 @@ BaseState* CountDownState::logicStep() {
   if(timeInState() > settings.countDownMillis) {
     // Trigger the capture and go to idle
     sendCommand('t');
+    //logger.println("Cntdn expired, triggered -> BusyState");
     return &BusyState::INSTANCE;
   }
   return this;
@@ -44,16 +45,18 @@ BaseState* CountDownState::logicStep() {
 
 void CountDownState::enter() {
   BaseState::enter();
+  logger.println( F("Entering CountDownState") );
   oneCycleMillis = (settings.countDownMillis)/3.0f;
   animationCycle = 0;
   lastColor = 0;
 }
 
 void CountDownState::exit() {
-    for(int8_t i=0; i<ring.numPixels(); i++) {
-      ring.setPixelColor(i, 0);
-    }
-    ring.show();
+  for(int8_t i=0; i<ring.numPixels(); i++) {
+    ring.setPixelColor(i, 0);
+  }
+  ring.show();
+  logger.println( F("Leaving CountDownState") );
 }
 
 bool CountDownState::needsHeartbeat() {
